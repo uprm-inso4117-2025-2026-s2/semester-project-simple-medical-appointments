@@ -1,5 +1,5 @@
 = Professional Portfolio Application Proposal 
-First Milestone - Software Requirements - INSO 4115
+First Milestone - Software Testing - INSO 4117
 Prof. Marko Schütz-Schmuck 
 :doctype: book
 :toc:
