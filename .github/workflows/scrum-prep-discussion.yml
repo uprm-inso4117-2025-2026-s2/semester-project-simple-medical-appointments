@@ -1,0 +1,104 @@
+name: Weekly Scrum Prep Discussion
+
+on:
+  schedule:
+    - cron: "0 4 * * 5"
+  workflow_dispatch:
+
+permissions:
+  discussions: write
+  contents: read
+
+jobs:
+  create_discussion:
+    runs-on: ubuntu-latest
+    env:
+      DISCUSSION_CATEGORY_NAME: "General"
+      SCRUM_WEEK1_DATE: "2026-02-06"
+      TZ: "America/Puerto_Rico"
+
+    steps:
+      - name: Create weekly discussion (GraphQL)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, date, timezone
+          import requests
+
+          token = os.environ["GH_TOKEN"]
+          repo_full = os.environ["GITHUB_REPOSITORY"]
+          owner, repo = repo_full.split("/")
+          category_name = os.environ["DISCUSSION_CATEGORY_NAME"]
+          week1 = date.fromisoformat(os.environ["SCRUM_WEEK1_DATE"])
+
+          # Use current UTC time; schedule is already pinned to PR midnight via cron.
+          # Week numbering is still based on the week1 date.
+          today = datetime.now(timezone.utc).date()
+          delta_days = (today - week1).days
+          week_num = 1 if delta_days < 0 else (delta_days // 7) + 1
+
+          title = f"Scrum week {week_num}"
+
+          body = (
+              f"Week {week_num} progress\n"
+              "✅ What you worked on\n"
+              "...\n"
+              "🔴 Any challenges/blockers\n"
+              "...\n"
+              "🔜 Your next steps\n"
+              "...\n"
+              "📕 Suggestions or ideas\n"
+              "...\n"
+              "This is just a template and does not need to be followed exactly as is."
+              "...\n"
+          )
+
+          headers = {"Authorization": f"Bearer {token}"}
+
+          def gql(query, variables=None):
+              r = requests.post(
+                  "https://api.github.com/graphql",
+                  headers={**headers, "Content-Type": "application/json"},
+                  json={"query": query, "variables": variables or {}},
+                  timeout=30,
+              )
+              r.raise_for_status()
+              data = r.json()
+              if "errors" in data and data["errors"]:
+                  raise SystemExit(f"GraphQL errors: {data['errors']}")
+              return data["data"]
+
+          # Repo id
+          repo_id_q = """
+          query($owner:String!, $repo:String!){
+            repository(owner:$owner, name:$repo){ id }
+          }
+          """
+          repo_id = gql(repo_id_q, {"owner": owner, "repo": repo})["repository"]["id"]
+
+          # Category id
+          cats_q = """
+          query($owner:String!, $repo:String!){
+            repository(owner:$owner, name:$repo){
+              discussionCategories(first:50){ nodes { id name } }
+            }
+          }
+          """
+          cats = gql(cats_q, {"owner": owner, "repo": repo})["repository"]["discussionCategories"]["nodes"]
+          match = next((c for c in cats if c["name"] == category_name), None)
+          if not match:
+              names = ", ".join(c["name"] for c in cats)
+              raise SystemExit(f"Category '{category_name}' not found. Available: {names}")
+          category_id = match["id"]
+
+          # Duplicate protection: look for an existing discussion with the same exact title
+          existing_q = """
+          query($owner:String!, $repo:String!, $q:String!){
+            search(type: DISCUSSION, query: $q, first: 10){
+              nodes {
+                ... on Discussion { title url }
+              }
+            }
+          }
