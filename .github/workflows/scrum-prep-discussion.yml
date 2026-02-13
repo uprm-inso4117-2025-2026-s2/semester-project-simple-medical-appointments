@@ -1,4 +1,5 @@
 name: Weekly Scrum Prep Discussion
+
 on:
   schedule:
     # Friday 12:00 AM Puerto Rico == 04:00 UTC
@@ -21,118 +22,114 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 - <<'PY'
-          import os
-          import requests
-          from datetime import date, datetime, timezone
+          cat > script.py <<'EOF'
+import os
+import requests
+from datetime import date, datetime, timezone
 
-          token = os.environ["GH_TOKEN"]
-          owner, repo = os.environ["GITHUB_REPOSITORY"].split("/")
-          category_name = os.environ["DISCUSSION_CATEGORY_NAME"]
-          week1 = date.fromisoformat(os.environ["SCRUM_WEEK1_DATE"])
+token = os.environ["GH_TOKEN"]
+owner, repo = os.environ["GITHUB_REPOSITORY"].split("/")
+category_name = os.environ["DISCUSSION_CATEGORY_NAME"]
+week1 = date.fromisoformat(os.environ["SCRUM_WEEK1_DATE"])
 
-          today = datetime.now(timezone.utc).date()
-          delta_days = (today - week1).days
-          week_num = 1 if delta_days < 0 else (delta_days // 7) + 1
+today = datetime.now(timezone.utc).date()
+delta_days = (today - week1).days
+week_num = 1 if delta_days < 0 else (delta_days // 7) + 1
 
-          title = f"Scrum week {week_num}"
+title = f"Scrum week {week_num}"
 
-          body = (
-              f"Week {week_num} progress\n"
-              "✅ What you worked on\n"
-              "...\n\n"
-              "🔴 Any challenges/blockers\n"
-              "...\n\n"
-              "🔜 Your next steps\n"
-              "...\n\n"
-              "📕 Suggestions or ideas\n"
-              "...\n"
-          )
+body = (
+    f"Week {week_num} progress\n"
+    "✅ What you worked on\n"
+    "...\n\n"
+    "🔴 Any challenges/blockers\n"
+    "...\n\n"
+    "🔜 Your next steps\n"
+    "...\n\n"
+    "📕 Suggestions or ideas\n"
+    "...\n"
+)
 
-          headers = {
-              "Authorization": f"Bearer {token}",
-              "Content-Type": "application/json"
-          }
+headers = {
+    "Authorization": f"Bearer {token}",
+    "Content-Type": "application/json"
+}
 
-          def gql(query, variables):
-              r = requests.post(
-                  "https://api.github.com/graphql",
-                  headers=headers,
-                  json={"query": query, "variables": variables},
-                  timeout=30
-              )
-              r.raise_for_status()
-              data = r.json()
-              if "errors" in data:
-                  raise SystemExit(data["errors"])
-              return data["data"]
+def gql(query, variables):
+    r = requests.post(
+        "https://api.github.com/graphql",
+        headers=headers,
+        json={"query": query, "variables": variables},
+        timeout=30
+    )
+    r.raise_for_status()
+    data = r.json()
+    if "errors" in data:
+        raise SystemExit(data["errors"])
+    return data["data"]
 
-          # Repository ID
-          repo_q = """
-          query($o:String!,$r:String!){
-            repository(owner:$o,name:$r){ id }
-          }
-          """
-          repo_id = gql(repo_q, {"o": owner, "r": repo})["repository"]["id"]
+# Repository ID
+repo_q = """
+query($o:String!,$r:String!){
+  repository(owner:$o,name:$r){ id }
+}
+"""
+repo_id = gql(repo_q, {"o": owner, "r": repo})["repository"]["id"]
 
-          # Category ID
-          cats_q = """
-          query($o:String!,$r:String!){
-            repository(owner:$o,name:$r){
-              discussionCategories(first:50){
-                nodes { id name }
-              }
-            }
-          }
-          """
-          categories = gql(cats_q, {"o": owner, "r": repo})["repository"]["discussionCategories"]["nodes"]
-          category = next((c for c in categories if c["name"] == category_name), None)
-          if not category:
-              raise SystemExit(f"Category '{category_name}' not found")
+# Category ID
+cats_q = """
+query($o:String!,$r:String!){
+  repository(owner:$o,name:$r){
+    discussionCategories(first:50){
+      nodes { id name }
+    }
+  }
+}
+"""
+categories = gql(cats_q, {"o": owner, "r": repo})["repository"]["discussionCategories"]["nodes"]
+category = next((c for c in categories if c["name"] == category_name), None)
+if not category:
+    raise SystemExit(f"Category '{category_name}' not found")
 
-          # 🔧 THIS WAS THE BUG — NOW FIXED (string is properly closed)
-          existing_q = """
-          query($q:String!){
-            search(type: DISCUSSION, query: $q, first: 10){
-              nodes {
-                ... on Discussion {
-                  title
-                  url
-                }
-              }
-            }
-          }
-          """
+# Check for existing discussion
+existing_q = """
+query($q:String!){
+  search(type: DISCUSSION, query: $q, first: 10){
+    nodes {
+      ... on Discussion {
+        title
+        url
+      }
+    }
+  }
+}
+"""
+search_q = f'repo:{owner}/{repo} "{title}"'
+existing = gql(existing_q, {"q": search_q})["search"]["nodes"]
 
-          search_q = f'repo:{owner}/{repo} "{title}"'
-          existing = gql(existing_q, {"q": search_q})["search"]["nodes"]
+if any(d["title"] == title for d in existing):
+    print("Discussion already exists. Skipping.")
+    raise SystemExit(0)
 
-          if any(d["title"] == title for d in existing):
-              print("Discussion already exists. Skipping.")
-              exit(0)
+# Create discussion
+create_q = """
+mutation($rid:ID!,$cid:ID!,$t:String!,$b:String!){
+  createDiscussion(input:{
+    repositoryId:$rid,
+    categoryId:$cid,
+    title:$t,
+    body:$b
+  }){
+    discussion { url }
+  }
+}
+"""
+result = gql(
+    create_q,
+    {"rid": repo_id, "cid": category["id"], "t": title, "b": body}
+)
 
-          # Create discussion
-          create_q = """
-          mutation($rid:ID!,$cid:ID!,$t:String!,$b:String!){
-            createDiscussion(input:{
-              repositoryId:$rid,
-              categoryId:$cid,
-              title:$t,
-              body:$b
-            }){
-              discussion { url }
-            }
-          }
-          """
-          result = gql(
-              create_q,
-              {
-                  "rid": repo_id,
-                  "cid": category["id"],
-                  "t": title,
-                  "b": body
-              }
-          )
+print("Created discussion:", result["createDiscussion"]["discussion"]["url"])
+EOF
 
-          print("Created discussion:", result["createDiscussion"]["discussion"]["url"])
-          PY
+          python3 script.py
