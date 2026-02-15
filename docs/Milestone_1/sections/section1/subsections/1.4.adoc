@@ -1,1 +1,142 @@
 === *Other Activities than Just Developing Source Code*
+
+=== Introduction
+
+This section describes the non-development activities required for the successful implementation of the medical appointment scheduling platform as a student project. These activities support system quality, coordination, and academic evaluation.
+
+In addition to software development, effective project completion requires proper documentation, testing, version control, project management, and peer communication.
+
+---
+
+=== Documentation and Record Management
+
+Clear documentation is necessary to support system understanding and future improvements.
+
+Documentation activities include:
+
+* Preparing user guides for students and simulated users  
+* Writing technical documentation for system design and databases  
+* Creating installation and setup instructions  
+* Maintaining development and update records  
+* Developing project reports and presentations  
+
+Documentation must be updated throughout the project lifecycle.
+
+---
+
+=== Testing and Quality Assurance
+
+Testing activities ensure that the system functions correctly and meets project requirements.
+
+Quality assurance procedures include:
+
+* Unit testing of individual components  
+* Integration testing between modules  
+* Peer testing among team members  
+* User testing with classmates  
+* Basic security and performance checks  
+
+Testing results must be documented and reviewed.
+
+---
+
+=== Version Control and Development Management
+
+Version control supports organized and collaborative development.
+
+Key activities include:
+
+* Maintaining a shared code repository  
+* Managing development branches  
+* Reviewing code within the team  
+* Tracking updates and bug fixes  
+* Creating backup copies of project files  
+
+These practices reduce development conflicts.
+
+---
+
+=== Project Management and Communication
+
+Effective project management ensures timely and coordinated development.
+
+Management activities include:
+
+* Establishing project timelines and milestones  
+* Assigning tasks to team members  
+* Organizing regular team meetings  
+* Monitoring individual and group progress  
+* Managing academic deadlines  
+
+Communication activities include:
+
+* Using shared communication platforms  
+* Documenting meeting decisions  
+* Coordinating team responsibilities  
+* Sharing feedback among members  
+
+Clear communication improves collaboration.
+
+---
+
+=== Training and User Support
+
+Training and support activities focus on helping project users understand the system.
+
+Supporting activities include:
+
+* Creating tutorials and demonstrations  
+* Preparing instructional materials  
+* Providing peer support within the team  
+* Responding to user questions during testing  
+* Updating documentation based on feedback  
+
+These activities improve system usability.
+
+---
+
+=== Parallel Implementation Activities
+
+Several supporting tasks may be conducted simultaneously with development.
+
+Examples include:
+
+* Writing documentation while coding features  
+* Testing completed components early  
+* Preparing presentations during development  
+* Developing tutorials before final deployment  
+* Planning system maintenance procedures  
+
+Parallel execution improves project efficiency.
+
+---
+
+=== Responsibility Distribution
+
+Responsibilities for non-development activities may be assigned as follows:
+
+* Documentation Lead: Preparation of guides and reports  
+* Testing Coordinator: Organization of testing activities  
+* Project Manager: Scheduling and coordination  
+* Communication Lead: Team interaction and reporting  
+* Support Coordinator: User assistance and tutorials  
+
+Clear role distribution strengthens accountability.
+
+---
+
+=== Evaluation Criteria
+
+The effectiveness of supporting activities will be evaluated based on the following criteria:
+
+* Completion of required documentation  
+* Successful execution of testing procedures  
+* Clear assignment of responsibilities  
+* Consistent team communication  
+* Alignment with academic deadlines  
+
+---
+
+=== Conclusion
+
+Supporting activities play an essential role in the success of this student project. Documentation, testing, project management, and communication contribute to system reliability, usability, and academic quality. Integrating these activities with development improves overall project outcomes and team performance.
