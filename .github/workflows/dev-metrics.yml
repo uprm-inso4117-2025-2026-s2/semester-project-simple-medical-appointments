@@ -22,10 +22,7 @@ jobs:
 
       - name: Checkout Local Repo
         uses: actions/checkout@v4
-      - name: Checkout metrics branch # to fix overwrite of metrics file
-        run: |
-            git fetch origin inso-metrics || true
-            git checkout inso-metrics || git checkout -b inso-metrics
+        
       - name: Checkout INSO GH Metrics code
         uses: actions/checkout@v4
         with:
