@@ -69,6 +69,11 @@ jobs:
           mv inso-gh-query-metrics/*${{ github.repository_owner }}.md metrics/
         shell: bash
         
+      - name: Add generated metrics #Added by Yulio7 
+        run: |
+          git add metrics/*.md
+        shell: bash
+        
       - name: Auto Commit Results
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
