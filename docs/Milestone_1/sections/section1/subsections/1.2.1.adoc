@@ -9,7 +9,7 @@ recent years due to structural pressures on the healthcare system. One major
 factor is the sustained migration of healthcare professionals away from the
 island, which has reduced the number of practicing physicians available to meet
 patient demand. As a result, many clinics operate at or near full capacity and
-patients often experience delays when attempting to obtain appointments.
+patients often experience delays when attempting to obtain appointments. 
 
 ===== Scheduling Practices and Operational Constraints
 
