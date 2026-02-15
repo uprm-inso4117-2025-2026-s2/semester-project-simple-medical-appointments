@@ -1,3 +1,49 @@
 === *Current Situation, Needs, Ideas*
 
 ==== *Current Situation*
+
+===== Healthcare Access Pressure in Puerto Rico
+
+Access to medical services in Puerto Rico has become increasingly strained in
+recent years due to structural pressures on the healthcare system. One major
+factor is the sustained migration of healthcare professionals away from the
+island, which has reduced the number of practicing physicians available to meet
+patient demand. As a result, many clinics operate at or near full capacity and
+patients often experience delays when attempting to obtain appointments.
+
+===== Scheduling Practices and Operational Constraints
+
+Medical appointment scheduling in many clinics still relies heavily on manual
+coordination methods, particularly phone-based booking systems. These methods
+require administrative staff to manage calendars, answer calls, and coordinate
+changes throughout the day. Because scheduling is handled manually, issues such
+as missed calls, limited office-hour availability, and double bookings may occur.
+These inefficiencies can leave appointment slots unused while other patients
+remain waiting for care.
+
+===== Patient Experience and Information Fragmentation
+
+From the patient perspective, the process of securing a medical appointment is
+often time-consuming and uncertain. Patients frequently must contact multiple
+clinics individually to find available times or appropriate specialists. There
+is typically no unified way to view appointment availability across providers,
+making it difficult to compare options or plan medical visits efficiently.
+Delays in securing consultations may result in postponed treatment and increased
+patient frustration.
+
+===== Partial Digital Measures and Their Limitations
+
+Some clinics have introduced limited digital measures, such as sending
+appointment reminders via text message or email. While these efforts can reduce
+missed appointments, they do not provide patients with interactive scheduling
+capabilities or visibility into broader availability. Because these solutions
+operate independently within individual clinics, they do not address the wider
+coordination challenges across the healthcare system.
+
+===== Summary of the Present Situation
+
+Overall, the current appointment scheduling environment in Puerto Rico is
+characterized by high demand for care, reduced provider availability, fragmented
+scheduling practices, and reliance on manual coordination processes. These
+conditions contribute to delayed access to healthcare, increased administrative
+burden for clinics, and inefficient allocation of available appointment slots.
