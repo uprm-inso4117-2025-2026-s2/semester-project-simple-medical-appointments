@@ -1,0 +1,69 @@
+= Risk-Based Test Planning Optimization
+:doctype: article
+:sectnums:
+
+== Objective
+
+Research risk-based test planning in software reliability engineering, focusing on how testing activities are prioritized using expected defect cost modeling and constrained resource allocation.
+
+== Introduction
+
+Software testing operates under strict limitations in time, personnel, and budget. Exhaustive testing of all possible inputs, configurations, and system states is infeasible in practical environments. As a result, test planning must be strategic and risk-driven. Risk-based test planning provides a structured approach to allocating limited testing resources toward areas that present the highest expected impact on system reliability.
+
+== Expected Defect Cost Model
+
+At the core of risk-based testing lies the expected defect cost equation:
+
+Expected Cost(D) = P(D occurs) × Cost(D occurs)
+
+Where:
+
+* P(D occurs) represents the probability that a defect exists in a given component or feature.
+* Cost(D occurs) represents the impact or severity if that defect manifests in production.
+
+This model transforms test prioritization into a quantitative decision-making process. Rather than distributing effort evenly, testing focuses first on components with the highest expected loss. Indicators that may increase defect probability include system complexity, synchronization and timing issues, high user interaction (e.g., GUI-heavy components), and inexperienced development. Indicators that increase defect impact include essential functionality, safety-critical behavior, reputational damage, and frequent user-facing failures.
+
+By combining probability and impact, the model provides a rational framework for determining which tests should be executed first.
+
+== Multi-Axis Test Plan Decomposition
+
+Risk-based planning requires structured decomposition of the system under test. A comprehensive test plan unfolds across multiple axes, including:
+
+* Testing Level (Unit, Integration, System, Acceptance)
+* Testing Type (Functional, Security, Performance, Usability)
+* Input Space (common, corner, extreme, invalid cases)
+* Platform and Environment
+* Configuration
+* Load and Performance Conditions
+* UI Elements and Interaction Paths
+
+This multi-dimensional structure ensures coverage is systematic rather than arbitrary. Instead of viewing the system as a flat list of test cases, it is represented as a hierarchical tree. The root represents the entire system, and branches represent decomposition along selected axes. Each leaf eventually corresponds to an individual test case.
+
+This approach enables targeted prioritization within each axis while maintaining traceability and logical organization.
+
+== Budget-Constrained Prioritization and Pruning
+
+Because resources are finite, not all identified test cases can be executed. Risk-based test planning incorporates prioritization and pruning to ensure that execution remains within budget constraints.
+
+The planning process typically follows these steps:
+
+. Define an overall test strategy.
+. Decompose the system along a selected axis.
+. Estimate time and effort required for candidate tests.
+. Rank tests according to expected defect cost.
+. Remove lower-priority tests until the total effort fits within available resources.
+. Repeat decomposition for higher-risk branches.
+
+This transforms testing into a constrained optimization problem. The objective is not maximum coverage, but maximum risk reduction per unit of effort.
+
+Additionally, the Law of Diminishing Returns applies to defect detection. Early testing phases tend to uncover many defects quickly, while later phases yield progressively fewer new findings. Recognizing this reliability growth behavior informs stopping decisions and prevents inefficient over-testing.
+
+== Discussion
+
+Risk-based test planning aligns software reliability engineering with economic reasoning. It acknowledges uncertainty in defect presence and quantifies decision-making using expected impact. By structuring tests along multiple axes and systematically pruning lower-value activities, the approach ensures that limited resources are directed toward areas of highest risk exposure.
+
+This method strengthens reliability not through exhaustive verification, but through disciplined prioritization and strategic allocation of effort.
+
+== Conclusion
+
+Risk-based test planning reframes software testing as a rational, risk-informed optimization process. By applying the expected defect cost model, decomposing the system across structured axes, and pruning tests to remain within budget constraints, testing becomes both economically justified and technically disciplined. This approach maximizes reliability improvement under practical development constraints and will be used and expanded upon in this project.
