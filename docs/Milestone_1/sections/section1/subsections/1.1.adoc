@@ -33,24 +33,31 @@ They supervise task quality, verify alignment with milestone goals, and ensure c
 
 ==== *User Management Team:*
 
-The User Management Team is responsible for the conceptualization of identity and role management within the system.  
+The User Management Team is responsible for the conceptualization of identity and role management within the system.
 Their responsibility is to define how patients, doctors, and clinic administrators are represented in the domain and how identity continuity and role distinctions are maintained.
 
-This team focuses on reasoning about authentication, profile persistence, and role-based interactions from a domain perspective, not implementation details.
+This team focuses on authentication logic, profile persistence, and role-based interaction reasoning from a domain perspective, independent of implementation details.
 
 [cols="2,1,1", options="header"]
 |===
 | Student | GitHub username | Tasks
 
-| Member Name
+| Jerac S. Durán Hernández
 | https://github.com/username[@username]
-| 
+|
+
+| Diego Perez Gandarillas
+| https://github.com/diegoperez16[@diegoperez16]
+|
+
+| Jonathan Rodriguez
+| https://github.com/username[@username]
+|
 |===
 
 
 ==== *Clinical Experience Team:*
-
-The Clinical Experience Team is responsible for representing the healthcare provider perspective within the domain.  
+The Clinical Experience Team is responsible for representing the healthcare provider perspective within the domain.
 Their responsibility is to define how doctors, specialties, clinics, and consultation availability are conceptually structured.
 
 This team ensures that clinical availability, specialization categories, and appointment constraints reflect real-world healthcare dynamics in Puerto Rico.
@@ -59,15 +66,31 @@ This team ensures that clinical availability, specialization categories, and app
 |===
 | Student | GitHub username | Tasks
 
-| Member Name
+| Iralys Sánchez Milián (Team Leader)
 | https://github.com/username[@username]
-| 
+|
+
+| Omar A. Cordero Maldonado
+| https://github.com/username[@username]
+|
+
+| Alejandro E. López Rodríguez
+| https://github.com/alejandro-lopez24[@alejandro-lopez24]
+|
+
+| Michael Martinez Curbelo
+| https://github.com/username[@username]
+|
+
+| Jorge Peralta García
+| https://github.com/username[@username]
+|
 |===
 
 
 ==== *Patient Experience Team:*
 
-The Patient Experience Team is responsible for reasoning about how patients search, select, and request medical appointments.  
+The Patient Experience Team is responsible for reasoning about how patients search, select, and request medical appointments.
 Their responsibility is to define how needs such as specialty filtering, location selection, and appointment visibility are conceptualized within the domain.
 
 This team focuses on clarity, accessibility, and usability from the patient’s perspective.
@@ -76,10 +99,23 @@ This team focuses on clarity, accessibility, and usability from the patient’s 
 |===
 | Student | GitHub username | Tasks
 
-| Member Name
+| Pedro A. Morales
+| https://github.com/pedroamorales[@pedroamorales]
+|
+
+| Ariana P. Rodriguez Mendez
 | https://github.com/username[@username]
-| 
+|
+
+| Gerardo José Ruiz Barreto
+| https://github.com/username[@username]
+|
+
+| Sebastian G. Suarez Robles
+| https://github.com/username[@username]
+|
 |===
+
 
 
 ==== *Scheduling Team:*
@@ -93,9 +129,18 @@ This team ensures that scheduling constraints, availability conflicts, and real-
 |===
 | Student | GitHub username | Tasks
 
-| Member Name
+| Natanael Batista Álvarez
 | https://github.com/username[@username]
 | 
+
+| Marymar Maldonado Roche
+| https://github.com/username[@username]
+|
+
+| Victoria Miranda Osuna
+| https://github.com/username[@username]
+|
+
 |===
 
 
@@ -108,8 +153,8 @@ They are responsible for organizing the informative, descriptive, and analytic p
 |===
 | Student | GitHub username | Tasks
 
-| Member Name
-| https://github.com/username[@username]
+| Jean P. I. Sáncheze (Team Leader)
+| https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
 | 
 
 |Julian Vivas
