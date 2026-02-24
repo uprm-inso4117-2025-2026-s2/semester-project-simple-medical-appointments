@@ -22,7 +22,7 @@ They supervise task quality, verify alignment with milestone goals, and ensure c
 |===
 | Student | GitHub username | Tasks
 
-| Ivan Morales
+| Ivan O. Morales
 | https://github.com/ivxnmorxles[@ivxnmorxles]
 | 
 
@@ -42,16 +42,29 @@ This team focuses on authentication logic, profile persistence, and role-based i
 |===
 | Student | GitHub username | Tasks
 
-| Jerac S. Durán Hernández
-| https://github.com/username[@username]
-|
 
-| Diego Perez Gandarillas
+| Diego Perez Gandarillas (Team Leader)
 | https://github.com/diegoperez16[@diegoperez16]
 |
 
+| Jerac S. Durán Hernández
+| https://github.com/jeracduran1[@jeracduran1]
+|
+
+| Carlos Pepin
+| https://github.com/carlospepin23[@carlospepin23]
+|
+
+| Viviana V. Ramos
+| https://github.com/vivianaramos6[@vivianaramos6]
+|
+
 | Jonathan Rodriguez
-| https://github.com/username[@username]
+| https://github.com/Jonathan-Rod[@Jonathan-Rod]
+|
+
+| Pierre Vales
+| https://github.com/pierreg-vales[@pierreg-vales]
 |
 |===
 
@@ -67,23 +80,27 @@ This team ensures that clinical availability, specialization categories, and app
 | Student | GitHub username | Tasks
 
 | Iralys Sánchez Milián (Team Leader)
-| https://github.com/username[@username]
+| https://github.com/iralys-sanchez18[@iralys-sanchez18]
 |
 
 | Omar A. Cordero Maldonado
-| https://github.com/username[@username]
+| https://github.com/omar-cordero[@omar-cordero]
+|
+
+| Michael Martinez Curbelo
+| https://github.com/Cabinetman[@Cabinetman]
 |
 
 | Alejandro E. López Rodríguez
 | https://github.com/alejandro-lopez24[@alejandro-lopez24]
 |
 
-| Michael Martinez Curbelo
-| https://github.com/username[@username]
+| Jorge Peralta García
+| https://github.com/PeraltaJorge9128[@PeraltaJorge9128]
 |
 
-| Jorge Peralta García
-| https://github.com/username[@username]
+| JeanPierre Sanchez
+| https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
 |
 |===
 
@@ -99,20 +116,28 @@ This team focuses on clarity, accessibility, and usability from the patient’s 
 |===
 | Student | GitHub username | Tasks
 
-| Pedro A. Morales
-| https://github.com/pedroamorales[@pedroamorales]
+| Sebastian G. Suarez Robles (Team Leader)
+| https://github.com/SebastianSuarez0429[@SebastianSuarez0429]
 |
 
-| Ariana P. Rodriguez Mendez
-| https://github.com/username[@username]
+| Axel Burgos Amengual
+| https://github.com/aburgos2005[@aburgos2005]
+|
+
+| Pedro A. Morales
+| https://github.com/pedromorales[@pedromorales]
+|
+
+| Juan Ortiz Abouomar
+| https://github.com/juan.ortiz92[@juan.ortiz92]
 |
 
 | Gerardo José Ruiz Barreto
-| https://github.com/username[@username]
+| https://github.com/Gerardoruiz1[@Gerardoruiz1]
 |
 
-| Sebastian G. Suarez Robles
-| https://github.com/username[@username]
+| Ariana P. Rodriguez Mendez
+| https://github.com/arianrodz21[@arianrodz21]
 |
 |===
 
@@ -129,18 +154,29 @@ This team ensures that scheduling constraints, availability conflicts, and real-
 |===
 | Student | GitHub username | Tasks
 
+| Tasnim Said Khaber (Team Lead)
+| https://github.com/tasnim2204[@tasnim2204]
+|
+
 | Natanael Batista Álvarez
-| https://github.com/username[@username]
-| 
+| https://github.com/NathBat09[@NathBat09]
+|
 
 | Marymar Maldonado Roche
-| https://github.com/username[@username]
+| https://github.com/marymarmaldonado[@marymarmaldonado]
 |
 
 | Victoria Miranda Osuna
-| https://github.com/username[@username]
+| https://github.com/vmmo[@vmmo]
 |
 
+| Keishlyany M Sanabria
+| https://github.com/keisanabria[@keisanabria]
+|
+
+| Julian Vivas
+| https://github.com/julivivas[@julivivas]
+|
 |===
 
 
@@ -153,9 +189,13 @@ They are responsible for organizing the informative, descriptive, and analytic p
 |===
 | Student | GitHub username | Tasks
 
-| Jean P. I. Sáncheze (Team Leader)
+| JeanPierre Sanchez (Team Leader)
 | https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
 | 
+
+|Alejandro Lopez 
+|https://github.com/alejandro-lopez24[@alejandro-lopez24]
+|
 
 |Julian Vivas
 |https://github.com/julivivas[@julivivas]
