@@ -197,11 +197,11 @@ They are responsible for organizing the informative, descriptive, and analytic p
 |https://github.com/alejandro-lopez24[@alejandro-lopez24]
 |
 
-|Julian Vivas
-|https://github.com/julivivas[@julivivas]
+|Keishlyany M Sanabria
+|https://github.com/keisanabria[@keisanabria]
 |
 
-|Keishlyany Sanabria
-|https://github.com/keisanabria[@keisanabria]
+|Julian Vivas
+|https://github.com/julivivas[@julivivas]
 |
 |===
