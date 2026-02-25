@@ -2,7 +2,7 @@
 
 === *3.1 Concept Analysis*
 
-==== *3.1.1 From Raw Observations to Domain Structure*
+==== *From Raw Observations to Domain Structure*
 
 The descriptive section revealed fragmented scheduling practices, overloaded communication channels, informal coordination patterns, and systemic access inequalities. 
 The following concept analysis abstracts these raw observations into structured domain elements and relationships that define the medical appointment scheduling problem.
