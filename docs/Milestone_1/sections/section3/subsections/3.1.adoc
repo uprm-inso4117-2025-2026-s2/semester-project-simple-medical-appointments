@@ -1,3 +1,171 @@
-== *Analytic Part*
+== *3. Analytic Part*
 
-=== *Concept Analysis*
+=== *3.1 Concept Analysis*
+
+==== *Purpose of the Concept Analysis*
+
+The purpose of this section is to transform the raw descriptive material gathered in Section 2, Descriptive Part, into structured domain concepts, abstractions, and relationships. The descriptive fragments (interviews, observations, anecdotal patterns, and environmental notes) are analyzed to extract recurring entities, events, constraints, and behaviors that define the Medical Appointment Scheduling domain.
+This analysis moves from unstructured observations toward a coherent domain model that can guide system design decisions.
+
+==== *Core Domain Entities*
+
+Based on recurring references across stakeholder fragments and operational observations, the following primary domain entities are identified:
+
+*Patient*  
+Derived from repeated stakeholder statements about calling clinics, transportation limitations, elderly dependency, and appointment acceptance constraints.  
+Represents an individual seeking medical consultation.
+
+*Provider (Doctor / Specialist)*  
+Derived from observations about overloaded schedules, time splitting across clinics, prioritization of returning patients, and referral handling.  
+Represents a medical professional offering consultation services.
+
+*Clinic*  
+Derived from operational observations (phones, notebooks, whiteboards, hybrid scheduling practices).  
+Represents the organizational unit where appointments are managed and consultations occur.
+
+*Appointment*  
+Derived from nearly all descriptive fragments involving scheduling, cancellations, delays, and wait times.  
+Represents a scheduled interaction between a Patient and a Provider at a specific time and location.
+
+*Referral*  
+Derived from systemic notes regarding referral requirements and specialist visibility limitations.  
+Represents a formal request linking a Patient to a specialized Provider.
+
+*Insurance Authorization*  
+Derived from environmental/systemic factors noting authorization delays.  
+Represents an approval process required before appointment confirmation.
+
+==== *Supporting Domain Entities*
+
+The following entities support or influence the core scheduling process:
+
+*Time Slot*  
+Abstracted from references to filled daily slots, appointment duration variability, and scheduling restrictions to office hours.  
+Represents an allocatable temporal resource within a Provider’s schedule.
+
+*Cancellation*  
+Derived from informal redistribution patterns and verbal communication failures.  
+Represents the release of a previously allocated Time Slot.
+
+*Walk-In Visit*  
+Derived from observations of hybrid scheduling practices and non-metropolitan behavior.  
+Represents an unscheduled consultation request that competes with reserved Time Slots.
+
+*Reminder*  
+Derived from manual reminder messages sent by staff.  
+Represents a communication event intended to reduce no-show probability.
+
+*Priority Rule*  
+Derived from informal priority lists and provider preference for returning patients.  
+Represents a decision-making rule influencing appointment allocation.
+
+==== *Domain Events*
+
+Recurring behaviors suggest that the system is event-driven. The following domain events are abstracted:
+
+*Appointment Request*  
+Occurs when a Patient attempts to secure a consultation (via phone or other means).
+
+*Appointment Allocation*  
+Occurs when a Time Slot is assigned to a Patient.
+
+*Appointment Cancellation*  
+Occurs when a scheduled Appointment is released.
+
+*No-Show*  
+Occurs when a Patient does not attend a scheduled Appointment.
+
+*Referral Submission*  
+Occurs when a Patient is directed to a Specialist.
+
+*Reminder Dispatch*  
+Occurs when a Clinic sends a notification to confirm attendance.
+
+==== *Domain Constraints*
+
+The descriptive material reveals structural constraints that limit system flexibility:
+
+*Capacity Constraint*  
+Derived from overloaded provider schedules and limited daily slots.  
+Providers have finite Time Slots per day.
+
+*Temporal Constraint*  
+Derived from office-hour scheduling and varied appointment durations.  
+Appointments can only occur within operational hours and depend on consultation type.
+
+*Authorization Constraint*  
+Derived from insurance approval requirements.  
+Certain Appointments cannot be confirmed without prior authorization.
+
+*Transportation Constraint*  
+Derived from patient acceptance behavior.  
+Patients may reject available slots due to geographic or mobility limitations.
+
+*Referral Constraint*  
+Derived from systemic referral requirements.  
+Some Providers cannot be directly scheduled without prior approval.
+
+==== *Identified Domain Patterns*
+
+The analysis reveals several structural patterns:
+
+*Demand–Supply Imbalance*  
+High Patient demand relative to limited Provider capacity.
+
+*Manual Coordination Pattern*  
+Heavy reliance on phone-based and paper-based scheduling mechanisms.
+
+*Informal Reallocation Pattern*  
+Cancellations are redistributed non-systematically, often verbally or through personal contacts.
+
+*Uncertainty Pattern*  
+Appointment durations, no-show rates, and walk-in frequency introduce unpredictability.
+
+*Priority-Based Allocation*  
+Returning patients and informal priority lists influence scheduling decisions.
+
+==== *Concept Relationships*
+
+The following high-level relationships are derived:
+
+* A Patient requests an Appointment.
+* A Clinic manages Time Slots belonging to Providers.
+* A Provider owns multiple Time Slots.
+* An Appointment occupies exactly one Time Slot.
+* A Cancellation frees a Time Slot.
+* A Reminder reduces the probability of a No-Show.
+* A Referral enables scheduling with a Specialist.
+* Authorization may be required before Appointment confirmation.
+* Walk-In Visits compete with scheduled Appointments for Provider capacity.
+
+These relationships demonstrate that scheduling is fundamentally a resource allocation problem constrained by time, authorization rules, and communication limitations.
+
+==== *Domain Tensions and Structural Conflicts*
+
+The following tensions were abstracted from raw notes:
+
+*Limited Provider Availability vs. High Patient Demand*  
+Creates long waiting times and appointment scarcity.
+
+*Flexibility vs. Administrative Overload*  
+Manual coordination increases staff burden and error probability.
+
+*Equity vs. Informal Prioritization*  
+Informal priority lists may disadvantage certain Patients.
+
+*Regional Access Variability*  
+Transportation and municipal differences impact appointment acceptance.
+
+These tensions highlight structural inefficiencies that the proposed system must address.
+
+==== *Abstraction Summary*
+
+The descriptive fragments collectively reveal that the domain is not merely about booking appointments, but about:
+
+* Resource allocation under scarcity.
+* Coordination across multiple stakeholders.
+* Managing uncertainty and cancellations.
+* Enforcing operational and regulatory constraints.
+* Reducing administrative overhead while improving accessibility.
+
+This abstraction provides the conceptual foundation necessary for subsequent validation, requirement refinement, and architectural design.
