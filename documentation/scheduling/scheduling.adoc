@@ -1,0 +1,8 @@
+= Scheduling
+:toc:
+:sectnums:
+
+== Overview
+Just a Template to start with.
+
+== Scope

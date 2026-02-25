@@ -48,17 +48,21 @@ body:
     validations:
       required: true
 
-
   - type: dropdown
     id: urgency
     attributes:
       label: 🚦 Urgency
       options:
-        - "1 – Low"
-        - "2 – Minor"
-        - "3 – Normal"
-        - "4 – High"
-        - "5 – Critical"
+        - "1 – Very Low"
+        - "2 – Low"
+        - "3 – Minor"
+        - "4 – Below Normal"
+        - "5 – Normal"
+        - "6 – Above Normal"
+        - "7 – High"
+        - "8 – Very High"
+        - "9 – Severe"
+        - "10 – Critical"
     validations:
       required: true
 
@@ -68,10 +72,15 @@ body:
       label: 🚦 Difficulty
       options:
         - "1 – Very Easy"
-        - "2 - Easy"
-        - "3 - Moderate"
-        - "4 - Hard"
-        - "5 - Very Hard"
+        - "2 – Easy"
+        - "3 – Fairly Easy"
+        - "4 – Moderate"
+        - "5 – Somewhat Hard"
+        - "6 – Hard"
+        - "7 – Very Hard"
+        - "8 – Extremely Hard"
+        - "9 – Expert Level"
+        - "10 – Nearly Impossible"
     validations:
       required: true
 
@@ -82,3 +91,6 @@ body:
       placeholder: "@username"
     validations:
       required: false
+
+
+
