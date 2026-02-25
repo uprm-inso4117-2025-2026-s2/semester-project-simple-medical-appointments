@@ -2,3 +2,75 @@
 === *Domain Description*
 
 ==== *Domain Rough Sketches*
+
+===== Raw Notes from Problem Context
+
+* Demand for medical appointments exceeds supply in multiple regions.
+* Physician migration has reduced appointment availability and increased clinic workload.
+* Patients frequently wait weeks or months for non-urgent consultations.
+* Phone-based scheduling remains the dominant method in many clinics.
+* Appointment cancellations are often redistributed informally rather than systematically.
+
+===== Stakeholder Fragments
+
+====== Patients
+
+* “You call and nobody answers.”
+* “Sometimes they give you an appointment months away.”
+* “I take whatever appointment they give me even if transportation is difficult.”
+* Elderly patients often depend on relatives to manage appointments.
+* Some patients maintain lists of clinics to call repeatedly.
+* Transportation limitations influence which appointments patients accept.
+
+====== Clinic Administrative Staff
+
+* Phones ring continuously during working hours.
+* Appointment notebooks, spreadsheets, or whiteboards are still used.
+* Cancelations are communicated verbally and may not reach other patients.
+* Walk-ins must be balanced against scheduled appointments.
+* Reminder messages are sometimes sent manually from staff phones.
+
+====== Doctors / Providers
+
+* Providers report overloaded daily schedules.
+* Appointments frequently run longer than planned.
+* Administrative coordination reduces time available for care.
+* Specialists receive referrals without visibility into real waiting times.
+* Providers may prioritize returning patients over new patients.
+* Some physicians split time across multiple clinics.
+
+===== Observations About Clinic Operations
+
+* Hybrid scheduling practices observed:
+** phone calls
+** paper calendars
+** spreadsheets
+** individual reminder messages
+* Appointment duration varies widely depending on consultation type.
+* Walk-in visits remain common, especially outside metropolitan areas.
+* No-show rates fluctuate and are difficult for clinics to predict.
+
+===== Environmental and Systemic Factors
+
+* Healthcare access varies by municipality and transportation availability.
+* Insurance authorization processes can delay appointment confirmation.
+* Referral requirements introduce additional coordination steps.
+* Scheduling is frequently restricted to office hours.
+* Digital literacy differs across patient age groups.
+* Aging population contributes to recurring appointment demand.
+
+===== Anecdotal Patterns Observed
+
+* Patients contact multiple clinics simultaneously seeking earlier slots.
+* Staff sometimes maintain informal priority lists.
+* Families coordinate multiple appointments for relatives.
+* Some clinics stop scheduling once daily slots fill.
+* Cancelations are occasionally reassigned through personal contacts.
+
+===== Domain Tensions (Unprocessed Notes)
+
+* Limited provider availability vs. high patient demand
+* Manual coordination vs. unpredictable schedules
+* Need for flexibility vs. administrative overload
+* Regional inequality in service access
+* Dependence on informal communication channels
