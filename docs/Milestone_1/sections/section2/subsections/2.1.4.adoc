@@ -1,1 +1,93 @@
 ==== *Events, Actions, and Behaviors*
+
+==== Domain Events
+
+The following events are observable from the stakeholder perspective
+and occur at specific moments in time.
+
+*User has just been registered*  
+A person has completed the process required to become a platform member.
+
+*User has just been authenticated*  
+A person’s credentials have been verified and access to the platform has been granted.
+
+*Appointment slot has just become available*  
+A provider or clinic has published or released a time period for scheduling.
+
+*Appointment has just been requested*  
+A patient has selected a slot and submitted a request for consultation.
+
+*Appointment has just been confirmed*  
+A scheduling request has been accepted and capacity has been reserved.
+
+*Appointment has just been canceled*  
+A previously scheduled consultation has been withdrawn by a patient or clinic.
+
+*Appointment has just been rescheduled*  
+A scheduled consultation has been moved to a different time.
+
+*Patient has just been marked as no-show*  
+A scheduled appointment time has passed without the patient attending.
+
+*Provider availability has just been updated*  
+A clinic or doctor has modified working hours or service capacity.
+
+*Reminder has just been issued*  
+A notification regarding an upcoming appointment has been sent.
+
+*Slot has just been reassigned from waitlist*  
+A previously occupied slot has been allocated to another waiting patient.
+
+==== Actions
+
+*Register user*  
+A person provides information required to create an account.
+
+*Authenticate user*  
+A person submits credentials in order to access the system.
+
+*Publish availability*  
+A clinic or provider defines time blocks in which appointments can occur.
+
+*Request appointment*  
+A patient selects a time and submits a consultation request.
+
+*Confirm appointment*  
+The system or clinic validates a request and reserves capacity.
+
+*Cancel appointment*  
+A patient or clinic removes a scheduled consultation.
+
+*Reschedule appointment*  
+A patient or clinic changes the time of an existing appointment.
+
+*Join waitlist*  
+A patient expresses interest in earlier availability.
+
+*Send reminder*  
+The system dispatches a notification regarding a future appointment.
+
+*Review schedule*  
+A user inspects upcoming or past appointments.
+
+==== Behaviors
+
+*Managing access to care*  
+A repeated pattern of users registering, authenticating, and interacting with
+scheduling features to obtain medical consultations.
+
+*Allocating limited appointment capacity*  
+A continuous process of publishing availability, confirming requests,
+and redistributing freed slots.
+
+*Adjusting schedules dynamically*  
+A recurring cycle of cancelations, rescheduling, and availability updates
+driven by clinic workload and patient needs.
+
+*Reducing missed appointments*  
+A pattern of issuing reminders and tracking attendance outcomes
+to improve schedule reliability over time.
+
+*Balancing demand across providers*  
+A repeated redistribution of patient requests through search,
+waitlists, and reassignment mechanisms.
