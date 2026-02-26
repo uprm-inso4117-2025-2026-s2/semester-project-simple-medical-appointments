@@ -1,5 +1,7 @@
 ==== *Domain Requirements*
 
+[[requirements-table]]
+.Domain Requirements
 [options="header"]
 |===
 | ID | Description | Explanation
