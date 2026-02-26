@@ -54,7 +54,7 @@ validate a request without shared state.
 The diagram below illustrates the sequence of interactions between the client,
 the authentication handler, and the underlying data layer:
 
-image::authentication-flow.png[Authentication Flow align=center, pdfwidth=70%]
+image::authentication-flow.png[Authentication Flow, align=center, pdfwidth=80%]
 _Figure 2.3.1. - 1. Authentication Flow Diagram for the Authentication Handler._
 
 As shown, the authentication handler acts as the sole coordinator. It queries
