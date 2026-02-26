@@ -1,93 +1,91 @@
 ==== *Events, Actions, and Behaviors*
 
-==== Domain Events
+==== Appointment slot published (event / entity)
 
-The following events are observable from the stakeholder perspective
-and occur at specific moments in time.
+- Type: hybrid — event (published) and entity (appointment slot)
+- Label: provider just published appointment slot
+- Triggered by: Clinic or provider defining availability.
+- Immediate response: Slot becomes visible in schedules and searchable listings.
+- Expected outcome/postcondition: Patients may request the slot; clinic workload capacity increases.
+- Reference to sketch: Providers define working hours and schedules vary across clinics.
 
-*User has just been registered*  
-A person has completed the process required to become a platform member.
+==== Appointment requested (event / action)
 
-*User has just been authenticated*  
-A person’s credentials have been verified and access to the platform has been granted.
+- Type: hybrid — action (requesting) and event (request recorded)
+- Label: patient just requested appointment
+- Triggered by: Patient selecting a slot and submitting request.
+- Immediate response: System checks availability, referral conditions, and scheduling rules.
+- Expected outcome/postcondition: Appointment enters confirmation flow or waitlist.
+- Reference to sketch: Patients call multiple clinics seeking earlier appointments.
 
-*Appointment slot has just become available*  
-A provider or clinic has published or released a time period for scheduling.
+==== Appointment confirmed (event)
 
-*Appointment has just been requested*  
-A patient has selected a slot and submitted a request for consultation.
+- Type: event
+- Label: appointment just confirmed
+- Triggered by: Clinic validation, automatic confirmation, or approval process completion.
+- Immediate response: Slot capacity reserved; reminders scheduled.
+- Expected outcome/postcondition: Consultation becomes part of clinic workload planning.
+- Reference to sketch: Clinics maintain structured schedules once slots are assigned.
 
-*Appointment has just been confirmed*  
-A scheduling request has been accepted and capacity has been reserved.
+==== Appointment canceled (event / operation)
 
-*Appointment has just been canceled*  
-A previously scheduled consultation has been withdrawn by a patient or clinic.
+- Type: hybrid — operation (canceling) and event (cancellation recorded)
+- Label: appointment just canceled
+- Triggered by: Patient or clinic withdrawing consultation.
+- Immediate response: Slot released; waitlist or redistribution logic triggered.
+- Expected outcome/postcondition: Capacity becomes available for reassignment.
+- Reference to sketch: Cancellations redistributed informally or through staff communication.
 
-*Appointment has just been rescheduled*  
-A scheduled consultation has been moved to a different time.
+==== Slot reassigned to waiting patient (event)
 
-*Patient has just been marked as no-show*  
-A scheduled appointment time has passed without the patient attending.
+- Type: event
+- Label: appointment slot just reassigned
+- Triggered by: Cancellation or new availability combined with waiting demand.
+- Immediate response: Selected patient notified and slot reserved.
+- Expected outcome/postcondition: Waiting time reduced; clinic utilization improves.
+- Reference to sketch: Staff maintain informal priority lists for earlier openings.
 
-*Provider availability has just been updated*  
-A clinic or doctor has modified working hours or service capacity.
+==== Provider availability modified (operation / event)
 
-*Reminder has just been issued*  
-A notification regarding an upcoming appointment has been sent.
+- Type: hybrid — operation (modification) and event (availability updated)
+- Label: provider just updated availability
+- Triggered by: Doctor changing working hours, clinic shifts, or service limits.
+- Immediate response: Conflict checks performed; affected appointments evaluated.
+- Expected outcome/postcondition: Patients may be rescheduled or notified.
+- Reference to sketch: Providers split time across clinics and schedules change frequently.
 
-*Slot has just been reassigned from waitlist*  
-A previously occupied slot has been allocated to another waiting patient.
+==== Appointment reminder issued (event / operation)
 
-==== Actions
+- Type: hybrid — operation (sending reminder) and event (reminder issued)
+- Label: system just issued appointment reminder
+- Triggered by: Appointment approaching scheduled time.
+- Immediate response: Notification sent through configured channels.
+- Expected outcome/postcondition: Attendance likelihood increases; clinic planning stabilizes.
+- Reference to sketch: Staff sometimes send manual reminders from personal phones.
 
-*Register user*  
-A person provides information required to create an account.
+==== Patient marked absent (event)
 
-*Authenticate user*  
-A person submits credentials in order to access the system.
+- Type: event
+- Label: patient just marked as no-show
+- Triggered by: Appointment time passes without attendance.
+- Immediate response: Attendance record updated; analytics adjusted.
+- Expected outcome/postcondition: Reliability patterns inform future scheduling decisions.
+- Reference to sketch: No-show rates fluctuate and are difficult to predict.
 
-*Publish availability*  
-A clinic or provider defines time blocks in which appointments can occur.
+==== Referral recorded for consultation (entity / event)
 
-*Request appointment*  
-A patient selects a time and submits a consultation request.
+- Type: hybrid — entity (referral) and event (referral registered)
+- Label: referral just recorded
+- Triggered by: External provider authorizing specialist visit.
+- Immediate response: Eligibility constraints for appointment satisfied.
+- Expected outcome/postcondition: Appointment request may proceed to confirmation.
+- Reference to sketch: Referral requirements introduce coordination steps.
 
-*Confirm appointment*  
-The system or clinic validates a request and reserves capacity.
+==== Patient joins waitlist (action / event)
 
-*Cancel appointment*  
-A patient or clinic removes a scheduled consultation.
-
-*Reschedule appointment*  
-A patient or clinic changes the time of an existing appointment.
-
-*Join waitlist*  
-A patient expresses interest in earlier availability.
-
-*Send reminder*  
-The system dispatches a notification regarding a future appointment.
-
-*Review schedule*  
-A user inspects upcoming or past appointments.
-
-==== Behaviors
-
-*Managing access to care*  
-A repeated pattern of users registering, authenticating, and interacting with
-scheduling features to obtain medical consultations.
-
-*Allocating limited appointment capacity*  
-A continuous process of publishing availability, confirming requests,
-and redistributing freed slots.
-
-*Adjusting schedules dynamically*  
-A recurring cycle of cancelations, rescheduling, and availability updates
-driven by clinic workload and patient needs.
-
-*Reducing missed appointments*  
-A pattern of issuing reminders and tracking attendance outcomes
-to improve schedule reliability over time.
-
-*Balancing demand across providers*  
-A repeated redistribution of patient requests through search,
-waitlists, and reassignment mechanisms.
+- Type: hybrid — action (joining waitlist) and event (entry recorded)
+- Label: patient just joined waitlist
+- Triggered by: Lack of immediate appointment availability.
+- Immediate response: Patient inserted into priority queue for future slots.
+- Expected outcome/postcondition: Patient becomes candidate for reassigned or newly published slots.
+- Reference to sketch: Patients repeatedly contact clinics seeking earlier appointments.
