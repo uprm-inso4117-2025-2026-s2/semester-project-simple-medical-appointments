@@ -1,6 +1,6 @@
-== *3. Analytic Part*
+== *Analytic Part*
 
-=== *3.1 Concept Analysis*
+=== *Concept Analysis*
 
 ==== *From Raw Observations to Domain Structure*
 
