@@ -1,2 +1,115 @@
 === *Implementation*
 ==== *Selected Fragments of the Implementation*
+
+[NOTE]
+====
+Since the project's technology stack has not yet been finalized at the time of
+writing, the fragments presented in this section use pseudocode and abstract
+diagrams to describe intended implementation behavior. These will be replaced
+with actual source code once a framework and language are selected. The goal
+here is to communicate *design intent*, not finalized syntax.
+====
+
+The following fragments illustrate how key architectural decisions are
+reflected in the implementation. Rather than presenting raw code for its own
+sake, each fragment is accompanied by an explanation of the reasoning behind it
+and how it supports the system's design goals.
+
+==== Authentication Flow
+
+One of the foundational operations in the web application is user
+authentication. The system must verify a user's identity before granting access
+to protected resources, while keeping the session stateless on the server side.
+
+The following pseudocode describes the core logic of the authentication
+handler:
+
+[source,text]
+----
+function authenticate(request):
+    credentials = extract(request.body, ["email", "password"])
+
+    if not credentials.valid():
+        return Response(400, "Missing or malformed credentials")
+
+    user = UserRepository.findByEmail(credentials.email)
+
+    if user is null or not hash.verify(credentials.password, user.passwordHash):
+        return Response(401, "Invalid email or password")
+
+    token = JWT.sign(payload={ userId: user.id, role: user.role },
+                     secret=ENV.JWT_SECRET,
+                     expiresIn="2h")
+
+    return Response(200, { token: token })
+----
+
+This logic reflects two key design decisions. First, passwords are never stored
+or compared in plain text. Only a hashed representation is kept in the
+database, and verification is done through a constant-time comparison function
+to prevent timing attacks. Second, the server issues a signed JWT rather than
+maintaining a session store, which means any server instance can independently
+validate a request without shared state.
+
+The diagram below illustrates the sequence of interactions between the client,
+the authentication handler, and the underlying data layer:
+
+[plantuml, auth-flow, svg]
+----
+@startuml
+actor Client
+participant "Auth Handler" as Auth
+participant "User Repository" as Repo
+participant "JWT Service" as JWT
+
+Client -> Auth : POST /auth/login { email, password }
+Auth -> Repo : findByEmail(email)
+Repo --> Auth : User | null
+
+alt user not found or password mismatch
+    Auth --> Client : 401 Unauthorized
+else credentials valid
+    Auth -> JWT : sign({ userId, role })
+    JWT --> Auth : token
+    Auth --> Client : 200 OK { token }
+end
+@enduml
+----
+
+As shown, the authentication handler acts as the sole coordinator. It queries
+the repository, delegates token creation to a dedicated service, and returns a
+uniform response to the client. This separation of concerns ensures that each
+component remains independently testable and replaceable as the stack evolves.
+
+==== Input Validation Strategy
+
+Another decision worth illustrating is how the application handles input
+validation. Rather than scattering validation logic across handlers, the design
+calls for a dedicated validation layer that intercepts requests before they
+reach business logic:
+
+[source,text]
+----
+function validate(schema, request):
+    errors = []
+
+    for each field in schema:
+        value = request.body[field.name]
+
+        if field.required and value is null:
+            errors.append({ field: field.name, issue: "required" })
+            continue
+
+        if not field.type.matches(value):
+            errors.append({ field: field.name, issue: "invalid type" })
+
+    if errors is not empty:
+        return Response(422, { errors: errors })
+
+    return next(request)
+----
+
+This middleware-style approach means that by the time a handler executes, it
+can safely assume its inputs are well-formed. It also makes validation rules
+explicit and centralized, which simplifies future maintenance and reduces the
+risk of inconsistent error responses across endpoints.
