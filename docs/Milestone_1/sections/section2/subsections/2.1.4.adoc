@@ -1,1 +1,91 @@
 ==== *Events, Actions, and Behaviors*
+
+==== Appointment slot published (event / entity)
+
+- Type: hybrid — event (published) and entity (appointment slot)
+- Label: provider just published appointment slot
+- Triggered by: Clinic or provider defining availability.
+- Immediate response: Slot becomes visible in schedules and searchable listings.
+- Expected outcome/postcondition: Patients may request the slot; clinic workload capacity increases.
+- Reference to sketch: Providers define working hours and schedules vary across clinics.
+
+==== Appointment requested (event / action)
+
+- Type: hybrid — action (requesting) and event (request recorded)
+- Label: patient just requested appointment
+- Triggered by: Patient selecting a slot and submitting request.
+- Immediate response: System checks availability, referral conditions, and scheduling rules.
+- Expected outcome/postcondition: Appointment enters confirmation flow or waitlist.
+- Reference to sketch: Patients call multiple clinics seeking earlier appointments.
+
+==== Appointment confirmed (event)
+
+- Type: event
+- Label: appointment just confirmed
+- Triggered by: Clinic validation, automatic confirmation, or approval process completion.
+- Immediate response: Slot capacity reserved; reminders scheduled.
+- Expected outcome/postcondition: Consultation becomes part of clinic workload planning.
+- Reference to sketch: Clinics maintain structured schedules once slots are assigned.
+
+==== Appointment canceled (event / operation)
+
+- Type: hybrid — operation (canceling) and event (cancellation recorded)
+- Label: appointment just canceled
+- Triggered by: Patient or clinic withdrawing consultation.
+- Immediate response: Slot released; waitlist or redistribution logic triggered.
+- Expected outcome/postcondition: Capacity becomes available for reassignment.
+- Reference to sketch: Cancellations redistributed informally or through staff communication.
+
+==== Slot reassigned to waiting patient (event)
+
+- Type: event
+- Label: appointment slot just reassigned
+- Triggered by: Cancellation or new availability combined with waiting demand.
+- Immediate response: Selected patient notified and slot reserved.
+- Expected outcome/postcondition: Waiting time reduced; clinic utilization improves.
+- Reference to sketch: Staff maintain informal priority lists for earlier openings.
+
+==== Provider availability modified (operation / event)
+
+- Type: hybrid — operation (modification) and event (availability updated)
+- Label: provider just updated availability
+- Triggered by: Doctor changing working hours, clinic shifts, or service limits.
+- Immediate response: Conflict checks performed; affected appointments evaluated.
+- Expected outcome/postcondition: Patients may be rescheduled or notified.
+- Reference to sketch: Providers split time across clinics and schedules change frequently.
+
+==== Appointment reminder issued (event / operation)
+
+- Type: hybrid — operation (sending reminder) and event (reminder issued)
+- Label: system just issued appointment reminder
+- Triggered by: Appointment approaching scheduled time.
+- Immediate response: Notification sent through configured channels.
+- Expected outcome/postcondition: Attendance likelihood increases; clinic planning stabilizes.
+- Reference to sketch: Staff sometimes send manual reminders from personal phones.
+
+==== Patient marked absent (event)
+
+- Type: event
+- Label: patient just marked as no-show
+- Triggered by: Appointment time passes without attendance.
+- Immediate response: Attendance record updated; analytics adjusted.
+- Expected outcome/postcondition: Reliability patterns inform future scheduling decisions.
+- Reference to sketch: No-show rates fluctuate and are difficult to predict.
+
+==== Referral recorded for consultation (entity / event)
+
+- Type: hybrid — entity (referral) and event (referral registered)
+- Label: referral just recorded
+- Triggered by: External provider authorizing specialist visit.
+- Immediate response: Eligibility constraints for appointment satisfied.
+- Expected outcome/postcondition: Appointment request may proceed to confirmation.
+- Reference to sketch: Referral requirements introduce coordination steps.
+
+==== Patient joins waitlist (action / event)
+
+- Type: hybrid — action (joining waitlist) and event (entry recorded)
+- Label: patient just joined waitlist
+- Triggered by: Lack of immediate appointment availability.
+- Immediate response: Patient inserted into priority queue for future slots.
+- Expected outcome/postcondition: Patient becomes candidate for reassigned or newly published slots.
+- Reference to sketch: Patients repeatedly contact clinics seeking earlier appointments.
