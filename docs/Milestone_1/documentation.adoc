@@ -1,6 +1,7 @@
-= Professional Portfolio Application Proposal 
+= Simple Medical Appointments Proposal 
 First Milestone - Software Testing - INSO 4117
 Prof. Marko Schütz-Schmuck 
+:imagesdir: ../Images
 :doctype: book
 :toc:
 :sectnums:

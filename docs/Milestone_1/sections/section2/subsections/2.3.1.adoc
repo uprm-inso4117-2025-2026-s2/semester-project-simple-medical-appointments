@@ -15,7 +15,7 @@ reflected in the implementation. Rather than presenting raw code for its own
 sake, each fragment is accompanied by an explanation of the reasoning behind it
 and how it supports the system's design goals.
 
-==== Authentication Flow
+===== Authentication Flow
 
 One of the foundational operations in the web application is user
 authentication. The system must verify a user's identity before granting access
@@ -54,7 +54,7 @@ validate a request without shared state.
 The diagram below illustrates the sequence of interactions between the client,
 the authentication handler, and the underlying data layer:
 
-image::../../../../Images/authentication-flow.png[Authentication Flow align=center, pdfwidth=70%]
+image::authentication-flow.png[Authentication Flow align=center, pdfwidth=70%]
 _Figure 2.3.1. - 1. Authentication Flow Diagram for the Authentication Handler._
 
 As shown, the authentication handler acts as the sole coordinator. It queries
@@ -62,7 +62,7 @@ the repository, delegates token creation to a dedicated service, and returns a
 uniform response to the client. This separation of concerns ensures that each
 component remains independently testable and replaceable as the stack evolves.
 
-==== Input Validation Strategy
+===== Input Validation Strategy
 
 Another decision worth illustrating is how the application handles input
 validation. Rather than scattering validation logic across handlers, the design

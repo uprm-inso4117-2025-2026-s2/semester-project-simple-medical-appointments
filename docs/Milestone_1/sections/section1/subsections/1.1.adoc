@@ -1,6 +1,6 @@
-== 1.*Informative part*
+== *Informative part*
 
-=== 1.1 *Team*
+=== *Team*
 
 The project for Milestone 1 is organized into 5 functional teams: User Management, Clinical Experience, Patient Experience, Scheduling, and Documentation; plus 2 Managers.  
 Each team is responsible for a specific dimension of the domain problem: simplifying medical appointment coordination in Puerto Rico.  
@@ -13,6 +13,7 @@ However, potential future partners may include clinic administrators or healthca
 The lists are presented in alphabetical order and indicate each group’s Team Leader.  
 The Tasks column is reserved for recording completed issues.
 
+[discrete]
 ==== *Managers:*
 
 The Managers are responsible for coordination, milestone alignment, and ensuring coherence across all functional teams.  
@@ -31,6 +32,7 @@ They supervise task quality, verify alignment with milestone goals, and ensure c
 | 
 |===
 
+[discrete]
 ==== *User Management Team:*
 
 The User Management Team is responsible for the conceptualization of identity and role management within the system.
@@ -68,7 +70,7 @@ This team focuses on authentication logic, profile persistence, and role-based i
 |
 |===
 
-
+[discrete]
 ==== *Clinical Experience Team:*
 The Clinical Experience Team is responsible for representing the healthcare provider perspective within the domain.
 Their responsibility is to define how doctors, specialties, clinics, and consultation availability are conceptually structured.
@@ -99,12 +101,12 @@ This team ensures that clinical availability, specialization categories, and app
 | https://github.com/PeraltaJorge9128[@PeraltaJorge9128]
 |
 
-| JeanPierre Sanchez
+| Jean P. I. Sánchez
 | https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
 |
 |===
 
-
+[discrete]
 ==== *Patient Experience Team:*
 
 The Patient Experience Team is responsible for reasoning about how patients search, select, and request medical appointments.
@@ -142,7 +144,7 @@ This team focuses on clarity, accessibility, and usability from the patient’s 
 |===
 
 
-
+[discrete]
 ==== *Scheduling Team:*
 
 The Scheduling Team is responsible for the temporal and logistical dimension of the domain.  
@@ -179,7 +181,7 @@ This team ensures that scheduling constraints, availability conflicts, and real-
 |
 |===
 
-
+[discrete]
 ==== *Documentation Team:*
 
 The Documentation Team ensures that all project documentation is well-structured, accurate, and consistently maintained.  
@@ -189,7 +191,7 @@ They are responsible for organizing the informative, descriptive, and analytic p
 |===
 | Student | GitHub username | Tasks
 
-| JeanPierre Sanchez (Team Leader)
+| Jean P. I. Sánchez (Team Lead)
 | https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
 | 
 
