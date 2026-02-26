@@ -54,27 +54,8 @@ validate a request without shared state.
 The diagram below illustrates the sequence of interactions between the client,
 the authentication handler, and the underlying data layer:
 
-[plantuml, auth-flow, svg]
-----
-@startuml
-actor Client
-participant "Auth Handler" as Auth
-participant "User Repository" as Repo
-participant "JWT Service" as JWT
-
-Client -> Auth : POST /auth/login { email, password }
-Auth -> Repo : findByEmail(email)
-Repo --> Auth : User | null
-
-alt user not found or password mismatch
-    Auth --> Client : 401 Unauthorized
-else credentials valid
-    Auth -> JWT : sign({ userId, role })
-    JWT --> Auth : token
-    Auth --> Client : 200 OK { token }
-end
-@enduml
-----
+image::../../../../Images/authentication-flow.png[Authentication Flow align=center, pdfwidth=70%]
+_Figure 2.3.1. - 1. Authentication Flow Diagram for the Authentication Handler._
 
 As shown, the authentication handler acts as the sole coordinator. It queries
 the repository, delegates token creation to a dedicated service, and returns a
