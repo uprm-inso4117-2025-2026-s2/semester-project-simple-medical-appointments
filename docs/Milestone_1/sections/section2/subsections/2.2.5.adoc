@@ -8,103 +8,81 @@ These requirements are preliminary and remain under development.
 Some thresholds are theoretical and will be validated through testing
 in later milestones.
 
-==== Hardware Requirements
+==== Machine Requirements
 
-Server (minimum deployment target):
+NOTE: These machine requirements are still under development. Some thresholds are theoretical and will be validated through testing in later milestones. Items marked “TBD” remain to be researched and defined.
 
-* CPU: 2 virtual cores (≥ 2.0 GHz)
-* RAM: 4 GB minimum
-* Storage: 20 GB available disk space
-* Network bandwidth: ≥ 100 Mbps
+[options="header"]
+|===
+| ID | Description | Linked User Stories/Epics | Verification Tests
 
-Client device (minimum supported):
+| MR001
+| Server (minimum deployment target) must provide **≥ 2 vCPU (≥ 2.0 GHz)**, **≥ 4 GB RAM**, and **≥ 20 GB free storage**.
+| Epic-DevSetup
+| T-Env-001
 
-* 4 GB RAM
-* Modern browser (latest 2 stable versions)
-* Screen resolution ≥ 1280×720
-* Internet connection ≥ 5 Mbps
+| MR002
+| Client devices must support a modern browser (latest **2** stable versions of Chrome/Firefox/Edge/Safari), have **≥ 4 GB RAM**, and screen resolution **≥ 1280×720**.
+| Epic-ClientSupport
+| T-Env-002
 
-==== Software Requirements
+| MR003
+| Server OS must be **Linux (Ubuntu 22.04 LTS or equivalent)** or **Windows Server 2019+**.
+| Epic-DevSetup
+| T-Env-003
 
-Server environment:
+| MR004
+| Database must be **MySQL 8.0+** or **PostgreSQL 14+** and must not be publicly accessible (restricted to internal/private network).
+| Epic-DataStore
+| T-Sec-001
 
-* OS: Linux (Ubuntu 22.04 LTS or equivalent) or Windows Server 2019+
-* Web server: Apache 2.4+ or Nginx 1.20+
-* Database: MySQL 8.0+ or PostgreSQL 14+
-* Runtime: PHP 8.1+ (if Laravel-based)
+| MR005
+| “Simultaneous users” is defined as authenticated users issuing requests within a **10-second** window. The system must support **≥ 100 concurrent active users** performing standard operations (search availability, book appointment, confirm/cancel).
+| Epic-Performance
+| T-Perf-001
 
-Justification:
-These versions are required for security support, compatibility with
-modern frameworks, and long-term maintenance.
+| MR006
+| Under normal load (≤ **100** concurrent active users), average API response time must be **≤ 2 seconds** and 95th percentile response time must be **≤ 4 seconds**.
+| Epic-Performance
+| T-Perf-002
 
-==== Performance Requirements
+| MR007
+| “Heavy load” is defined as **101–150** concurrent active users performing database-backed operations. Under heavy load, average API response time must be **≤ 5 seconds**, and the system must not crash.
+| Epic-Performance
+| T-Perf-003
 
-Definition of “simultaneous users”:
-Simultaneous users are authenticated users actively issuing
-HTTP requests within a 10-second interval.
+| MR008
+| If concurrent active users exceed **150**, the system must **degrade gracefully**: new sessions may receive **HTTP 503**, while existing sessions must continue; persisted appointment data must not be lost.
+| Epic-Performance
+| T-Perf-004
 
-Normal Load:
-* ≤ 100 concurrent active users.
-* Average API response time ≤ 2 seconds.
-* 95th percentile response time ≤ 4 seconds.
+| MR009
+| Availability target must be **≥ 99% monthly uptime** excluding scheduled maintenance. Scheduled maintenance must be **≤ 2 hours/month** (TBD if this constraint needs adjustment).
+| Epic-Reliability
+| T-Rel-001
 
-Heavy Load:
-Defined as 101–150 concurrent active users performing database-backed
-operations (e.g., booking, confirmation, search).
+| MR010
+| If the application process crashes, it must restart automatically within **≤ 60 seconds** and must not corrupt persisted data.
+| Epic-Reliability
+| T-Rel-002
 
-Under Heavy Load:
-* Average response time ≤ 5 seconds.
-* System may degrade gracefully but must not crash.
-* Read-only operations must remain available.
+| MR011
+| All client-server communication must use **HTTPS (TLS 1.2+)**.
+| Epic-Security
+| T-Sec-002
 
-Beyond 150 concurrent users:
-* New sessions may be rejected with HTTP 503.
-* Existing authenticated sessions must not be terminated.
-* No persisted data may be lost.
+| MR012
+| Passwords must be stored using salted hashing (**bcrypt** or **Argon2**).
+| Epic-Security
+| T-Sec-003
 
-Criteria for acceptable degradation remain to be validated through load testing.
+| MR013
+| Backups must run automatically **at least once per day** and be retained for **≥ 7 days** (TBD based on storage constraints).
+| Epic-DataProtection
+| T-Env-004
 
-==== Availability and Stability Requirements
-
-Availability Target:
-* ≥ 99% monthly uptime (excluding scheduled maintenance).
-
-System Crash Behavior:
-* If application process crashes, automatic restart must occur within 60 seconds.
-* Database service must not lose committed transactions.
-* Partial requests may fail but must not corrupt stored data.
-
-Maximum Acceptable Outage:
-* Unplanned outage must not exceed 30 consecutive minutes.
-
-Long-term stability criteria remain under research.
-
-==== Data and Capacity Requirements
-
-The system shall support:
-
-* ≥ 10,000 registered users.
-* ≥ 1,000 stored appointments without measurable degradation.
-* ≥ 500 stored referrals.
-
-Capacity limits above these thresholds remain to be experimentally validated.
-
-==== Environmental Constraints
-
-* All communication must use HTTPS (TLS 1.2+).
-* Database must not be publicly accessible.
-* Server must operate in an environment with stable power and network.
-* Daily automated backups must be retained for at least 7 days.
-
-==== Ongoing Development Notice
-
-The machine requirements are still under refinement.
-
-The following items remain to be researched and defined:
-
-* Precise acceptable performance degradation percentage.
-* Long-term database growth limits.
-* Disaster recovery objectives (RTO / RPO).
-* Final heavy-load benchmark validation.
-
-These requirements will be updated as empirical testing data becomes available.
+| MR014
+| Acceptable degradation criteria under heavy load (e.g., which non-critical features may be temporarily disabled) remain **TBD** and will be defined after load testing.
+| Epic-Performance
+| T-Perf-005
+|===
