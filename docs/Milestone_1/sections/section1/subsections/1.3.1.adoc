@@ -1,3 +1,70 @@
 === *Scope, Span, and Synopsis*
 
 ==== *Scope & Span*
+
+===== In Scope Features
+The project will focus on designing and prototyping a centralized medical appointment scheduling platform with the following component:
+
+1. Core Scheduling System 
+* Appointment creation and management
+* Calendar and agenda views
+* Conflict detection and resolution logic
+* Capacity handling per time slot
+* Waitlist functionality
+* Appointment status management (pending, confirmed, canceled)
+* Appointment rescheduling and cancellation
+
+2. User Management 
+* Role-based access control (Patient, Doctor, Clinic/Admin)
+* Registration and login system (prototype level)
+* User profiles and account settings
+
+3. Patient Experience
+* Search and filtering by:
+- Specialty
+- Location
+- Availability
+- Accepted health insurance
+* Booking interface with confirmation feedback
+* Appointment history view
+
+4. Clinic/Doctor Experience
+* Availability configuration
+* Appointment-type duration management
+* Scheduling constraints (e.g., no appointments after certain hours)
+* Capacity limits per slot
+* Optional staff approval workflow
+
+5. Communication
+* Appointment confirmation notifications
+* Cancellation and rescheduling alerts
+* Reminder system (mocked or simulated)
+
+6. Documents and Records
+* Secure document upload mockup
+* Role-based document visibility
+
+7. System Extent 
+The project will result in:
+* A structured system design
+* Defined scheduling logic
+* Prototype-level interfaces
+* Defined testing strategies
+
+===== Out Of Scope Features
+To maintain realistic academic boundaries, the following will *NOT* be included: 
+
+* Real integration with hospital or clinic databases
+* Live synchronization with external healthcare systems
+* Real insurance provider API integrations
+* Handling of real Protected Health Information (PHI)
+* Full HIPAA certification or legal compliance implementation
+* Payment processing systems
+* AI-based predictive scheduling optimization
+* Nationwide or international expansion beyond Puerto Rico context
+* Production-level infrastructure deployment (cloud hosting, DevOps pipelines)
+
+===== Data & Availability Constraints
+* Real doctor/clinic availability data will not be collected. 
+* Dummy data will be used for demonstration and testing. 
+* No direct access to confidential patient appointment data will occur. 
