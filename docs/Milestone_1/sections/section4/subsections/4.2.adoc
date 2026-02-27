@@ -1,5 +1,5 @@
 === *Test Planning*
-==== User Profile Test Plan
+==== User Profile Test Plan - Viviana V. Ramos Vivoni
 ===== Overview
 
 The purpose of this test plan is to define how the User Profiles feature will be tested to ensure correct functionality, data integrity, and proper role-based access control.
