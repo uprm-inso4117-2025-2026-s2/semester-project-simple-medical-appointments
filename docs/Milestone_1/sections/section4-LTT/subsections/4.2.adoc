@@ -69,6 +69,8 @@ This method strengthens reliability not through exhaustive verification, but thr
 
 Risk-based test planning reframes software testing as a rational, risk-informed optimization process. By applying the expected defect cost model, decomposing the system across structured axes, and pruning tests to remain within budget constraints, testing becomes both economically justified and technically disciplined. This approach maximizes reliability improvement under practical development constraints and will be used and expanded upon in this project.
 
+---
+
 ==== Risk-Based Test Plan: Authentication & Access Control
 
 :author: Carlos Pepin Delgado
@@ -715,3 +717,142 @@ The following assumptions were made due to information not yet documented in the
 ===== References
 
 [1] B. Vélez, "Test Planning," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019. [Online]. Available: https://online.upr.edu/pluginfile.php/5616003/mod_resource/content/1/Lecture%202%20Test%20Planning.pdf
+
+---
+
+==== User Profile Test Plan
+:author: Viviana Ramos Vivoni
+
+===== Overview
+
+The purpose of this test plan is to define how the User Profiles feature will be tested to ensure correct functionality, data integrity, and proper role-based access control.
+
+This plan outlines the testing approach for profile creation, viewing, editing, and validation across all defined user roles (Patient, Doctor, and Admin). It also ensures that sensitive information is properly protected and accessible only to authorized users.
+
+===== Scope
+
+====== In Scope
+
+* Profile creation (initial account setup)
+* Viewing profile information
+* Editing profile fields
+* Saving and persisting changes
+* Field validation (required fields, format checks, boundary values)
+* Role-based access control (who can view/edit which fields)
+* Basic security checks related to profile access
+
+====== Out of Scope
+
+* Authentication system testing (login/logout functionality)
+* Password reset workflows (unless directly tied to profile editing)
+* Appointment scheduling functionality
+* Full system security penetration testing
+* Performance or load testing
+* UI design/styling beyond basic usability checks
+
+===== Roles Covered
+
+This test plan covers the User Profiles feature for the following roles:
+
+* *Patient* – Can create and manage their own profile information and must not access or modify other users’ profiles.
+* *Doctor* – Can manage their own professional profile information and may only access patient information when authorized.
+* *Admin* – Can view and manage user accounts as needed for system administration, including role assignment and account status.
+
+If additional roles are introduced (e.g., Clinic Staff), this test plan must be updated accordingly.
+
+===== Assumptions and Dependencies
+
+====== Assumptions
+
+* The authentication system is functioning correctly.
+* User roles are properly defined in the system.
+* Profile data is stored in a persistent database.
+* Role-based access control logic has been implemented.
+* Test accounts are available for each role.
+
+====== Dependencies
+
+* User authentication and authorization module
+* Database connectivity and data persistence layer
+* Role assignment functionality
+* Profile API endpoints (create, read, update)
+* Test environment (development or staging)
+
+===== Test Environment
+
+Testing will be conducted in a controlled development or staging environment that mirrors the expected production configuration.
+
+====== Environment Setup
+
+* Environment Type: Development or Staging
+* Database: Test database with sample user accounts
+* Access: Role-based test accounts for Patient, Doctor, and Admin
+
+====== Test Data
+
+Pre-created accounts for:
+
+* At least 2 Patients
+* At least 1 Doctor
+* At least 1 Admin
+
+Test data must include:
+
+* Valid input examples
+* Invalid input examples
+* Boundary values (e.g., maximum-length strings)
+
+===== Risk and Prioritization
+
+Testing will be prioritized based on risk (likelihood of occurrence × impact).
+
+====== High Risk (Priority 1)
+
+* Unauthorized access to another user’s profile
+* Incorrect role-based editing permissions
+* Profile updates not saving correctly
+* Viewing profile data while not authenticated
+
+====== Medium Risk (Priority 2)
+
+* Missing or unclear validation messages
+* Optional fields not saving correctly
+* Partial data persistence issues
+* Incorrect default values
+
+====== Low Risk (Priority 3)
+
+* Minor UI layout issues
+* Text/label inconsistencies
+* Minor usability concerns
+
+===== Expected Results
+
+A test is considered *Pass* when:
+
+* The system behaves exactly as expected.
+* Validation rules trigger correctly.
+* Access restrictions are enforced.
+* Data saves and persists accurately.
+
+A test is considered *Fail* when:
+
+* Invalid input is accepted.
+* Unauthorized access occurs.
+* Data does not persist correctly.
+* Restricted fields are incorrectly visible or editable.
+
+===== Exit Criteria
+
+Testing will be considered complete when:
+
+* All High-risk test scenarios have been executed.
+* Critical and high-severity defects are resolved.
+* Medium-risk defects are documented and triaged.
+* No open defects compromise data integrity or access control.
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
