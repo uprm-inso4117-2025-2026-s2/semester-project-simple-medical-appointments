@@ -71,6 +71,655 @@ Risk-based test planning reframes software testing as a rational, risk-informed 
 
 ---
 
+==== Risk-Based Test Plan: Authentication & Access Control
+
+:author: Carlos Pepin Delgado
+
+===== Scope
+
+====== In-Scope Areas
+
+[cols="1,3", options="header"]
+|===
+| Area | Description
+
+| Registration
+| Account creation, email uniqueness enforcement, role selection
+
+| Login
+| Credential validation, incorrect credentials, inactive or unverified account behavior
+
+| Logout
+| Session or token termination, post-logout access prevention
+
+| Session Expiry
+| Token expiration behavior, access denial after expiry
+
+| Role Model
+| Patient, Doctor, and Admin enforcement; missing role behavior; role assignment
+
+| Permission Gates
+| View and action restrictions at both UI and REST API layer
+
+| Account State Changes
+| Password reset, email change, deactivation, reactivation
+|===
+
+====== Out-of-Scope
+
+- *Penetration testing* -- No active attack simulation or injection testing is performed. Security coverage is limited to authorization boundary checks.
+- *Clinical, scheduling, and notification modules* -- Epics E2 through E5 are out of scope.
+- *Performance and load testing* -- No throughput, latency, or concurrency testing is included in this milestone.
+- *Frontend visual regression* -- UI layout, color, typography, and screen size behavior are not evaluated.
+- *Third-party integrations* -- Insurance authorization, referral workflows, and external communication services are excluded.
+
+===== Risk Model
+
+====== Prioritization Formula
+
+Because resources are limited and it is impossible to test every possible situation, testing effort must be invested wisely. The goal is to deliver the right tests, in the right order, to discover as many issues as time and budget allow [1]. Prioritization is based on the expected cost of each defect:
+
+____
+*D = P(D occurs) × Cost(D occurs)* [1]
+____
+
+Tests targeting the highest D values are executed first.
+
+====== What Raises Probability
+
+The following conditions increase the likelihood that a defect exists in a given area [1]:
+
+- Complex units
+- High user involvement through GUIs
+- Synchronization and timing issues
+- Inexperienced developers
+
+For this module, role-permission logic and session state management represent the primary complexity. Login and registration involve heavy form-based user interaction, which further raises P(D).
+
+====== What Raises Cost
+
+The following conditions increase the impact of a defect reaching production [1]:
+
+- *Sine qua non functionality* -- authentication is the prerequisite for every other system feature
+- *Damage to reputation and trust* -- unauthorized access to patient or provider data in a healthcare system
+- *Frequent or annoying defects* -- login and registration are the most exercised flows in the system
+
+====== Probability Scale
+
+[cols="1,1,3", options="header"]
+|===
+| Score | Label | Definition
+
+| 5
+| Very High
+| Defect is likely given complexity, unresolved specifications, or heavy GUI involvement [1].
+
+| 4
+| High
+| Defect is plausible; area involves role transitions, state changes, or unverified rules.
+
+| 3
+| Medium
+| Defect is possible but requires specific conditions.
+
+| 2
+| Low
+| Defect is unlikely; logic is straightforward.
+
+| 1
+| Very Low
+| Defect is improbable; area is simple and well-bounded.
+|===
+
+====== Cost Scale
+
+[cols="1,1,3", options="header"]
+|===
+| Score | Label | Definition
+
+| 5
+| Critical
+| Breaks authentication or exposes protected data -- sine qua non failure [1].
+
+| 4
+| High
+| Causes role confusion or persistent unauthorized state -- damage to trust.
+
+| 3
+| Medium
+| Causes degraded experience or incorrect UI state visible only to the affected user.
+
+| 2
+| Low
+| Minor inconvenience, no functional consequence.
+
+| 1
+| Negligible
+| Cosmetic only.
+|===
+
+===== Prioritized Risk Table
+
+Risks are ordered from highest to lowest D score. Tests for higher-D risks are executed first to maximize defect detection within the one-day budget [1].
+
+[cols="1,3,1,1,1,4", options="header"]
+|===
+| Risk ID | Risk Description | P | Cost | D | Downstream Impact
+
+| RISK-01
+| Patient accesses Doctor or Admin routes via direct URL manipulation
+| 5
+| 5
+| *25*
+| Every downstream feature -- scheduling, clinical records, administrative controls -- is gated behind role enforcement. If this boundary fails, no protected feature in the system is safe. This is sine qua non functionality [1].
+
+| RISK-02
+| Duplicate email registration creates multiple accounts for the same identity
+| 4
+| 5
+| *20*
+| Identity uniqueness is a prerequisite for reliable appointment records, role assignment, and audit trails. Duplicate identities corrupt the data model for every downstream module that references a user.
+
+| RISK-03
+| Permission gates enforced only at the UI layer, not at the REST API layer
+| 5
+| 4
+| *20*
+| A user who bypasses the frontend via direct API calls can perform unauthorized actions regardless of what the UI shows. This is a trust boundary violation with severe reputational damage in a healthcare context.
+
+| RISK-04
+| User with no assigned role gains access to protected views or actions
+| 4
+| 4
+| *16*
+| An undefined role produces unpredictable permission evaluation across every protected route. The role model is sine qua non for the entire access control structure.
+
+| RISK-05
+| Inactive or deactivated account successfully authenticates
+| 4
+| 4
+| *16*
+| A deactivated provider or suspended patient interacting with live scheduling data produces invalid records. Account state must be evaluated at authentication time or the failure propagates into every downstream module.
+
+| RISK-06
+| Session token remains valid after explicit logout
+| 3
+| 5
+| *15*
+| If logout removes the token only on the client side, a captured token remains usable until natural expiry. In a clinic shared-workstation environment this directly exposes patient data.
+
+| RISK-07
+| Password reset token can be reused or submitted after expiry
+| 3
+| 5
+| *15*
+| A reusable or non-expiring reset token enables full account takeover for any role. All appointments, patient records, and administrative actions under the compromised account are affected.
+
+| RISK-08
+| Browser back button exposes protected content after logout
+| 4
+| 3
+| *12*
+| On a shared clinical workstation, cached page content served after logout exposes a prior user's data to the next person. This is a frequent and realistic scenario in clinic environments.
+|===
+
+===== Test Cases
+
+Test cases are ordered by the D score of their linked risk. Each case declares its testing type, testing level, axes covered, and input partition, all drawn from the course framework [1].
+
+*Testing types used:* Functional, Security +
+*Testing level used throughout:* System -- consistent with favoring system-level tests when Cost(D) is high [1] +
+*Axes covered:* Functionality (Reqs/Specs), UI Elements, Input Space +
+*Input partitions:* Common (valid), Invalid, Corner, Extreme
+
+====== TC-01: Patient URL Manipulation to Admin Route
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-01
+
+| Title
+| Patient-role user attempts direct URL navigation to an Admin-only route
+
+| Linked Risk
+| RISK-01 (D = 25)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, UI Elements
+
+| Input Partition
+| Corner -- valid authenticated session, invalid route for role
+|===
+
+*Preconditions:* +
+A Patient-role account is authenticated. At least one Admin-only route exists.
+
+*Steps:*
+
+- Authenticate as a Patient and obtain a valid session token.
+- Manually enter the Admin-designated route URL in the browser address bar.
+- Observe the HTTP response and UI behavior.
+- Repeat using the Doctor-designated route.
+- Using a REST client, send a direct API request to the Admin route with the Patient token in the Authorization header.
+- Observe the API response.
+
+*Expected Result:* +
+Browser navigation returns HTTP 403 or redirects to an unauthorized page. No Admin or Doctor content is rendered. The Patient session remains active. Direct API call also returns HTTP 403 with no data.
+
+*Failure Condition:* Any protected content renders, or the API returns HTTP 200 with data.
+
+====== TC-02: Duplicate Email Registration Rejection
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-02
+
+| Title
+| Registration attempt using an email address already associated with an existing account
+
+| Linked Risk
+| RISK-02 (D = 20)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- email already present in the system
+|===
+
+*Preconditions:* +
+An account with email `test@example.com` exists in an active state.
+
+*Steps:*
+
+- Navigate to the registration form.
+- Enter `test@example.com` in the email field. Complete remaining required fields with valid data.
+- Submit the form.
+- Observe the UI response and the underlying API response.
+
+*Expected Result:* +
+A validation error indicates the email is already registered. No new account is created. The error does not reveal the role of the existing account. API returns HTTP 409 or 422.
+
+*Failure Condition:* A second account is created, or the system returns HTTP 200 without an error.
+
+====== TC-03: Direct REST API Call to Doctor Endpoint Using Patient Token
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-03
+
+| Title
+| Patient token submitted directly to a Doctor-only REST API endpoint
+
+| Linked Risk
+| RISK-03 (D = 20)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner -- valid token, invalid role for the target endpoint
+|===
+
+*Preconditions:* +
+A valid token exists for a Patient-role user. At least one API endpoint is designated for Doctor or Admin access only.
+
+*Steps:*
+
+- Authenticate as a Patient and capture the issued token.
+- Using a REST client, send an HTTP request to a Doctor-only endpoint with the Patient token in the Authorization header.
+- Observe the HTTP response code and body.
+
+*Expected Result:* +
+API returns HTTP 403. No data is returned in the response body. The unauthorized attempt is recorded server-side.
+
+*Failure Condition:* API returns HTTP 200 with data, or HTTP 401 masking the role mismatch.
+
+====== TC-04: Login with No Role Assigned to Account
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-04
+
+| Title
+| Account with no assigned role attempts authentication and protected route access
+
+| Linked Risk
+| RISK-04 (D = 16)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner -- account exists but role field is undefined
+|===
+
+*Preconditions:* +
+An account exists without an assigned role.
+
+*Steps:*
+
+- Authenticate using credentials of the role-less account. Observe whether a token is issued.
+- If a token is issued, attempt to access the Patient dashboard, Doctor schedule view, and Admin panel.
+- Observe HTTP responses and UI behavior for each.
+
+*Expected Result:* +
+Option A (preferred): Login is rejected with an error indicating the account is not fully configured. No token is issued. Option B (acceptable): A token is issued but all protected routes return HTTP 403. Under no condition should a role-less account access protected content.
+
+*Failure Condition:* A role-less account accesses any protected view or executes any role-specific action.
+
+====== TC-05: Login Attempt with Deactivated Account
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-05
+
+| Title
+| Account deactivated by an Admin attempts to authenticate
+
+| Linked Risk
+| RISK-05 (D = 16)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- account state is non-active
+|===
+
+*Preconditions:* +
+An account with correct credentials has been deactivated by an Admin (Epic E5, F5.3).
+
+*Steps:*
+
+- Confirm the account is in a deactivated state.
+- Navigate to the login form and enter the correct credentials.
+- Submit the form. Observe the HTTP response and UI feedback.
+
+*Expected Result:* +
+Authentication fails. No token is issued. The error message does not distinguish "wrong credentials" from "deactivated account." HTTP response is 401 or 403.
+
+*Failure Condition:* A token is issued to a deactivated account, or any form of access is granted.
+
+====== TC-06: Token Validity After Explicit Logout
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-06
+
+| Title
+| Previously issued token used against a protected API endpoint after the user has logged out
+
+| Linked Risk
+| RISK-06 (D = 15)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Extreme -- token is structurally valid but should be logically invalidated
+|===
+
+*Preconditions:* +
+A user is authenticated with a valid token.
+
+*Steps:*
+
+- Authenticate as any valid user. Capture the issued token.
+- Perform explicit logout via the UI or logout endpoint.
+- Using a REST client, send a protected API request using the captured token.
+- Observe the HTTP response.
+
+*Expected Result:* +
+API returns HTTP 401 or 403. The token is rejected regardless of its natural expiry time.
+
+*Failure Condition:* API returns HTTP 200 with data.
+
+====== TC-07: Password Reset Token Reuse and Expiry
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-07
+
+| Title
+| Previously used or expired password reset token submitted again
+
+| Linked Risk
+| RISK-07 (D = 15)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Invalid (reuse); Extreme (expiry)
+|===
+
+*Preconditions:* +
+A password reset flow exists and issues a reset token or link.
+
+*Steps (Reuse Variant):*
+
+- Initiate a password reset. Use the token to complete a password change.
+- Submit the same token again to the reset endpoint. Observe the response.
+
+*Steps (Expiry Variant):*
+
+- Initiate a password reset. Do not use the token.
+- Wait until the expiry window passes. Submit the expired token. Observe the response.
+
+*Expected Result:* +
+Both variants return an error indicating the token is invalid or expired. No password change is performed. HTTP response is 400 or 422.
+
+*Failure Condition:* The system accepts a reused or expired token and performs a password change.
+
+====== TC-08: Cached Page Accessible After Logout
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-08
+
+| Title
+| Browser back button exposes protected content after logout
+
+| Linked Risk
+| RISK-08 (D = 12)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Corner -- browser cache retains previously loaded protected content
+|===
+
+*Preconditions:* +
+A user is authenticated and has navigated to at least one protected view. Testing uses a standard web browser.
+
+*Steps:*
+
+- Log in and navigate to a protected page.
+- Perform explicit logout.
+- Press the browser back button. Observe whether protected content renders or an auth challenge appears.
+
+*Expected Result:* +
+Protected content is not displayed. The page redirects to the login screen or shows an authentication error. Protected HTTP responses carry `Cache-Control: no-store, no-cache` headers.
+
+*Failure Condition:* Previously loaded protected content is displayed to an unauthenticated session from browser cache.
+
+====== TC-09: Registration Form -- Required Field and Email Format Validation
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-09
+
+| Title
+| Registration form enforces required fields and rejects malformed email formats
+
+| Linked Risk
+| RISK-02 (D = 20)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- empty fields; malformed email formats
+|===
+
+*Preconditions:* +
+Registration form is accessible. No prior session exists. +
+Acceptance criteria per US.AUTH.01: "Given missing required fields, when submission is attempted, then inline validation errors are displayed."
+
+*Steps:*
+
+- Submit the form with all fields empty. Observe validation output.
+- Enter malformed email values in sequence (`notanemail`, `user@`, `@domain.com`). Attempt submission for each.
+- Enter a valid email but leave the password field empty. Attempt submission.
+- For each step, observe the API response independently to confirm server-side validation is not UI-dependent.
+
+*Expected Result:* +
+Empty submission triggers inline field-level errors without reaching the API. Each malformed email format is rejected with a descriptive message. API returns HTTP 422 with field-level detail if a malformed request bypasses UI validation. No account is created in any failure variant.
+
+*Failure Condition:* Any invalid input produces an account, or errors are absent or not field-specific.
+
+====== TC-10: Doctor Role Cannot Execute Admin-Only Actions
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-10
+
+| Title
+| Doctor-role user attempts Admin-only action via UI and direct REST API call
+
+| Linked Risk
+| RISK-03, RISK-04
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Corner -- valid Doctor token, invalid role for the target action
+|===
+
+*Preconditions:* +
+A Doctor-role account is authenticated. At least one action is designated Admin-only (e.g., deactivate user account, Epic E5, F5.3).
+
+*Steps:*
+
+- Authenticate as a Doctor-role user.
+- Navigate to any view that may expose Admin-only controls. Attempt the Admin action via the UI. Observe result.
+- Using a REST client, send a direct API request to the Admin-only endpoint with the Doctor token.
+- Observe the HTTP response.
+
+*Expected Result:* +
+The UI does not render Admin-only controls for a Doctor. Direct API call returns HTTP 403. No action is executed.
+
+*Failure Condition:* The UI renders Admin controls for a Doctor, or the API accepts a Doctor token for an Admin-only operation.
+
+===== Assumptions
+
+The following assumptions were made due to information not yet documented in the project artifact. Sections 2.2.3, 2.2.4, and 2.2.5 of the project documentation are currently empty. These assumptions must be resolved before test execution begins.
+
+- The system issues bearer tokens that carry a role claim. Token format and structure have not been specified. Technology stack remains undecided as of Milestone 1.
+- Password reset uses a token-based email link mechanism. No reset flow has been documented in the artifact.
+- Account states include at minimum active and deactivated. A complete state enumeration has not been provided. The artifact references deactivation in Epic E5 without defining the full state model.
+- A role-less account state is reachable either as a transient post-registration condition or as an administrative edge case. The role assignment mechanism has not been confirmed.
+- Session token expiry exists. Duration is unknown. Server-side invalidation on logout is expected but has not been specified.
+- Email verification is required before a new account can authenticate. This has not been explicitly stated in the artifact.
+- No failed-login lockout policy has been defined. If a lockout policy is introduced, TC-05 must be updated accordingly.
+
+===== Success Criteria
+
+[cols="1,3,2", options="header"]
+|===
+| ID | Condition | Verification Method
+
+| SC-01
+| All ten test cases executed by one person within one working day.
+| Test execution log with timestamps.
+
+| SC-02
+| RISK-01, RISK-02, and RISK-03 (D >= 20) produce no FAIL outcomes.
+| TC-01, TC-02, TC-03 results.
+
+| SC-03
+| No Patient token receives HTTP 200 from a Doctor or Admin API endpoint.
+| TC-01, TC-03, TC-10 results.
+
+| SC-04
+| No duplicate email registration succeeds.
+| TC-02 result.
+
+| SC-05
+| No deactivated account receives a valid token.
+| TC-05 result.
+
+|===
+
+===== References
+
+[1] B. Vélez, "Test Planning," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019. [Online]. Available: https://online.upr.edu/pluginfile.php/5616003/mod_resource/content/1/Lecture%202%20Test%20Planning.pdf
+
+---
+
 ==== User Profile Test Plan
 :author: Viviana Ramos Vivoni
 
