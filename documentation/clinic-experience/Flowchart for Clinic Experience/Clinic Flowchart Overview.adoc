@@ -49,8 +49,8 @@ Displays:
 
 == Flowchart Diagram
 
-image::Flowchart_part_1.png
+image::Flowchart parts/Flowchart_part_1.png[]
 
-image::Flowchart_part_2.png
+image::Flowchart parts/Flowchart_part_2.png[]
 
-image::Flowchart_part_3.png
+image::Flowchart parts/Flowchart_part_3.png[]
