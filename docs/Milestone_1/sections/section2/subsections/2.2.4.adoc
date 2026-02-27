@@ -1,1 +1,196 @@
 ==== *Interface Requirements*
+
+===== *Data Initialization Interfaces*
+
+The system must provide mechanisms to initialize internal representations 
+of domain entities before scheduling operations.
+
+These mechanisms support:
+
+- Carmen and Lucía, who require reliable account creation and booking.
+- Dr. Morales, who needs structured availability control.
+- Marta, who depends on consistent clinic records.
+- Ricardo, who requires stable system-level identity management.
+
+*Provider Initialization*
+- The system allows authorized users to create Provider records.
+- A Provider must be associated with at least one Clinic.
+- Provider identity attributes must be immutable after creation.
+- Only authenticated users with appropriate roles (US.AUTH.01, F1.4) may perform this action.
+
+*Clinic Initialization*
+- The system allows creation of Clinic entities.
+- Clinics should maintain a collection of associated Providers.
+- Administrative access must be restricted according to role-based policies.
+
+*Time Slot Initialization*
+- The system allows Providers to define Time Slots (US.AVAIL.01).
+- Each Time Slot has:
+  - Provider reference
+  - Clinic reference
+  - Start time
+  - End time
+  - Status (Available, Reserved, Expired)
+- A Time Slot must be initialized with status = Available.
+- Overlapping time ranges should be rejected (F2.3, REQ-AVAIL-F-01).
+
+*Patient Registration*
+- The system allows creation of Patient records (US.AUTH.01).
+- Required fields must be validated prior to persistence.
+- Patient contact information must be editable (US.PROF.01).
+- Accessibility considerations support José’s simplified interaction needs.
+
+*Referral and Insurance State Initialization*
+- Appointment records include:
+  - Referral status
+  - Insurance authorization status
+- Default status must be Pending when applicable.
+- This supports structured confirmation logic relevant to Marta and external coordination workflows.
+
+===== *Event-to-State Synchronization*
+
+The system updates internal state when domain events occur, ensuring predictability 
+and trust for Carmen and Lucía, efficiency for Dr. Morales, and oversight for Marta.
+
+*Appointment Request* (US.BOOK.01)
+- The system creates an Appointment with status = Requested.
+- A Time Slot must not be reserved until confirmation conditions are satisfied.
+
+*Appointment Confirmation* (US.BOOK.01, US.NOTIF.01)
+- The system verifies:
+  - Time Slot availability
+  - Referral requirements
+  - Insurance authorization (if required)
+- Upon validation, the system:
+  - Set Appointment status = Confirmed
+  - Set associated Time Slot status = Reserved
+- A confirmation notification must be triggered (F4.1).
+
+*Cancellation* (US.BOOK.02)
+- The system must set Appointment status = Cancelled.
+- The associated Time Slot must immediately revert to Available.
+- Slot release occurs atomically with status update.
+
+*Rescheduling*
+- The system:
+  - Releases the previously reserved Time Slot
+  - Reserves the new Time Slot
+  - Updates Appointment time reference
+- These operations must be executed atomically.
+- This supports Lucía’s need for flexibility and Carmen’s coordination burden.
+
+*No-Show*
+- The system must set Appointment status = No-Show.
+- The Time Slot remains Reserved for historical traceability.
+- Audit logging supports Ricardo’s integrity requirements.
+
+*Insurance Approval*
+- The system updates insuranceStatus upon receipt of approval.
+- Confirmation must only proceed if the slot remains Available.
+- This supports Marta’s need for structured oversight.
+
+===== *Time Slot Integrity Constraints*
+
+The system enforces resource allocation consistency to address Dr. Morales’ concerns 
+about double-booking and Marta’s need for accurate records.
+
+- A Time Slot may be associated with at most one Appointment.
+- A Time Slot with status ≠ Available should not be reservable.
+- Concurrent reservation attempts must be serialized.
+- Double-booking must be prevented at the data layer (F3.4).
+- Slot state transitions should be logged for traceability (Ricardo persona).
+
+===== *State Transition Constraints*
+
+Appointments follow controlled state transitions to ensure clarity for Carmen and José 
+and operational integrity for administrators.
+
+Valid transitions include:
+
+- Requested → Confirmed
+- Confirmed → Completed
+- Confirmed → Cancelled
+- Confirmed → No-Show
+
+Invalid transitions must be rejected with appropriate error responses.
+
+Completed and No-Show appointments must be immutable except for administrative annotations.
+
+===== *Editing and Correction Policies*
+
+The system defines mutability boundaries to support administrative correction while preventing data corruption.
+
+Mutable Data:
+- Patient contact information (US.PROF.01)
+- Appointment notes
+- Referral status prior to confirmation
+
+Immutable Data:
+- appointmentID
+- Historical completed appointments
+- Provider identity after confirmation
+
+Unauthorized modification attempts return an error response, supporting Ricardo’s security and integrity goals.
+
+===== *User Interface (UI) Requirements*
+
+The system provides UI interfaces that reflect real-time scheduling state 
+and directly support persona-specific needs.
+
+Availability Visibility:
+- The UI must display available Time Slots without exposing patient data (Carmen, Lucía).
+- Slot availability must update dynamically after state changes.
+
+Appointment Transparency:
+- The UI clearly displays current Appointment status (José).
+- Status changes must be reflected immediately after confirmation.
+
+Notification Feedback:
+- The UI must confirm successful booking, cancellation, or rescheduling (US.NOTIF.01).
+- Error messages should be specific and validation-driven.
+
+Role-Based Access:
+- UI actions must be restricted according to authenticated role (US.AUTH.01, F1.4).
+- Administrative views support Marta’s oversight needs.
+
+===== *API Interface Requirements*
+
+The system exposes API endpoints consistent with domain operations and user stories defined in Section 2.2.1.
+
+POST /appointments (US.BOOK.01)
+- Creates Appointment with status = Requested
+- Validates required fields
+
+PUT /appointments/{id}/confirm
+- Validates slot availability and dependencies
+- Sets Appointment status and Time Slot atomically
+
+PUT /appointments/{id}/cancel (US.BOOK.02)
+- Sets Appointment status = Cancelled
+- Releases associated Time Slot
+
+GET /timeslots?provider={id} (US.AVAIL.01)
+- Returns only Available Time Slots
+
+All endpoints:
+- Enforce authentication via JWT (US.AUTH.01)
+- Validate input schema
+- Return structured error responses (400, 401, 422, 409)
+
+===== *Component Communication*
+
+The system architecture separates:
+
+- Authentication Service (supports Ricardo’s security goals)
+- Validation Middleware
+- Business Logic Layer
+- Repository Layer
+
+Interface communication must follow this order:
+
+Request → Authentication → Validation → Business Logic → Repository → Response
+
+No handler can bypass validation or authorization layers.
+
+Atomic scheduling operations must be handled within the Business Logic Layer 
+to preserve consistency across concurrent requests.
