@@ -1,1 +1,110 @@
 ==== *Machine Requirements*
+:!sectnums:
+
+The following machine requirements define measurable hardware, software,
+performance, and environmental constraints for the system.
+
+These requirements are preliminary and remain under development.
+Some thresholds are theoretical and will be validated through testing
+in later milestones.
+
+==== Hardware Requirements
+
+Server (minimum deployment target):
+
+* CPU: 2 virtual cores (≥ 2.0 GHz)
+* RAM: 4 GB minimum
+* Storage: 20 GB available disk space
+* Network bandwidth: ≥ 100 Mbps
+
+Client device (minimum supported):
+
+* 4 GB RAM
+* Modern browser (latest 2 stable versions)
+* Screen resolution ≥ 1280×720
+* Internet connection ≥ 5 Mbps
+
+==== Software Requirements
+
+Server environment:
+
+* OS: Linux (Ubuntu 22.04 LTS or equivalent) or Windows Server 2019+
+* Web server: Apache 2.4+ or Nginx 1.20+
+* Database: MySQL 8.0+ or PostgreSQL 14+
+* Runtime: PHP 8.1+ (if Laravel-based)
+
+Justification:
+These versions are required for security support, compatibility with
+modern frameworks, and long-term maintenance.
+
+==== Performance Requirements
+
+Definition of “simultaneous users”:
+Simultaneous users are authenticated users actively issuing
+HTTP requests within a 10-second interval.
+
+Normal Load:
+* ≤ 100 concurrent active users.
+* Average API response time ≤ 2 seconds.
+* 95th percentile response time ≤ 4 seconds.
+
+Heavy Load:
+Defined as 101–150 concurrent active users performing database-backed
+operations (e.g., booking, confirmation, search).
+
+Under Heavy Load:
+* Average response time ≤ 5 seconds.
+* System may degrade gracefully but must not crash.
+* Read-only operations must remain available.
+
+Beyond 150 concurrent users:
+* New sessions may be rejected with HTTP 503.
+* Existing authenticated sessions must not be terminated.
+* No persisted data may be lost.
+
+Criteria for acceptable degradation remain to be validated through load testing.
+
+==== Availability and Stability Requirements
+
+Availability Target:
+* ≥ 99% monthly uptime (excluding scheduled maintenance).
+
+System Crash Behavior:
+* If application process crashes, automatic restart must occur within 60 seconds.
+* Database service must not lose committed transactions.
+* Partial requests may fail but must not corrupt stored data.
+
+Maximum Acceptable Outage:
+* Unplanned outage must not exceed 30 consecutive minutes.
+
+Long-term stability criteria remain under research.
+
+==== Data and Capacity Requirements
+
+The system shall support:
+
+* ≥ 10,000 registered users.
+* ≥ 1,000 stored appointments without measurable degradation.
+* ≥ 500 stored referrals.
+
+Capacity limits above these thresholds remain to be experimentally validated.
+
+==== Environmental Constraints
+
+* All communication must use HTTPS (TLS 1.2+).
+* Database must not be publicly accessible.
+* Server must operate in an environment with stable power and network.
+* Daily automated backups must be retained for at least 7 days.
+
+==== Ongoing Development Notice
+
+The machine requirements are still under refinement.
+
+The following items remain to be researched and defined:
+
+* Precise acceptable performance degradation percentage.
+* Long-term database growth limits.
+* Disaster recovery objectives (RTO / RPO).
+* Final heavy-load benchmark validation.
+
+These requirements will be updated as empirical testing data becomes available.
