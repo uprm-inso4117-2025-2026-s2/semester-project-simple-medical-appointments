@@ -1,0 +1,45 @@
+name: Convert AsciiDoc to PDF
+
+on:
+  push:
+    branches:
+      - Documentation
+    paths:
+      - 'docs/**/*.adoc'
+  pull_request:
+    paths:
+      - 'docs/**/*.adoc'
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  build-pdf:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install Asciidoctor PDF and dependencies
+        run: |
+          gem install asciidoctor-pdf --no-document
+          gem install rouge --no-document       # for syntax highlighting
+          gem install asciidoctor-diagram --no-document # for diagrams
+
+      - name: Convert AsciiDoc to PDF
+        run: |
+          mkdir -p build/pdf
+          for file in $(find docs -name "*.adoc"); do
+            filename=$(basename "$file" .adoc)
+            asciidoctor-pdf "$file" -o "build/pdf/${filename}.pdf"
+          done
+
+      - name: Upload PDFs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-pdf
+          path: build/pdf
