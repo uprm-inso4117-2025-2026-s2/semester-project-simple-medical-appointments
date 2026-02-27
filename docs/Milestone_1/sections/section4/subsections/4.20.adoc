@@ -1,1 +1,1 @@
-=== *Performance Testing Automation*
+=== *Defect Reporting and Management*

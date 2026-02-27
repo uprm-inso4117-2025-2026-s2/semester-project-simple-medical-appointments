@@ -1,1 +1,1 @@
-=== *Linear Temporal Logic*
+=== *(Dependent) Types*

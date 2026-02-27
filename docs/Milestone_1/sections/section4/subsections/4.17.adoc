@@ -1,1 +1,1 @@
-=== *System/Acceptance Testing Principles*
+=== *System/Acceptance Testing Automation*
