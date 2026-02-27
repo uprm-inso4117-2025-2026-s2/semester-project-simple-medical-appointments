@@ -69,6 +69,8 @@ This method strengthens reliability not through exhaustive verification, but thr
 
 Risk-based test planning reframes software testing as a rational, risk-informed optimization process. By applying the expected defect cost model, decomposing the system across structured axes, and pruning tests to remain within budget constraints, testing becomes both economically justified and technically disciplined. This approach maximizes reliability improvement under practical development constraints and will be used and expanded upon in this project.
 
+---
+
 ==== User Profile Test Plan
 :author: Viviana Ramos Vivoni
 
@@ -203,3 +205,5 @@ Testing will be considered complete when:
 ===== References
 
 * Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
