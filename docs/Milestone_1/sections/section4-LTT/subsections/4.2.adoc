@@ -71,6 +71,199 @@ Risk-based test planning reframes software testing as a rational, risk-informed 
 
 ---
 
+=== Pierre Vales LTT (@pierreg_vales)
+
+=== *Testing Strategies for Healthcare Appointment Scheduling Systems*
+
+==== Research Report: Testing Strategies for Healthcare Appointment Scheduling Systems
+:author:
+
+===== Summary
+
+This research report examines best practices and critical test scenarios for healthcare appointment scheduling systems. Testing scheduling functionality requires special attention to conflict detection, race conditions, boundary conditions, and concurrent user scenarios. Research shows that properly tested scheduling systems reduce double-bookings by 60-95% and prevent costly production failures that occur when edge cases are overlooked.
+
+The most critical areas for testing are: concurrent booking scenarios (race conditions), conflict detection accuracy, timezone and date boundary conditions, appointment lifecycle state transitions, and role-based access controls. This report provides a comprehensive framework for creating an effective test plan that prioritizes high-risk scenarios while ensuring system reliability.
+
+===== Understanding the Testing Challenge
+
+Appointment scheduling systems present unique testing challenges compared to typical CRUD applications. According to research from the University of Washington, scheduling systems require testing for both "what to test (input conditions, edge cases, boundary cases) and how to test (code organization, asserts)."
+
+The complexity stems from several factors:
+
+*Time-Based Dependencies:* Unlike static data, appointments exist in time with dependencies on dates, timezones, daylight saving transitions, and duration calculations. A payment processing system that calculated "next year" by adding 365 days worked perfectly until February 29, 2020, when payments scheduled for 2021 were off by one day. This real-world example demonstrates how date boundary edge cases can cause production failures.
+
+*Concurrent Operations:* Healthcare scheduling research indicates that single-user testing validates functionality but misses race conditions, lock contention, and resource exhaustion that emerge under heavy concurrent load. When multiple users book appointments simultaneously, systems without proper conflict prevention can create double-bookings despite passing all single-user tests.
+
+*State Management Complexity:* Appointments transition through multiple states (scheduled, confirmed, cancelled, completed, no-show) with business rules governing each transition. Testing must verify that state changes cascade correctly to related systems like notifications, waitlists, and capacity management.
+
+Research on edge case testing reveals that "edge cases represent low-probability, high-impact risks. Any individual edge case might affect only 0.1% of users" but these scenarios "represent the difference between controlled quality and production disasters." In healthcare scheduling, double-bookings due to race conditions cause patient dissatisfaction and operational chaos, timezone miscalculations can result in missed appointments and no-shows, incorrect capacity validation can overbook providers or underutilize resources, and authorization failures can expose patient data or allow unauthorized modifications. Studies show that boundary value analysis reveals 15-40% more defects than testing typical values alone, making edge case testing essential for production readiness.
+
+===== Test Prioritization Framework
+
+Based on healthcare software testing research, test scenarios should be prioritized using three tiers:
+
+*HIGH PRIORITY (Critical - Must Pass Before Release)*
+
+* Scenarios that could cause data corruption, security breaches, or complete system failure
+* Concurrent booking race conditions that could create double-bookings
+* Authorization bypasses allowing unauthorized access to schedules
+* Financial impact scenarios (overbooking, capacity violations)
+* Patient safety scenarios (wrong patient scheduled, medication timing conflicts)
+
+*MEDIUM PRIORITY (Important - Should Be Tested)*
+
+* Edge cases in frequently used features with moderate failure consequences
+* Input validation edge cases in booking forms
+* Timezone boundary conditions for appointments near midnight or DST transitions
+* Workflow interruption scenarios in multi-step booking processes
+* Error handling in non-critical operations
+
+*LOW PRIORITY (Nice to Have - Test If Time Permits)*
+
+* Edge cases in rarely used administrative functions
+* Edge cases with purely cosmetic consequences
+* Highly improbable scenario combinations affecting negligible user populations
+* Performance optimization for unusual load patterns
+
+Healthcare applications must elevate certain edge cases regardless of frequency. According to edge case testing research for regulated industries, all scenarios involving patient data access must be tested for HIPAA compliance, audit trail completeness across unusual scenarios demands thorough validation, authorization edge cases must be tested even if statistically rare, and data persistence failures in healthcare applications have patient safety implications.
+
+===== Core Test Scenario Categories
+
+*Conflict Detection and Prevention*
+
+The objective is to verify the system correctly identifies and prevents overlapping appointments. Basic overlap scenarios (HIGH PRIORITY) include exact same time slot for same provider, new appointment starts during existing appointment (2:00-2:30 overlaps 1:45-2:15), new appointment ends during existing appointment (1:45-2:15 overlaps 2:00-2:30), new appointment completely contains existing appointment (1:00-3:00 contains 2:00-2:30), new appointment completely contained by existing appointment (2:00-2:15 within 1:30-3:00), and back-to-back appointments (ending exactly when next starts - should not conflict).
+
+Buffer time scenarios (HIGH PRIORITY) include appointments with 10-minute buffer should block adjacent slots, buffer violations should be detected (2:00-2:30 with 10min buffer conflicts with 2:30-3:00), zero-buffer appointments can be back-to-back, and different appointment types may have different buffer requirements. Multi-provider scenarios (MEDIUM PRIORITY) include same time slot with different providers should not conflict, same patient booking multiple providers simultaneously should succeed, and provider availability constraints must be respected per provider.
+
+Expected results: valid bookings save successfully with confirmation, conflicting bookings rejected with clear error message indicating conflict, system identifies which existing appointment causes the conflict, and no partial saves occur (transaction rollback on conflict).
+
+*Race Condition and Concurrent User Tests*
+
+The objective is to verify the system handles simultaneous booking attempts without creating double-bookings. According to research on race condition testing, "race conditions can easily occur in JavaScript due to its event-driven nature. Any situation where JavaScript has the ability to schedule tasks could potentially lead to race conditions."
+
+Concurrent booking scenarios (HIGH PRIORITY - CRITICAL) include two users attempting to book identical time slot within 100ms of each other, three or more users attempting to book same slot simultaneously, User A checking availability while User B is mid-booking (timing window test), rapid-fire clicks on submit button before page updates, and simultaneous API calls from multiple sources (mobile app + web). Session and state scenarios (HIGH PRIORITY) include user leaving booking page idle and returning after session near-expiration, form submission after session expires mid-booking, network interruption during booking transaction, browser crash/refresh during booking process, and user opening multiple tabs and booking from both simultaneously.
+
+Based on research from Doppler on reliably testing race conditions, tests should:
+
+. Create multiple simulated users (threads/promises)
+. Have each user check the same time slot availability
+. Inject controllable delays at critical points
+. Have all users attempt to book simultaneously
+. Verify only ONE booking succeeds
+. Verify all other attempts receive proper error
+. Verify no partial bookings exist in database
+
+Expected results: exactly one booking succeeds, all other attempts receive "no longer available" error, database contains only one appointment for that slot, no orphaned or partial records exist, and system logs show proper transaction rollback for failed attempts.
+
+*Date and Time Boundary Tests*
+
+The objective is to verify correct handling of date/time edge cases and timezone complexities. Research on time-based edge cases emphasizes: "Handling daylight saving time transitions, leap years, and time zone conversions can lead to subtle edge cases. A flight booking system must correctly display arrival times across different time zones."
+
+Date boundary scenarios (HIGH PRIORITY) include appointments on leap day (February 29) in leap years, invalid date attempts (February 30, November 31), year boundary transitions (December 31 to January 1), appointments at midnight (00:00:00), same-day appointments, far-future bookings (maximum date range limit), and past date booking attempts (should be rejected). Time boundary scenarios (HIGH PRIORITY) include midnight appointments (00:00 - edge of day boundary), appointments crossing midnight (11:30 PM - 12:30 AM), minimum appointment duration (e.g., 15 minutes), maximum appointment duration (e.g., 4 hours), 23:59 appointment (last minute of day), and 00:00 appointment (first minute of day).
+
+Timezone scenarios (HIGH PRIORITY) include provider in PST with patient booking from EST, Daylight Saving Time start date (March, 2:00 AM doesn't exist), Daylight Saving Time end date (November, 1:00 AM occurs twice), appointment scheduled for "skipped" hour during DST transition, international users booking across date line, server timezone different from user timezone, and display of appointment times in user's local timezone. Duration calculation scenarios (MEDIUM PRIORITY) include 30-minute appointment from 2:00 ending at 2:30 (not 2:29), adding buffer time to calculated end time, and appointments spanning DST transition (e.g., 1:30-3:30 on DST start day).
+
+Expected results: all dates validated against calendar rules, invalid dates rejected with clear error message, appointments display in user's correct timezone, DST transitions handled correctly, duration calculations account for DST when relevant, and database stores times in UTC for consistency.
+
+*Appointment Lifecycle and State Transition Tests*
+
+The objective is to verify appointments correctly transition through states and trigger appropriate actions. State transition scenarios (HIGH PRIORITY) include: Scheduled → Confirmed (patient confirms via link/call), Scheduled → Cancelled (patient or provider cancels before appointment), Confirmed → Completed (appointment occurs and is marked complete), Confirmed → No-Show (patient doesn't arrive for confirmed appointment), Scheduled → Rescheduled → Scheduled (patient moves to different time), and Cancelled → Cannot Reactivate (cancelled appointments cannot return to scheduled).
+
+Invalid transition scenarios (HIGH PRIORITY) include attempt to confirm already-completed appointment, attempt to complete future appointment, attempt to mark no-show for appointment that was cancelled, multiple state changes in rapid succession, and state change while notification is sending. Cascading effects (MEDIUM PRIORITY) include cancellation triggering waitlist notification, cancellation freeing time slot for new bookings, confirmation sending confirmation email/SMS, no-show updating patient's no-show history, rescheduling cancelling original and creating new booking, and completed appointment updating provider's schedule capacity.
+
+Expected results: only valid state transitions allowed, state changes are atomic (all or nothing), related systems updated correctly (notifications, waitlist, capacity), audit trail records all state changes with timestamp and user, and concurrency handled (two users can't transition same appointment simultaneously).
+
+*Capacity and Availability Validation Tests*
+
+The objective is to verify system enforces provider availability and capacity constraints. Provider availability scenarios (HIGH PRIORITY) include booking during blocked time (provider unavailable), booking outside clinic operating hours, booking on provider's day off, provider working modified hours (half day), holiday/vacation blocking entire days, and emergency blocking (urgent unavailability). Capacity limit scenarios (HIGH PRIORITY) include maximum appointments per day reached, maximum concurrent appointments reached, specific appointment type limit reached, room capacity limit reached, and equipment availability constraint. Appointment type constraints (MEDIUM PRIORITY) include provider doesn't offer requested appointment type, appointment type requires specific equipment, appointment type has minimum duration requirement, appointment type can't be back-to-back, and appointment type restricted to certain days/times.
+
+Expected results: bookings outside available times rejected, clear error message explaining constraint violation, system suggests alternative available times when possible, capacity limits enforced even under concurrent load, and override capability exists for administrative users with audit logging.
+
+*Input Validation and Boundary Value Tests*
+
+The objective is to verify proper handling of invalid, extreme, and boundary value inputs. According to research on boundary testing: "For fields accepting integers 1 to 100, test 0, 1, 2, 99, 100, and 101." This principle applies across all booking form inputs.
+
+Patient information validation (MEDIUM PRIORITY) includes empty patient name (required field), single character name (minimum boundary), very long name (200+ characters), special characters in name (O'Brien, José, 李明), numbers in name field (should reject), and patient ID at system limit (INT_MAX). Contact information validation (MEDIUM PRIORITY) includes invalid email format (missing @, no domain), international phone numbers (+44, +52), phone with extensions (123-456-7890 x123), empty required fields, and maximum length phone numbers. Appointment notes/reason (LOW PRIORITY) includes empty notes (should be allowed), extremely long notes (10,000 characters), special characters and emojis in notes, SQL injection attempts in notes field, and XSS attempts (<script> tags).
+
+Expected results: invalid inputs rejected with clear, user-friendly error message, field indicates specific validation rule violated, no crashes or database errors from malformed input, security-sensitive inputs sanitized (SQL injection blocked), and international characters handled correctly (Unicode support).
+
+*Role-Based Access Control Tests*
+
+The objective is to verify users can only perform actions appropriate to their role.
+
+Patient role scenarios (HIGH PRIORITY): patient can view own appointments, patient CANNOT view other patients' appointments, patient can book appointments for themselves, patient can cancel own appointments, patient CANNOT modify provider schedules, patient CANNOT access administrative functions, and patient CANNOT see other patients in schedule view.
+
+Provider role scenarios (HIGH PRIORITY): provider can view own schedule, provider can view patient details for own appointments, provider can mark appointments complete/no-show, provider can modify own availability, provider CANNOT modify other providers' schedules, provider can override certain restrictions (intentional double-booking), and provider CANNOT access billing/financial data (if not authorized).
+
+Administrator role scenarios (HIGH PRIORITY): admin can view all schedules, admin can create/modify appointments for any provider, admin can modify provider availability, admin can override capacity restrictions, admin can cancel any appointment, admin actions are logged in audit trail, and admin CANNOT impersonate users without audit trail.
+
+Authorization bypass attempts (HIGH PRIORITY - SECURITY) include direct API calls bypassing UI restrictions, token manipulation to access other users' data, session hijacking attempts, privilege escalation attempts, and CSRF attacks on booking endpoints.
+
+Expected results: users see only data they're authorized to access, unauthorized actions rejected with 403 Forbidden, security checks occur on server (not just UI), all authorization failures logged, and no sensitive data leaked in error messages.
+
+*Booking Flow and User Experience Tests*
+
+The objective is to verify complete booking workflows function correctly. Complete booking flows (MEDIUM PRIORITY) include: search for available times → select time → enter details → confirm, modify existing appointment → select new time → confirm change, cancel appointment → confirm cancellation → receive confirmation, and join waitlist → receive notification → accept offer → confirm booking.
+
+Interruption scenarios (MEDIUM PRIORITY) include starting booking and navigating away to resume, internet dropping mid-booking, browser back button during multi-step booking, closing browser tab mid-booking, and system timeout during booking process. Notification flow (MEDIUM PRIORITY) includes booking triggering confirmation email immediately, reminder sent 24 hours before appointment, cancellation triggering cancellation email, waitlist opening triggering notification to eligible patients, and confirmation of notification delivery.
+
+Expected results: complete workflows succeed end-to-end, interruptions handled gracefully (no corrupt data), users can resume interrupted bookings, notifications sent reliably and timely, and users receive appropriate feedback at each step.
+
+===== Test Data Strategy
+
+Research emphasizes using "realistic and representative data that reflects the user context and environment, and avoid hard-coding or reusing data that might cause conflicts or inconsistencies."
+
+Provider test data should include multiple providers with different specializations, providers with different availability patterns, providers in different timezones, providers with different capacity limits, and overlapping and non-overlapping schedules. Patient test data should include patients in different timezones, patients with complex names (international characters), patients with appointment history, new patients (first appointment), and patients with no-show history. Appointment test data should include various appointment types (different durations, requirements), appointments across multiple weeks/months, appointments in different states, recurring appointment patterns, and special appointment types (emergency, walk-in).
+
+Research indicates "applications performing well with test datasets often fail at production scale when data volumes create unanticipated performance bottlenecks." Testing should use realistic volumes including 1,000+ appointments for performance testing, 100+ concurrent users for load testing, full day schedules (8 AM - 6 PM, every 15 min = 40 slots), multiple days/weeks of data, and a full patient database (not just 10 test patients).
+
+===== Test Execution Strategy
+
+High priority areas for automation include conflict detection algorithms (unit tests), race condition scenarios (integration tests with controlled timing), input validation (unit tests), authorization checks (integration tests), and basic booking flows (end-to-end tests). Areas better suited for manual testing include user experience and UI usability, timezone display correctness (visual verification), error message clarity and helpfulness, complex multi-step workflows, and exploratory testing for unknown edge cases.
+
+Based on industry research, recommended testing tools include Jest or Mocha for unit testing individual functions like conflict detection, Supertest for integration testing API endpoints, Cypress or Playwright for end-to-end testing full workflows, Artillery or k6 for load testing concurrent user simulation, and custom scripts with controlled timing and Promise-based concurrency testing for race condition testing.
+
+The continuous testing approach should run unit tests on every code commit, run integration tests before merging to main branch, run full end-to-end tests nightly, run load tests weekly or before releases, and perform security testing before each release.
+
+===== Test Documentation Requirements
+
+Each test case should include a unique Test Case ID (e.g., SCHED-CONFLICT-001), Priority (HIGH / MEDIUM / LOW), Test Scenario (brief description), Preconditions (system state before test), Test Steps (numbered step-by-step actions), Test Data (specific data values to use), Expected Result (precise expected outcome), Actual Result (what actually happened, filled during execution), Status (PASS / FAIL / BLOCKED), and Notes (any observations or issues).
+
+When tests fail, defect documentation should capture: Severity (Critical / High / Medium / Low), steps to reproduce, expected vs. actual behavior, screenshots or logs, frequency (always / intermittent), and environment details.
+
+===== Discussion
+
+Research emphasizes that "edge case tests provide the same general benefit as other tests: it's proof to you and your team that the guarantees a block of code claims to provide remain true in light of future code changes." Teams should write tests before or alongside feature development (TDD approach), not wait until "the end" to start testing, and fix defects immediately rather than accumulating technical debt.
+
+High-risk areas should be addressed first: prioritize race condition and conflict detection tests to prevent double-bookings, test authorization thoroughly to prevent security breaches, validate date/time handling carefully to prevent timezone issues, and test state transitions comprehensively to prevent data inconsistency. Research on edge case testing notes: "Think like a hacker to crack the application but from user perspective only. Edge scenarios can be findable if you master the exploration of the application." Teams should consider how real users will use (and misuse) the system, test with realistic data and workflows, include accessibility testing for diverse user needs, and test error recovery and help/support flows.
+
+Test coverage targets should aim for 80%+ code coverage for critical modules, 100% coverage of conflict detection logic, 100% coverage of authorization checks, and tracking of which edge cases remain untested. Teams should also iterate and improve by reviewing production incidents and adding tests for discovered issues, regularly reviewing and updating test cases, retiring obsolete tests, and adding new edge cases as discovered.
+
+===== Conclusion
+
+Testing healthcare appointment scheduling systems requires a comprehensive, risk-based approach that prioritizes high-impact scenarios like race conditions, conflict detection, and authorization checks. Research demonstrates that proper testing reduces double-bookings by 60-95% and prevents costly production failures.
+
+The key to success is prioritizing edge cases and boundary conditions that have the greatest impact on system reliability and patient safety. By following this research-backed framework, teams can create robust test plans that ensure scheduling systems handle both typical workflows and extreme edge cases reliably.
+
+Remember that edge cases, while rare individually, collectively represent significant risk. As research states: "Edge cases represent low-probability, high-impact risks... These scenarios represent the difference between controlled quality and production disasters." Thorough testing of scheduling systems is not optional—it's essential for delivering reliable healthcare software.
+
+===== References
+
+. University of Washington, "ScheduleTest.java - Example of comprehensive unit testing for scheduling systems," Course materials CSE 331, 2011. https://courses.cs.washington.edu/courses/cse331/11au/sections/ScheduleTest.java
+. U.S. Department of Veterans Affairs, "VA Medical Appointment Scheduling Contest: Test Cases for Healthcare Scheduling Systems." https://vascheduling.devpost.com/updates/658-step-1-test-cases
+. VirtuosoQA, "Edge Case Testing Explained – What to Test & How to Do It," 2024. https://www.virtuosoqa.com/post/edge-case-testing
+. A. Ala, F. Chen, and H. R. Parsaei, "Appointment Scheduling Problem in Complexity Systems of the Healthcare Services: A Comprehensive Review," Journal of Healthcare Engineering, 2022. https://pmc.ncbi.nlm.nih.gov/articles/PMC8913063/
+. Fast-check, "Race Conditions Testing Framework." https://fast-check.dev/docs/advanced/race-conditions/
+. Doppler, "Reliably Testing Race Conditions: A Practical Guide." https://www.doppler.com/blog/reliably-testing-race-conditions
+. Braze, "Race Conditions in Event-Driven Systems." https://www.braze.com/docs/user_guide/engagement_tools/testing/race_conditions
+. FasterCapital, "Boundary Testing: How to Test Your Product's Boundary Values and Edge Cases." https://fastercapital.com/content/Boundary-Testing--How-to-Test-Your-Product-s-Boundary-Values-and-Edge-Cases.html
+. S. DEV Community, "The Edge Case Hunter's Guide: Comprehensive Unit Testing Beyond the Happy Path," 2025. https://dev.to/shreyas1009/the-edge-case-hunters-guide-comprehensive-unit-testing-beyond-the-happy-path-1nm8
+. LinkedIn Learning, "How can you test edge cases and boundary conditions in unit tests?" 2023. https://www.linkedin.com/advice/3/how-can-you-test-edge-cases-boundary-conditions-nwaoc
+. Testsigma, "What Is an Edge Case Testing? How To Find and Prioritize," 2023. https://testsigma.com/blog/edge-case-testing/
+. ScienceDirect, "Robust appointment scheduling for random service times using min-max optimization," Operations Research Journal, 2025. https://www.sciencedirect.com/science/article/abs/pii/S3050784725000145
+
+---
+
 ==== Risk-Based Test Plan: Authentication & Access Control
 
 :author: Carlos Pepin Delgado
