@@ -12,4 +12,8 @@ include::sections/section2/section.adoc[]
 
 include::sections/section3/section.adoc[]
 
+include::sections/section4-LTT/section.adoc[]
+
+// include::sections/AI_Disclosure_Statement.adoc[]
+
 // include::sections/logbook.adoc[]
