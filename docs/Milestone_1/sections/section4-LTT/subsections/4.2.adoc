@@ -71,12 +71,11 @@ Risk-based test planning reframes software testing as a rational, risk-informed 
 
 ---
 
-=== Pierre Vales LTT (@pierreg_vales)
 
-=== *Testing Strategies for Healthcare Appointment Scheduling Systems*
+==== *Testing Strategies for Healthcare Appointment Scheduling Systems*
 
-==== Research Report: Testing Strategies for Healthcare Appointment Scheduling Systems
-:author:
+===== Research Report: Testing Strategies for Healthcare Appointment Scheduling Systems
+:author: Pierre Vales
 
 ===== Summary
 
@@ -84,7 +83,7 @@ This research report examines best practices and critical test scenarios for hea
 
 The most critical areas for testing are: concurrent booking scenarios (race conditions), conflict detection accuracy, timezone and date boundary conditions, appointment lifecycle state transitions, and role-based access controls. This report provides a comprehensive framework for creating an effective test plan that prioritizes high-risk scenarios while ensuring system reliability.
 
-===== Understanding the Testing Challenge
+====== Understanding the Testing Challenge
 
 Appointment scheduling systems present unique testing challenges compared to typical CRUD applications. According to research from the University of Washington, scheduling systems require testing for both "what to test (input conditions, edge cases, boundary cases) and how to test (code organization, asserts)."
 
@@ -98,7 +97,7 @@ The complexity stems from several factors:
 
 Research on edge case testing reveals that "edge cases represent low-probability, high-impact risks. Any individual edge case might affect only 0.1% of users" but these scenarios "represent the difference between controlled quality and production disasters." In healthcare scheduling, double-bookings due to race conditions cause patient dissatisfaction and operational chaos, timezone miscalculations can result in missed appointments and no-shows, incorrect capacity validation can overbook providers or underutilize resources, and authorization failures can expose patient data or allow unauthorized modifications. Studies show that boundary value analysis reveals 15-40% more defects than testing typical values alone, making edge case testing essential for production readiness.
 
-===== Test Prioritization Framework
+====== Test Prioritization Framework
 
 Based on healthcare software testing research, test scenarios should be prioritized using three tiers:
 
@@ -127,7 +126,7 @@ Based on healthcare software testing research, test scenarios should be prioriti
 
 Healthcare applications must elevate certain edge cases regardless of frequency. According to edge case testing research for regulated industries, all scenarios involving patient data access must be tested for HIPAA compliance, audit trail completeness across unusual scenarios demands thorough validation, authorization edge cases must be tested even if statistically rare, and data persistence failures in healthcare applications have patient safety implications.
 
-===== Core Test Scenario Categories
+====== Core Test Scenario Categories
 
 *Conflict Detection and Prevention*
 
@@ -209,7 +208,7 @@ Interruption scenarios (MEDIUM PRIORITY) include starting booking and navigating
 
 Expected results: complete workflows succeed end-to-end, interruptions handled gracefully (no corrupt data), users can resume interrupted bookings, notifications sent reliably and timely, and users receive appropriate feedback at each step.
 
-===== Test Data Strategy
+====== Test Data Strategy
 
 Research emphasizes using "realistic and representative data that reflects the user context and environment, and avoid hard-coding or reusing data that might cause conflicts or inconsistencies."
 
@@ -217,7 +216,7 @@ Provider test data should include multiple providers with different specializati
 
 Research indicates "applications performing well with test datasets often fail at production scale when data volumes create unanticipated performance bottlenecks." Testing should use realistic volumes including 1,000+ appointments for performance testing, 100+ concurrent users for load testing, full day schedules (8 AM - 6 PM, every 15 min = 40 slots), multiple days/weeks of data, and a full patient database (not just 10 test patients).
 
-===== Test Execution Strategy
+====== Test Execution Strategy
 
 High priority areas for automation include conflict detection algorithms (unit tests), race condition scenarios (integration tests with controlled timing), input validation (unit tests), authorization checks (integration tests), and basic booking flows (end-to-end tests). Areas better suited for manual testing include user experience and UI usability, timezone display correctness (visual verification), error message clarity and helpfulness, complex multi-step workflows, and exploratory testing for unknown edge cases.
 
@@ -225,13 +224,13 @@ Based on industry research, recommended testing tools include Jest or Mocha for 
 
 The continuous testing approach should run unit tests on every code commit, run integration tests before merging to main branch, run full end-to-end tests nightly, run load tests weekly or before releases, and perform security testing before each release.
 
-===== Test Documentation Requirements
+====== Test Documentation Requirements
 
 Each test case should include a unique Test Case ID (e.g., SCHED-CONFLICT-001), Priority (HIGH / MEDIUM / LOW), Test Scenario (brief description), Preconditions (system state before test), Test Steps (numbered step-by-step actions), Test Data (specific data values to use), Expected Result (precise expected outcome), Actual Result (what actually happened, filled during execution), Status (PASS / FAIL / BLOCKED), and Notes (any observations or issues).
 
 When tests fail, defect documentation should capture: Severity (Critical / High / Medium / Low), steps to reproduce, expected vs. actual behavior, screenshots or logs, frequency (always / intermittent), and environment details.
 
-===== Discussion
+====== Discussion
 
 Research emphasizes that "edge case tests provide the same general benefit as other tests: it's proof to you and your team that the guarantees a block of code claims to provide remain true in light of future code changes." Teams should write tests before or alongside feature development (TDD approach), not wait until "the end" to start testing, and fix defects immediately rather than accumulating technical debt.
 
@@ -239,7 +238,7 @@ High-risk areas should be addressed first: prioritize race condition and conflic
 
 Test coverage targets should aim for 80%+ code coverage for critical modules, 100% coverage of conflict detection logic, 100% coverage of authorization checks, and tracking of which edge cases remain untested. Teams should also iterate and improve by reviewing production incidents and adding tests for discovered issues, regularly reviewing and updating test cases, retiring obsolete tests, and adding new edge cases as discovered.
 
-===== Conclusion
+====== Conclusion
 
 Testing healthcare appointment scheduling systems requires a comprehensive, risk-based approach that prioritizes high-impact scenarios like race conditions, conflict detection, and authorization checks. Research demonstrates that proper testing reduces double-bookings by 60-95% and prevents costly production failures.
 
@@ -247,7 +246,7 @@ The key to success is prioritizing edge cases and boundary conditions that have 
 
 Remember that edge cases, while rare individually, collectively represent significant risk. As research states: "Edge cases represent low-probability, high-impact risks... These scenarios represent the difference between controlled quality and production disasters." Thorough testing of scheduling systems is not optional—it's essential for delivering reliable healthcare software.
 
-===== References
+====== References
 
 . University of Washington, "ScheduleTest.java - Example of comprehensive unit testing for scheduling systems," Course materials CSE 331, 2011. https://courses.cs.washington.edu/courses/cse331/11au/sections/ScheduleTest.java
 . U.S. Department of Veterans Affairs, "VA Medical Appointment Scheduling Contest: Test Cases for Healthcare Scheduling Systems." https://vascheduling.devpost.com/updates/658-step-1-test-cases

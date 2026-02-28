@@ -1,5 +1,4 @@
 ==== *Machine Requirements*
-:!sectnums:
 
 The following machine requirements define measurable hardware, software,
 performance, and environmental constraints for the system.
@@ -12,6 +11,8 @@ in later milestones.
 
 NOTE: These machine requirements are still under development. Some thresholds are theoretical and will be validated through testing in later milestones. Items marked “TBD” remain to be researched and defined.
 
+[[requirements-table]]
+.Machine Requirements
 [options="header"]
 |===
 | ID | Description | Linked User Stories/Epics | Verification Tests

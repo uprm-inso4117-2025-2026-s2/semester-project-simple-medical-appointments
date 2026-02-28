@@ -14,7 +14,7 @@ Verification answers: Is the documentation logically sound and internally consis
 
 Validation ensures that domain abstractions and derived requirements reflect real medical scheduling practices.
 
-===== *A. Scenario-Based Stakeholder Validation*
+===== *Scenario-Based Stakeholder Validation*
 
 Structured domain scenarios were constructed from Section 2 (Domain Description) and Section 3.1 (Concept Analysis).
 
@@ -40,7 +40,7 @@ Feedback from these walkthroughs resulted in refinements to:
 
 This activity ensures domain concepts correspond to actual observed practices.
 
-===== *B. Terminology Validation*
+===== *Terminology Validation*
 
 All major domain concepts (Patient, Provider, Clinic, Appointment, Time Slot, Referral, Insurance Authorization) were reviewed to ensure:
 
@@ -57,7 +57,7 @@ This satisfies Milestone 1 expectations that domain modeling be defensible and g
 
 Verification ensures documentation correctness, consistency, and traceability.
 
-===== *A. Consistency Review*
+===== *Consistency Review*
 
 The documentation was inspected to verify:
 
@@ -68,7 +68,7 @@ The documentation was inspected to verify:
 
 Issues identified during review were corrected via documentation revisions.
 
-===== *B. Traceability Verification*
+===== *Traceability Verification*
 
 Traceability between domain concepts and requirements was explicitly checked.
 
@@ -91,7 +91,7 @@ Provider Availability → Time Slot → Scheduling Constraint → Requirement.
 
 This ensures analytic coherence and goal alignment.
 
-===== *C. Requirements Precision Check*
+===== *Requirements Precision Check*
 
 Requirements were reviewed to eliminate vague language (e.g., "efficient", "better", "improved").
 
@@ -116,30 +116,3 @@ Scenarios analyzed include:
 Walkthroughs identified logical gaps and ambiguous constraints, which were resolved through documentation refinement.
 
 This process satisfies the rubric requirement for structured inspection and review.
-
-
-==== *Evidence of V&V Activities*
-
-Evidence of validation and verification includes:
-
-- GitHub issue discussions refining terminology.
-- Revision commits clarifying requirements.
-- Scenario walkthrough notes.
-- Traceability justifications embedded in requirement sections.
-
-These artifacts demonstrate that V&V activities are continuous and documented.
-
-
-==== *Alignment with Milestone 1 Objectives*
-
-This section demonstrates:
-
-- Validation of domain abstractions through stakeholder-informed scenarios.
-- Verification of documentation consistency and precision.
-- Explicit traceability between domain concepts and requirements.
-- Documented review and refinement processes.
-
-Validation ensures conceptual correctness.  
-Verification ensures structural integrity.
-
-Together, these activities strengthen the analytic foundation required for subsequent architecture, implementation, and testing milestones.
