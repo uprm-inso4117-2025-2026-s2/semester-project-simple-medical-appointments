@@ -7,8 +7,6 @@ These requirements are preliminary and remain under development.
 Some thresholds are theoretical and will be validated through testing
 in later milestones.
 
-==== Machine Requirements
-
 NOTE: These machine requirements are still under development. Some thresholds are theoretical and will be validated through testing in later milestones. Items marked “TBD” remain to be researched and defined.
 
 [[requirements-table]]
