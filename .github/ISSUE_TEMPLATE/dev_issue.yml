@@ -68,7 +68,7 @@ body:
   - type: dropdown
     id: urgency
     attributes:
-      label: Urgency:
+      label: Urgency
       options:
         - "1 – Very Low"
         - "2 – Low"
@@ -86,7 +86,7 @@ body:
   - type: dropdown
     id: difficulty
     attributes:
-      label: Difficulty: 
+      label: Difficulty
       options:
         - "1 – Very Easy"
         - "2 – Easy"
@@ -101,13 +101,14 @@ body:
     validations:
       required: true
 
-- type: markdown
-  attributes:
-    value: "## 👤 Recommended Assigned Developer"
+  - type: markdown
+    attributes:
+      value: |
+        ## 👤 Recommended Assigned Developer
 
-- type: input
-  id: recommended_assignee
-  attributes:
-    placeholder: "@username"
-  validations:
-    required: false
+  - type: input
+    id: recommended_assignee
+    attributes:
+      placeholder: "@username"
+    validations:
+      required: false
