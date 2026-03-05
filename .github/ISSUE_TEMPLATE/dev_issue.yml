@@ -18,6 +18,7 @@ body:
   - type: textarea
     id: goal
     attributes:
+      label: Goal
       description: What is the main goal of this task?
       placeholder: |
         Example:
@@ -33,6 +34,7 @@ body:
   - type: textarea
     id: description
     attributes:
+      label: Proposed Solution
       description: Describe what needs to be done.
       placeholder: |
         - UI elements must be properly labeled and accessible via screen readers.
@@ -50,6 +52,7 @@ body:
   - type: textarea
     id: acceptance_criteria
     attributes:
+      label: Success Criteria
       description: Define what must be true for this issue to be considered complete.
       placeholder: |
         - All input fields and interactive elements are screen reader-friendly.
@@ -69,6 +72,7 @@ body:
     id: urgency
     attributes:
       label: Urgency
+      description: Select the urgency of this task.
       options:
         - "1 – Very Low"
         - "2 – Low"
@@ -87,6 +91,7 @@ body:
     id: difficulty
     attributes:
       label: Difficulty
+      description: Select the expected difficulty level.
       options:
         - "1 – Very Easy"
         - "2 – Easy"
@@ -109,6 +114,8 @@ body:
   - type: input
     id: recommended_assignee
     attributes:
+      label: Recommended Developer
+      description: GitHub username of suggested assignee.
       placeholder: "@username"
     validations:
       required: false
