@@ -1,0 +1,141 @@
+== *Descriptive Part*
+=== *Domain Description*
+
+==== *Domain Rough Sketches*
+
+NOTE: This is an unprocessed collection of notes, quotes, and observations from the domain. 
+However, analytic abstractions derived from these notes have been added inline.
+
+[discrete]
+===== Patients
+
+*Patient (Carmen, 67, retired teacher)*:  
+
+“I called the clinic at 8:00 in the morning like they told me, but the line was already busy.  
+
+I kept dialing for almost an hour. When someone finally answered, they said the next available appointment was in three months.  
+
+I wrote the date on a small paper and stuck it on my fridge so I wouldn’t forget.”  
+
+- -> *Observation:* High call congestion, long waiting periods for non-urgent care, reliance on manual reminder methods.  
+
+- -> **Derived concepts**: _call saturation_, _appointment delay_, _manual reminder artifact_, _access bottleneck_, _temporal uncertainty_.
+
+
+*Patient (Miguel, 34, construction worker)*:  
+
+“I can’t always call during work hours. By the time I get out, the office is closed.  
+
+So I just go in person sometimes and ask if there’s anything available.  
+
+If they say no, I just try again another day.”  
+
+- -> *Observation:* Scheduling restricted to office hours creates accessibility barriers for working patients.  
+
+- -> **Derived concepts**: _office-hour constraint_, _walk-in attempt_, _temporal access mismatch_, _repeated scheduling effort_, _work-schedule conflict_.
+
+
+*Patient (Elena, 52, caring for elderly mother)*:  
+
+“I manage my mother’s appointments because she doesn’t use a smartphone.  
+
+Sometimes I have to coordinate her primary doctor, a specialist, and lab tests.  
+
+If one appointment changes, everything else has to move too.”  
+
+- -> *Observation:* Multi-appointment coordination increases complexity, especially for dependent patients.  
+
+- -> **Derived concepts**: _caregiver mediation_, _multi-appointment dependency_, _schedule coupling_, _digital literacy gap_, _coordination burden_.
+
+
+*Patient (Natalia, university student)*:  
+
+“I joined a waitlist once, but nobody ever told me if I moved up or not.  
+
+I didn’t know whether to wait or book somewhere else.”  
+
+- -> *Observation:* Waitlist processes lack transparency and status feedback.  
+
+- -> **Derived concepts**: _waitlist opacity_, _status uncertainty_, _decision paralysis_, _notification absence_, _queue visibility gap_.
+
+
+*Patient (Rosa, 29, new resident in the area)*:  
+
+“I didn’t know which doctor accepted my insurance.  
+
+I called three clinics before finding one that did.  
+
+There’s no single place where you can compare everything.”  
+
+- -> *Observation:* Information fragmentation increases search effort and patient frustration.  
+
+- -> **Derived concepts**: _insurance filtering gap_, _search inefficiency_, _provider comparison absence_, _information asymmetry_, _multi-call burden_.
+
+[discrete]
+===== Clinic Administrative Staff
+
+*Clinic Administrative Assistant (Laura, small family clinic)*:  
+
+“The phones don’t stop ringing from the moment we open. Sometimes we’re booking appointments while answering another call at the same time.  
+
+If someone cancels, we try to call another patient from memory, but not everyone picks up.  
+
+We use a notebook and a spreadsheet, just to be safe.”  
+
+- -> *Observation:* Parallel manual tracking systems and reactive cancellation handling.  
+
+- -> **Derived concepts**: _dual-record keeping_, _cancellation redistribution_, _interruption overload_, _manual scheduling redundancy_, _reactive slot management_.
+
+
+*Clinic Administrator (José, regional clinic network)*:  
+
+“We don’t have visibility into other clinics’ schedules.  
+
+Patients call asking if another location has earlier availability, but we can’t see that information.  
+
+Everything is isolated.”  
+
+- -> *Observation:* Lack of shared scheduling infrastructure across clinics limits system-wide optimization.  
+
+- -> **Derived concepts**: _schedule fragmentation_, _inter-clinic opacity_, _information silo_, _availability isolation_, _system decentralization_.
+
+[discrete]
+===== Doctors / Providers
+
+*Doctor (Dr. Rivera, cardiologist)*:  
+
+“My schedule looks full weeks ahead, but sometimes there are no-shows.  
+
+Other days, appointments take longer than expected, and everything runs late.  
+
+Patients get frustrated, but we can’t predict exactly how long each consultation will take.”  
+
+- -> *Observation:* Appointment duration variability and unpredictable attendance affect schedule reliability.  
+
+- -> **Derived concepts**: _consultation variability_, _no-show fluctuation_, _schedule drift_, _temporal overflow_, _predictability limitation_.
+
+
+*Doctor (Dr. Morales, general practitioner)*:  
+
+“Some patients book multiple appointments just in case, then cancel last minute.  
+
+I understand why they do it — they’re afraid of losing the slot — but it makes scheduling unpredictable.”  
+
+- -> *Observation:* Defensive overbooking behavior emerges from scarcity and uncertainty.  
+
+- -> **Derived concepts**: _defensive reservation_, _scarcity response behavior_, _late cancellation impact_, _schedule distortion_, _trust deficit_.
+
+[discrete]
+===== Insurance / External Coordination
+
+*Insurance Coordinator (Marcos, hospital billing office)*:  
+
+“Sometimes we have to confirm insurance authorization before finalizing an appointment.  
+
+If approval takes too long, the slot might already be given to someone else.  
+
+Patients think it’s our fault, but we’re waiting on external systems.”  
+
+- -> *Observation:* External authorization processes introduce delays and scheduling instability.  
+
+- -> **Derived concepts**: _authorization dependency_, _external system latency_, _conditional booking_, _slot expiration risk_, _cross-system coordination_.
