@@ -3,7 +3,7 @@
 
 ==== *Domain Rough Sketches*
 
-
+NOTE: This is an unprocessed collection of notes, quotes, and observations from the domain. However, analytic abstractions derived from these notes have been added inline.
 
 [discrete]
 ===== Patients
