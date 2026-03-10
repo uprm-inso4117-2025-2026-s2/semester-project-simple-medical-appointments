@@ -2,9 +2,8 @@
 
 ===== *Data Initialization Interfaces*
 
-[[requirements-table]]
 .Interface Requirements
-[options="header"]
+[cols="1,5,2,2",options="header"]
 |===
 | ID | Description | Linked User Stories/Epics | Verification Tests
 
@@ -237,22 +236,9 @@ All endpoints:
 |
 
 | IR-CC-01
-a|
-The system architecture separates:
-
-* Authentication Service (supports Ricardo’s security goals)
-* Validation Middleware
-* Business Logic Layer
-* Repository Layer
-
-Interface communication must follow this order:
-
-Request → Authentication → Validation → Business Logic → Repository → Response
-
-No handler can bypass validation or authorization layers.
-
-Atomic scheduling operations must be handled within the Business Logic Layer to preserve consistency across concurrent requests.
+| The architecture separates Authentication, Validation, Business Logic, and Repository layers. Request flow must be Authentication -> Validation -> Business Logic -> Repository -> Response. Handlers cannot bypass validation/authorization, and atomic scheduling logic must execute in the Business Logic layer.
 |
 |
 
 |===
+
