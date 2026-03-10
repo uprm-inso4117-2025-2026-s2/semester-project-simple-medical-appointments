@@ -8,12 +8,6 @@ Prof. Marko Schütz-Schmuck
 :pdf-themesdir: {docdir}/build
 :pdf-theme: highlighting-theme.yml
 
-// Role highlight usage (inline):
-// [.removed]#deleted intent#
-// [.changed]#modified intent#
-// [.added]#added intent#
-
-
 include::sections/section1/section.adoc[]
 
 include::sections/section2/section.adoc[]

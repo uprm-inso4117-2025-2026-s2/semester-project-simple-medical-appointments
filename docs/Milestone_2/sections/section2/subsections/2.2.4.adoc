@@ -171,7 +171,26 @@ Unauthorized modification attempts return an error response, supporting Ricardo�
 |
 
 | IR-UI-01
-| The UI displays available Time Slots without exposing patient data, updates availability dynamically after state changes, shows clear Appointment status updates, confirms booking/cancellation/rescheduling events, and restricts actions by authenticated role for administrative oversight.
+a|
+Availability Visibility:
+
+* The UI must display available Time Slots without exposing patient data (Carmen, Lucía).
+* Slot availability must update dynamically after state changes.
+
+Appointment Transparency:
+
+* The UI clearly displays current Appointment status (José).
+* Status changes must be reflected immediately after confirmation.
+
+Notification Feedback:
+
+* The UI must confirm successful booking, cancellation, or rescheduling (US.NOTIF.01).
+* Error messages should be specific and validation-driven.
+
+Role-Based Access:
+
+* UI actions must be restricted according to authenticated role (US.AUTH.01, F1.4).
+* Administrative views support Marta’s oversight needs.
 | US.NOTIF.01, US.AUTH.01, F1.4
 |
 
