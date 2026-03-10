@@ -2,9 +2,8 @@
 
 ===== *Data Initialization Interfaces*
 
-[[requirements-table]]
 .Interface Requirements
-[options="header"]
+[cols="1,5,2,2",options="header"]
 |===
 | ID | Description | Linked User Stories/Epics | Verification Tests
 
@@ -172,26 +171,7 @@ Unauthorized modification attempts return an error response, supporting Ricardo�
 |
 
 | IR-UI-01
-a|
-Availability Visibility:
-
-* The UI must display available Time Slots without exposing patient data (Carmen, Lucía).
-* Slot availability must update dynamically after state changes.
-
-Appointment Transparency:
-
-* The UI clearly displays current Appointment status (José).
-* Status changes must be reflected immediately after confirmation.
-
-Notification Feedback:
-
-* The UI must confirm successful booking, cancellation, or rescheduling (US.NOTIF.01).
-* Error messages should be specific and validation-driven.
-
-Role-Based Access:
-
-* UI actions must be restricted according to authenticated role (US.AUTH.01, F1.4).
-* Administrative views support Marta’s oversight needs.
+| The UI displays available Time Slots without exposing patient data, updates availability dynamically after state changes, shows clear Appointment status updates, confirms booking/cancellation/rescheduling events, and restricts actions by authenticated role for administrative oversight.
 | US.NOTIF.01, US.AUTH.01, F1.4
 |
 
@@ -237,22 +217,9 @@ All endpoints:
 |
 
 | IR-CC-01
-a|
-The system architecture separates:
-
-* Authentication Service (supports Ricardo’s security goals)
-* Validation Middleware
-* Business Logic Layer
-* Repository Layer
-
-Interface communication must follow this order:
-
-Request → Authentication → Validation → Business Logic → Repository → Response
-
-No handler can bypass validation or authorization layers.
-
-Atomic scheduling operations must be handled within the Business Logic Layer to preserve consistency across concurrent requests.
+| The architecture separates Authentication, Validation, Business Logic, and Repository layers. Request flow must be Authentication -> Validation -> Business Logic -> Repository -> Response. Handlers cannot bypass validation/authorization, and atomic scheduling logic must execute in the Business Logic layer.
 |
 |
 
 |===
+
