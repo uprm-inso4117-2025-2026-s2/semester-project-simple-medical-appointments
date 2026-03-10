@@ -1,0 +1,85 @@
+==== *Function Signatures*
+
+Notation:
+* `A >< B -> C` consumes A and B and produces C.
+* Updated state is returned.
+* `Result X Error` models success or failure.
+* `Option X` models a possible absence of result.
+
+Core Operations
+[source,text]
+----
+publishSlot : TimeSlotCatalog >< Provider >< TimeSlot
+ -> TimeSlotCatalog >< Result TimeSlotId Error
+
+requestAppointment : AppointmentBook >< Patient >< TimeSlotId
+ -> AppointmentBook >< Result AppointmentId Error
+
+confirmAppointment : AppointmentBook >< TimeSlotCatalog >< ReferralRegistry >< InsuranceRegistry >< AppointmentId
+ -> AppointmentBook >< TimeSlotCatalog >< Result Appointment Error
+
+cancelAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId
+ -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+
+rescheduleAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId >< TimeSlotId
+ -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+
+modifyAvailability : Schedule >< Provider >< DateTimeRange >< Policy
+ -> Schedule >< Result Unit Error
+----
+
+Waitlist
+[source,text]
+----
+joinWaitlist : Waitlist >< Patient >< Specialty
+ -> Waitlist >< Result Unit Error
+
+selectWaitlistCandidate : Waitlist >< TimeSlot
+ -> Waitlist >< Option Patient
+
+reassignSlot : Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< TimeSlotId
+ -> Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< Option AppointmentId
+----
+
+Notifications
+[source,text]
+----
+queueReminder : NotificationQueue >< Appointment
+ -> NotificationQueue
+
+issueReminder : NotificationQueue >< Channel
+ -> NotificationQueue >< Result Unit Error
+----
+
+Lifecycle Updates
+[source,text]
+----
+markNoShow : AppointmentBook >< AppointmentId
+ -> AppointmentBook >< Result Unit Error
+
+recordReferral : ReferralRegistry >< Patient >< Provider >< Referral
+ -> ReferralRegistry >< Result Unit Error
+
+recordInsuranceApproval : InsuranceRegistry >< Patient >< Provider >< AppointmentId
+ -> InsuranceRegistry >< Result Unit Error
+----
+
+Search & Authorization
+[source,text]
+----
+searchProviders : ClinicSystem >< Specialty
+ -> List Provider
+
+listAvailableSlots : TimeSlotCatalog >< Provider
+ -> List TimeSlot
+
+authorizeAction : Policy >< Actor >< Action
+ -> Result Unit Error
+----
+
+Behavior
+[source,text]
+----
+bookingBehavior : ClinicSystem >< Patient
+ -> ClinicSystem >< BehaviorTrace
+----
