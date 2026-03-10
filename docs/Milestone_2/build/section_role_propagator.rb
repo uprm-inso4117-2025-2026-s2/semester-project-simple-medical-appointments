@@ -2,7 +2,7 @@ require 'asciidoctor'
 require 'asciidoctor/extensions'
 
 module SectionRolePropagation
-  TARGET_ROLES = %w[added changed removed].freeze
+  TARGET_ROLES = %w[added changed removed red orange green].freeze
 
   def self.wrap_inline(text, role)
     body = text.to_s
@@ -21,8 +21,6 @@ module SectionRolePropagation
       raw = line.sub(/\s*\z/, '')
       stripped = raw.strip
 
-      # if we're in a role context and encounter a discrete block attribute,
-      # merge the role into the attribute line so the discrete heading inherits it
       if stripped == '[discrete]'
         active_role = roles_by_level[roles_by_level.keys.max]
         if active_role
@@ -31,7 +29,7 @@ module SectionRolePropagation
         end
       end
 
-      if (m = stripped.match(/^\[\.(added|changed|removed)\]$/))
+      if (m = stripped.match(%r{\A\[\.(added|changed|removed|red|orange|green)\]\z}))
         pending_role = m[1]
         out << line
         next
@@ -40,39 +38,46 @@ module SectionRolePropagation
       if (m = raw.match(/^(=+)\s+(.+)$/))
         level = m[1].length
         roles_by_level.delete_if { |k, _| k >= level }
-        if pending_role
-          roles_by_level[level] = pending_role
-          pending_role = nil
+
+        inline_role = nil
+        if (ir = m[2].match(%r{\A\[\.(added|changed|removed|red|orange|green)\]#(.+)#\z}))
+          inline_role = ir[1]
         end
-        active_role = roles_by_level[level]
+
+        active_role = pending_role || inline_role
+        pending_role = nil if active_role
+
         if active_role.nil?
           parent_level = roles_by_level.keys.select { |k| k < level }.max
           active_role = parent_level ? roles_by_level[parent_level] : nil
         end
-        out << if active_role
-                 "#{m[1]} #{wrap_inline(m[2], active_role)}#{trailing_ws}"
-               else
-                 line
-               end
+
+        roles_by_level[level] = active_role if active_role
+
+        if active_role
+          out << "#{m[1]} #{wrap_inline(m[2], active_role)}#{trailing_ws}"
+        else
+          out << line
+        end
         next
       end
 
-      if pending_role
-        active_role = pending_role
-        pending_role = nil
-      else
-        active_role = roles_by_level[roles_by_level.keys.max]
-      end
+      active_role = if pending_role
+                      pending_role.tap { pending_role = nil }
+                    else
+                      roles_by_level[roles_by_level.keys.max]
+                    end
+
       unless active_role
         out << line
         next
       end
 
-      if stripped.empty? ||
-         stripped.start_with?('[', ':', 'include::', 'ifdef::', 'ifndef::', 'endif::',
-                              '|===', '.', '//', 'image::', 'link:') ||
-         %w[---- .... ==== **** ++++].include?(stripped) ||
-         raw.lstrip.start_with?('|')
+      skip_line = stripped.empty? ||
+                  stripped.start_with?('[', ':', 'include::', 'ifdef::', 'ifndef::', 'endif::', '|===', '.', '//', 'image::', 'link:') ||
+                  %w[---- .... ==== **** ++++].include?(stripped) ||
+                  raw.lstrip.start_with?('|')
+      if skip_line
         out << line
         next
       end
