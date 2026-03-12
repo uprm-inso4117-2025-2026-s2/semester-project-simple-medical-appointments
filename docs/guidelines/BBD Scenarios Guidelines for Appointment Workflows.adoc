@@ -1,0 +1,189 @@
+= Guidelines for Writing BDD Scenarios for Appointment Workflows
+:toc:
+:toclevels: 2
+:source-highlighter: rouge
+:numbered:
+
+== Introduction
+
+This document provides guidelines for writing Behavior-Driven Development (BDD) scenarios for the medical appointment scheduling system.
+
+BDD scenarios help developers, testers, and stakeholders describe system behavior in a clear and structured format. When written properly, they serve as:
+
+* documentation of system behavior 
+* acceptance criteria for features
+* a foundation for testing
+
+These guidelines ensure that appointment-related behaviors are described consistently across the project.
+
+== BDD Scenario Structure
+
+BDD scenarios follow the Given–When–Then structure.
+
+[cols="1,4", options="header"]
+|===
+|Keyword |Purpose
+
+|*Given*
+|Describes the initial system state or context.
+
+|*When*
+|Describes the action performed by the user or system.
+
+|*Then*
+|Describes the expected outcome or observable result.
+|===
+
+Additional steps may use `And` or `But` to improve readability.
+
+== Guidelines for Writing Clear Scenarios
+
+The following practices help keep BDD scenarios readable and useful for the development team.
+
+=== Write from the User's Perspective
+
+Scenarios should describe system behavior from the perspective of actors such as:
+
+* patient
+* doctor
+* administrator
+
+Focus on observable behavior, not internal details.
+
+=== Keep Scenarios Focused
+
+Each scenario should test one behavior only.
+
+* Use a single `When` clause.
+* Avoid combining multiple workflows in one scenario.
+* If a scenario becomes complex, split it into smaller ones.
+
+=== Make Preconditions Explicit
+
+The `Given` section should clearly establish the system state.
+
+Examples:
+
+* a patient has a confirmed appointment
+* a doctor has an available slot
+* a slot is already reserved
+
+Clear preconditions make scenarios easier to understand and test.
+
+=== Describe Outcomes, Not Processes
+
+The `Then` section should describe **what happens**, not **how it happens**.
+
+Example:
+
+* the appointment status is updated to "Cancelled"
+
+Avoid describing internal operations such as database queries or method calls.
+
+=== Use Consistent Terminology
+
+To maintain clarity across the project, the following domain terms should be used consistently.
+
+[cols="1,4", options="header"]
+|===
+|Term |Definition
+
+|Appointment
+|A scheduled meeting between a patient and a doctor.
+
+|Slot
+|A specific time window available for booking.
+
+|Confirmed
+|An appointment that has been successfully booked.
+
+|Cancelled
+|An appointment that has been called off by the patient or doctor.
+
+|Available
+|A slot that has not yet been reserved.
+|===
+
+== Example Appointment Workflow Scenarios
+
+The following examples demonstrate how BDD scenarios can describe common behaviors of the appointment system.
+
+=== Booking an Available Appointment
+
+[source,gherkin]
+----
+Scenario: Patient successfully books an available appointment slot
+
+  Given a registered patient is logged into the application
+  And a doctor has an available appointment slot
+  When the patient selects the slot and confirms the booking
+  Then the system creates a new appointment
+  And the selected time slot becomes unavailable
+----
+
+=== Preventing Double Booking
+
+[source,gherkin]
+----
+Scenario: System rejects booking when the slot is already reserved
+
+  Given an appointment slot has already been booked
+  When another patient attempts to book the same slot
+  Then the system rejects the booking request
+  And the system informs the patient that the slot is unavailable
+----
+
+=== Rescheduling an Appointment
+
+[source,gherkin]
+----
+Scenario: Patient reschedules a confirmed appointment
+
+  Given a patient has a confirmed appointment
+  And another appointment slot is available
+  When the patient selects the new slot 
+  Then the system updates the appointment with the new date and time
+  And the original slot becomes available again
+----
+
+=== Canceling an Appointment
+
+[source,gherkin]
+----
+Scenario: Patient cancels a scheduled appointment
+
+  Given a patient has a confirmed appointment
+  When the patient cancels the appointment
+  Then the system updates the appointment status to "Cancelled"
+  And the appointment slot becomes available for other patients
+----
+
+== Common Mistakes to Avoid
+
+[cols="1,4", options="header"]
+|===
+|Mistake |Explanation
+
+|Vague preconditions
+|Scenarios must clearly define the starting system state.
+
+|Multiple When clauses
+|A scenario should represent one behavior.
+
+|Implementation details
+|BDD scenarios should not describe internal logic, only describe system behavior
+
+|===
+
+== Purpose in the Project
+
+BDD scenarios serve as behavioral references for the appointment scheduling project.
+
+They help the team by:
+
+* clarifying expected system behavior
+* defining acceptance criteria for features
+* supporting manual and automated testing
+* providing readable documentation for developers and stakeholders
+
+When new appointment-related features are added, new BDD scenarios should be written or updated to reflect the expected behavior. 
