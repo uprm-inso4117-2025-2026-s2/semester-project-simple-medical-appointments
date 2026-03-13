@@ -9,6 +9,7 @@
 | react-router-dom | ^6.22.0 | Client-side routing |
 | vite | ^5.1.0 | Build tool and dev server |
 | @vitejs/plugin-react | ^4.2.0 | Vite plugin for React |
+| @supabase/supabase-js | ^2.x | Supabase client for auth and database |
 
 Install: `cd frontend && npm install`
 
