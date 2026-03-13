@@ -1,4 +1,5 @@
 from .main import main_bp
+from .appointmenthistory import *
 # Import new blueprint modules here as you add them, for example:
 # from .appointments import appointments_bp
 # from .users import users_bp
