@@ -9,3 +9,66 @@ body {
   background-color: #f5f5f5;
   color: #333;
 }
+/* Styles for the patient form page; Juan Ortiz(juan-ortiz92) */
+.form-page {
+  padding: 30px;
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+
+.form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.back-button {
+  padding: 6px 12px;
+}
+
+.profile-icon {
+  font-size: 24px;
+}
+
+/* Instructions */
+
+.form-instructions {
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+/* Form Card */
+
+.form-card {
+  border: 1px solid #ddd;
+  padding: 25px;
+  border-radius: 6px;
+  max-width: 600px;
+}
+
+/* Fields */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Button */
+
+.submit-button {
+  margin-top: 15px;
+  padding: 10px;
+  background: #008000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}

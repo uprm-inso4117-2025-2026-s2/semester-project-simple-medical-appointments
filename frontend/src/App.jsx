@@ -5,6 +5,7 @@
 //   3. Add a <Route path="..." element={<YourPage />} /> inside <Routes>
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import PatientForm from './pages/PatientForm'
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
       {/* Each <Route> maps a URL path to a page component */}
       <Route path="/" element={<Home />} />
       {/* Add new routes below as the app grows */}
+      {/* Patient forms page; Juan Ortiz(juan-ortiz92)*/}
+      <Route path="/forms" element={<PatientForm />} />
     </Routes>
   )
 }

@@ -41,3 +41,13 @@ export function getHealth() {
 // export function createAppointment(data) {
 //   return request('/appointments', { method: 'POST', body: JSON.stringify(data) })
 // }
+
+// --- Patient Forms --- Juan Ortiz(juan-ortiz92)
+
+// Submit a patient form
+export function submitPatientForm(data) {
+  return request('/forms/submit', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
