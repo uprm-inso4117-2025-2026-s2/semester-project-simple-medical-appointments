@@ -32,6 +32,13 @@ export function getHealth() {
   return request('/health')
 }
 
+// --- Appointment history ---
+
+// Retrieves appointment history for a given user.
+export function getAppointmentHistory(userId) {
+  return request(`/appointment-history/${userId}`)
+}
+
 // --- Add new API functions below as routes are created in Flask ---
 // Example:
 // export function getAppointments() {

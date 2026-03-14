@@ -1,3 +1,4 @@
+import sqlite3
 import os
 from dotenv import load_dotenv
 
@@ -16,3 +17,10 @@ class Config:
 
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
+    
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
