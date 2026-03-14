@@ -1,6 +1,6 @@
 from .main import main_bp
+from .appointments import appointments_bp
 # Import new blueprint modules here as you add them, for example:
-# from .appointments import appointments_bp
 # from .users import users_bp
 
 
@@ -10,5 +10,5 @@ def register_routes(app):
     Add new blueprints here as the API grows.
     """
     app.register_blueprint(main_bp, url_prefix='/api')
-    # app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
+    app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
     # app.register_blueprint(users_bp, url_prefix='/api/users')
