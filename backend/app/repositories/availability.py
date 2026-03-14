@@ -27,13 +27,20 @@ def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> Daily
     - blocked_periods or breaks (start_time, end_time)
     - appointment_duration_minutes (from clinic or doctor config)
     """
-    # Stub: assume Mon–Fri 09:00–17:00, 30-min slots, lunch 12:00–13:00.
+    # Stub: assume Mon–Sat 09:00–17:00, 30-min slots, lunch 12:00–13:00.
+    # Sunday (weekday 6) has no working hours — used for "no slots" scenarios.
     # In production, filter by doctor_id and target_date (and apply closed days).
     _ = doctor_id  # use when querying by doctor
 
-    working_hours = TimeRange(start=time(9, 0), end=time(17, 0))
-    blocked_periods = [TimeRange(start=time(12, 0), end=time(13, 0))]
-    slot_minutes = 30
+    if target_date.weekday() == 6:
+        # No working hours (e.g. closed on Sunday).
+        working_hours = TimeRange(start=time(9, 0), end=time(9, 0))
+        blocked_periods = []
+        slot_minutes = 30
+    else:
+        working_hours = TimeRange(start=time(9, 0), end=time(17, 0))
+        blocked_periods = [TimeRange(start=time(12, 0), end=time(13, 0))]
+        slot_minutes = 30
 
     return DailyAvailability(
         date=target_date,
