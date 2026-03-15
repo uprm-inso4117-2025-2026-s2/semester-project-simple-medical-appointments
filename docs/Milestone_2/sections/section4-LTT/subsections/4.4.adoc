@@ -84,3 +84,6 @@ specific system requirement and can be automated directly using Cucumber or a co
 
 Behavior Driven Development reframes test case design as a collaborative requirement driven activity. By expressing scenarios in the Given-When-Then format, test cases become understandable to all stakeholders while remaining executable by automated tools. The appointment booking scenarios presented here demonstrate how BDD captures success conditions, error handling, and state transitions within a single, consistent format. This approach supports both defect detection and behavioral documentation throughout the software
 reliability testing process.
+
+---
+
