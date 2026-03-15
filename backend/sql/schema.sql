@@ -1,0 +1,12 @@
+-- TABLES
+
+-- TODO: roles
+-- TODO: user_roles
+-- TODO: permissions
+-- TODO: role_permissions
+-- TODO: profiles
+-- TODO: profile_settings
+-- TODO: patients
+-- TODO: patient_settings
+-- TODO: providers
+-- TODO: provider_settings
