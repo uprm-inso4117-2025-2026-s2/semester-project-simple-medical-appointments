@@ -41,7 +41,22 @@ CREATE TABLE role_permissions (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: profiles
+CREATE TABLE profiles (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    username VARCHAR(32) UNIQUE NOT NULL,
+    avatar_url TEXT,
+    banner_url TEXT,
+    phone_number VARCHAR(20) NOT NULL,
+    date_of_birth DATE,
+    gender VARCHAR(20),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: profile_settings
 -- TODO: patients
 -- TODO: patient_settings
