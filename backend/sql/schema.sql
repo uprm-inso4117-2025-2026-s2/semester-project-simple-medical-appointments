@@ -71,7 +71,17 @@ CREATE TABLE profile_settings (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: patients
+CREATE TABLE patients (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    insurance_provider VARCHAR(100) NOT NULL,
+    insurance_member_id VARCHAR(50) NOT NULL,
+    emergency_contact_name VARCHAR(100) NOT NULL,
+    emergency_contact_phone_number VARCHAR(20) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: patient_settings
 -- TODO: providers
 -- TODO: provider_settings
