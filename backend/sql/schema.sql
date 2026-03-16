@@ -82,6 +82,14 @@ CREATE TABLE patients (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: patient_settings
+CREATE TABLE patient_settings (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    notify_laboratory BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_prescription BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: providers
 -- TODO: provider_settings
