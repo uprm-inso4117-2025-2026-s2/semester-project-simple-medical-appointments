@@ -29,7 +29,18 @@ CREATE TABLE permissions (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: role_permissions
+CREATE TABLE role_permissions (
+    role_id INT NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE,
+    permission_id INT NOT NULL,
+    FOREIGN KEY (permission_id) REFERENCES permissions (id) ON DELETE CASCADE,
+    granted_by UUID NULL,
+    FOREIGN KEY (granted_by) REFERENCES auth.users (id) ON DELETE SET NULL,
+    PRIMARY KEY (role_id, permission_id),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: profiles
 -- TODO: profile_settings
 -- TODO: patients
