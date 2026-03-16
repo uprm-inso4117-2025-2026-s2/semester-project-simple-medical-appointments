@@ -57,7 +57,20 @@ CREATE TABLE profiles (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: profile_settings
+CREATE TABLE profile_settings (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    preferred_contact_method VARCHAR(50) NOT NULL,
+    preferred_language VARCHAR(10) NOT NULL,
+    notify_appointment_reminders BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_appointment_updates BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_messages BOOLEAN NOT NULL DEFAULT TRUE,
+    theme VARCHAR(20) NOT NULL,
+    accessibility_mode VARCHAR(20) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: patients
 -- TODO: patient_settings
 -- TODO: providers
