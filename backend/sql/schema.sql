@@ -91,5 +91,16 @@ CREATE TABLE patient_settings (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: providers
+CREATE TABLE providers (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    profession_title VARCHAR(100) NOT NULL,
+    specialty VARCHAR(100) NOT NULL,
+    license_number VARCHAR(50) NOT NULL,
+    license_state VARCHAR(10) NOT NULL,
+    bio TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: provider_settings
