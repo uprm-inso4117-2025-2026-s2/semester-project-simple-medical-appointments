@@ -42,7 +42,7 @@ CREATE TABLE role_permissions (
 );
 
 CREATE TABLE profiles (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE profiles (
 );
 
 CREATE TABLE profile_settings (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     preferred_contact_method VARCHAR(50) NOT NULL,
     preferred_language VARCHAR(10) NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE profile_settings (
 );
 
 CREATE TABLE patients (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     insurance_provider VARCHAR(100) NOT NULL,
     insurance_member_id VARCHAR(50) NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE patients (
 );
 
 CREATE TABLE patient_settings (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     notify_laboratory BOOLEAN NOT NULL DEFAULT TRUE,
     notify_prescription BOOLEAN NOT NULL DEFAULT TRUE,
@@ -92,7 +92,7 @@ CREATE TABLE patient_settings (
 );
 
 CREATE TABLE providers (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     profession_title VARCHAR(100) NOT NULL,
     specialty VARCHAR(100) NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE providers (
 );
 
 CREATE TABLE provider_settings (
-    user_id UUID PRIMARY KEY NOT NULL,
+    user_id UUID PRIMARY KEY UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
     auto_accept_appointments BOOLEAN NOT NULL DEFAULT TRUE,
     appointment_buffer_minutes INT NOT NULL,
