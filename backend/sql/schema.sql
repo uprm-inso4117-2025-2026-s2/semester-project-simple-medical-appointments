@@ -103,4 +103,12 @@ CREATE TABLE providers (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: provider_settings
+CREATE TABLE provider_settings (
+    user_id UUID PRIMARY KEY NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES auth.users (id) ON DELETE CASCADE,
+    auto_accept_appointments BOOLEAN NOT NULL DEFAULT TRUE,
+    appointment_buffer_minutes INT NOT NULL,
+    default_appointment_duration INT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
