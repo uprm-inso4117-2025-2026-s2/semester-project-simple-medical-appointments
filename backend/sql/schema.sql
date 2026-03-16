@@ -20,7 +20,15 @@ CREATE TABLE user_roles (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
--- TODO: permissions
+CREATE TABLE permissions (
+    id SERIAL,
+    PRIMARY KEY (id),
+    name VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
 -- TODO: role_permissions
 -- TODO: profiles
 -- TODO: profile_settings
