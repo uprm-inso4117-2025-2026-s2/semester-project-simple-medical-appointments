@@ -1,1 +1,86 @@
 === *Hoare Logic and Design by Contract*
+
+==== Apply Hoare Logic Pre/Post-Conditions to the Appointment Booking Function
+:author: Julian Vivas
+
+===== Overview
+
+As part of the Milestone 2 lecture topic requirements, Hoare Logic is applied to a meaningful backend operation from the system: `book_appointment()`.
+This function is central to the scheduling workflow because it is responsible for creating appointments between patients and doctors while respecting availability constraints.
+
+Applying Hoare Logic allows us to formally describe the conditions that must be true before the function executes and the guarantees that must hold after execution. This helps clarify the intended correctness of the scheduling process and ensures that important properties such as preventing double booking are maintained.
+
+===== Hoare Triple Specification
+
+The booking operation can be modeled using the Hoare Logic triple:
+
+----
+{P} book_appointment(patient_id, doctor_id, slot_id) {Q}
+----
+
+Where:
+
+*P* represents the preconditions required before execution.
+
+*Q* represents the postconditions that must hold after successful execution.
+
+===== Preconditions
+
+The following conditions must be true before a booking can occur:
+
+* The patient identified by `patient_id` exists in the system.
+* The doctor identified by `doctor_id` exists in the system.
+* The requested `slot_id` exists.
+* The time slot belongs to the specified doctor.
+* The time slot is currently marked as available.
+* There is no existing appointment already occupying the same doctor and slot.
+* The request data provided to the system is valid.
+
+===== Postconditions
+
+After successful execution of `book_appointment()` the following must hold:
+
+* A new appointment record exists linking the patient, doctor, and slot.
+* The created appointment is associated with exactly one patient and one doctor.
+* The selected time slot is no longer marked as available.
+* No second appointment exists for the same doctor and slot.
+* No unrelated appointments or scheduling data are modified.
+
+===== Formal Specification
+
+The behavior of the booking operation can be expressed more formally as:
+
+----
+{ patientExists(patient_id)
+∧ doctorExists(doctor_id)
+∧ slotExists(slot_id)
+∧ slotBelongsToDoctor(slot_id, doctor_id)
+∧ slotAvailable(slot_id)
+∧ ¬booked(doctor_id, slot_id) }
+
+book_appointment(patient_id, doctor_id, slot_id)
+
+{ ∃a • appointment(a)
+∧ hasPatient(a, patient_id)
+∧ hasDoctor(a, doctor_id)
+∧ hasSlot(a, slot_id)
+∧ ¬slotAvailable(slot_id)
+∧ booked(doctor_id, slot_id) }
+----
+
+If any precondition is not satisfied, the booking request must be rejected and the system state must remain unchanged. No new appointment should be created in that case.
+
+===== Safety Properties
+
+From the Hoare specification we can derive important safety properties for the system:
+
+* No double booking for the same doctor and time slot.
+* An appointment can only be created if the slot is available.
+* A successful booking updates the slot state to unavailable.
+* Existing appointments unrelated to the booking remain unchanged.
+
+These properties ensure the reliability of the scheduling process and support the main objective of the system: providing an efficient and organized platform for booking medical appointments.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
