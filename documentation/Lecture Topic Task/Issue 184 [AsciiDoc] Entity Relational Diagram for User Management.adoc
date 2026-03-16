@@ -1,17 +1,14 @@
-= *Test Planning & Modeling - Lecture Topic Task*
-:author: Jonathan-Rod
-:toc: auto
-:sectnums:
-:article:
+==== *Test Planning & Modeling*
+:author: Jonathan Rodriguez
 
-== Introduction
+===== Introduction
 This Lecture Topic Task expands the user ER diagram to align it with the
 `auth.users` structure of Supabase.
 It applies test planning principles to support risk analysis, test case
 design, and system modeling.
 
 
-== Test Planning Context
+===== Test Planning Context
 The test planning lesson highlights the importance of understanding the
 system structure to prioritize tests effectively.
 
@@ -26,9 +23,9 @@ ____
 These principles justify the need for a complete ER diagram before designing
 test cases.
 
-== Expansion of the User Management ER Diagram
+===== Expansion of the User Management ER Diagram
 
-=== Objective
+====== Objective
 Extend and refactor the previously completed ER diagram to match the
 Supabase database user management module.
 
@@ -43,7 +40,7 @@ The token is tied to the user, so you can restrict access to resources via
 RLS policies.
 ____
 
-=== Proposed Solution
+====== Proposed Solution
 Create a complete and shareable ER diagram that:
 
 * Defines the entities:
@@ -54,12 +51,12 @@ Create a complete and shareable ER diagram that:
 ** `settings`
 * Establishes all relationships between them.
 
-=== Success Criteria
+====== Success Criteria
 * Shareable ER diagram created with appropriate entities and their
   relationships.
 * Diagram supports test planning and risk analysis.
 
-== ER Diagram
+===== ER Diagram
 
 - link:https://github.com/user-attachments/files/25998068/Issue.184.Lecture.Topic.Task.Expansion.of.the.Design.of.the.User.Management.Entity.Relational.Diagram.pdf[PDF:
   Design of the User Management Entity Relational  Diagram]
@@ -68,7 +65,7 @@ Create a complete and shareable ER diagram that:
   CHART: Design of the User Management Entity Relational  Diagram ]
 
 
-== Discussion
+===== Discussion
 The ER diagram is essential for test planning because it defines the minimum
 system requirements, facilitates the generation of test cases, and clarifies
 constraints and relationships.
@@ -76,11 +73,11 @@ constraints and relationships.
 This aligns with the class's emphasis on test planning based on structure,
 functionality, and input space.
 
-== Conclusion
+===== Conclusion
 Expanding the ER diagram ensures the accuracy of the User Management module,
 enabling effective test design, risk assessment, and verification of
 authentication and authorization workflows.
 
-== References
+===== References
 . link:https://online.upr.edu/pluginfile.php/5616003/mod_resource/content/1/Lecture%202%20Test%20Planning.pdf[Lecture 2: Test Planning]
 . link:https://supabase.com/docs/guides/auth/users[Users | Supabase Docs]
