@@ -1048,3 +1048,88 @@ Testing will be considered complete when:
 * Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
 
 ---
+
+==== Risk In Implementing Scheduling Virtually
+:author: Victoria Miranda Osuna
+
+===== Goal
+Assessment of the risk patients and doctors experience when creating virtual appointments
+based on the risk based test methodology discussed in class.
+
+===== Proposed Solution
+* Identify system level risks (security, data integrity, scalability, notification reliability).
+* Classify each risk using: Risk Level is (Probability)(Impact). These levels include: high (critical
+business impact), medium, and low. Risk will be evaluated on a scale 1-5.
+* Stakeholder impact mapping (doctor, patient, and organization).
+
+===== Success Criteria
+* At least 5 major risk factors identified.
+====== 1. Authentication and authorization failure
+Unauthorized users gain access to appointment management such as the viewing, modifying, or
+cancelling of appointments. This affects:
+* Doctors as it can cause a privacy breach.
+* Clients because their medical data would be exposed.
+* Organization could be held liable due to the previous reasons.
+
+====== 2. Data loss or corruption during system crash
+Appointment data becomes lost or inconsistent if the system crashes during booking or
+modification. This affects:
+* Doctors as they would have scheduling inconsistencies.
+* Clients because their appointments would disappear.
+
+====== 3. Notification delivery failure
+Confirmation emails, SMS, push notifications fail to send or are delayed. This affects:
+* Doctors as they can experience people not showing up to their appointments.
+* Clients because they would miss important appointments after long waits.
+* There would be a negative impact in trusting the system.
+
+====== 4. Calendar synchronization failure
+The virtual scheduling system fails to properly synchronize appointments with external calendar
+systems. This affects:
+* Doctors would have incorrect available visibility in their calendars.
+* Clients would receive conflicting commitments when their appointment is.
+* The staff would revert to manually correcting the schedule.
+
+====== 5. System scalability and performance degradation
+System becomes slow or unresponsive during high booking demand. This affects:
+* All users would be affected.
+* There would be a negative impact on trust in the system and usability.
+
+====== Probability and impact assessment
+- There is a medium probability (3) that the authentication fails, this impact (5) would be very
+high for the website, clients and doctors.
+- There is a medium probability (3) that data loss or corruption fails, this impact would be high
+(4) for the website, clients and doctors.
+- There is a high probability (4) that notification delivery fails, this impact would be medium (3)
+for the website, clients and doctors.
+- There is a high probability (4) that calendar synchronization fails, this impact would be high (4)
+for the website, clients and doctors.
+- There is a very high probability (5) that system scalability fails, this impact would be very high
+(5) for the website, clients and doctors.
+====== Risk level classified (Low / Medium / High)
+Due to the previous analysis of probability and impact the risk levels are:
+- Level 4 risk (MEDIUM-HIGH)
+- Level 3.5 risk (MEDIUM)
+- Level 3.5 risk (MEDIUM)
+- Level 4 risk (MEDIUM-HIGH)
+- Level 5 risk (VERY HIGH, this is considered a critical impact to the business.)
+
+====== Testing intensity adjusted according to risk
+
+====== Buffer time justified for high-risk features.
+
+====== Clear link to risk-based testing methodology. My suggestions for testing to deter the
+previously mentioned risks:
+* Role based access testing.
+* Attempted unauthorized API calls.
+* Backup and recovery validation.
+* Email and SMS gateway failure simulation.
+* Retry logic validation.
+* Delivery status verification.
+* Notification queue backlog testing.
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
