@@ -29,3 +29,37 @@ These guidelines will be used to evaluate each project's submission. The whole p
   • *mutation testing*
 - the project employs a mutation testing tool on their project e.g. mypy, stryker
 - they discuss the results they obtained using these tools
+
+
+
+== Rubrics 
+* Changes to the previous submission must be clearly visible. 	
+
+* The log book gives an overview of the changes (but not the full changed content). 	
+Does not follow the guidelines or missing.
+
+* The actual changes, new developments, etc are integrated into the overall document. 	
+
+* All the criteria where the previous submission did not follow the guidelines have been improved.	
+
+* Any additions and changes follow the guidelines already established for the milestone 1 submission. 	
+
+* Progress in the implementation has been made: there are completed features that are implemented end-to-end and that have a high value to the users. 	
+
+* Progress has been made in all phases of development: domain description, requirements prescription, design, ... 	
+
+* The project discusses plausible load expectations 	
+
+* The project shows typical usage scenarios and how they use them for load testing 	
+
+* The project discusses and explains their load testing setup and how it relates to their expected load 	
+
+* The project interprets the load testing results they observe	
+
+* The project applies Hoare logic to at least one meaningful example function from their project 	
+
+* Hoare logic:use tool support.	
+
+* The project employs a mutation testing tool on their project e.g. mypy, stryker	
+
+* The project discusses the results they obtained using the mutation testing tools
