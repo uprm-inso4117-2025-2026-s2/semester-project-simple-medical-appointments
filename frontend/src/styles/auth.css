@@ -1,0 +1,455 @@
+/*
+  auth.css — 1:1 recreation of Figma file iRqgxGZYJE7GCbEi4d0vMw
+  Reference viewport: 1440 × 1024 px
+  Scaling rule: 1 Figma px = (1/1440)*100 vw  →  Xpx = X/14.4 vw
+  All sizes: clamp(mobile-min, Xvw, Figma-max)
+
+  LOGIN  frame 2:2  — card 1250×824 at left=95, top=100
+  ─────────────────────────────────────────────────────
+  Left panel  572×803  margin 10/10/11/10  gradient #248DAA→#0E3844  r=50
+  Right panel 668 wide
+    "Log in"         PJS-600 64px  x=43  y=152
+    subtitle         Inter-200 20  x=43  y=250   (gap heading→sub = 17px)
+    email label      Inter-400 20  x=43  y=336   (gap sub→label  = 62px)
+    email input      h=69 r=70     x=34  y=377   w=575  (gap = 17px)
+    password label   Inter-400 20  x=43  y=463   (gap = 17px)
+    password input   h=69 r=70     x=34  y=504   w=575  (gap = 17px)
+    forgot password  Inter-400 20        y=587   right-aligned (gap = 14px)
+    login button     h=69 r=70     x=34  y=686   w=575  bg=#113C51 (gap = 75px)
+  Icon centred in left panel, top=83px from panel top, h=143px
+  "Welcome Back!"    Inter-500 64  centred, y=357 from panel top
+  "Healthcare…"      Inter-300 24  centred, y=441 from panel top
+
+  REGISTER  frame 12:84  — card 900×900 at left=270, top=74
+  ──────────────────────────────────────────────────────────
+  padding top=91 sides=65 bottom=52
+  "Create an account"  PJS-600 64  centred  y=91
+  subtitle             Inter-200 20 centred  y=172  (gap heading→sub = 0)
+  First Name label     Inter-400 20  x=65  y=245   (gap sub→label = 49px)
+  First Name input     h=69 r=70    x=65  y=286   w=346
+  Last Name label/input           x=489         w=346   col-gap=78px
+  Frame6 email+pw+confirm         x=65  y=372  w=770  internal gap=19px
+  Create Account btn   h=69 r=70   x=162 y=779  w=575  (gap = 33px)
+  Watermark: 784×784 at x=279, y=19, opacity=0.10
+*/
+
+/* ── PAGE BACKGROUND ─────────────────────────────────────────────────── */
+
+.auth-bg,
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── SHARED FORM ATOMS ───────────────────────────────────────────────── */
+
+/* Labels — Figma: Inter 400, 20px, #0C0F28 */
+.form-group label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);  /* 20/14.4 = 1.39vw */
+  font-weight: 400;
+  color: #0c0f28;
+  line-height: 1;
+}
+
+/* Inputs — Figma: h=69, r=70, border rgba(168,155,155) */
+.form-group input,
+.input-wrap input {
+  display: block;
+  width: 100%;
+  height: clamp(44px, 4.79vw, 69px);            /* 69/14.4 = 4.79vw */
+  padding: 0 1.5rem;
+  border: 1px solid rgba(168, 155, 155, 0.97);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0c0f28;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  margin-top: clamp(8px, 1.18vw, 17px);         /* 17/14.4 = 1.18vw */
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.form-group input:focus,
+.input-wrap input:focus {
+  border-color: #248daa;
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.18);
+}
+
+.input-error,
+.input-error:focus {
+  border-color: #e53e3e !important;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12) !important;
+}
+
+/* Password eye toggle */
+.input-wrap { position: relative; }
+.input-wrap input { padding-right: 3.25rem; }
+.eye-btn {
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a89b9b;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+.eye-btn:hover { color: #0c0f28; }
+
+/* 2-column name row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* form-group spacing */
+.form-group { margin-bottom: clamp(8px, 1.18vw, 17px); }
+.form-group:last-of-type { margin-bottom: 0; }
+
+/* Field error */
+.field-error {
+  font-size: 0.8125rem;
+  color: #e53e3e;
+  margin-top: 0.3rem;
+  text-align: right;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Form-level error */
+.auth-error {
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  color: #c53030;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Primary button — Figma: h=69, r=70, bg=#113C51, Inter-500 20px */
+.auth-btn {
+  display: block;
+  width: 100%;
+  height: clamp(44px, 4.79vw, 69px);
+  background: #113c51;
+  color: #fff;
+  border: none;
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.auth-btn:hover:not(:disabled) { background: #0e3844; }
+.auth-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+.auth-btn.success { background: #38a169; }
+.auth-btn.success:hover:not(:disabled) { background: #2f855a; }
+
+/* ── SMALL auth-card — email confirmation screen only ────────────────── */
+
+.auth-card {
+  background: #fff;
+  border-radius: 50px;
+  padding: 3.5rem 3rem;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+.auth-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 3rem;
+  font-weight: 600;
+  color: #0c0f28;
+  text-align: center;
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+.auth-confirm { text-align: center; }
+.auth-confirm h1 { margin-bottom: 1rem; }
+.auth-confirm p {
+  color: #0c0f28;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── AUTH SUBTITLE (generic fallback) ───────────────────────────────── */
+
+.auth-subtitle {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #0c0f28;
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+.auth-subtitle a { color: #0c0f28; text-decoration: underline; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LOGIN CARD — Figma: 1250×824px
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Card: 1250/1440 = 86.81vw, no fixed height (let content size it) */
+.login-card {
+  display: flex;
+  width: min(86.81vw, 1250px);
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+/* Left panel: 572/1250 = 45.76%, margin 10px */
+.login-left {
+  flex-shrink: 0;
+  width: 45.76%;
+  margin: clamp(6px, 0.69vw, 10px) 0 clamp(7px, 0.76vw, 11px) clamp(6px, 0.69vw, 10px);
+  background: linear-gradient(180deg, #248daa 0%, #0e3844 100%);
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  /* icon top = 83px from panel top; 83/1440 = 5.76vw */
+  padding-top: clamp(40px, 5.76vw, 83px);
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-bottom: 2.5rem;
+  color: #fff;
+  text-align: center;
+}
+
+/* Icon: 143px wide; gap below = 131px (to "Welcome Back!" at y=357) */
+.login-left-icon {
+  width: clamp(72px, 9.93vw, 143px);          /* 143/14.4 = 9.93vw */
+  height: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  margin-bottom: clamp(3rem, 9.1vw, 131px);   /* 131/14.4 = 9.1vw */
+}
+
+/* "Welcome Back!" — Inter 500, 64px */
+.login-left h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.5rem, 4.44vw, 4rem);     /* 64/14.4 = 4.44vw */
+  font-weight: 500;
+  margin: 0 0 clamp(0.25rem, 0.49vw, 7px);
+  line-height: 1.21;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* "Healthcare scheduling made simple." — Inter 300, 24px */
+.login-left p {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.67vw, 1.5rem); /* 24/14.4 = 1.67vw */
+  font-weight: 300;
+  color: #fff;
+  line-height: 1.4;
+  text-align: center;
+  max-width: 80%;
+}
+
+/* Right panel: exact Figma padding
+   top=152  (152/14.4=10.56vw)
+   left=43  (43/14.4=2.99vw)
+   right=59 (59/14.4=4.1vw)
+   bottom=69 (69/14.4=4.79vw) */
+.login-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top:    clamp(3rem,   10.56vw, 152px);
+  padding-left:   clamp(1.5rem,  2.99vw,  43px);
+  padding-right:  clamp(1.5rem,  4.1vw,   59px);
+  padding-bottom: clamp(2rem,    4.79vw,  69px);
+}
+
+/* "Log in" — PJS 600, 64px, #0C0F28 */
+.login-right h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0;
+  line-height: 1.26;
+}
+
+/* Subtitle — Inter 200, 20px, gap: 17px above, 62px below */
+.login-right .auth-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  text-align: left;
+  margin-top:    clamp(8px,   1.18vw, 17px);  /* heading→sub gap = 17px */
+  margin-bottom: clamp(1.5rem, 4.31vw, 62px); /* sub→label gap  = 62px */
+  line-height: 1.26;
+}
+.login-right .auth-subtitle a { color: #1e1e1e; text-decoration: underline; }
+
+/* form-group spacing in right panel: 17px */
+.login-right .form-group { margin-bottom: clamp(8px, 1.18vw, 17px); }
+.login-right .form-group:last-of-type { margin-bottom: 0; }
+
+/* "Forgot password?" — Inter 400 20px, right-aligned, 14px below input */
+.forgot-link {
+  display: block;
+  text-align: right;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 400;
+  color: #000;
+  text-decoration: underline;
+  margin-top: clamp(6px, 0.97vw, 14px);       /* 14/14.4 = 0.97vw */
+}
+
+/* Login button: 75px below forgot */
+.login-right .auth-btn {
+  margin-top: clamp(1.5rem, 5.21vw, 75px);    /* 75/14.4 = 5.21vw */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REGISTER CARD — Figma: 900×900px
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Card: 900/1440 = 62.5vw; padding: top=91 sides=65 bottom=52 */
+.register-card {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  width: min(62.5vw, 900px);
+  padding-top:    clamp(3rem,   6.32vw, 91px); /* 91/14.4 = 6.32vw */
+  padding-left:   clamp(2rem,   4.51vw, 65px); /* 65/14.4 = 4.51vw */
+  padding-right:  clamp(2rem,   4.51vw, 65px);
+  padding-bottom: clamp(2rem,   3.61vw, 52px); /* 52/14.4 = 3.61vw */
+}
+
+/* Watermark: 784×784 at x=279/900=31%, y=19/900=2.1%, w=784/900=87.1% */
+.register-bg-icon {
+  position: absolute;
+  left:  31%;
+  top:   2.1%;
+  width: 87.1%;
+  height: auto;
+  opacity: 0.10;
+  pointer-events: none;
+  filter: invert(40%) sepia(50%) saturate(400%) hue-rotate(152deg) brightness(80%);
+}
+
+/* "Create an account" — PJS 600, 64px, centred */
+.register-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  text-align: center;
+  margin: 0;
+  line-height: 1.26;
+}
+
+/* Subtitle — Inter 200, 20px, 0px gap above, 49px below */
+.register-card .auth-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: clamp(1.5rem, 3.4vw, 49px);  /* 49/14.4 = 3.4vw */
+  line-height: 1.26;
+}
+.register-card .auth-subtitle a { color: #1e1e1e; text-decoration: underline; }
+
+/* Name row: 346+78+346=770px, col-gap=78px */
+.register-card .form-row {
+  gap: clamp(1rem, 5.42vw, 78px);             /* 78/14.4 = 5.42vw */
+  margin-bottom: clamp(8px, 1.18vw, 17px);    /* gap name→Frame6 = 17px */
+}
+.register-card .form-row .form-group { margin-bottom: 0; }
+
+/* Frame6 items: gap=19px */
+.register-card .form-group {
+  margin-bottom: clamp(8px, 1.32vw, 19px);    /* 19/14.4 = 1.32vw */
+}
+.register-card .form-group:last-of-type { margin-bottom: 0; }
+
+/* Button: 575px wide centred in 770px form area, 33px gap above */
+.register-card .auth-btn {
+  width: min(74.7%, 575px);                   /* 575/770 = 74.7% */
+  margin-top:   clamp(1rem, 2.29vw, 33px);   /* 33/14.4 = 2.29vw */
+  margin-left:  auto;
+  margin-right: auto;
+  display: block;
+}
+
+/* ── RESPONSIVE (< 900px) ────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .auth-bg,
+  .login-page {
+    padding: 1.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  /* Login: stack vertically */
+  .login-card {
+    flex-direction: column;
+    width: 100%;
+    border-radius: 30px;
+    max-width: 480px;
+  }
+  .login-left {
+    width: auto;
+    margin: 10px 10px 0;
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    justify-content: center;
+  }
+  .login-left-icon { width: 72px; margin-bottom: 1.25rem; }
+  .login-right { padding: 2rem 1.75rem 2.5rem; }
+  .login-right h1 { font-size: 2.25rem; }
+  .login-right .auth-subtitle { margin-top: 0.5rem; margin-bottom: 1.5rem; }
+  .login-right .auth-btn { margin-top: 2rem; }
+
+  /* Register: single column */
+  .register-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 30px;
+    padding: 2.5rem 1.5rem 2rem;
+  }
+  .register-card .form-row { grid-template-columns: 1fr; gap: 0; }
+  .register-card .auth-subtitle { margin-bottom: 1.5rem; }
+  .register-card .auth-btn { width: 100%; }
+
+  /* Shrink inputs/buttons on small screens */
+  .form-group input,
+  .input-wrap input,
+  .auth-btn {
+    height: 48px;
+  }
+}

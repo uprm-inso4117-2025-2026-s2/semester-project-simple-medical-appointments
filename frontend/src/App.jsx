@@ -6,6 +6,8 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import AppointmentHistory from './pages/AppointmentHistory'
+import Register from './pages/Register'
+import Login from './pages/Login'
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
       {/* Each <Route> maps a URL path to a page component */}
       <Route path="/" element={<Home />} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
