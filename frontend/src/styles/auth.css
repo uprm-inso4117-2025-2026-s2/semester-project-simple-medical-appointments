@@ -285,11 +285,11 @@
   padding-bottom: clamp(2rem,    4.79vw,  69px);
 }
 
-/* "Log in" — PJS 600, 64px, #0C0F28 */
+/* "Log in" — PJS 700, 64px, #0C0F28 */
 .login-right h1 {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(2rem, 4.44vw, 4rem);
-  font-weight: 600;
+  font-weight: 700;
   color: #0c0f28;
   margin: 0;
   line-height: 1.26;
@@ -306,7 +306,7 @@
   margin-bottom: clamp(1.5rem, 4.31vw, 62px); /* sub→label gap  = 62px */
   line-height: 1.26;
 }
-.login-right .auth-subtitle a { color: #1e1e1e; text-decoration: underline; }
+.login-right .auth-subtitle a { color: #1e1e1e; text-decoration: underline; font-weight: 600; }
 
 /* form-group spacing in right panel: 17px */
 .login-right .form-group { margin-bottom: clamp(8px, 1.18vw, 17px); }
@@ -359,11 +359,11 @@
   filter: invert(40%) sepia(50%) saturate(400%) hue-rotate(152deg) brightness(80%);
 }
 
-/* "Create an account" — PJS 600, 64px, centred */
+/* "Create an account" — PJS 700, 64px, centred */
 .register-card h1 {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: clamp(2rem, 4.44vw, 4rem);
-  font-weight: 600;
+  font-weight: 700;
   color: #0c0f28;
   text-align: center;
   margin: 0;
@@ -381,7 +381,7 @@
   margin-bottom: clamp(1.5rem, 3.4vw, 49px);  /* 49/14.4 = 3.4vw */
   line-height: 1.26;
 }
-.register-card .auth-subtitle a { color: #1e1e1e; text-decoration: underline; }
+.register-card .auth-subtitle a { color: #1e1e1e; text-decoration: underline; font-weight: 600; }
 
 /* Name row: 346+78+346=770px, col-gap=78px */
 .register-card .form-row {
