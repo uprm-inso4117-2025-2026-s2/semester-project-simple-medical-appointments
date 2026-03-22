@@ -2,7 +2,8 @@
 // Matches the Figma "log in" frame. Auth logic is a stub for the Login issue.
 
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
 import medicalIcon from '../assets/medicalPng.png'
 import eyeOffIcon from '../assets/bef1c8a9a00da60f9252fd4a814e014de9962e13.png'
 import '../styles/auth.css'
@@ -15,6 +16,7 @@ const EyeOpen = () => (
 )
 
 function Login() {
+  const navigate = useNavigate()
   const [fields, setFields] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
@@ -30,8 +32,19 @@ function Login() {
     setError(null)
     setLoading(true)
     try {
-      // TODO: implement supabase.auth.signInWithPassword in the Login auth-flow issue
-      throw new Error('Login not yet implemented.')
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: fields.email,
+        password: fields.password,
+      })
+      if (authError) {
+        const msg = authError.message
+        if (msg === 'Email not confirmed')
+          throw new Error('Please confirm your email before logging in. Check your inbox.')
+        if (msg === 'Invalid login credentials')
+          throw new Error('Incorrect email or password.')
+        throw new Error(msg)
+      }
+      navigate('/')
     } catch (err) {
       setError(err.message)
     } finally {
