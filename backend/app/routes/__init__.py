@@ -1,8 +1,7 @@
 from .main import main_bp
-# Import new blueprint modules here as you add them, for example:
-# from .appointments import appointments_bp
-# from .users import users_bp
 from .closures import closures_bp
+from . import appointmenthistory  # noqa: F401 — registers route on main_bp
+from .appointments import appointments_bp
 
 def register_routes(app):
     """Register all Flask blueprints with the app.
@@ -10,6 +9,6 @@ def register_routes(app):
     Add new blueprints here as the API grows.
     """
     app.register_blueprint(main_bp, url_prefix='/api')
-    # app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
+    app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
     # app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(closures_bp, url_prefix='/api/closures')

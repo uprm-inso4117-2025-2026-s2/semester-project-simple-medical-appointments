@@ -6,15 +6,15 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import ClosuresAdmin from './pages/ClosuresAdmin'
-
-
+import AppointmentHistory from './pages/AppointmentHistory'
 
 function App() {
   return (
     <Routes>
       {/* Each <Route> maps a URL path to a page component */}
       <Route path="/" element={<Home />} />
-<      Route path="/admin/closures" element={<ClosuresAdmin />} />
+      <Route path="/admin/closures" element={<ClosuresAdmin />} />
+      <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
