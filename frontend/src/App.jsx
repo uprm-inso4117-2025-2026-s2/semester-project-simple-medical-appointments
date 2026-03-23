@@ -5,12 +5,16 @@
 //   3. Add a <Route path="..." element={<YourPage />} /> inside <Routes>
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
+import ClosuresAdmin from './pages/ClosuresAdmin'
+
+
 
 function App() {
   return (
     <Routes>
       {/* Each <Route> maps a URL path to a page component */}
       <Route path="/" element={<Home />} />
+<      Route path="/admin/closures" element={<ClosuresAdmin />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
