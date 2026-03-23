@@ -17,6 +17,11 @@ class Config:
 
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
+    # DATABASE_URL=postgresql://user:password@localhost/clinic_db
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///clinic.db')
+ 
+    # Disable a feature we don't need
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
