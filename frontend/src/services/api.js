@@ -39,6 +39,18 @@ export function getAppointmentHistory(userId) {
   return request(`/appointment-history/${userId}`)
 }
 
+// --- Auth / Registration ---
+
+// Syncs a newly registered Supabase user to the local database.
+// Called automatically by authService.registerUser after a successful signUp.
+// Implements the DB sync step described in issue #193.
+export function syncRegistration(userData) {
+  return request('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(userData),
+  })
+}
+
 // --- Add new API functions below as routes are created in Flask ---
 // Example:
 // export function getAppointments() {

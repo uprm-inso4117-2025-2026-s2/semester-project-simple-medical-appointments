@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
+import { syncRegistration } from './api'
 
 // ─────────────────────────────────────────────
 // Internal helpers
@@ -22,23 +23,60 @@ async function getUserRole(userId) {
 /**
  * Maps raw Supabase Auth error messages to user-facing strings.
  */
-function formatAuthError(error) {
-  switch (error.message) {
-    case 'Invalid login credentials':
-      return 'Incorrect email or password.'
-    case 'Email not confirmed':
-      return 'Please verify your email address before logging in.'
-    case 'User not found':
-      return 'No account found with that email.'
-    case 'Too many requests':
-      return 'Too many attempts. Please wait a moment and try again.'
-    default:
-      return error.message ?? 'An unexpected error occurred.'
+function formatAuthError(message) {
+  const messages = {
+    'Invalid login credentials':                        'Incorrect email or password.',
+    'Email not confirmed':                              'Please verify your email address before logging in.',
+    'User not found':                                   'No account found with that email.',
+    'Too many requests':                                'Too many attempts. Please wait a moment and try again.',
+    'User already registered':                          'An account with this email already exists.',
+    'Password should be at least 6 characters':         'Password must be at least 6 characters long.',
+    'Unable to validate email address: invalid format': 'Please enter a valid email address.',
+    'Signup requires a valid password':                 'Please enter a valid password.',
+  }
+  return messages[message] || message || 'An unexpected error occurred. Please try again.'
+}
+
+// ─────────────────────────────────────────────
+// Registration
+// ─────────────────────────────────────────────
+
+/**
+ * Register a new user with email and password.
+ *
+ * Flow:
+ *   1. Calls supabase.auth.signUp to create the auth record.
+ *   2. On success, calls the backend /api/auth/register to sync the user to the DB.
+ *
+ * Returns: { user, session, emailConfirmationRequired }
+ * Throws:  Error with a user-friendly message on failure.
+ */
+export async function registerUser(email, password) {
+  const { data, error } = await supabase.auth.signUp({ email, password })
+
+  if (error) {
+    throw new Error(formatAuthError(error.message))
+  }
+
+  const { user, session } = data
+
+  if (user) {
+    try {
+      await syncRegistration({ supabase_uid: user.id, email: user.email })
+    } catch (syncError) {
+      console.error('DB sync failed after registration:', syncError.message)
+    }
+  }
+
+  return {
+    user,
+    session,
+    emailConfirmationRequired: !!user && !session,
   }
 }
 
 // ─────────────────────────────────────────────
-// Public API
+// Login & Logout
 // ─────────────────────────────────────────────
 
 /**
@@ -54,7 +92,7 @@ export async function login(email, password) {
   })
 
   if (error) {
-    return { error: formatAuthError(error) }
+    return { error: formatAuthError(error.message) }
   }
 
   const role = await getUserRole(data.user.id)
@@ -76,6 +114,10 @@ export async function logout() {
 
   return { success: true }
 }
+
+// ─────────────────────────────────────────────
+// Session
+// ─────────────────────────────────────────────
 
 /**
  * Returns the current active session with role, or null if not authenticated.
