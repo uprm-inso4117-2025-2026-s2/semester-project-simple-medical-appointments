@@ -17,6 +17,11 @@ class Config:
 
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
+
+    # Supabase — used for user management DB operations.
+    # Use the service role key on the backend (bypasses RLS for trusted server ops).
+    SUPABASE_URL = os.getenv('SUPABASE_URL')
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
     
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
