@@ -56,7 +56,6 @@ def register():
     if not data:
         return jsonify({'error': 'Request body must be JSON.'}), 400
 
-    # ── Validate required fields ──────────────────────────────────────────
     missing = [f for f in REQUIRED_FIELDS if not data.get(f)]
     if missing:
         return jsonify({'error': f"Missing required fields: {', '.join(missing)}"}), 400
@@ -64,7 +63,6 @@ def register():
     if data['role'] not in VALID_ROLES:
         return jsonify({'error': f"Invalid role. Must be one of: {', '.join(VALID_ROLES)}"}), 400
 
-    # ── Sync to DB ────────────────────────────────────────────────────────
     result = sync_user_after_registration(data['user_id'], data)
 
     if 'error' in result:
