@@ -1,56 +1,76 @@
-from flask import Blueprint, jsonify, request
-from app.config import get_db_connection
+from flask import Blueprint, request, jsonify
+from app.services.registration import sync_user_after_registration
 
-# Blueprint for authentication-related routes.
 auth_bp = Blueprint('auth', __name__)
+
+VALID_ROLES = {'patient', 'doctor'}
+
+REQUIRED_FIELDS = ['user_id', 'first_name', 'last_name', 'username', 'role']
 
 
 @auth_bp.route('/register', methods=['POST'])
-def register_user():
-    """Sync a newly Supabase-registered user to the local database.
+def register():
+    """
+    POST /api/auth/register
 
-    This endpoint is the DB-sync step of the registration flow (issue #193).
-    It is called by the frontend immediately after a successful
-    supabase.auth.signUp(), passing the Supabase-assigned UID and email so
-    we can maintain a local users table that the rest of the app can join
-    against for role checks, profiles, etc.
+    Called by the frontend immediately after supabase.auth.signUp() succeeds.
+    Syncs the new auth user into the application DB:
+      - Creates profiles row
+      - Creates profile_settings row with defaults
+      - Creates patients or providers row depending on role
+      - Assigns role in user_roles
 
-    Expected JSON body:
-        supabase_uid (str): UUID assigned by Supabase Auth.
-        email        (str): The user's email address.
+    Request body (JSON):
+    {
+      "user_id":        "uuid",           -- from Supabase signUp response
+      "first_name":     "string",
+      "last_name":      "string",
+      "username":       "string",
+      "role":           "patient" | "doctor",
+      "display_name":   "string",         -- optional, defaults to first + last
+      "phone_number":   "string",         -- optional
+      "date_of_birth":  "YYYY-MM-DD",     -- optional
+      "gender":         "string",         -- optional
 
-    Returns:
-        201 — user record created; body: { message, email }
-        400 — missing / invalid request body
-        409 — user already exists in the local DB
-        500 — unexpected database error
+      -- If role == "patient" (all optional):
+      "insurance_provider":        "string",
+      "insurance_member_id":       "string",
+      "emergency_contact_name":    "string",
+      "emergency_contact_phone":   "string",
+
+      -- If role == "doctor" (all optional):
+      "profession_title":  "string",
+      "specialty":         "string",
+      "license_number":    "string",
+      "license_state":     "string",
+      "bio":               "string"
+    }
+
+    Responses:
+      201 — sync successful
+      400 — missing or invalid fields
+      500 — DB sync failed (auth user was created, DB write failed)
     """
     data = request.get_json(silent=True)
+
     if not data:
-        return jsonify({'error': 'Request body must be JSON'}), 400
+        return jsonify({'error': 'Request body must be JSON.'}), 400
 
-    supabase_uid = data.get('supabase_uid', '').strip()
-    email = data.get('email', '').strip()
+    missing = [f for f in REQUIRED_FIELDS if not data.get(f)]
+    if missing:
+        return jsonify({'error': f"Missing required fields: {', '.join(missing)}"}), 400
 
-    if not supabase_uid or not email:
-        return jsonify({'error': 'supabase_uid and email are required'}), 400
+    if data['role'] not in VALID_ROLES:
+        return jsonify({'error': f"Invalid role. Must be one of: {', '.join(VALID_ROLES)}"}), 400
 
-    conn = get_db_connection()
-    try:
-        existing = conn.execute(
-            'SELECT id FROM users WHERE supabase_uid = ?', (supabase_uid,)
-        ).fetchone()
-        if existing:
-            return jsonify({'error': 'User already registered'}), 409
+    result = sync_user_after_registration(data['user_id'], data)
 
-        conn.execute(
-            'INSERT INTO users (supabase_uid, email, role) VALUES (?, ?, ?)',
-            (supabase_uid, email, 'patient'),
-        )
-        conn.commit()
-    except Exception as exc:
-        return jsonify({'error': f'Database error: {exc}'}), 500
-    finally:
-        conn.close()
+    if 'error' in result:
+        return jsonify({
+            'error': 'Registration succeeded in Supabase Auth but DB sync failed. '
+                     'Please contact support.',
+            'detail': result['error'],
+            'failed_at': result.get('step'),
+        }), 500
 
-    return jsonify({'message': 'User registered successfully', 'email': email}), 201
+    return jsonify({'message': 'User registered successfully.'}), 201
