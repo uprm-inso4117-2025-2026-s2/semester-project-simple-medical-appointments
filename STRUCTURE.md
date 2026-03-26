@@ -73,8 +73,8 @@ This document describes how the project is organized and where new code should g
 
 ## Conventions
 
-- **Frontend routes** use `/kebab-case` paths (e.g. `/my-appointments`).
-- **API routes** are all prefixed with `/api` (e.g. `/api/appointments`).
-- **Flask blueprints** group related routes — one file per feature (e.g. `appointments.py`, `users.py`).
+- **Frontend routes** use `/kebab-case` paths ( `/my-appointments`).
+- **API routes** are all prefixed with `/api` (`/api/appointments`).
+- **Flask blueprints** group related routes — one file per feature ( `appointments.py`, `users.py`).
 - **React pages** are the top-level views tied to a URL. **Components** are smaller, reusable pieces used inside pages.
 - Environment variables are never hardcoded — always use `config.py` on the backend and `import.meta.env` on the frontend.
