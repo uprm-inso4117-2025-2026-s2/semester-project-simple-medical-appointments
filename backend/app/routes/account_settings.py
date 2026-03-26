@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify, current_app
 from supabase import create_client
  
-from app.middleware.auth import require_auth
-from app.services.settings_service import (
+from app.middleware.Auth import require_auth
+from app.services.account_setting_services import (
     get_user_settings,
     update_user_preferences,
     UPDATABLE_PREFERENCE_FIELDS,
