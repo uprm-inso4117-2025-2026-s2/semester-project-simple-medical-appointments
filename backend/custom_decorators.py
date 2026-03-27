@@ -1,3 +1,4 @@
+from functools import wraps
 import sqlite3
 
 
@@ -22,3 +23,30 @@ def get_user_roles(user_id: int, db: sqlite3.Connection) -> set[str]:
 
     role_names = {row[0] for row in rows}
     return role_names
+
+
+def requires_role(required_roles: set[str], db: sqlite3.Connection):
+    """Decorator to check if the user has the required roles
+
+    Example usage:
+    @requires_role({"admin"}, database_connection)
+    @requires_role({"admin", "doctor", ...}, database_connection)
+
+    This will check if the user has at least one of the required roles.
+
+    Args:
+        required_roles (set[str]): set of required roles
+        db (sqlite3.Connection): database connection
+    """
+    def decorator(f):
+        @wraps(f)
+        def wrapper(user_id: int, *args, **kwargs):
+            user_roles = get_user_roles(user_id, db)
+            if not (user_roles & required_roles):
+                return "Unauthorized", 401
+
+            return f(user_id, *args, **kwargs)
+
+        return wrapper
+
+    return decorator
