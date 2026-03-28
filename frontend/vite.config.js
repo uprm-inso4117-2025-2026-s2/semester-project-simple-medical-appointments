@@ -15,7 +15,7 @@ export default defineConfig({
     // This lets the frontend call fetch('/api/...') without CORS issues during development.
     proxy: {
       '/api': {
-        target: 'http://localhost:5000', // Flask runs here
+        target: 'http://127.0.0.1:5000', // Flask runs here
         changeOrigin: true,              // Rewrites the Host header to match the target
       },
     },
