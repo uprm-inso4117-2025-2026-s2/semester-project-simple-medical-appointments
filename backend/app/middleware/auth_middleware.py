@@ -1,6 +1,6 @@
 import os
 import jwt
-from flask import request, g
+from flask import jsonify, request, g
 from functools import wraps
 
 SUPABASE_JWT_SECRET = os.getenv(
@@ -23,6 +23,14 @@ def extract_token() -> str | None:
 
 
 def verify_jwt(token: str) -> dict | None:
+    """Verifies JWT token
+
+    Args:
+        token (str): JWT token to verify
+
+    Returns:
+        dict | None: Payload of a valid JWT
+    """
     try:
         payload = jwt.decode(
             token,
@@ -39,22 +47,17 @@ def verify_jwt(token: str) -> dict | None:
 
 
 def requires_auth(f):
-    """Decorator to check if the user is authenticated
-
-    Example usage:
-    @requires_auth
-
-    """
+    """Decorator to check if the user is authenticated"""
 
     @wraps(f)
     def wrapper(*args, **kwargs):
         token = extract_token()
         if not token:
-            return "Unauthorized", 401
+            return jsonify({"message": "No token provided"}), 401
 
         payload = verify_jwt(token)
         if not payload:
-            return "Unauthorized", 401
+            return jsonify({"message": "Invalid or expired token"}), 401
 
         # Expected to be UUID of the user
         g.user_id = payload.get("sub")

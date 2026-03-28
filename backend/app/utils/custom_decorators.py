@@ -1,9 +1,10 @@
 from functools import wraps
 import sqlite3
+from flask import g, jsonify
 
 
 def get_user_roles(user_id: int, db: sqlite3.Connection) -> set[str]:
-    """ Returns the roles of a user
+    """Returns the roles of a user
 
     Args:
         user_id (int): user id
@@ -38,14 +39,19 @@ def requires_role(required_roles: set[str], db: sqlite3.Connection):
         required_roles (set[str]): set of required roles
         db (sqlite3.Connection): database connection
     """
+
     def decorator(f):
         @wraps(f)
-        def wrapper(user_id: int, *args, **kwargs):
+        def wrapper(*args, **kwargs):
+            user_id = g.user_id
+            if not user_id:
+                return jsonify({"message": "Not authenticated"}), 401
+
             user_roles = get_user_roles(user_id, db)
             if not (user_roles & required_roles):
-                return "Unauthorized", 401
+                return jsonify({"message": "Forbidden"}), 403
 
-            return f(user_id, *args, **kwargs)
+            return f(*args, **kwargs)
 
         return wrapper
 
