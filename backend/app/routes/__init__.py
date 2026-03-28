@@ -4,6 +4,7 @@ from . import appointmenthistory  # noqa: F401 — registers route on
 main_bp
 from .appointments import appointments_bp
 from .auth import auth_bp
+from .profile import profile_bp
 
 
 def register_routes(app):
@@ -16,5 +17,6 @@ routes).
     app.register_blueprint(appointments_bp,
 url_prefix='/api/appointments')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(profile_bp, url_prefix='/api/profile')
     # app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(closures_bp, url_prefix='/api/closures')
