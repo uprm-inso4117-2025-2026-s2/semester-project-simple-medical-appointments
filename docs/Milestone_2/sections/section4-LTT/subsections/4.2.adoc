@@ -1133,3 +1133,168 @@ previously mentioned risks:
 * Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
 
 ---
+
+==== Regression Testing Strategy for Appointment Booking System
+:author: Iralys Sánchez Milián
+
+===== Overview
+
+This Lecture Topic Task defines a regression testing strategy for the Clinic Experience appointment booking system. 
+Its purpose is to ensure that updates to booking-related functionality do not break behavior that previously worked correctly.
+
+===== Regression Testing Scope
+
+The core booking workflows that must continue working after changes are introduced:
+
+* booking an appointment
+* canceling an appointment
+* updating availability after booking or cancellation
+* waitlist handling
+* override handling
+
+===== When Regression Testing Should Occur
+
+Regression testing should be performed:
+
+* after any booking logic change
+* after database or schema changes affecting scheduling
+* before merging booking-related changes into the main development branch
+
+===== Regression Test Suite
+
+The regression test suite should include:
+
+====== Previously Passed Test Cases
+
+* All tests that have previously passed for booking, cancellation, availability, waitlist, and overrides
+
+====== High-Risk and Critical Workflows
+
+* Booking an appointment in an available slot
+* Attempting to book a full slot
+* Canceling an appointment and updating availability
+* Booking during edge cases (closures, limits)
+* Waitlist and override scenarios
+
+===== Test Selection Criteria
+
+Regression tests should be selected based on the parts of the system affected by a change.
+
+Examples:
+
+* if booking validation changes, retest booking acceptance and rejection scenarios
+* if availability logic changes, retest slot updates after booking and cancellation
+* if waitlist or override logic changes, retest those flows and their effect on standard booking
+
+===== Test Frequency Criteria
+
+* run relevant regression tests whenever a booking-related feature changes
+* run the full regression suite before merging major booking updates
+
+===== Automation Considerations
+
+* Automate core workflows (booking, cancellation, availability)
+* Run tests in CI before merging
+
+===== References
+
+*Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+*Framework:* Schütz-Schmuck, M. (2022). _Management of Testing_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+==== Risk-Based Testing Strategy for Appointment Booking System
+:author: Iralys Sánchez Milián
+
+===== Overview
+
+This Lecture Topic Task defines a risk-based testing strategy for the Clinic Experience appointment booking system by identifying high-risk components and prioritizing testing efforts accordingly.
+
+===== Risk Categorization and Mapping
+
+The following areas are considered risk prone and are categorized based on impact and likelihood, with corresponding test priorities, levels, and types.
+
+====== High Risk
+
+* Double booking conflicts
+* Concurrency issues (multiple users booking simultaneously)
+* Invalid time slot assignments
+
+Priority:
+
+* Highest priority
+* Tested first and included in all test cycles
+
+Test Levels:
+
+* Unit: validation of slot and capacity logic
+* Integration: booking + database consistency
+* System: end-to-end booking scenarios
+
+Test Types:
+
+* Functional tests
+* Edge case tests (simultaneous requests, full capacity)
+
+---
+
+====== Medium Risk
+
+* Override logic
+* Waitlist logic
+
+Priority:
+
+* Medium priority
+* Tested regularly after high-risk scenarios
+
+Test Levels:
+
+* Unit: rule validation
+* Integration: interaction with booking system
+* System: workflow validation
+
+Test Types:
+
+* Functional tests
+* Edge case tests (limit boundaries)
+
+---
+
+====== Low Risk
+
+* Non-critical validation errors
+* Minor edge cases
+
+Priority:
+
+* Lower priority
+* Tested after high- and medium-risk scenarios
+
+Test Levels:
+
+* Unit testing primarily
+
+Test Types:
+
+* Functional tests
+
+===== Entry Criteria
+
+Testing begins when:
+
+* A feature or change is ready for validation (e.g., pull request opened)
+* Relevant test cases exist or are created alongside the change
+* Required components (e.g., database, APIs) are available or mocked
+
+===== Exit Criteria
+
+Testing is complete when:
+
+* All relevant tests (based on risk level) pass
+* No critical defects remain in high-risk areas
+* The change does not break existing functionality (regression tests pass)
+* The system remains stable for integration into the main branch
+
+===== References
+
+*Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
