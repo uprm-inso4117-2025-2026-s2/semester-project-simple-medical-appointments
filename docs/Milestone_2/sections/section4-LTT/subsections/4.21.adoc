@@ -1,0 +1,88 @@
+== Mutation Testing Strategy for Authentication Services
+:doctype: article
+:sectnums:
+:author: Juan Ortiz Abouomar
+
+===== Introduction
+Mutation testing is a software testing technique used to evaluate the effectiveness of a test suite by introducing small changes (mutations) into the program code. These changes simulate common programming errors and help determine whether existing tests can detect them.
+
+In this project, mutation testing is applied to the authentication system, which includes the Login page, Register page, and API service interactions. Ensuring robustness in these components is critical, as authentication failures directly impact security and user access.
+
+---
+===== Objective
+The objective of this strategy is to assess and improve the quality of the test suite by identifying weaknesses in how authentication logic is validated, particularly in handling invalid inputs, edge cases, and API failures.
+
+---
+===== Scope of the System
+The mutation testing strategy focuses on the following components:
+
+* Login functionality
+** Credential validation
+** Error handling for incorrect inputs  
+
+* Registration functionality
+** Input validation (email, password rules)
+** Form submission behavior  
+
+* API Service (api.js)
+** Handling failed requests
+** Response validation  
+
+---
+===== Mutation Testing Approach
+
+====== Mutation Operators
+The following mutation operators are applied to simulate faults:
+
+* Logical operator replacement (AND <-> OR)  
+* Conditional boundary changes (e.g., >= to >)  
+* Constant/value modification  
+* Negation of conditions  
+
+====== Testing Process
+. Generate mutants by applying mutation operators to the authentication code  
+. Execute the existing test suite against each mutant  
+. Analyze results:
+* Killed mutant: Test detects the error (strong test)  
+* Surviving mutant: Test fails to detect error (weak test)  
+
+====== Evaluation Metric
+The effectiveness of the test suite is measured using the mutation score:
+
+Mutation Score = (Killed Mutants / Total Mutants) × 100
+
+A higher mutation score indicates better test quality and fault detection capability.
+
+---
+===== Application to the Project
+Applying mutation testing to the authentication system helps identify weaknesses such as:
+
+* Tests not detecting incorrect login conditions  
+* Missing validation for empty or malformed inputs  
+* Insufficient handling of API errors  
+
+For example:
+
+* A mutant that removes password validation should be caught by tests  
+* A mutant that alters API error handling should trigger test failures  
+
+If these mutants survive, it indicates gaps in the testing strategy.
+
+---
+===== Benefits
+* Improves reliability of authentication features  
+* Identifies gaps in test coverage  
+* Enhances confidence in frontend-backend interactions  
+* Supports early detection of critical bugs  
+
+---
+===== Conclusion
+Mutation testing provides a systematic way to evaluate and strengthen the test suite for authentication services. By identifying weak areas through surviving mutants, the development team can improve test coverage and ensure a more robust and secure user authentication experience.
+
+---
+===== References
+[1] P. Ammann and J. Offutt, _Introduction to Software Testing_, Cambridge University Press, 2016.  
+
+[2] Y. Jia and M. Harman, “An Analysis and Survey of the Development of Mutation Testing,” _IEEE Transactions on Software Engineering_, vol. 37, no. 5, pp. 649–678, 2011.  
+
+---
