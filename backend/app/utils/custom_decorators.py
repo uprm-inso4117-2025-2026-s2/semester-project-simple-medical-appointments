@@ -1,56 +1,44 @@
 from functools import wraps
-import sqlite3
 from flask import g, jsonify
+from app.repositories.user_roles import get_role_for_user
 
 
-def get_user_roles(user_id: int, db: sqlite3.Connection) -> set[str]:
-    """Returns the roles of a user
+def requires_role(required_roles: set[str]):
+    """Decorator that restricts a route to users with one of the required roles.
 
-    Args:
-        user_id (int): user id
-        db (sqlite3.Connection): database connection
-
-    Returns:
-        set[str]: set of roles
-    """
-    cursor = db.cursor()
-    query = """
-            SELECT roles.name FROM user_roles
-            JOIN roles ON user_roles.role_id = roles.id
-            WHERE user_roles.user_id = ?
-            """
-    cursor.execute(query, (user_id,))
-    rows = cursor.fetchall()
-
-    role_names = {row[0] for row in rows}
-    return role_names
-
-
-def requires_role(required_roles: set[str], db: sqlite3.Connection):
-    """Decorator to check if the user has the required roles
+    Must be applied after @requires_auth, which sets g.user_id.
+    Fetches the user's role from Supabase and returns 403 if it is not in
+    the required set.
 
     Example usage:
-    @requires_role({"admin"}, database_connection)
-    @requires_role({"admin", "doctor", ...}, database_connection)
+        @requires_auth
+        @requires_role({"admin"})
+        def admin_only_view(): ...
 
-    This will check if the user has at least one of the required roles.
+        @requires_auth
+        @requires_role({"admin", "doctor"})
+        def admin_or_doctor_view(): ...
 
     Args:
-        required_roles (set[str]): set of required roles
-        db (sqlite3.Connection): database connection
+        required_roles (set[str]): Set of role names that are allowed access.
+
+    Returns 401 if g.user_id is not set (requires_auth not applied).
+    Returns 403 if the user's role is not in required_roles.
+    Sets g.user_role to the resolved role string on success.
     """
 
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            user_id = g.user_id
+            user_id = getattr(g, "user_id", None)
             if not user_id:
                 return jsonify({"message": "Not authenticated"}), 401
 
-            user_roles = get_user_roles(user_id, db)
-            if not (user_roles & required_roles):
+            role = get_role_for_user(user_id)
+            if role not in required_roles:
                 return jsonify({"message": "Forbidden"}), 403
 
+            g.user_role = role
             return f(*args, **kwargs)
 
         return wrapper

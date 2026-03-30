@@ -3,6 +3,7 @@ Appointment form submission API (skeleton).
 POST /api/appointments/submit — accepts form data; persistence to Supabase is TODO.
 """
 from flask import Blueprint, request, jsonify
+from app.middleware.auth_middleware import requires_auth
 
 appointments_bp = Blueprint('appointments', __name__)
 
@@ -10,6 +11,7 @@ REQUIRED_FIELDS = ('name', 'surname', 'symptoms_and_or_allergies', 'medications'
 
 
 @appointments_bp.route('/submit', methods=['POST'])
+@requires_auth
 def submit_appointment():
     """
     Submit appointment form data.
