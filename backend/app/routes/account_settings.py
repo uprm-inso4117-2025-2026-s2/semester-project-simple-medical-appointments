@@ -23,8 +23,14 @@ def get_settings(current_user_id: str, user_id: str):
     """GET /api/settings/<user_id>
  
     Returns:
-        200: { "profile": { username, full_name, avatar_url, ... },
-               "settings": { notifications_enabled, theme, language } }
+        200: {
+            "profile":  { user_id, first_name, last_name, display_name, username,
+                          avatar_url, banner_url, phone_number, date_of_birth,
+                          gender, created_at },
+            "settings": { preferred_contact_method, preferred_language,
+                          notify_appointment_reminders, notify_appointment_updates,
+                          notify_messages, theme, accessibility_mode }
+        }
         403: requesting user != user_id in URL
         404: no profile found
         500: Supabase error
@@ -49,9 +55,13 @@ def update_settings(current_user_id: str, user_id: str):
     """PUT /api/settings/<user_id>
  
     Accepted JSON fields (all optional, send only what you want to change):
-        notifications_enabled   bool
-        theme                   string   e.g. "light" | "dark"
-        language                string   e.g. "en" | "es"
+        preferred_contact_method        string   e.g. "email" | "sms" | "phone"
+        preferred_language              string   e.g. "en" | "es"
+        notify_appointment_reminders    bool
+        notify_appointment_updates      bool
+        notify_messages                 bool
+        theme                           string   e.g. "light" | "dark"
+        accessibility_mode              string   e.g. "default" | "high_contrast"
  
     Returns:
         200: { "updated_preferences": { ... } }
@@ -70,7 +80,10 @@ def update_settings(current_user_id: str, user_id: str):
     try:
         updated = update_user_preferences(supabase, user_id, data)
     except ValueError as exc:
-        return jsonify({'error': str(exc), 'allowed_fields': sorted(UPDATABLE_PREFERENCE_FIELDS)}), 400
+        return jsonify({
+            'error': str(exc),
+            'allowed_fields': sorted(UPDATABLE_PREFERENCE_FIELDS),
+        }), 400
     except RuntimeError as exc:
         return jsonify({'error': str(exc)}), 500
  
