@@ -87,7 +87,7 @@ function Register() {
 
     setLoading(true)
     try {
-      const result = await registerUser(fields.email, fields.password)
+      const result = await registerUser(fields.email, fields.password, fields.firstName, fields.lastName)
 
       if (result.emailConfirmationRequired) {
         setEmailConfirmationRequired(true)

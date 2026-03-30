@@ -51,7 +51,7 @@ function formatAuthError(message) {
  * Returns: { user, session, emailConfirmationRequired }
  * Throws:  Error with a user-friendly message on failure.
  */
-export async function registerUser(email, password) {
+export async function registerUser(email, password, firstName, lastName) {
   const { data, error } = await supabase.auth.signUp({ email, password })
 
   if (error) {
@@ -62,7 +62,13 @@ export async function registerUser(email, password) {
 
   if (user) {
     try {
-      await syncRegistration({ supabase_uid: user.id, email: user.email })
+      await syncRegistration({
+        user_id:    user.id,
+        first_name: firstName,
+        last_name:  lastName,
+        username:   email.split('@')[0],
+        role:       'patient',
+      })
     } catch (syncError) {
       console.error('DB sync failed after registration:', syncError.message)
     }
