@@ -86,6 +86,15 @@ def sync_user_after_registration(user_id: str, data: dict) -> dict:
             inserted.append(('patients', user_id))
             logger.info('patients row created for user %s', user_id)
 
+            patient_settings_row = {
+                'user_id':              user_id,
+                'notify_laboratory':    True,
+                'notify_prescription':  True,
+            }
+            supabase.table('patient_settings').insert(patient_settings_row).execute()
+            inserted.append(('patient_settings', user_id))
+            logger.info('patient_settings row created for user %s', user_id)
+
         elif role == 'doctor':
             provider_row = {
                 'user_id':          user_id,
@@ -98,6 +107,16 @@ def sync_user_after_registration(user_id: str, data: dict) -> dict:
             supabase.table('providers').insert(provider_row).execute()
             inserted.append(('providers', user_id))
             logger.info('providers row created for user %s', user_id)
+
+            provider_settings_row = {
+                'user_id':                      user_id,
+                'auto_accept_appointments':     False,
+                'appointment_buffer_minutes':   0,
+                'default_appointment_duration': 30,
+            }
+            supabase.table('provider_settings').insert(provider_settings_row).execute()
+            inserted.append(('provider_settings', user_id))
+            logger.info('provider_settings row created for user %s', user_id)
 
         # ── Step 4: user_roles ────────────────────────────────────────────
         role_id = _get_role_id(supabase, role)
