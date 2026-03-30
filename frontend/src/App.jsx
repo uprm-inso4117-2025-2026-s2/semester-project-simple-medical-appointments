@@ -7,6 +7,7 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import ClosuresAdmin from './pages/ClosuresAdmin'
 import AppointmentHistory from './pages/AppointmentHistory'
+import AppointmentSchedule from "./pages/AppointmentScheduling";
 import Register from './pages/Register'
 import Login from './pages/Login'
 
@@ -19,6 +20,7 @@ function App() {
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
