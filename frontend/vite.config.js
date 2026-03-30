@@ -7,6 +7,11 @@ export default defineConfig({
   // Registers the React plugin so Vite understands JSX and fast-refresh
   plugins: [react()],
 
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
+
   server: {
     // The port the React dev server listens on
     port: 3000,
