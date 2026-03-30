@@ -2,6 +2,8 @@
 // All API calls should go through this file so the base URL and headers
 // are defined in one place. Add new functions below as endpoints are created.
 
+import { supabase } from '../lib/supabaseClient'
+
 // Base URL for all API requests.
 // During development, Vite proxies /api/* to http://localhost:5000 (see vite.config.js).
 // In production, set VITE_API_BASE in the frontend .env to the deployed backend URL.
@@ -9,12 +11,30 @@ const BASE_URL = import.meta.env.VITE_API_BASE || '/api'
 
 // Generic fetch wrapper — handles JSON parsing and basic error throwing.
 async function request(path, options = {}) {
+  const {
+    headers: customHeaders = {},
+    skipAuth = false,
+    ...restOptions
+  } = options
+
+  let authHeaders = {}
+  if (!skipAuth) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (session?.access_token) {
+      authHeaders = { Authorization: `Bearer ${session.access_token}` }
+    }
+  }
+
   const response = await fetch(`${BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...authHeaders,
+      ...customHeaders,
     },
-    ...options,
+    ...restOptions,
   })
 
   if (!response.ok) {
@@ -29,7 +49,7 @@ async function request(path, options = {}) {
 
 // Checks that the Flask backend is reachable. Useful for debugging.
 export function getHealth() {
-  return request('/health')
+  return request('/health', { skipAuth: true })
 }
 
 // --- Appointment history ---
@@ -47,7 +67,21 @@ export function getAppointmentHistory(userId) {
 export function syncRegistration(userData) {
   return request('/auth/register', {
     method: 'POST',
+    skipAuth: true,
     body: JSON.stringify(userData),
+  })
+}
+
+// --- Profile ---
+
+export function getProfile(userId) {
+  return request(`/profile/${userId}`)
+}
+
+export function updateProfile(userId, updates) {
+  return request(`/profile/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(updates),
   })
 }
 

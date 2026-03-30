@@ -13,7 +13,7 @@ secret).
     """
 
     # Used to sign session cookies and tokens — must be set to a strong
-random
+    # random
     # value in production. See backend/.env.example.
     SECRET_KEY = os.getenv('SECRET_KEY',
 'dev-secret-key-change-in-production')
@@ -23,7 +23,7 @@ random
 
     # Supabase — used for user management DB operations.
     # Use the service role key on the backend (bypasses RLS for trusted
-server ops).
+    # server ops).
     SUPABASE_URL = os.getenv('SUPABASE_URL')
     SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 
