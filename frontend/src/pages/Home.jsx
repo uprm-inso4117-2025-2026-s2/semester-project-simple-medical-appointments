@@ -14,16 +14,33 @@ const IconPlus = () => (
   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
 )
 
+// Add route here as each role's dashboard is built
+const DASHBOARD_ROUTES = {
+  patient: '/patient-dashboard',
+  // doctor: '/doctor-dashboard',
+  // admin:  '/admin-dashboard',
+}
+
 function Home() {
   const navigate = useNavigate()
   const [userEmail, setUserEmail] = useState('')
+  const [userRole, setUserRole]   = useState(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(async ({ data }) => {
       if (!data?.user) {
         navigate('/login')
-      } else {
-        setUserEmail(data.user.email)
+        return
+      }
+      setUserEmail(data.user.email)
+
+      const { data: roleRows } = await supabase
+        .from('user_roles')
+        .select('roles(name)')
+        .eq('user_id', data.user.id)
+
+      if (roleRows?.length) {
+        setUserRole(roleRows[0]?.roles?.name ?? null)
       }
     })
   }, [navigate])
@@ -32,6 +49,8 @@ function Home() {
     await supabase.auth.signOut()
     navigate('/login')
   }
+
+  const dashboardRoute = userRole ? (DASHBOARD_ROUTES[userRole] ?? null) : null
 
   return (
     <div className="home-page">
@@ -75,7 +94,13 @@ function Home() {
           </div>
         </div>
 
-        <button className="home-dashboard-btn">Go to Dashboard</button>
+        <button
+          className="home-dashboard-btn"
+          onClick={() => dashboardRoute && navigate(dashboardRoute)}
+          disabled={!dashboardRoute}
+        >
+          Go to Dashboard
+        </button>
       </main>
     </div>
   )
