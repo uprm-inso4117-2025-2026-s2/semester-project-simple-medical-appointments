@@ -1,7 +1,6 @@
-// AppointmentHistory.jsx — displays a user's appointment history.
-// This page fetches data from the backend and renders it in a table.
+// AppointmentHistory.jsx — displays appointment history fetched from the Flask backend.
 import { useEffect, useState } from 'react'
-import { getAppointmentHistory } from '../services/api'
+import { getAllAppointmentHistory } from '../services/api'
 
 function AppointmentHistory() {
   const [appointments, setAppointments] = useState([])
@@ -9,28 +8,15 @@ function AppointmentHistory() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    getAppointmentHistory(1)
-      .then((data) => {
-        setAppointments(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message)
-        setLoading(false)
-      })
+    getAllAppointmentHistory()
+      .then(data => setAppointments(data))
+      .catch(err => setError(err.message ?? 'Failed to load appointment history'))
+      .finally(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return <p>Loading appointment history…</p>
-  }
-
-  if (error) {
-    return <p style={{ color: 'red' }}>Error: {error}</p>
-  }
-
-  if (!appointments.length) {
-    return <p>No appointments found.</p>
-  }
+  if (loading) return <p>Loading appointment history…</p>
+  if (error)   return <p style={{ color: 'red' }}>Error: {error}</p>
+  if (!appointments.length) return <p>No appointments found.</p>
 
   return (
     <div>
@@ -38,24 +24,20 @@ function AppointmentHistory() {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User ID</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Clinic</th>
+            <th>Patient ID</th>
             <th>Doctor</th>
+            <th>Clinic</th>
+            <th>Date &amp; Time</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
           {appointments.map((appt) => (
             <tr key={appt.id}>
-              <td>{appt.id}</td>
-              <td>{appt.user_id}</td>
-              <td>{appt.appointment_date}</td>
-              <td>{appt.appointment_time}</td>
-              <td>{appt.clinic_id}</td>
-              <td>{appt.doctor_id}</td>
+              <td>{appt.patient_id ?? 'N/A'}</td>
+              <td>{appt.doctor_name}</td>
+              <td>{appt.clinic_name}</td>
+              <td>{new Date(appt.appointment_datetime).toLocaleString()}</td>
               <td>{appt.status}</td>
             </tr>
           ))}

@@ -2,6 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from .config import Config
 from .routes import register_routes
+from .supabase import init_supabase
 
 
 def create_app():
@@ -17,6 +18,9 @@ def create_app():
     # Enable CORS so the React frontend (on a different port) can call this API.
     # In production, restrict origins to your actual domain instead of allowing all.
     CORS(app)
+
+    # Initialize Supabase client and attach it as app.supabase
+    init_supabase(app)
 
     # Register all route blueprints (see app/routes/__init__.py)
     register_routes(app)
