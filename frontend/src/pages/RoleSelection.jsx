@@ -73,13 +73,19 @@ function RoleSelection() {
 
     const nextState = { ...state, role: selected }
 
-    // Patient has a details step — defer sync to PatientDetails
+    // Patient — defer sync to PatientDetails
     if (selected === 'patient') {
       navigate('/patient-details', { state: nextState })
       return
     }
 
-    // Doctor/Admin: no details page yet — sync now for testing
+    // Doctor — defer sync to DoctorDetails
+    if (selected === 'doctor') {
+      navigate('/doctor-details', { state: nextState })
+      return
+    }
+
+    // Admin: no details page yet — sync now for testing
     setLoading(true)
     setError(null)
 
@@ -92,7 +98,7 @@ function RoleSelection() {
         role:       selected,
       })
 
-      // TODO: replace '/' with doctor/admin detail routes once added
+      // TODO: replace '/' with admin detail route once added
       navigate('/', { replace: true })
     } catch (err) {
       setError('Something went wrong saving your role. Please try again.')
