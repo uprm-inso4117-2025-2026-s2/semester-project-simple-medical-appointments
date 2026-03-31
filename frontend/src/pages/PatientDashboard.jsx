@@ -5,7 +5,7 @@
 // Status values match the DB: 'scheduled' | 'completed' | 'cancelled'
 
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { getProfile } from '../services/api'
 
@@ -65,44 +65,68 @@ const IconUser = () => (
 function PatientDashboard() {
   const navigate = useNavigate()
   const [profile, setProfile]       = useState(null)
-  const [authorized, setAuthorized] = useState(false)
+  // Pre-authorize immediately if the role is already cached from a previous visit
+  const [authorized, setAuthorized] = useState(
+    () => sessionStorage.getItem('userRole') === 'patient'
+  )
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data?.user) {
-        navigate('/login')
+    const checkAccess = async () => {
+      // getSession reads from local storage — no network request, instant
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        sessionStorage.removeItem('userRole')
+        navigate('/login', { replace: true })
         return
       }
 
-      // Role guard — only patients can access this page
+      // If already cached, skip the DB role check and just fetch profile
+      if (sessionStorage.getItem('userRole') === 'patient') {
+        setAuthorized(true)
+        try {
+          const prof = await getProfile(session.user.id)
+          setProfile(prof)
+        } catch {}
+        return
+      }
+
+      // No cache — verify role against DB
       const { data: roleRows } = await supabase
         .from('user_roles')
         .select('roles(name)')
-        .eq('user_id', data.user.id)
+        .eq('user_id', session.user.id)
 
       const role = roleRows?.[0]?.roles?.name
       if (role !== 'patient') {
+        sessionStorage.removeItem('userRole')
         navigate('/', { replace: true })
         return
       }
 
+      sessionStorage.setItem('userRole', 'patient')
       setAuthorized(true)
 
       try {
-        const prof = await getProfile(data.user.id)
+        const prof = await getProfile(session.user.id)
         setProfile(prof)
       } catch {
         // profile fetch failed — name falls back to placeholder
       }
-    })
+    }
+
+    checkAccess()
   }, [navigate])
 
   const handleLogout = async () => {
+    sessionStorage.removeItem('userRole')
     await supabase.auth.signOut()
     navigate('/login')
   }
 
-  if (!authorized) return null
+  if (!authorized) {
+    const cached = sessionStorage.getItem('userRole')
+    return <Navigate to={cached ? '/' : '/login'} replace />
+  }
 
   const displayName  = profile?.name ?? '…'
   const firstName    = displayName !== '…' ? displayName.split(' ')[0] : '…'

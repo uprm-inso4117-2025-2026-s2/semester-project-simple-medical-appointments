@@ -40,12 +40,15 @@ function Home() {
         .eq('user_id', data.user.id)
 
       if (roleRows?.length) {
-        setUserRole(roleRows[0]?.roles?.name ?? null)
+        const role = roleRows[0]?.roles?.name ?? null
+        setUserRole(role)
+        if (role) sessionStorage.setItem('userRole', role)
       }
     })
   }, [navigate])
 
   const handleLogout = async () => {
+    sessionStorage.removeItem('userRole')
     await supabase.auth.signOut()
     navigate('/login')
   }
