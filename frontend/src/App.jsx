@@ -9,6 +9,7 @@ import ClosuresAdmin from './pages/ClosuresAdmin'
 import AppointmentHistory from './pages/AppointmentHistory'
 import Register from './pages/Register'
 import Login from './pages/Login'
+import RoleSelection from './pages/RoleSelection'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/role-selection" element={<RoleSelection />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
