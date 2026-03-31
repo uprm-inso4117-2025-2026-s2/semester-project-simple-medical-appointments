@@ -1048,3 +1048,130 @@ Testing will be considered complete when:
 * Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
 
 ---
+
+==== Test Plan for Colorblind Accessibility Themes
+:author: Sebastian G. Suarez Robles
+
+===== Overview
+
+The purpose of this test plan is to validate the colorblind themes to ensure functional usability for users that have vision deficiencies such as colorblindness. This plan follows a risk-based approach prioritizing Sine qua non features that would give us critical errors due to color confusion. This test strategy will focus on a cognitive walkthrough, evaluation of critical paths and a prioritization hierarchy that ensures critical functional distinctions will remain very clear no matter the visual perception.
+
+===== Scope
+
+====== In Scope
+
+* Functional distinction for status indicators (Critical/P1)
+* Heirachy of navigation and structure clarity (High/P2)
+* Cognitive walkthrough that simulates specific vision deficiencies (Protanopia, Deuteranopia, Tritanopia)
+*Ciritical path evaluation for workflows (e.g., form submission, error states)
+* Aesthetic contrast for background elements that are non-functional (Medium/P3)
+
+====== Out of Scope
+
+* Full UI/UX design review (beyond color and contrast)
+* Performance testing of the themes
+* Testing on actual colorblind users (this plan focuses on simulated testing)
+* Accessibility testing for other disabilities (e.g., screen readers, motor impairments)
+
+===== Risk and Prioritization
+
+Testing will prioritize a risk-based hierarchy focused to preventing high-cost errors for colorblind users due to color confusion. The prioritization levels are defined as follows:
+
+====== Critical (P1) - Sine Qua Non Features
+
+* Functional distinction for status indicators (e.g., error vs. success)
+* Status indicators (e.g., success, error, warning) 
+* Risks: Faliure to distinguish these causes irreversible user errors, such as deleting data instead of saving or ignoring a critical error message.
+
+====== High (P2) - Navigation Hierarchy
+
+*Visual differentiantion of navigation elements (e.g., active vs. inactive states)
+* Tab states (active, inactive, disabled)
+* Risks: Confusion in navigation can lead to users getting lost in the application and that couyld lead to frustration and abandonment of the application.
+
+====== Medium (P3) - Aesthetic Contrast and Non-Functional Elements
+
+* Background patterns, icond and non-essential graphics
+* Border styles that dont convey status or actions
+* Risks: Reduced user satisfaction and minor usability issues, but no ciritial errors or failures
+
+===== Assumptions and Dependencies
+
+====== Assumptions
+
+* The colorblind themes are implemented according to design specifications.
+* Users interact with graphical UI where color is a primary means of conveying information.
+* Simulated testing tools accurately represent colorblind vision deficiencies.
+* Testers have baseline knowledge of colorblindness.
+
+====== Dependencies
+
+* Funtional application builds with the colorblind themes toggle enabled
+* Availability of design documentation defining intended color mappings
+* Test environments that support theme switching of colorblindness modes.
+
+===== Test Environment
+
+Testing will be conducted in a staging environment that incldues all features and the ability to toggle between different colorblind themes and includes features where color is used as a visual cue.
+
+====== Enviroment setup
+
+* Environment Type: Staging
+* Theme Toggle: Enabled for Protanopia, Deuteranopia, Tritanopia
+* Test Tools: Vision deficiency simulators (built-in or exensions)
+* Device: Standard desktop and mobile browsers
+
+====== Test Data
+
+* Pre-defined workflows requiring status indicators (e.g., form submission, error handling)
+* Status indicator scenarios (success, error, warning)
+* Navigation trees with at least three levels of hierarchy
+
+====== Testing Approach
+
+The strategy employ a risk-based focus in combination with a cognitive walkthrough with critical path evaluations.
+
+====== Cognitive Walkthrough
+
+A cognitive walkthrough will be performed by simulating each specific vision deficiency (Protanopia, Deuteranopia, Tritanopia). Testers would assume the perspective of a user with colorblindness and evaluate if the UI provides sufficient non-color cues to complete task without having any sort of error
+
+====== Critical Path Evaluation
+
+A critical path evaluation will be conducted on primary workflows where color confusion could end up in to high-cost errors. This includes:
+
+* Medical or legal consent checkboxes
+* Emergency alert acknowledgement 
+* Irreversable actions (e.g., delete, submit final form)
+
+For each critical path, testers will verify that status indicators are distinguishable and that any action requiring user confirmation is not solely reliant on color cues.
+
+===== Expected Results
+
+A test is considered *Pass* when:
+
+* All critical (P1) elements are distinguishable and provide clear non-color cues.
+* Navigation hierarchy (P2) remains structured and clear across all themes.
+* Medium (P3) elements maintain sufficient contrast and do not cause confusion, even if they are not the primary focus.
+* A cognitive walkthough shows that a user with the simulated deficiency can complete tasks without error or confusion.
+
+A test is considered *Fail* when:
+
+* Critical (P1) elements are indistinguishable, leading to potential user errors.
+* Navigation elements (P2) are not visually distinct, causing confusion in navigation.
+* Medium (P3) elements cause significant usability issues or confusion, even if they are not critical.
+* The critical path evaluation identifies a failure point where color confusion could lead to a high-cost error.
+
+===== Exit Criteria
+
+Testing will be considered complete when:
+
+* All critical (P1) test scenarios have been executed and passed.
+* High (P2) test scenarios have been executed and passed.
+* Medium (P3) test scenarios have been executed, with any failures documented and triaged.
+* No open defects compromise the functional distinction of critical elements or the overall usability of the application for colorblind users.
+
+===== References
+
+[1] B. Vélez, "Test Planning," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019. [Online]. Available: https://online.upr.edu/pluginfile.php/5616003/mod_resource/content/1/Lecture%202%20Test%20Planning.pdf
+
+
