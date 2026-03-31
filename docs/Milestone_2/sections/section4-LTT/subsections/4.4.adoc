@@ -87,3 +87,113 @@ reliability testing process.
 
 ---
 
+==== *Test Driven Development*
+
+NOTE: The following lecture topic was added to this file as they both focus on software development driven by different aspects. 
+
+===== Appointment Conflict Detection via Test-Driven Development (TDD)
+The scheduling system must enforce rules that prevent booking conflicts while allowing fair access to appointment slots. The following assumptions define the domain behavior:
+
+1. Each appointment contains the following attributes:
+- Doctor/Specialist identifier
+- Clinic or location
+- Appointment start time
+- Appointment end time
+- Appointment status (pending, confirmed, cancelled)
+
+2. A doctor cannot have overlapping confirmed appointments during the same time interval.
+
+3. Appointment slots may have a capacity limit, allowing more than one patient only if the slot capacity permits it.
+
+4. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+5. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+6. Appointment status affects scheduling behavior:
+- Confirmed appointments occupy the time slot.
+- Cancelled appointments release the slot.
+- Pending appointments may temporarily reserve a slot depending on scheduling policy.
+
+Following the TDD approach, we will write testable scenarios to define the expected behavior of the scheduling system. These tests are expected to initially fail because the scheduling conflict logic has not yet been implemented.
+
+Test 1.1 – Partial Overlap Conflict 
+
+* Scenario: A doctor already has a confirmed appointment from 10:00–10:30. A patient attempts to book an appointment from 10:15–10:45. 
+* Expected Result: Booking is rejected because the appointment partially overlaps an existing confirmed appointment. 
+
+Code:
+
+    def test_partial_overlap_conflict(): 
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ] 
+        new_appt = appointment(“10:15”, “10:45”, doctor_id=1) 
+        assert can_book_appt(new_appt, existing) #comparing if existing array has appointments already, since it does, it returns false
+
+Test 1.2 – Full Overlap Conflict 
+
+* Scenario: A doctor has an existing appointment from 10:00–10:30. A patient attempts to book an appointment from 10:00–10:30. 
+* Expected Result: Booking is rejected due to complete overlap. 
+
+Test 2.1 – Boundary Case (End-Start Match) 
+
+* Scenario: A doctor has an appointment from 10:00–10:30. Another appointment request is made for 10:30–11:00. 
+* Expected Result: Booking is accepted because the previous appointment ends exactly when the new one begins. 
+
+Test 2.2 – Boundary Case (Start-End Match) 
+
+* Scenario: A doctor has an appointment from 10:30–11:00. Another appointment request is made for 10:00–10:30. 
+* Expected Result: Booking is accepted because the appointments do not overlap. 
+
+Test 3.1 – Capacity Reached 
+
+* Scenario: A time slot allows a maximum capacity of two appointments. Two appointments already exist for that slot. 
+* Expected Result: A third booking attempt is rejected due to capacity limits. 
+
+Code: 
+
+    def test_capacity_reached():
+        capacity = 2
+        existing_bookings = 2
+        assert check_capacity(existing_bookings, capacity) #checks if these two values are equal, then returns false
+
+Test 3.2 – Capacity Available
+
+* Scenario: A slot has capacity for two appointments and only one exists.
+* Expected Result: A second appointment is accepted.
+
+Test 4 – Cancelled Appointment Behavior
+
+* Scenario: A confirmed appointment is cancelled for a given time slot.
+* Expected Result: The time slot becomes available for booking.
+
+Code:
+
+    def test_cancelled_appt_behavior():
+        existing = [ appointment(“10:00”, “10:30”, status= “cancelled”) ]
+        new_appt = appointment(“10:00”, “10:30”)
+        assert can_book_appt(new_appt, existing) #since appointment was cancelled, blocked time slot gets removed, allowing new appointment to be confirmed, returning true
+
+Test 5 – Pending Appointment Handling
+
+* Scenario: An appointment is submitted and marked as pending.
+* Expected Result: System behavior should follow the defined policy: either temporarily block the slot or allow another pending request depending on system rules.
+
+Test 6 – Multiple Doctors Same Location
+
+* Scenario: Two doctors work at the same clinic location. Each doctor receives appointment requests during the same time interval.
+* Expected Result: Appointments are allowed because conflicts are evaluated per doctor, not per location.
+
+Code:
+
+    def multiple_docs_same_location():
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ]
+        new_appt = appointment(“10:00”, “10:30”, doctor_id=2)
+        assert can_book_appt(new_appt, existing) #should return true as doctor_id are different
+
+When the time for implementation comes, several potential edge cases should be considered:
+
+- Simultaneous booking attempts - multiple users attempting to book the same slot at the same time may cause race conditions.
+- Clinic constraint overrides - scheduling rules such as blocked days or limited operating hours may affect slot availability.
+- Rescheduling behavior - moving an appointment must trigger the same conflict detection rules as new bookings.
+- Day boundary overlaps - appointments that extend past date boundaries.
+
+In summary, we begin in the “Red phase” writing unit tests that define expected scheduling behavior that are written first and initially fail because there’s no implementation yet. Then, in the “Green phase”, developers will implement the minimal scheduling logic required to make the tests pass. Lastly, in the “Refactor phase”, once the tests pass, the code is cleaned and optimized while ensuring the test suite continues to succeed. By defining scheduling behavior through tests first, the team can ensure that the conflict detection and capacity rules are clearly specified, verifiable, and maintainable before the scheduling engine is implemented.
