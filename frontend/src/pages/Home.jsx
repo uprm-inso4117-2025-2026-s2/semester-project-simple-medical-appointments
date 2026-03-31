@@ -74,6 +74,8 @@ function Home() {
             <span className="home-card-badge">Coming soon</span>
           </div>
         </div>
+
+        <button className="home-dashboard-btn">Go to Dashboard</button>
       </main>
     </div>
   )

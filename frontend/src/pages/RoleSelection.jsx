@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { syncRegistration } from '../services/api'
 import '../styles/auth.css'
 import '../styles/roleSelection.css'
 
@@ -85,27 +84,8 @@ function RoleSelection() {
       return
     }
 
-    // Admin: no details page yet — sync now for testing
-    setLoading(true)
-    setError(null)
-
-    try {
-      await syncRegistration({
-        user_id:    state.userId,
-        first_name: state.firstName,
-        last_name:  state.lastName,
-        username:   state.username,
-        role:       selected,
-      })
-
-      // TODO: replace '/' with admin detail route once added
-      navigate('/', { replace: true })
-    } catch (err) {
-      setError('Something went wrong saving your role. Please try again.')
-      console.error('Role sync failed:', err.message)
-    } finally {
-      setLoading(false)
-    }
+    // Admin — defer sync to AdminDetails
+    navigate('/admin-details', { state: nextState })
   }
 
   return (

@@ -1,0 +1,166 @@
+/*
+  onboardingSuccess.css — "You're all set!" page at "/onboarding-success"
+  Matches Figma frame 125:142 (file iRqgxGZYJE7GCbEi4d0vMw)
+*/
+
+/* ── PAGE ────────────────────────────────────────────────────────────── */
+
+.success-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── CARD ────────────────────────────────────────────────────────────── */
+
+.success-card {
+  position: relative;
+  overflow: hidden;
+  width: min(86.1vw, 1240px);
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 2rem 3.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Watermark */
+
+.success-bg-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 65%;
+  height: auto;
+  opacity: 0.07;
+  pointer-events: none;
+  filter: invert(40%) sepia(50%) saturate(400%) hue-rotate(152deg) brightness(80%);
+  z-index: 0;
+}
+
+.success-card > *:not(.success-bg-icon) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── STEP DOTS — step 3 active: dark | dark | active ─────────────────── */
+
+.success-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.success-step-dot {
+  height: 8px;
+  border-radius: 10px;
+  background: #113c51;
+  width: 10px;
+}
+
+.success-step-dot.active {
+  width: 31px;
+  background: #248daa;
+}
+
+/* ── CENTERED CONTENT ────────────────────────────────────────────────── */
+
+.success-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 3rem 0 1rem;
+}
+
+/* Checkmark circle — Figma: 100×100, bg=#e1f5ee, r=50 */
+
+.success-icon-wrap {
+  width: clamp(64px, 6.94vw, 100px);
+  height: clamp(64px, 6.94vw, 100px);
+  background: #e1f5ee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+}
+
+.success-checkmark {
+  width: clamp(28px, 3.33vw, 48px);
+  height: clamp(28px, 3.33vw, 48px);
+  color: #1d9e75;
+}
+
+/* "You're all set!" — PJS SemiBold 64px */
+
+.success-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.75rem;
+  line-height: 1.1;
+}
+
+/* Subtitle — Inter ExtraLight 20px, max-width ~519px */
+
+.success-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  line-height: 1.6;
+  max-width: clamp(280px, 36.04vw, 519px);
+  margin: 0 0 2rem;
+}
+
+/* "Go to my Dashboard" — Figma: bg=#1d9e75, w=580px, h=69px, r=70 */
+
+.success-btn {
+  width: min(clamp(280px, 40.28vw, 580px), 100%);
+  height: clamp(44px, 4.79vw, 69px);
+  background: #1d9e75;
+  color: #fff;
+  border: none;
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.success-btn:hover {
+  background: #179164;
+}
+
+/* ── RESPONSIVE (< 900px) ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .success-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .success-card {
+    width: 100%;
+    border-radius: 30px;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+}

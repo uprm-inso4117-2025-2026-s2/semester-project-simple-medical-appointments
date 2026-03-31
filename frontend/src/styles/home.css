@@ -196,6 +196,28 @@
   margin-top: auto;
 }
 
+/* ── DASHBOARD BUTTON ─────────────────────────────────────────────────── */
+
+.home-dashboard-btn {
+  margin-top: clamp(1.5rem, 2.5vw, 2.25rem);
+  width: 100%;
+  max-width: min(86.81vw, 1100px);
+  height: clamp(48px, 4.17vw, 60px);
+  background: #38babd;
+  color: #fff;
+  border: none;
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.11vw, 1rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.home-dashboard-btn:hover {
+  background: #2d8784;
+}
+
 /* ── RESPONSIVE ───────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {

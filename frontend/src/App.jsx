@@ -12,6 +12,8 @@ import Login from './pages/Login'
 import RoleSelection from './pages/RoleSelection'
 import PatientDetails from './pages/PatientDetails'
 import DoctorDetails from './pages/DoctorDetails'
+import AdminDetails from './pages/AdminDetails'
+import OnboardingSuccess from './pages/OnboardingSuccess'
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
       <Route path="/role-selection" element={<RoleSelection />} />
       <Route path="/patient-details" element={<PatientDetails />} />
       <Route path="/doctor-details" element={<DoctorDetails />} />
+      <Route path="/admin-details" element={<AdminDetails />} />
+      <Route path="/onboarding-success" element={<OnboardingSuccess />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )

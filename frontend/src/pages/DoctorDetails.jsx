@@ -102,8 +102,7 @@ function DoctorDetails() {
         bio:              fields.bio || null,
       })
 
-      // TODO: replace '/' with next onboarding step once added
-      navigate('/', { replace: true })
+      navigate('/onboarding-success', { state: { fromOnboarding: true }, replace: true })
     } catch (err) {
       setFormError('Something went wrong. Please try again.')
       console.error('Doctor details sync failed:', err.message)

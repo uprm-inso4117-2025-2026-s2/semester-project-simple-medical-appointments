@@ -9,7 +9,7 @@ import medicalIcon from '../assets/medicalPng.png'
 import '../styles/auth.css'
 import '../styles/patientDetails.css'
 
-
+ 
 
 
 // ── Phone formatter ────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ function PatientDetails() {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  // Guard: must arrive here from RoleSelection as a patient
+//   Guard: must arrive here from RoleSelection as a patient
   if (!state?.userId || state?.role !== 'patient') {
     return <Navigate to="/register" replace />
   }
@@ -118,8 +118,7 @@ function PatientDetails() {
         emergency_contact_phone:      fields.emergencyContactPhone,
       })
 
-      // TODO: replace '/' with next onboarding step once added
-      navigate('/', { replace: true })
+      navigate('/onboarding-success', { state: { fromOnboarding: true }, replace: true })
     } catch (err) {
       setFormError('Something went wrong. Please try again.')
       console.error('Patient details sync failed:', err.message)
