@@ -15,6 +15,8 @@ import DoctorDetails from './pages/DoctorDetails'
 import AdminDetails from './pages/AdminDetails'
 import OnboardingSuccess from './pages/OnboardingSuccess'
 import PatientDashboard from './pages/PatientDashboard'
+import DoctorDashboard from './pages/DoctorDashboard'
+import AdminDashboard from './pages/AdminDashboard'
 
 function App() {
   return (
@@ -31,6 +33,8 @@ function App() {
       <Route path="/admin-details" element={<AdminDetails />} />
       <Route path="/onboarding-success" element={<OnboardingSuccess />} />
       <Route path="/patient-dashboard" element={<PatientDashboard />} />
+      <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )

@@ -1,8 +1,9 @@
 // PatientDashboard.jsx — Patient dashboard at "/patient-dashboard".
 // Profile name fetched from GET /api/profile/:userId (returns display_name as `name`).
 // Appointments are MOCKED — replace MOCK_APPOINTMENTS once a backend endpoint
-// returns enriched data (doctor name, specialty) via JOINs on appointments + providers + profiles.
-// Status values match the DB: 'scheduled' | 'completed' | 'cancelled'
+// returns enriched data via JOINs on appointments + doctors + profiles (doctor display_name) + providers (specialty).
+// Real schema: id, patient_id, doctor_id, clinic_id, appointment_datetime, status, notes
+// Status values: 'pending' | 'confirmed' | 'cancelled' | 'completed'
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
@@ -17,28 +18,35 @@ import settingsIcon  from '../assets/settings_icon.svg'
 import '../styles/patientDashboard.css'
 
 // ── Mock appointments ─────────────────────────────────────────────────────────
-// TODO: replace with real API call once an endpoint returns enriched appointment data
+// TODO: replace with real API call once an endpoint returns enriched appointment data.
+// Fields mirror what a JOIN on appointments + doctors + profiles + providers would return.
 const MOCK_APPOINTMENTS = [
   {
-    id: 1,
+    id: '1',
     doctorName: 'Dr. Elena Torres',
     specialty: 'Cardiology',
-    dateLabel: 'Tomorrow · 9:00 AM',
-    status: 'scheduled',
+    appointment_datetime: '2026-04-02T09:00:00-04:00',
+    status: 'confirmed',
   },
   {
-    id: 2,
+    id: '2',
     doctorName: 'Dr. James Ruiz',
     specialty: 'General Practice',
-    dateLabel: 'Mar 24, 2026 · 2:30 PM',
+    appointment_datetime: '2026-04-10T14:30:00-04:00',
     status: 'cancelled',
   },
 ]
 
 const STATUS_CONFIG = {
-  scheduled: { label: 'Scheduled', dotColor: '#248DAA' },
-  completed:  { label: 'Completed', dotColor: '#888'    },
-  cancelled:  { label: 'Cancelled', dotColor: '#BA7517' },
+  confirmed:  { label: 'Confirmed',  dotColor: '#248DAA' },
+  pending:    { label: 'Pending',    dotColor: '#185fa5' },
+  completed:  { label: 'Completed',  dotColor: '#888'    },
+  cancelled:  { label: 'Cancelled',  dotColor: '#BA7517' },
+}
+
+function formatDatetime(iso) {
+  const d = new Date(iso)
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
 // ── Inline icons (no asset file) ──────────────────────────────────────────────
@@ -130,7 +138,7 @@ function PatientDashboard() {
 
   const displayName  = profile?.name ?? '…'
   const firstName    = displayName !== '…' ? displayName.split(' ')[0] : '…'
-  const upcomingCount = MOCK_APPOINTMENTS.filter(a => a.status === 'scheduled').length
+  const upcomingCount = MOCK_APPOINTMENTS.filter(a => a.status === 'confirmed' || a.status === 'pending').length
 
   return (
     <div className="pdb-layout">
@@ -200,7 +208,7 @@ function PatientDashboard() {
                 <span className="pdb-apt-dot" style={{ background: dotColor }} />
                 <div className="pdb-apt-info">
                   <p className="pdb-apt-doctor">{apt.doctorName} — {apt.specialty}</p>
-                  <p className="pdb-apt-date">{apt.dateLabel}</p>
+                  <p className="pdb-apt-date">{formatDatetime(apt.appointment_datetime)}</p>
                 </div>
                 <span className={`pdb-apt-badge ${apt.status}`}>{label}</span>
               </div>
