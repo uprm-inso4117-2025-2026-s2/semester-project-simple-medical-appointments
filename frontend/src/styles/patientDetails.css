@@ -1,0 +1,278 @@
+/*
+  patientDetails.css — "Patient Details" page at "/patient-details"
+  Matches Figma frame 93:1087 (file iRqgxGZYJE7GCbEi4d0vMw)
+  Compact layout — fits within 100vh without scrolling.
+  Reuses .auth-btn, .auth-error from auth.css
+*/
+
+/* ── PAGE ────────────────────────────────────────────────────────────── */
+
+.patient-details-page {
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── CARD ────────────────────────────────────────────────────────────── */
+
+.patient-details-card {
+  position: relative;
+  overflow: hidden;
+  width: min(86.1vw, 1240px);
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem 3.5rem 1.75rem;
+}
+
+/* Watermark */
+
+.patient-details-bg-icon {
+  position: absolute;
+  right: -4%;
+  top: -6%;
+  width: 55%;
+  height: auto;
+  opacity: 0.07;
+  pointer-events: none;
+  filter: invert(40%) sepia(50%) saturate(400%) hue-rotate(152deg) brightness(80%);
+  z-index: 0;
+}
+
+.patient-details-card > *:not(.patient-details-bg-icon) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── STEP DOTS ───────────────────────────────────────────────────────── */
+/* Patient Details is step 2: dark | active | dark                       */
+
+.patient-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.patient-step-dot {
+  height: 8px;
+  border-radius: 10px;
+  background: #113c51;
+  width: 10px;
+}
+
+.patient-step-dot.active {
+  width: 31px;
+  background: #248daa;
+}
+
+/* ── HEADING ─────────────────────────────────────────────────────────── */
+
+.patient-details-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.patient-details-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  margin-top: 4px;
+  margin-bottom: 0.9rem;
+  line-height: 1.26;
+}
+
+/* ── SECTION LABEL ───────────────────────────────────────────────────── */
+
+.pd-section-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #888;
+  letter-spacing: 1.12px;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+/* ── DIVIDER ─────────────────────────────────────────────────────────── */
+
+.pd-divider {
+  height: 1px;
+  background: rgba(168, 155, 155, 0.25);
+  margin: 0.75rem 0;
+}
+
+/* ── TWO-COLUMN LAYOUT ───────────────────────────────────────────────── */
+
+.pd-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 2.36vw, 34px);
+  margin-bottom: 0.5rem;
+}
+
+.pd-form-half {
+  width: calc(50% - clamp(0.5rem, 1.18vw, 17px));
+  margin-bottom: 0.5rem;
+}
+
+/* ── FIELD ───────────────────────────────────────────────────────────── */
+
+.pd-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.pd-label-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin-bottom: 0.3rem;
+}
+
+.pd-label {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 400;
+  color: #0c0f28;
+}
+
+.pd-optional {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 200;
+  color: #999;
+}
+
+/* ── INPUTS ──────────────────────────────────────────────────────────── */
+
+.pd-input {
+  display: block;
+  width: 100%;
+  height: clamp(40px, 4vw, 56px);
+  padding: 0 1.5rem;
+  border: 1px solid rgba(168, 155, 155, 0.97);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0c0f28;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.pd-input::placeholder {
+  color: #999;
+}
+
+.pd-input:focus {
+  border-color: #248daa;
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.18);
+}
+
+.pd-input.error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+/* date input — hide default browser icon on webkit */
+.pd-input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* ── SELECT ──────────────────────────────────────────────────────────── */
+
+.pd-select {
+  display: block;
+  width: 100%;
+  height: clamp(40px, 4vw, 56px);
+  padding: 0 3rem 0 1.5rem;
+  border: 1px solid rgba(168, 155, 155, 0.97);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #0c0f28;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.25rem center;
+  appearance: none;
+  outline: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.pd-select.placeholder {
+  color: #999;
+}
+
+.pd-select:focus {
+  border-color: #248daa;
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.18);
+}
+
+.pd-select.error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+/* ── FIELD ERROR ─────────────────────────────────────────────────────── */
+
+.pd-field-error {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: #e53e3e;
+  margin-top: 0.25rem;
+  padding-left: 0.5rem;
+}
+
+/* ── BUTTON SPACING ──────────────────────────────────────────────────── */
+
+.patient-details-card .auth-btn {
+  margin-top: 0.9rem;
+}
+
+/* ── RESPONSIVE (< 900px) ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .patient-details-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .patient-details-card {
+    width: 100%;
+    border-radius: 30px;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .pd-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pd-form-half {
+    width: 100%;
+  }
+}
