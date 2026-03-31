@@ -64,7 +64,8 @@ const IconUser = () => (
 
 function PatientDashboard() {
   const navigate = useNavigate()
-  const [profile, setProfile] = useState(null)
+  const [profile, setProfile]       = useState(null)
+  const [authorized, setAuthorized] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -72,6 +73,21 @@ function PatientDashboard() {
         navigate('/login')
         return
       }
+
+      // Role guard — only patients can access this page
+      const { data: roleRows } = await supabase
+        .from('user_roles')
+        .select('roles(name)')
+        .eq('user_id', data.user.id)
+
+      const role = roleRows?.[0]?.roles?.name
+      if (role !== 'patient') {
+        navigate('/', { replace: true })
+        return
+      }
+
+      setAuthorized(true)
+
       try {
         const prof = await getProfile(data.user.id)
         setProfile(prof)
@@ -85,6 +101,8 @@ function PatientDashboard() {
     await supabase.auth.signOut()
     navigate('/login')
   }
+
+  if (!authorized) return null
 
   const displayName  = profile?.name ?? '…'
   const firstName    = displayName !== '…' ? displayName.split(' ')[0] : '…'
