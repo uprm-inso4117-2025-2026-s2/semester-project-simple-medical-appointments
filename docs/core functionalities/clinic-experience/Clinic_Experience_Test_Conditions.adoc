@@ -1,0 +1,106 @@
+= Clinic / Doctor Experience – Test Conditions (Phase 1)
+:toc:
+:sectnums:
+
+== 1. Purpose
+
+This document applies an analytical (black-box) testing strategy to derive test conditions from the Clinic/Doctor Experience Phase 1 functional requirements.
+
+Test conditions focus on externally observable behavior and include normal and boundary/edge cases.
+
+This document builds upon the functional requirements defined in issue #82 (FR-CL-01 through FR-CL-08).
+
+== 2. Test Basis
+
+The test basis is the functional requirements document for Clinic/Doctor scheduling controls, including availability management, overlap prevention, slot generation rules, capacity enforcement, overrides, and scheduling limitations.
+
+== 3. Test Conditions Traceability Matrix
+
+[options="header"]
+|===
+| Test Condition ID | Related Functional Requirement | Type | Test Condition (Observable Behavior) | Expected Result (Pass Criteria)
+
+| TC-CL-01
+| FR-CL-01
+| Normal
+| Create a valid availability block for a provider (date, start < end, all required fields filled).
+| Availability is saved and available in the clinic UI; scheduling shows generated slots for the provider.
+
+| TC-CL-02
+| FR-CL-01
+| Boundary
+| Attempt to create availability with end time equal to start time.
+| Request is rejected; validation message indicates end time must be later than start time.
+
+| TC-CL-03
+| FR-CL-02
+| Normal
+| Attempt to create an availability block that partially overlaps an existing block for the same provider.
+| Request is rejected; validation error is shown; no new slots are created.
+
+| TC-CL-04
+| FR-CL-02
+| Boundary
+| Attempt to create availability that starts exactly when an existing block ends.
+| Request is accepted; no overlap error; slots are created for the new block.
+
+| TC-CL-05
+| FR-CL-03
+| Normal
+| Create a service with valid name, duration, and Active status.
+| Service is stored and appears in clinic service catalog; service becomes selectable/available for scheduling.
+
+| TC-CL-06
+| FR-CL-03
+| Boundary / Negative
+| Set a service to Inactive and attempt to schedule/book using that service.
+| Service is not available for selection; any booking attempt using it is rejected or blocked in the UI/API.
+
+| TC-CL-07
+| FR-CL-04
+| Normal
+| Configure scheduling interval (e.g., 15 minutes) and create a service duration; then generate slots from an availability block.
+| Slot start times align to the interval; each slot reflects the configured service duration rules.
+
+| TC-CL-08
+| FR-CL-05
+| Normal
+| Book appointments until slot capacity is reached.
+| Once capacity is reached, slot is marked "Full" and further booking attempts are prevented.
+
+| TC-CL-09
+| FR-CL-05
+| Boundary
+| Attempt to book one additional appointment beyond capacity when the waitlist is full.
+| Booking is rejected; observable message indicates no remaining capacity; slot remains "Full".
+
+| TC-CL-10
+| FR-CL-06
+| Normal
+| As an authorized Clinic Admin, override capacity and create an appointment for a full slot while providing a justification.
+| Appointment is created; override justification is stored; audit log entry exists.
+
+| TC-CL-11
+| FR-CL-06
+| Boundary / Negative
+| Attempt to override capacity without providing a justification.
+| Override attempt is rejected; system prompts for required justification; no appointment is created.
+
+| TC-CL-12
+| FR-CL-07
+| Boundary
+| Attempt to book an appointment that violates the clinic’s minimum booking time.
+| Booking is rejected with a clear validation message indicating booking time rule violation.
+
+|===
+
+== 4. Notes on Boundary / Edge Coverage
+
+Boundary/edge coverage is explicitly included in:
+
+* TC-CL-02 (end time equals start time)
+* TC-CL-04 (availability starts exactly when another ends)
+* TC-CL-06 (inactive service blocked)
+* TC-CL-09 (capacity exceeded + waitlist full)
+* TC-CL-11 (override without justification)
+* TC-CL-12 (booking time violation)
