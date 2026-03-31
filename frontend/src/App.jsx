@@ -11,6 +11,7 @@ import Register from './pages/Register'
 import Login from './pages/Login'
 import RoleSelection from './pages/RoleSelection'
 import PatientDetails from './pages/PatientDetails'
+import DoctorDetails from './pages/DoctorDetails'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/role-selection" element={<RoleSelection />} />
       <Route path="/patient-details" element={<PatientDetails />} />
+      <Route path="/doctor-details" element={<DoctorDetails />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
