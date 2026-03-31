@@ -8,6 +8,28 @@ Prof. Marko Schütz-Schmuck
 :pdf-themesdir: {docdir}/build
 :pdf-theme: highlighting-theme.yml
 
+[discrete]
+=== Notation for Changes
+[%autowidth,align="center"]
+|===
+| Notation | Purpose | Color | Example
+
+| `[.added]# <text> #`
+| Added
+| Green
+| `[.added]#This text is new.#`
+
+| `[.changed]# <text> #`
+| Paraphrased
+| Orange
+| `[.changed]#This text has been modified.#`
+
+| `[.removed]# <text> #`
+| Removed
+| Red
+| `[.removed]#This text is no longer relevant.#`
+|===
+
 include::sections/section1/section.adoc[]
 
 include::sections/section2/section.adoc[]
