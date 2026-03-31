@@ -33,9 +33,9 @@ They supervise task quality, verify alignment with milestone goals, and ensure c
 |===
 
 [discrete]
-==== *User Management Team:*
+==== *Role Management Team:*
 
-The User Management Team is responsible for the conceptualization of identity and role management within the system.
+The Role Management Team is responsible for the conceptualization of identity and role management within the system.
 Their responsibility is to define how patients, doctors, and clinic administrators are represented in the domain and how identity continuity and role distinctions are maintained.
 
 This team focuses on authentication logic, profile persistence, and role-based interaction reasoning from a domain perspective, independent of implementation details.

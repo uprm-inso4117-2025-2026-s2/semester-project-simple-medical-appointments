@@ -1,4 +1,4 @@
-==== *Need*
+==== *Needs*
 
 Puerto Rico is currently facing significant challenges in accessing timely medical care due to the high demand for appointments and the continued reduction in available doctors. Many clinics still rely on traditional phone-based scheduling systems, which are inefficient, time-consuming, and prone to delays, double bookings, and miscommunication. Patients often struggle to find available appointments by specialty or location, while clinics and doctors experience increased administrative burdens that further contribute to long waiting times.
 

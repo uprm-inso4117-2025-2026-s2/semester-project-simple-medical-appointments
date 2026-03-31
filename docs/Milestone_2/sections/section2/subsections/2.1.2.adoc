@@ -24,6 +24,10 @@ A person managing appointments on behalf of a patient who cannot coordinate inde
 A licensed professional offering medical consultations (e.g., general practitioner, specialist).
 [.small]*Derived from: overloaded schedules, consultation variability.*
 
+*Doctor* :: (actor, domain)
+A specific type of healthcare provider with a medical degree. Doctors may have different scheduling constraints than other providers.
+[.small]*Derived from: “Physician migration” and “doctors are leaving.”*
+
 *Clinic* :: (entity, domain)
 A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
 

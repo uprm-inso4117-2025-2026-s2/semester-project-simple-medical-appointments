@@ -1,1 +1,197 @@
 === *Performance Testing*
+
+---
+
+=== Performance Testing for High Demand Appointment Booking
+:author: Pedro A. Morales
+
+==== Introduction
+
+Performance testing evaluates how a system behaves under expected, unexpected, and peak workloads. 
+In healthcare scheduling systems, performance is critical because large numbers of 
+patients may attempt to book appointments simultaneously. If the system cannot handle 
+high demand, users may experience slow response times, failed booking attempts, or 
+duplicate appointments.
+
+The *Simple Medical Appointments* system allows patients to search for doctors, view 
+available appointment slots, and confirm bookings. Performance Testing ensures that 
+the appointment booking workflow remains reliable when many users interact with the 
+system at the same time.
+
+==== Appointment Booking Workflow
+
+The patient scheduling process involves multiple interactions between the ui, backend, and database.
+
+[source,text]
+----
+Patient
+   |
+   v
+Search Doctors / Clinics
+   |
+   v
+Retrieve Available Appointment Slots
+   |
+   v
+Select Time Slot
+   |
+   v
+Submit Booking Request
+   |
+   v
+Validate Slot Availability
+   |
+   v
+Database Transaction
+(Check slot not already reserved)
+   |
+   v
+Create Appointment Record
+   |
+   v
+Send Confirmation
+----
+
+Performance issues may occur if many users attempt to reserve the same appointment 
+slot or query appointment availability at the same time.
+
+=== Performance Risks
+
+The main performance risks associated with appointment scheduling include:
+
+===== *Concurrent Booking Conflicts:* 
+Multiple users attempting to book the same time slot simultaneously may lead to race 
+conditions or duplicate appointments.
+
+===== *Database Contention:*
+
+High volumes of booking transactions may slow database operations responsible for 
+checking slot availability and writing appointment records.
+
+===== *Slow System Response:*
+
+Heavy server load may increase response times for availability queries or booking 
+confirmations, negatively impacting the patient experience.
+
+===== *Server Resource Exhaustion:*
+
+Large spikes in traffic may overload application servers or APIs responsible for 
+processing appointment requests.
+
+=== Performance Testing Strategy
+
+The performance testing strategy focuses on simulating real-world usage scenarios to 
+measure system behavior under load.
+
+The strategy evaluates:
+
+===== *Concurrency:*
+
+How the system behaves when multiple users attempt to book appointments simultaneously.
+
+===== *Response Time:*
+
+How quickly the system returns results when patients search for available appointment 
+slots or confirm bookings.
+
+===== *Throughput:*
+
+The number of booking requests the system can process within a specific time frame.
+
+===== *Database Performance:*
+
+Transaction time required to validate slot availability and create appointment records.
+
+=== Load Testing Scenarios
+
+To simulate realistic usage conditions, several load levels are tested.
+
+===== *Scenario 1 – Moderate Load*
+
+- 50 concurrent users searching and booking appointments
+- Expected system response time below acceptable thresholds
+- No duplicate bookings occur
+
+===== *Scenario 2 – High Load*
+
+- 100–200 concurrent users interacting with the scheduling system
+- Slight increase in response time but system remains stable
+
+===== *Scenario 3 – Peak Demand*
+
+- 500 or more concurrent users attempting to book appointments
+- System must maintain booking integrity and avoid data inconsistencies
+
+==== Performance Testing Workflow
+
+The workflow below illustrates how performance testing will be implemented.
+
+[source,text]
+----
++---------------------------+
+| Define Performance Tests  |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Configure Load Simulator  |
+| (Concurrent Users)        |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Execute Load Tests        |
+| (Search + Booking APIs)   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Monitor System Metrics    |
+| CPU / Memory / DB Latency |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Analyze Results           |
+| Identify Bottlenecks      |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Optimize System           |
+| Queries / APIs / DB       |
++---------------------------+
+----
+
+=== Expected Performance Thresholds
+
+The following performance targets ensure an acceptable patient experience:
+
+[cols="1,1"]
+|===
+|Metric |Target
+
+|Availability query response time
+|Less than 2 seconds
+
+|Booking confirmation response
+|Less than 3 seconds
+
+|Concurrent user capacity
+|500+ users without failure
+
+|Duplicate appointment rate
+|0%
+|===
+
+=== Impact on Patient Experience
+
+Performance testing improves reliability by ensuring that the scheduling system 
+continues functioning correctly during high demand periods. By identifying system 
+bottlenecks before deployment, developers can prevent slow responses, booking 
+conflicts, and service interruptions.
+
+This ensures patients can successfully schedule appointments even during peak usage 
+periods, improving both system reliability and overall patient experience.
+
+---

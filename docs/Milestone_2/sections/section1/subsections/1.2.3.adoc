@@ -44,7 +44,7 @@ Display schedules per doctor and per location without overlapping all calendars 
 
 ===== Data Privacy and Protection Measures
 * Secure document storage
-*Controlled access permissions
+* Controlled access permissions
 * Patient history visibility limited to authorized roles
 * Change history tracking
 

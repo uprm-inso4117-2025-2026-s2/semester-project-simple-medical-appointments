@@ -1,9 +1,13 @@
 ==== *Function Signatures*
 
 Notation:
+
 * `A >< B -> C` consumes A and B and produces C.
+
 * Updated state is returned.
+
 * `Result X Error` models success or failure.
+
 * `Option X` models a possible absence of result.
 
 Core Operations

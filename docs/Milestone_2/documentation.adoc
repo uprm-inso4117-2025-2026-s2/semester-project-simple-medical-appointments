@@ -1,5 +1,5 @@
-= Simple Medical Appointments Proposal 
-First Milestone - Software Testing - INSO 4117
+= Simple Medical Appointments 
+Second Milestone - Software Testing - INSO 4117
 Prof. Marko Schütz-Schmuck 
 :imagesdir: ../Images
 :doctype: book
