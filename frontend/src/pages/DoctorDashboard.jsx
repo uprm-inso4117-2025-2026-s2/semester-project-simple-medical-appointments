@@ -141,8 +141,7 @@ function DoctorDashboard() {
           <div className="ddb-avatar">
             <IconUser />
           </div>
-          {/* TODO: navigate to /profile once that page is built */}
-          <button className="ddb-profile-name" onClick={() => {}}>
+          <button className="ddb-profile-name" onClick={() => navigate('/doctor-profile')}>
             {displayName}
           </button>
           {specialty && <span className="ddb-profile-role">{specialty}</span>}

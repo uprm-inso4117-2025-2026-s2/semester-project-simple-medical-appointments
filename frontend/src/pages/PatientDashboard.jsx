@@ -150,8 +150,7 @@ function PatientDashboard() {
           <div className="pdb-avatar">
             <IconUser />
           </div>
-          {/* TODO: navigate to /profile once that page is built */}
-          <button className="pdb-profile-name" onClick={() => {}}>
+          <button className="pdb-profile-name" onClick={() => navigate('/patient-profile')}>
             {displayName}
           </button>
           <span className="pdb-profile-role">Patient</span>
