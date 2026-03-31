@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { syncRegistration } from '../services/api'
 import '../styles/auth.css'
 import '../styles/roleSelection.css'
@@ -62,8 +62,7 @@ function RoleSelection() {
 
   // Guard: must arrive here from registration flow
   if (!state?.userId) {
-    navigate('/register', { replace: true })
-    return null
+    return <Navigate to="/register" replace />
   }
 
   const handleContinue = async () => {
@@ -72,6 +71,15 @@ function RoleSelection() {
       return
     }
 
+    const nextState = { ...state, role: selected }
+
+    // Patient has a details step — defer sync to PatientDetails
+    if (selected === 'patient') {
+      navigate('/patient-details', { state: nextState })
+      return
+    }
+
+    // Doctor/Admin: no details page yet — sync now for testing
     setLoading(true)
     setError(null)
 
@@ -84,7 +92,7 @@ function RoleSelection() {
         role:       selected,
       })
 
-      // TODO: replace '/' with the next registration step route once added
+      // TODO: replace '/' with doctor/admin detail routes once added
       navigate('/', { replace: true })
     } catch (err) {
       setError('Something went wrong saving your role. Please try again.')
