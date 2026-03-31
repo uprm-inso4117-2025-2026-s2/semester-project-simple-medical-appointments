@@ -129,7 +129,7 @@ function AdminDashboard() {
           <div className="adb-avatar">
             <IconUser />
           </div>
-          <button className="adb-profile-name" onClick={() => {}}>
+          <button className="adb-profile-name" onClick={() => navigate('/admin-profile')}>
             {displayName}
           </button>
           <span className="adb-profile-role">Admin</span>
