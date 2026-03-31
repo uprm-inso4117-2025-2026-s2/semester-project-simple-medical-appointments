@@ -17,8 +17,8 @@ const IconPlus = () => (
 // Add route here as each role's dashboard is built
 const DASHBOARD_ROUTES = {
   patient: '/patient-dashboard',
-  // doctor: '/doctor-dashboard',
-  // admin:  '/admin-dashboard',
+  doctor: '/doctor-dashboard',
+  admin:  '/admin-dashboard',
 }
 
 function Home() {
