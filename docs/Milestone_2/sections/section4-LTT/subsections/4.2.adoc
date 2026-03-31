@@ -1435,9 +1435,9 @@ Testing will occur in a development or staging environment that resembles produc
 
 ====== Automation Priorities
 
-1. Unit tests for validation and helper logic
-2. Integration tests for authentication interactions (mocked)
-3. End-to-end smoke tests for full reset flow
+* Unit tests for validation and helper logic
+* Integration tests for authentication interactions (mocked)
+* End-to-end smoke tests for full reset flow
 
 ====== Automated Scenarios
 
