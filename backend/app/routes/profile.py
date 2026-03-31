@@ -7,7 +7,14 @@ from flask import Blueprint, current_app, jsonify, request
 
 profile_bp = Blueprint('profile', __name__)
 
-ALLOWED_UPDATE_FIELDS = {'name', 'avatar', 'specialty', 'notify_appointment_reminders', 'notify_appointment_updates', 'notify_messages'}
+ALLOWED_UPDATE_FIELDS = {
+    'name', 'avatar',
+    'phone_number',
+    'specialty', 'bio',
+    'insurance_provider', 'insurance_member_id',
+    'emergency_contact_name', 'emergency_contact_phone',
+    'notify_appointment_reminders', 'notify_appointment_updates', 'notify_messages',
+}
 
 BOOLEAN_SETTINGS_FIELDS = {'notify_appointment_reminders', 'notify_appointment_updates', 'notify_messages'}
 
@@ -318,6 +325,7 @@ def update_profile(user_id: str):
 
     profile_updates = {}
     provider_updates = {}
+    patient_updates = {}
     settings_updates = {}
 
     if 'name' in data:
@@ -353,6 +361,49 @@ def update_profile(user_id: str):
                 return jsonify({'error': 'Field "specialty" must be at most 100 characters.'}), 400
             provider_updates['specialty'] = specialty
 
+    if 'phone_number' in data:
+        phone = data.get('phone_number')
+        if phone is None:
+            profile_updates['phone_number'] = None
+        else:
+            if not isinstance(phone, str):
+                return jsonify({'error': 'Field "phone_number" must be a string or null.'}), 400
+            phone = phone.strip()
+            if len(phone) > 30:
+                return jsonify({'error': 'Field "phone_number" must be at most 30 characters.'}), 400
+            profile_updates['phone_number'] = phone or None
+
+    if 'bio' in data:
+        bio = data.get('bio')
+        if bio is None:
+            provider_updates['bio'] = None
+        else:
+            if not isinstance(bio, str):
+                return jsonify({'error': 'Field "bio" must be a string or null.'}), 400
+            bio = bio.strip()
+            if len(bio) > 1000:
+                return jsonify({'error': 'Field "bio" must be at most 1000 characters.'}), 400
+            provider_updates['bio'] = bio or None
+
+    PATIENT_TEXT_FIELDS = {
+        'insurance_provider':      ('insurance_provider',      150),
+        'insurance_member_id':     ('insurance_member_id',     50),
+        'emergency_contact_name':  ('emergency_contact_name',  100),
+        'emergency_contact_phone': ('emergency_contact_phone', 30),
+    }
+    for api_key, (col_name, max_len) in PATIENT_TEXT_FIELDS.items():
+        if api_key in data:
+            value = data.get(api_key)
+            if value is None:
+                patient_updates[col_name] = None
+            else:
+                if not isinstance(value, str):
+                    return jsonify({'error': f'Field "{api_key}" must be a string or null.'}), 400
+                value = value.strip()
+                if len(value) > max_len:
+                    return jsonify({'error': f'Field "{api_key}" must be at most {max_len} characters.'}), 400
+                patient_updates[col_name] = value or None
+
     for field in BOOLEAN_SETTINGS_FIELDS:
         if field in data:
             value = data.get(field)
@@ -360,7 +411,7 @@ def update_profile(user_id: str):
                 return jsonify({'error': f'Field "{field}" must be a boolean.'}), 400
             settings_updates[field] = value
 
-    if not profile_updates and not provider_updates and not settings_updates:
+    if not profile_updates and not provider_updates and not patient_updates and not settings_updates:
         return jsonify({'error': 'No valid fields provided for update.'}), 400
 
     if profile_updates:
@@ -404,6 +455,19 @@ def update_profile(user_id: str):
             return jsonify({'error': 'Failed to update profile.', 'detail': transport_error}), 500
         if provider_update_status not in (200, 204):
             return jsonify({'error': 'Failed to update profile.'}), 500
+
+    if patient_updates:
+        patient_update_status, _, transport_error = _supabase_request(
+            'PATCH',
+            '/rest/v1/patients',
+            query={'user_id': f'eq.{user_id}'},
+            json_body=patient_updates,
+            prefer='return=minimal',
+        )
+        if transport_error:
+            return jsonify({'error': 'Failed to update patient info.', 'detail': transport_error}), 500
+        if patient_update_status not in (200, 204):
+            return jsonify({'error': 'Failed to update patient info.'}), 500
 
     if settings_updates:
         settings_update_status, _, transport_error = _supabase_request(

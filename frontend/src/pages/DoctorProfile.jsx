@@ -35,6 +35,13 @@ const IconUser = () => (
   </svg>
 )
 
+function formatPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 10)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
 function formatMinutes(value) {
   if (value == null) return '—'
   return `${value} minutes`
@@ -46,12 +53,34 @@ function getInitials(firstName, lastName) {
   return (f + l).toUpperCase() || '?'
 }
 
-// ── Reusable field ────────────────────────────────────────────────────────────
+// ── Read-only field ───────────────────────────────────────────────────────────
 function InfoField({ label, value, wide }) {
   return (
     <div className={`dp-field${wide ? ' dp-field--wide' : ''}`}>
       <p className="dp-field-label">{label}</p>
       <p className="dp-field-value">{value || '—'}</p>
+    </div>
+  )
+}
+
+// ── Editable field ────────────────────────────────────────────────────────────
+function EditField({ label, fieldKey, editValues, onChange, wide, multiline }) {
+  return (
+    <div className={`dp-field dp-field--editing${wide ? ' dp-field--wide' : ''}`}>
+      <p className="dp-field-label">{label}</p>
+      {multiline
+        ? <textarea
+            className="dp-field-input dp-field-textarea"
+            value={editValues[fieldKey] ?? ''}
+            onChange={e => onChange(fieldKey, e.target.value)}
+            rows={3}
+          />
+        : <input
+            className="dp-field-input"
+            value={editValues[fieldKey] ?? ''}
+            onChange={e => onChange(fieldKey, e.target.value)}
+          />
+      }
     </div>
   )
 }
@@ -72,6 +101,9 @@ function ToggleRow({ label, enabled, onChange }) {
   )
 }
 
+// ── Editable fields for doctor ────────────────────────────────────────────────
+const DOCTOR_EDIT_FIELDS = ['phone_number', 'specialty', 'bio']
+
 function DoctorProfile() {
   const navigate = useNavigate()
   const [profile, setProfile]       = useState(null)
@@ -79,6 +111,10 @@ function DoctorProfile() {
   const [authorized, setAuthorized] = useState(
     () => sessionStorage.getItem('userRole') === 'doctor'
   )
+  const [isEditing, setIsEditing]   = useState(false)
+  const [editValues, setEditValues] = useState({})
+  const [saveError, setSaveError]   = useState(null)
+  const [saving, setSaving]         = useState(false)
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -133,14 +169,73 @@ function DoctorProfile() {
   const handleToggle = async (field) => {
     const current = profile?.[field]
     const next = !current
-    // Optimistic update
     setProfile(prev => ({ ...prev, [field]: next }))
     try {
       await updateProfile(userId, { [field]: next })
     } catch {
-      // Revert on failure
       setProfile(prev => ({ ...prev, [field]: current }))
     }
+  }
+
+  const handleEditStart = () => {
+    setSaveError(null)
+    setEditValues({
+      phone_number: profile?.phone_number ?? '',
+      specialty:    profile?.specialty    ?? '',
+      bio:          profile?.bio          ?? '',
+    })
+    setIsEditing(true)
+  }
+
+  const handleEditCancel = () => {
+    setIsEditing(false)
+    setEditValues({})
+    setSaveError(null)
+  }
+
+  const handleEditSave = async () => {
+    // Only send fields that actually changed
+    const payload = {}
+    for (const field of DOCTOR_EDIT_FIELDS) {
+      const edited   = editValues[field]?.trim() ?? ''
+      const original = profile?.[field] ?? ''
+      if (edited !== original) {
+        payload[field] = edited || null
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setIsEditing(false)
+      return
+    }
+
+    // Validate phone number format before sending
+    if (payload.phone_number) {
+      const digits = payload.phone_number.replace(/\D/g, '')
+      if (digits.length < 10) {
+        setSaveError('Phone number must be a valid 10-digit number.')
+        return
+      }
+    }
+
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const updated = await updateProfile(userId, payload)
+      setProfile(updated)
+      setIsEditing(false)
+      setEditValues({})
+    } catch {
+      setSaveError('Failed to save changes. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleChange = (key, value) => setEditValues(prev => ({ ...prev, [key]: value }))
+
+  const handlePhoneChange = (key, value) => {
+    setEditValues(prev => ({ ...prev, [key]: formatPhone(value) }))
   }
 
   if (!authorized) {
@@ -215,17 +310,33 @@ function DoctorProfile() {
               {specialty && <span className="dp-header-specialty">{specialty}</span>}
             </div>
           </div>
-          {/* TODO: wire up once edit profile flow is built */}
-          <button className="dp-edit-btn" onClick={() => {}}>Edit Profile</button>
+          {!isEditing && (
+            <button className="dp-edit-btn" onClick={handleEditStart}>Edit Profile</button>
+          )}
+          {isEditing && (
+            <div className="dp-edit-actions">
+              <button className="dp-save-btn" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+              <button className="dp-cancel-btn" onClick={handleEditCancel} disabled={saving}>
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
+
+        {saveError && <p className="dp-save-error">{saveError}</p>}
 
         {/* ── Personal Information ── */}
         <p className="dp-section-label">PERSONAL INFORMATION</p>
         <div className="dp-divider" />
         <div className="dp-fields-grid">
-          <InfoField label="FIRST NAME"   value={profile?.first_name} />
-          <InfoField label="LAST NAME"    value={profile?.last_name} />
-          <InfoField label="PHONE NUMBER" value={profile?.phone_number} />
+          <InfoField label="FIRST NAME" value={profile?.first_name} />
+          <InfoField label="LAST NAME"  value={profile?.last_name} />
+          {isEditing
+            ? <EditField label="PHONE NUMBER" fieldKey="phone_number" editValues={editValues} onChange={handlePhoneChange} />
+            : <InfoField label="PHONE NUMBER" value={profile?.phone_number} />
+          }
         </div>
 
         {/* ── Professional Information ── */}
@@ -233,18 +344,24 @@ function DoctorProfile() {
         <div className="dp-divider" />
         <div className="dp-fields-grid">
           <InfoField label="PROFESSION TITLE" value={profile?.profession_title} />
-          <InfoField label="SPECIALTY"        value={profile?.specialty} />
-          <InfoField label="LICENSE NUMBER"   value={profile?.license_number} />
-          <InfoField label="LICENSE STATE"    value={profile?.license_state} />
-          <InfoField label="BIO"              value={profile?.bio} wide />
+          {isEditing
+            ? <EditField label="SPECIALTY" fieldKey="specialty" editValues={editValues} onChange={handleChange} />
+            : <InfoField label="SPECIALTY" value={profile?.specialty} />
+          }
+          <InfoField label="LICENSE NUMBER" value={profile?.license_number} />
+          <InfoField label="LICENSE STATE"  value={profile?.license_state} />
+          {isEditing
+            ? <EditField label="BIO" fieldKey="bio" editValues={editValues} onChange={handleChange} wide multiline />
+            : <InfoField label="BIO" value={profile?.bio} wide />
+          }
         </div>
 
         {/* ── Appointment Settings ── */}
         <p className="dp-section-label">APPOINTMENT SETTINGS</p>
         <div className="dp-divider" />
         <div className="dp-fields-grid">
-          <InfoField label="APPOINTMENT BUFFER" value={formatMinutes(profile?.appointment_buffer_minutes)} />
-          <InfoField label="DEFAULT DURATION"   value={formatMinutes(profile?.default_appointment_duration)} />
+          <InfoField label="APPOINTMENT BUFFER"       value={formatMinutes(profile?.appointment_buffer_minutes)} />
+          <InfoField label="DEFAULT DURATION"         value={formatMinutes(profile?.default_appointment_duration)} />
           {/* TODO: max_appointments_per_day is not yet in provider_settings schema */}
           <InfoField label="MAX APPOINTMENTS PER DAY" value={null} />
         </div>

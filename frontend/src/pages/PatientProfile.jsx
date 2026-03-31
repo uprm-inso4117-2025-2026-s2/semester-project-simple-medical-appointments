@@ -1,7 +1,6 @@
 // PatientProfile.jsx — Patient profile page at "/patient-profile".
 // All data fetched from GET /api/profile/:userId which returns fields from:
 //   profiles, patients, profile_settings tables.
-// Edit Profile button is a placeholder — wired up when edit flow is built.
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
@@ -36,6 +35,13 @@ const IconUser = () => (
   </svg>
 )
 
+function formatPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 10)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
 function formatDob(dateStr) {
   if (!dateStr) return '—'
   const d = new Date(dateStr)
@@ -54,12 +60,26 @@ function getInitials(firstName, lastName) {
   return (f + l).toUpperCase() || '?'
 }
 
-// ── Reusable field ────────────────────────────────────────────────────────────
+// ── Read-only field ───────────────────────────────────────────────────────────
 function InfoField({ label, value }) {
   return (
     <div className="pp-field">
       <p className="pp-field-label">{label}</p>
       <p className="pp-field-value">{value || '—'}</p>
+    </div>
+  )
+}
+
+// ── Editable field ────────────────────────────────────────────────────────────
+function EditField({ label, fieldKey, editValues, onChange }) {
+  return (
+    <div className="pp-field pp-field--editing">
+      <p className="pp-field-label">{label}</p>
+      <input
+        className="pp-field-input"
+        value={editValues[fieldKey] ?? ''}
+        onChange={e => onChange(fieldKey, e.target.value)}
+      />
     </div>
   )
 }
@@ -80,6 +100,15 @@ function ToggleRow({ label, enabled, onChange }) {
   )
 }
 
+// ── Editable fields for patient ───────────────────────────────────────────────
+const PATIENT_EDIT_FIELDS = [
+  'phone_number',
+  'insurance_provider',
+  'insurance_member_id',
+  'emergency_contact_name',
+  'emergency_contact_phone',
+]
+
 function PatientProfile() {
   const navigate = useNavigate()
   const [profile, setProfile]       = useState(null)
@@ -87,6 +116,10 @@ function PatientProfile() {
   const [authorized, setAuthorized] = useState(
     () => sessionStorage.getItem('userRole') === 'patient'
   )
+  const [isEditing, setIsEditing]   = useState(false)
+  const [editValues, setEditValues] = useState({})
+  const [saveError, setSaveError]   = useState(null)
+  const [saving, setSaving]         = useState(false)
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -141,13 +174,74 @@ function PatientProfile() {
   const handleToggle = async (field) => {
     const current = profile?.[field]
     const next = !current
-    // Optimistic update
     setProfile(prev => ({ ...prev, [field]: next }))
     try {
       await updateProfile(userId, { [field]: next })
     } catch {
-      // Revert on failure
       setProfile(prev => ({ ...prev, [field]: current }))
+    }
+  }
+
+  const handleEditStart = () => {
+    setSaveError(null)
+    setEditValues({
+      phone_number:           profile?.phone_number           ?? '',
+      insurance_provider:     profile?.insurance_provider     ?? '',
+      insurance_member_id:    profile?.insurance_member_id    ?? '',
+      emergency_contact_name:  profile?.emergency_contact_name  ?? '',
+      emergency_contact_phone: profile?.emergency_contact_phone ?? '',
+    })
+    setIsEditing(true)
+  }
+
+  const handlePhoneChange = (key, value) => {
+    setEditValues(prev => ({ ...prev, [key]: formatPhone(value) }))
+  }
+
+  const handleEditCancel = () => {
+    setIsEditing(false)
+    setEditValues({})
+    setSaveError(null)
+  }
+
+  const handleEditSave = async () => {
+    // Only send fields that actually changed
+    const payload = {}
+    for (const field of PATIENT_EDIT_FIELDS) {
+      const edited   = editValues[field]?.trim() ?? ''
+      const original = profile?.[field] ?? ''
+      if (edited !== original) {
+        payload[field] = edited || null
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      setIsEditing(false)
+      return
+    }
+
+    // Validate phone number format before sending
+    for (const field of ['phone_number', 'emergency_contact_phone']) {
+      if (payload[field]) {
+        const digits = payload[field].replace(/\D/g, '')
+        if (digits.length < 10) {
+          setSaveError(`${field === 'phone_number' ? 'Phone number' : 'Emergency contact phone'} must be a valid 10-digit number.`)
+          return
+        }
+      }
+    }
+
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const updated = await updateProfile(userId, payload)
+      setProfile(updated)
+      setIsEditing(false)
+      setEditValues({})
+    } catch {
+      setSaveError('Failed to save changes. Please try again.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -219,9 +313,22 @@ function PatientProfile() {
             <p className="pp-header-username">{username}</p>
             <span className="pp-header-badge">Patient</span>
           </div>
-          {/* TODO: wire up once edit profile flow is built */}
-          <button className="pp-edit-btn" onClick={() => {}}>Edit Profile</button>
+          {!isEditing && (
+            <button className="pp-edit-btn" onClick={handleEditStart}>Edit Profile</button>
+          )}
+          {isEditing && (
+            <div className="pp-edit-actions">
+              <button className="pp-save-btn" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+              <button className="pp-cancel-btn" onClick={handleEditCancel} disabled={saving}>
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
+
+        {saveError && <p className="pp-save-error">{saveError}</p>}
 
         {/* ── Personal Information ── */}
         <p className="pp-section-label">PERSONAL INFORMATION</p>
@@ -231,7 +338,10 @@ function PatientProfile() {
           <InfoField label="LAST NAME"     value={profile?.last_name} />
           <InfoField label="DISPLAY NAME"  value={profile?.display_name} />
           <InfoField label="USERNAME"      value={username} />
-          <InfoField label="PHONE NUMBER"  value={profile?.phone_number} />
+          {isEditing
+            ? <EditField label="PHONE NUMBER" fieldKey="phone_number" editValues={editValues} onChange={handlePhoneChange} />
+            : <InfoField label="PHONE NUMBER" value={profile?.phone_number} />
+          }
           <InfoField label="DATE OF BIRTH" value={formatDob(profile?.date_of_birth)} />
           <InfoField label="GENDER"        value={profile?.gender} />
           <InfoField label="MEMBER SINCE"  value={formatMemberSince(profile?.member_since)} />
@@ -241,16 +351,28 @@ function PatientProfile() {
         <p className="pp-section-label">INSURANCE</p>
         <div className="pp-divider" />
         <div className="pp-fields-grid">
-          <InfoField label="INSURANCE PROVIDER" value={profile?.insurance_provider} />
-          <InfoField label="MEMBER ID"           value={profile?.insurance_member_id} />
+          {isEditing
+            ? <EditField label="INSURANCE PROVIDER" fieldKey="insurance_provider" editValues={editValues} onChange={(k, v) => setEditValues(prev => ({ ...prev, [k]: v }))} />
+            : <InfoField label="INSURANCE PROVIDER" value={profile?.insurance_provider} />
+          }
+          {isEditing
+            ? <EditField label="MEMBER ID" fieldKey="insurance_member_id" editValues={editValues} onChange={(k, v) => setEditValues(prev => ({ ...prev, [k]: v }))} />
+            : <InfoField label="MEMBER ID" value={profile?.insurance_member_id} />
+          }
         </div>
 
         {/* ── Emergency Contact ── */}
         <p className="pp-section-label">EMERGENCY CONTACT</p>
         <div className="pp-divider" />
         <div className="pp-fields-grid">
-          <InfoField label="CONTACT NAME"  value={profile?.emergency_contact_name} />
-          <InfoField label="CONTACT PHONE" value={profile?.emergency_contact_phone} />
+          {isEditing
+            ? <EditField label="CONTACT NAME" fieldKey="emergency_contact_name" editValues={editValues} onChange={(k, v) => setEditValues(prev => ({ ...prev, [k]: v }))} />
+            : <InfoField label="CONTACT NAME" value={profile?.emergency_contact_name} />
+          }
+          {isEditing
+            ? <EditField label="CONTACT PHONE" fieldKey="emergency_contact_phone" editValues={editValues} onChange={handlePhoneChange} />
+            : <InfoField label="CONTACT PHONE" value={profile?.emergency_contact_phone} />
+          }
         </div>
 
         {/* ── Notifications ── */}

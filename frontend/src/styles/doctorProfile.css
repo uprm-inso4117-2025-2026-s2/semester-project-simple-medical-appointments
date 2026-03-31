@@ -287,6 +287,88 @@
   background: #1a5470;
 }
 
+.dp-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.dp-save-btn {
+  background: #248daa;
+  color: #fff;
+  border: none;
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.85rem 1.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dp-save-btn:hover:not(:disabled) {
+  background: #1a7a94;
+}
+
+.dp-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dp-cancel-btn {
+  background: none;
+  color: #113c51;
+  border: 1px solid rgba(17, 60, 81, 0.35);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0.85rem 1.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dp-cancel-btn:hover:not(:disabled) {
+  background: rgba(17, 60, 81, 0.06);
+}
+
+.dp-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dp-save-error {
+  color: #c0392b;
+  font-size: 14px;
+  margin: -1rem 0 1rem;
+}
+
+/* Editable field */
+
+.dp-field--editing {
+  border: 1px solid #248daa;
+}
+
+.dp-field-input {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: #0c0f28;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.dp-field-textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.5;
+}
+
 /* Section labels + divider */
 
 .dp-section-label {

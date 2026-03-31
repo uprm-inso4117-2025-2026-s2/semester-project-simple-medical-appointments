@@ -19,6 +19,7 @@ import DoctorDashboard from './pages/DoctorDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import PatientProfile from './pages/PatientProfile'
 import DoctorProfile from './pages/DoctorProfile'
+import AdminProfile from './pages/AdminProfile'
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/patient-profile" element={<PatientProfile />} />
       <Route path="/doctor-profile" element={<DoctorProfile />} />
+      <Route path="/admin-profile" element={<AdminProfile />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
