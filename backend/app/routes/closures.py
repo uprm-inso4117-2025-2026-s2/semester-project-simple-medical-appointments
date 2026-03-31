@@ -7,11 +7,15 @@ from ..services.closure_service import (
     delete_closure,
     is_blocked,
 )
+from app.middleware.auth_middleware import requires_auth
+from app.utils.custom_decorators import requires_role
 
 closures_bp = Blueprint("closures", __name__)
 
 
 @closures_bp.route("/", methods=["POST"])
+@requires_auth
+@requires_role({"admin", "doctor"})
 def create():
     data = request.get_json(silent=True)
     if not data:
@@ -24,7 +28,9 @@ def create():
 
     return jsonify(closure.to_dict()), 201
 
+
 @closures_bp.route("/", methods=["GET"])
+@requires_auth
 def list_all():
     closure_type = request.args.get("type")
     doctor_id_raw = request.args.get("doctor_id")
@@ -41,6 +47,7 @@ def list_all():
 
 
 @closures_bp.route("/<int:closure_id>", methods=["GET"])
+@requires_auth
 def retrieve(closure_id):
     closure = get_closure(closure_id)
     if closure is None:
@@ -49,6 +56,8 @@ def retrieve(closure_id):
 
 
 @closures_bp.route("/<int:closure_id>", methods=["DELETE"])
+@requires_auth
+@requires_role({"admin", "doctor"})
 def remove(closure_id):
     deleted = delete_closure(closure_id)
     if not deleted:
@@ -57,6 +66,7 @@ def remove(closure_id):
 
 
 @closures_bp.route("/check", methods=["POST"])
+@requires_auth
 def check():
     data = request.get_json(silent=True)
     if not data:

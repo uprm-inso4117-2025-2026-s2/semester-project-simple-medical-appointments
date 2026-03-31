@@ -1,0 +1,19 @@
+= Simple Medical Appointments Proposal 
+First Milestone - Software Testing - INSO 4117
+Prof. Marko Schütz-Schmuck 
+:imagesdir: ../Images
+:doctype: book
+:toc:
+:sectnums:
+
+include::sections/section1/section.adoc[]
+
+include::sections/section2/section.adoc[]
+
+include::sections/section3/section.adoc[]
+
+// include::sections/section4-LTT/section.adoc[]
+
+include::sections/AI_Disclosure_Statement.adoc[]
+
+// include::sections/logbook.adoc[]
