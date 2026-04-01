@@ -5,7 +5,7 @@ import os
 
 slots_bp = Blueprint('slots', __name__, url_prefix='/api/slots')
 
-# Initialize Supabase
+# Initialize Supabase 
 supabase = create_client(
     os.getenv("VITE_SUPABASE_URL"),
     os.getenv("VITE_SUPABASE_ANON_KEY")
