@@ -3,7 +3,7 @@ from app.services.registration import sync_user_after_registration
 
 auth_bp = Blueprint('auth', __name__)
 
-VALID_ROLES = {'patient', 'doctor'}
+VALID_ROLES = {'patient', 'doctor', 'admin'}
 
 REQUIRED_FIELDS = ['user_id', 'first_name', 'last_name', 'username', 'role']
 

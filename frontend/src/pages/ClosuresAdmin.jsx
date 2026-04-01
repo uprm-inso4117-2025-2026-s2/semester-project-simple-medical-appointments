@@ -1,5 +1,3 @@
-// Admin page for managing clinic and doctor closures.
-//
 
 import { useState, useEffect } from 'react'
 import { createClosure, listClosures, deleteClosure } from '../services/closureApi'
