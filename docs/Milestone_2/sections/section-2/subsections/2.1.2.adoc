@@ -1,0 +1,155 @@
+==== *Terminology*
+
+[NOTE]
+====
+Each term below is derived from raw observations in the Domain Rough Sketch (2.1.1) and refined through concept analysis. Terms are presented with their classification (entity, actor, event, behavior, function, etc.) and the phase in which they appear (domain, requirements, implementation).
+
+Terms are organized into Domain Nouns, Domain Verbs, and Domain Constraints to align with ubiquitous language principles.
+====
+
+
+[discrete]
+===== Domain Nouns (entities, actors, abstractions)
+
+
+*Patient* :: (actor, domain)
+A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
+[.small]*Derived from: repeated references to calling clinics, joining waitlists, coordinating care.*
+
+*Caregiver* :: (actor, domain)
+A person managing appointments on behalf of a patient who cannot coordinate independently.
+[.small]*Derived from: “I manage my mother’s appointments because she doesn’t use a smartphone.”*
+
+*Healthcare Provider* :: (actor, domain)
+A licensed professional offering medical consultations (e.g., general practitioner, specialist).
+[.small]*Derived from: overloaded schedules, consultation variability.*
+
+*Doctor* :: (actor, domain)
+A specific type of healthcare provider with a medical degree. Doctors may have different scheduling constraints than other providers.
+[.small]*Derived from: “Physician migration” and “doctors are leaving.”*
+
+*Clinic* :: (entity, domain)
+A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
+
+*Appointment* :: (entity, domain)
+A reserved time block allocated to a patient for consultation with a provider at a specific clinic location.
+
+*Time Slot* :: (entity, domain)
+A discrete, reservable interval in a provider’s schedule. A time slot may be available, reserved, canceled, or expired.
+
+*Schedule* :: (entity, domain)
+The structured allocation of time slots associated with a provider or clinic.
+
+*Consultation Type* :: (taxonomy, domain)
+A classification of medical visit (e.g., follow-up, first-time visit, procedure) that influences duration and constraints.
+
+*Waitlist* :: (entity, domain)
+An ordered collection of patients waiting for a time slot when no immediate availability exists.
+
+*Cancellation* :: (event, domain)
+The release of a previously reserved appointment before its scheduled time.
+
+*No-Show* :: (event, domain)
+The absence of a patient at a scheduled appointment without prior cancellation.
+
+*Insurance Authorization* :: (process, domain)
+An external approval required before certain appointments can be confirmed.
+
+*Referral* :: (entity/event, domain)
+A directive from one provider requiring a patient to consult another provider before treatment.
+
+*Availability* :: (state, domain)
+The condition of a time slot being open for reservation.
+
+*Booking Status* :: (state, domain)
+The current condition of an appointment (pending, confirmed, canceled, completed).
+
+*Operational Hours* :: (constraint entity, domain)
+The defined time boundaries within which a clinic accepts or schedules appointments.
+
+
+[discrete]
+===== Domain Verbs (actions, events, domain operations)
+
+
+*Request Appointment* :: (action, domain)
+A patient expresses intent to reserve an available time slot.
+
+*Reserve Time Slot* :: (action, domain)
+The act of assigning a specific time slot to a patient.
+
+*Confirm Appointment* :: (event, domain)
+The transition of an appointment from pending to confirmed state.
+
+*Cancel Appointment* :: (action/event, domain)
+The intentional release of a reserved time slot by patient or clinic.
+
+*Reschedule Appointment* :: (action, domain)
+The replacement of one reserved time slot with another.
+
+*Join Waitlist* :: (action, domain)
+A patient registers interest in being assigned a slot if one becomes available.
+
+*Assign Waitlisted Patient* :: (event, domain)
+The allocation of a newly freed time slot to the next eligible patient in the waitlist.
+
+*Authorize Coverage* :: (external event, domain)
+Insurance approval required before final confirmation of certain appointment types.
+
+*Expire Slot* :: (event, domain)
+Automatic release of a temporarily held slot after a defined confirmation window.
+
+
+[discrete]
+===== Domain Constraints (invariant business rules)
+
+*No Double Booking* ::
+A single time slot cannot be reserved by more than one patient simultaneously.
+
+*Single Active Appointment per Provider Constraint* ::
+A patient may not hold multiple concurrent active appointments with the same provider.
+
+*Operational Hour Restriction* ::
+Appointments cannot be scheduled outside clinic operational hours.
+
+*Consultation Duration Integrity* ::
+The allocated time slot must match the required duration for the selected consultation type.
+
+*Waitlist Ordering Integrity* ::
+Waitlisted patients must be assigned based on defined priority rules.
+
+*Authorization Dependency* ::
+Certain appointments cannot transition to confirmed status without required insurance approval.
+
+
+[discrete]
+===== Cross-Phase Terms (Explicitly Annotated)
+
+These terms appear in later phases and are included for clarity.
+
+*User Account* :: (entity, implementation)
+A technical authentication construct representing a system login identity.
+*Not a domain concept.*
+
+*Authentication Token* :: (artifact, implementation)
+A signed credential used to verify session identity.
+
+*Notification* :: (system event, requirements)
+A system-generated alert informing patients or clinics about appointment changes.
+
+*Session* :: (technical state, implementation)
+The authenticated runtime context allowing authorized actions.
+
+
+[discrete]
+===== Core Domain Flow (Appointment Lifecycle)
+
+. A provider defines availability through structured time slots within operational hours.
+. A patient requests an appointment by selecting an available time slot.
+. If constraints apply (authorization or referral), the appointment enters pending status.
+. Upon confirmation, the slot becomes reserved.
+. If canceled, the slot returns to available state.
+. If a waitlist exists, the next patient may be assigned automatically.
+. The appointment either completes successfully or becomes a no-show.
+. Historical records preserve appointment outcomes for traceability.
+

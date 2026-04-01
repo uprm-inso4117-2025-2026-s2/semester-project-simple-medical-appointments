@@ -1,0 +1,11 @@
+
+=== Logbook 
+
+[width="100%", cols="4*", options="header", frame=all, grid=all, halign=center]
+
+|===
+| Section Name | Member | Added or Modified | Description
+
+| 4 Specific Class Topics | Julian Vivas| Added & Modified | Added a new section to document specific class topics covered in the course, including TDD, BDD, and debugging techniques.
+
+|===

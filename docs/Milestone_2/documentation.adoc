@@ -1,0 +1,45 @@
+= Simple Medical Appointments 
+Second Milestone - Software Testing - INSO 4117
+Prof. Marko Schütz-Schmuck 
+:imagesdir: ../Images
+:doctype: book
+:toc:
+:sectnums:
+:pdf-themesdir: {docdir}/build
+:pdf-theme: highlighting-theme.yml
+
+[discrete]
+=== Notation for Changes
+[%autowidth,align="center"]
+|===
+| Notation | Purpose | Color | Example
+
+| `[.added]# <text> #`
+| Added
+| Green
+| `[.added]#This text is new.#`
+
+| `[.changed]# <text> #`
+| Paraphrased
+| Orange
+| `[.changed]#This text has been modified.#`
+
+| `[.removed]# <text> #`
+| Removed
+| Red
+| `[.removed]#This text is no longer relevant.#`
+|===
+
+include::sections/section-1/section.adoc[]
+
+include::sections/section-2/section.adoc[]
+
+include::sections/section-3/section.adoc[]
+
+include::sections/section-4/section.adoc[]
+
+// include::sections/section-LTT/section.adoc[]
+
+include::sections/AI_Disclosure_Statement.adoc[]
+
+include::sections/logbook.adoc[]

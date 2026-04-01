@@ -1,0 +1,244 @@
+==== *Interface Requirements*
+
+===== *Data Initialization Interfaces*
+
+.Interface Requirements
+[cols="1,5,2,2",options="header"]
+|===
+| ID | Description | Linked User Stories/Epics | Verification Tests
+
+| IR-DI-01
+a|
+The system must provide mechanisms to initialize internal representations of domain entities before scheduling operations.
+
+These mechanisms support:
+
+* Carmen and Lucía, who require reliable account creation and booking.
+* Dr. Morales, who needs structured availability control.
+* Marta, who depends on consistent clinic records.
+* Ricardo, who requires stable system-level identity management.
+|
+|
+
+| IR-DI-02
+| The system allows authorized users to create Provider records.
+A Provider must be associated with at least one Clinic.
+Provider identity attributes must be immutable after creation.
+Only authenticated users with appropriate roles (US.AUTH.01, F1.4) may perform this action.
+| US.AUTH.01, F1.4
+|
+
+| IR-DI-03
+| The system allows creation of Clinic entities.
+Clinics should maintain a collection of associated Providers.
+Administrative access must be restricted according to role-based policies.
+|
+|
+
+| IR-DI-04
+a|
+The system allows Providers to define Time Slots (US.AVAIL.01).
+
+Each Time Slot has:
+
+* Provider reference
+* Clinic reference
+* Start time
+* End time
+* Status (Available, Reserved, Expired)
+
+A Time Slot must be initialized with status = Available.
+Overlapping time ranges should be rejected (F2.3, REQ-AVAIL-F-01).
+| US.AVAIL.01
+| F2.3, REQ-AVAIL-F-01
+
+| IR-DI-05
+| The system allows creation of Patient records (US.AUTH.01).
+Required fields must be validated prior to persistence.
+Patient contact information must be editable (US.PROF.01).
+Accessibility considerations support José’s simplified interaction needs.
+| US.AUTH.01, US.PROF.01
+|
+
+| IR-DI-06
+a|
+Appointment records include:
+
+* Referral status
+* Insurance authorization status
+
+Default status must be Pending when applicable.
+This supports structured confirmation logic relevant to Marta and external coordination workflows.
+|
+|
+
+| IR-ES-01
+| The system creates an Appointment with status = Requested.
+A Time Slot must not be reserved until confirmation conditions are satisfied.
+| US.BOOK.01
+|
+
+| IR-ES-02
+a|
+The system verifies:
+
+* Time Slot availability
+* Referral requirements
+* Insurance authorization (if required)
+
+Upon validation, the system:
+
+* Set Appointment status = Confirmed
+* Set associated Time Slot status = Reserved
+
+A confirmation notification must be triggered (F4.1).
+| US.BOOK.01, US.NOTIF.01
+| F4.1
+
+| IR-ES-03
+| The system must set Appointment status = Cancelled.
+The associated Time Slot must immediately revert to Available.
+Slot release occurs atomically with status update.
+| US.BOOK.02
+|
+
+| IR-ES-04
+a|
+The system:
+
+* Releases the previously reserved Time Slot
+* Reserves the new Time Slot
+* Updates Appointment time reference
+
+These operations must be executed atomically.
+This supports Lucía’s need for flexibility and Carmen’s coordination burden.
+|
+|
+
+| IR-ES-05
+| The system must set Appointment status = No-Show.
+The Time Slot remains Reserved for historical traceability.
+Audit logging supports Ricardo’s integrity requirements.
+|
+|
+
+| IR-ES-06
+| The system updates insuranceStatus upon receipt of approval.
+Confirmation must only proceed if the slot remains Available.
+This supports Marta’s need for structured oversight.
+|
+|
+
+| IR-TI-01
+| A Time Slot may be associated with at most one Appointment.
+A Time Slot with status ≠ Available should not be reservable.
+Concurrent reservation attempts must be serialized.
+Double-booking must be prevented at the data layer (F3.4).
+Slot state transitions should be logged for traceability (Ricardo persona).
+|
+| F3.4
+
+| IR-ST-01
+a|
+Valid transitions include:
+
+* Requested → Confirmed
+* Confirmed → Completed
+* Confirmed → Cancelled
+* Confirmed → No-Show
+
+Invalid transitions must be rejected with appropriate error responses.
+Completed and No-Show appointments must be immutable except for administrative annotations.
+|
+|
+
+| IR-EC-01
+a|
+Mutable Data:
+
+* Patient contact information (US.PROF.01)
+* Appointment notes
+* Referral status prior to confirmation
+
+Immutable Data:
+
+* appointmentID
+* Historical completed appointments
+* Provider identity after confirmation
+
+Unauthorized modification attempts return an error response, supporting Ricardo’s security and integrity goals.
+| US.PROF.01
+|
+
+| IR-UI-01
+a|
+Availability Visibility:
+
+* The UI must display available Time Slots without exposing patient data (Carmen, Lucía).
+* Slot availability must update dynamically after state changes.
+
+Appointment Transparency:
+
+* The UI clearly displays current Appointment status (José).
+* Status changes must be reflected immediately after confirmation.
+
+Notification Feedback:
+
+* The UI must confirm successful booking, cancellation, or rescheduling (US.NOTIF.01).
+* Error messages should be specific and validation-driven.
+
+Role-Based Access:
+
+* UI actions must be restricted according to authenticated role (US.AUTH.01, F1.4).
+* Administrative views support Marta’s oversight needs.
+| US.NOTIF.01, US.AUTH.01, F1.4
+|
+
+| IR-API-01
+a|
+POST /appointments (US.BOOK.01)
+
+* Creates Appointment with status = Requested
+* Validates required fields
+| US.BOOK.01
+|
+
+| IR-API-02
+a|
+PUT /appointments/{id}/confirm
+
+* Validates slot availability and dependencies
+* Sets Appointment status and Time Slot atomically
+|
+|
+
+| IR-API-03
+a|
+PUT /appointments/{id}/cancel (US.BOOK.02)
+
+* Sets Appointment status = Cancelled
+* Releases associated Time Slot
+| US.BOOK.02
+|
+
+| IR-API-04
+a|
+GET /timeslots?provider={id} (US.AVAIL.01)
+
+* Returns only Available Time Slots
+
+All endpoints:
+
+* Enforce authentication via JWT (US.AUTH.01)
+* Validate input schema
+* Return structured error responses (400, 401, 422, 409)
+| US.AVAIL.01, US.AUTH.01
+|
+
+| IR-CC-01
+| The architecture separates Authentication, Validation, Business Logic, and Repository layers. Request flow must be Authentication -> Validation -> Business Logic -> Repository -> Response. Handlers cannot bypass validation/authorization, and atomic scheduling logic must execute in the Business Logic layer.
+|
+|
+
+|===
+
