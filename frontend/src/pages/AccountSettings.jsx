@@ -199,7 +199,7 @@ function AccountSettings() {
   if (loading) return null
 
   return (
-    <div className="adb-layout">
+    <div className="adb-layout as-layout">
 
       {/* ── Sidebar ── */}
       <aside className="adb-sidebar">
