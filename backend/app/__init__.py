@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from .config import Config
 from .routes import register_routes
-
+from .models import db     
 
 def create_app():
     """Application factory — creates and configures the Flask app.
@@ -22,5 +22,10 @@ def create_app():
 
     # Register all route blueprints (see app/routes/__init__.py)
     register_routes(app)
+
+    db.init_app(app)   
+    
+    with app.app_context():
+        db.create_all()
 
     return app

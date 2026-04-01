@@ -2,40 +2,40 @@ name: Convert AsciiDoc to PDF
 
 on:
   push:
-    branches:
-      - Documentation
-    paths:
-      - 'docs/**/*.adoc'
+    branches: [Documentation]
+    paths: ['docs/**/*.adoc']
   pull_request:
-    paths:
-      - 'docs/**/*.adoc'
-  workflow_dispatch: # allow manual trigger
+    paths: ['docs/**/*.adoc']
+  workflow_dispatch:
 
 jobs:
   build-pdf:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y graphviz
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
+          bundler-cache: true
 
-      - name: Install Asciidoctor PDF and dependencies
+      - name: Install Asciidoctor tools
         run: |
-          gem install asciidoctor-pdf --no-document
-          gem install rouge --no-document       # for syntax highlighting
-          gem install asciidoctor-diagram --no-document # for diagrams
+          gem install asciidoctor-pdf asciidoctor-diagram rouge --no-document
 
       - name: Convert AsciiDoc to PDF
         run: |
           mkdir -p build/pdf
-          for file in $(find docs -name "*.adoc"); do
-            filename=$(basename "$file" .adoc)
-            asciidoctor-pdf "$file" -o "build/pdf/${filename}.pdf"
+          find docs -name "*.adoc" -print0 | while IFS= read -r -d '' file; do
+            out="build/pdf/${file#docs/}"
+            out="${out%.adoc}.pdf"
+            mkdir -p "$(dirname "$out")"
+            asciidoctor-pdf "$file" -o "$out"
           done
 
       - name: Upload PDFs as artifacts

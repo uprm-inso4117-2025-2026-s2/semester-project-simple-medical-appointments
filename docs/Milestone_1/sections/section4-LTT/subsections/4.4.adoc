@@ -1,0 +1,86 @@
+=== *Behavior Driven Development*
+
+==== Test Case Execution and Defect Management
+:author: Ivan Morales
+                                                                                
+===== Objective
+                                                                            
+Research Behavior-Driven Development (BDD) in software reliability engineering, focusing on how Gherkin/Cucumber Given-When-Then scenarios are used to define, execute, and validate system behavior through structured, human readable test cases.
+
+===== Appointment Booking System Scenarios
+
+The following scenarios describe the expected behavior of an appointment
+booking system.Each scenario is written in Gherkin syntax and covers a distinct use case,including successful booking, conflict handling, and appointment cancellation.
+
+====== Scenario 1: Patient Successfully Books an Available Appointment
+
+[source,gherkin]
+    ----
+    Scenario: Patient successfully books an available appointment
+        Given the patient "Ivan Morales" has a registered account
+        And the doctor "Dr. Schutz" has an available slot on "2026/03/10" at
+    "10:00 AM"
+        When the patient selects the slot and submits the booking
+        Then the appointment is saved with status "Confirmed"
+        And the patient receives an email confirmation to "ivan.morales@mail.com"
+        And the slot on "2026/03/10" at "10:00 AM" is marked as unavailable
+    ----
+
+This scenario validates the happy path of the booking flow. It confirms that
+the system correctly persists the appointment, updates slot availability, and triggers a confirmation notification to the patient.
+
+====== Scenario 2: Patient Attempts to Book an Already-Taken Slot
+
+[source,gherkin]
+    ----
+    Scenario: Patient attempts to book an already-taken slot
+        Given the patient "Maximus Aurelius" has a registered account
+        And the slot on "2026/03/10" at "10:00 AM" with "Dr. Schutz" is already
+    booked
+        When "Maximus Aurelius" attempts to book that same slot
+        Then the system rejects the request with the error "This time slot is no
+    longer available"
+        And no appointment is created for "Maximus Aurelius"
+        And the total number of appointments for that slot remains 1
+    ----
+
+This scenario addresses a conflict condition. It verifies that the system
+enforces slot exclusivity, prevents double booking, and returns a meaningful error message without corrupting existing appointment data.
+
+====== Scenario 3: Doctor Cancels a Scheduled Appointment
+
+[source,gherkin]
+    ----
+    Scenario: Doctor cancels a scheduled appointment
+        Given the doctor "Dr. Schutz" is authenticated in the system
+        And a confirmed appointment exists for patient "Ivan Morales" on
+    "2026/03/10" at "10:00 AM"
+        When "Dr. Schutz" cancels the appointment with reason "Doctor unavailable"
+        Then the appointment status is updated to "Cancelled"
+        And "Ivan Morales" receives a cancellation email containing the reason
+    "Doctor unavailable"
+        And the slot on "2026/03/10" at "10:00 AM" is marked as available
+    ----
+
+This scenario verifies the cancellation workflow. It ensures that a
+doctor initiated cancellation correctly updates appointment state, restores slot availability,and communicates the reason for cancellation to the affected patient.
+
+===== Discussion
+
+BDD test scenarios serve a dual purpose in the software reliability lifecycle.
+First, they act as executable specifications that define expected system behavior before implementation begins. Second, they function as regression tests that detect behavioral regressions as the system evolves.
+
+The three scenarios above cover behavioral paths:
+
+    . The success path confirms the system works under ideal conditions.
+    . The conflict path verifies the system handles concurrent or invalid states gracefully.
+    . The cancellation path validates state reversal and downstream notifications.
+
+Together, they provide targeted behavioral coverage of the appointment domain
+without requiring exhaustive input enumeration. Each scenario is traceable to a
+specific system requirement and can be automated directly using Cucumber or a compatible BDD framework.
+
+===== Conclusion
+
+Behavior Driven Development reframes test case design as a collaborative requirement driven activity. By expressing scenarios in the Given-When-Then format, test cases become understandable to all stakeholders while remaining executable by automated tools. The appointment booking scenarios presented here demonstrate how BDD captures success conditions, error handling, and state transitions within a single, consistent format. This approach supports both defect detection and behavioral documentation throughout the software
+reliability testing process.

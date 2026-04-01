@@ -10,9 +10,11 @@ function Home() {
       <p>Welcome to the medical appointments system.</p>
 
       <ServiceCatalog />
-      
+
       <p>
-        <Link to="/appointmenthistory">View appointment history</Link>
+        <Link to="/appointmenthistory">
+          View appointment history
+        </Link>
       </p>
     </div>
   )
