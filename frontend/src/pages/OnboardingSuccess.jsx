@@ -1,5 +1,4 @@
-// OnboardingSuccess.jsx — "You're all set!" page at "/onboarding-success".
-// Shown after completing onboarding for all roles (patient, doctor, admin).
+
 
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import medicalIcon from '../assets/medicalPng.png'

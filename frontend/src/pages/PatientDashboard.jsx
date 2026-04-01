@@ -1,9 +1,4 @@
-// PatientDashboard.jsx — Patient dashboard at "/patient-dashboard".
-// Profile name fetched from GET /api/profile/:userId (returns display_name as `name`).
-// Appointments are MOCKED — replace MOCK_APPOINTMENTS once a backend endpoint
-// returns enriched data via JOINs on appointments + doctors + profiles (doctor display_name) + providers (specialty).
-// Real schema: id, patient_id, doctor_id, clinic_id, appointment_datetime, status, notes
-// Status values: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'

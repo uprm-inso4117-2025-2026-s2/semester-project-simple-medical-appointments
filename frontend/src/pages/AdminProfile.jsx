@@ -1,7 +1,4 @@
-// AdminProfile.jsx — Admin profile page at "/admin-profile".
-// All data fetched from GET /api/profile/:userId which returns fields from:
-//   profiles, profile_settings tables.
-// Read-only — no profile editing.
+
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
