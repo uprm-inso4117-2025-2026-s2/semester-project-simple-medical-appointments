@@ -64,6 +64,7 @@ function Home() {
         </div>
         <div className="home-nav-user">
           <span className="home-nav-email">{userEmail}</span>
+          <button className="home-nav-settings" onClick={() => navigate('/settings')}>Settings</button>
           <button className="home-nav-logout" onClick={handleLogout}>Log out</button>
         </div>
       </nav>

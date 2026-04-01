@@ -131,10 +131,9 @@ function AdminDashboard() {
             <span className="adb-nav-icon-svg"><IconDashboard /></span>
             <span className="adb-nav-label">Dashboard</span>
           </div>
-          {/* TODO: navigate to /admin/management once that page is built */}
-          <div className="adb-nav-item" onClick={() => {}}>
+          <div className="adb-nav-item" onClick={() => navigate('/admin/users')}>
             <span className="adb-nav-icon-svg"><IconManagement /></span>
-            <span className="adb-nav-label">Management</span>
+            <span className="adb-nav-label">Users</span>
           </div>
           <div className="adb-nav-item">
             <img className="adb-nav-icon" src={calendarIcon} alt="" />
@@ -168,11 +167,10 @@ function AdminDashboard() {
             <p className="adb-stats-count">{MOCK_STATS.appointmentsToday}</p>
             <p className="adb-stats-sub">Across all doctors</p>
           </div>
-          <div className="adb-stats-card">
+          <div className="adb-stats-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/admin/users')}>
             <p className="adb-stats-label">Active Doctors</p>
             <p className="adb-stats-count">{MOCK_STATS.activeDoctors}</p>
-            {/* TODO: link to /admin/doctors once that page is built */}
-            <p className="adb-stats-link">Manage Doctors</p>
+            <p className="adb-stats-link">Manage Users</p>
           </div>
           <div className="adb-stats-card">
             <p className="adb-stats-label">Active Clinics</p>

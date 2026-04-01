@@ -484,6 +484,7 @@ def update_profile(user_id: str):
 
     payload, fetch_error = _fetch_profile_payload(user_id)
     if fetch_error:
-        return fetch_error
+        # Updates succeeded but profile row couldn't be re-fetched
+        return jsonify({'message': 'Profile updated successfully.'}), 200
 
     return jsonify(payload), 200
