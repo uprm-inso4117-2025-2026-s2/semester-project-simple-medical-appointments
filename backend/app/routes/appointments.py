@@ -5,6 +5,7 @@ POST /api/appointments/submit — accepts form data; persistence to Supabase is 
 from datetime import date, time
 
 from flask import Blueprint, request, jsonify
+from app.middleware.auth_middleware import requires_auth
 
 from app.repositories.slot_bookings import try_reserve_slot
 
@@ -31,6 +32,7 @@ def _scheduling_all_fields_present(data: dict) -> bool:
 
 
 @appointments_bp.route('/submit', methods=['POST'])
+@requires_auth
 def submit_appointment():
     """
     Submit appointment form data.

@@ -1,6 +1,8 @@
 from datetime import date
+
 from flask import Blueprint, jsonify, request
 
+from app.middleware.auth_middleware import requires_auth
 from app.repositories.slot_bookings import slot_time_strings_for_doctor_day
 
 # A Blueprint groups related routes together.
@@ -20,6 +22,7 @@ def health_check():
 
 
 @main_bp.route('/doctors/<doctor_id>/available-slots', methods=['GET'])
+@requires_auth
 def get_doctor_available_slots(doctor_id: str):
     """Return available appointment time slots for a doctor on a given date.
 
