@@ -20,6 +20,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import PatientProfile from './pages/PatientProfile'
 import DoctorProfile from './pages/DoctorProfile'
 import AdminProfile from './pages/AdminProfile'
+import AdminUsers from './pages/AdminUsers'
+import AccountSettings from './pages/AccountSettings'
 
 function App() {
   return (
@@ -41,6 +43,8 @@ function App() {
       <Route path="/patient-profile" element={<PatientProfile />} />
       <Route path="/doctor-profile" element={<DoctorProfile />} />
       <Route path="/admin-profile" element={<AdminProfile />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
+      <Route path="/settings" element={<AccountSettings />} />
       {/* Add new routes below as the app grows */}
     </Routes>
   )
