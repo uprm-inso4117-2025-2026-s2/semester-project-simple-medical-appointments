@@ -130,3 +130,80 @@ The system will only be approved for deployment if:
 . At least 90% of high criteria pass.
 . No unresolved defects exist in core booking functionality.
 . No open security vulnerabilities affecting patient data.
+
+==== Static vs Dynamic Analysis
+:author: Marymar Maldonado Roche
+
+===== Overview
+
+This section explains the difference between static analysis and dynamic analysis in software testing. These two approaches are used to identify defects in software and also improve software quality, but they differ in whether the system is executed during testing.
+
+===== Static Analysis
+
+Static analysis refers to examining the code without executing the program. It focuses on identifying issues in the structure, syntax, and overall quality of the code.
+
+Typical goals of static analysis include:
+
+* Detecting syntax errors and code smells
+* Identifying unused variables or unreachable code
+* Enforcing coding standards
+* Improving maintainability and readability
+
+Examples of static analysis:
+
+* Code reviews and peer inspections
+* Linting tools
+* Static analysis tools for detecting potential memory or logic issues
+
+Static analysis is usually performed early in development, making it useful for preventing defects before the system is executed.
+
+===== Dynamic Analysis
+
+Dynamic analysis involves testing the system during execution. It evaluates how the software behaves when it runs and interacts with inputs, users, and other components.
+
+Typical goals of dynamic analysis include:
+
+* Detecting runtime errors and crashes
+* Verifying correct outputs
+* Identifying memory leaks and performance issues
+* Evaluating system behavior under real conditions
+
+Examples of dynamic analysis:
+
+* Unit testing
+* Integration testing
+* System testing
+* Performance and stress testing
+
+Dynamic analysis is essential for validating that the system works correctly in practice.
+
+===== Comparison
+
+[cols="1,1,1", options="header"]
+|===
+| Aspect | Static Analysis | Dynamic Analysis
+
+| Execution required
+| No
+| Yes
+
+| When used
+| Early development
+| During execution
+
+| Focus
+| Code structure and quality
+| Runtime behavior
+
+| Examples
+| Code reviews, linting
+| Unit tests, performance tests
+
+| Issues detected
+| Syntax errors, code smells
+| Runtime errors, crashes
+|===
+
+===== Conclusion
+
+Static and dynamic analysis complement each other in software testing. Static analysis helps detect issues early without executing the code, while dynamic analysis ensures that the system behaves correctly during execution. Using both approaches together leads to more reliable and higher-quality software. 
