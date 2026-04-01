@@ -1,0 +1,220 @@
+
+
+import { useEffect, useState } from 'react'
+import { useNavigate, Navigate } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
+import { getProfile } from '../services/api'
+
+import calendarIcon  from '../assets/calendar_icon.svg'
+import documentsIcon from '../assets/documents_icon.svg'
+import logoutIcon    from '../assets/logout_icon.svg'
+import settingsIcon  from '../assets/settings_icon.svg'
+
+import '../styles/patientDashboard.css'
+
+// ── Mock appointments ─────────────────────────────────────────────────────────
+// TODO: replace with real API call once an endpoint returns enriched appointment data.
+// Fields mirror what a JOIN on appointments + doctors + profiles + providers would return.
+const MOCK_APPOINTMENTS = [
+  {
+    id: '1',
+    doctorName: 'Dr. Elena Torres',
+    specialty: 'Cardiology',
+    appointment_datetime: '2026-04-02T09:00:00-04:00',
+    status: 'confirmed',
+  },
+  {
+    id: '2',
+    doctorName: 'Dr. James Ruiz',
+    specialty: 'General Practice',
+    appointment_datetime: '2026-04-10T14:30:00-04:00',
+    status: 'cancelled',
+  },
+]
+
+const STATUS_CONFIG = {
+  confirmed:  { label: 'Confirmed',  dotColor: '#248DAA' },
+  pending:    { label: 'Pending',    dotColor: '#185fa5' },
+  completed:  { label: 'Completed',  dotColor: '#888'    },
+  cancelled:  { label: 'Cancelled',  dotColor: '#BA7517' },
+}
+
+function formatDatetime(iso) {
+  const d = new Date(iso)
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+}
+
+// ── Inline icons (no asset file) ──────────────────────────────────────────────
+const IconDashboard = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" rx="1"/>
+    <rect x="14" y="3" width="7" height="7" rx="1"/>
+    <rect x="3" y="14" width="7" height="7" rx="1"/>
+    <rect x="14" y="14" width="7" height="7" rx="1"/>
+  </svg>
+)
+const IconBack = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+)
+const IconUser = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+)
+
+function PatientDashboard() {
+  const navigate = useNavigate()
+  const [profile, setProfile]       = useState(null)
+  // Pre-authorize immediately if the role is already cached from a previous visit
+  const [authorized, setAuthorized] = useState(
+    () => sessionStorage.getItem('userRole') === 'patient'
+  )
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      // getSession reads from local storage — no network request, instant
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        sessionStorage.removeItem('userRole')
+        navigate('/login', { replace: true })
+        return
+      }
+
+      // If already cached, skip the DB role check and just fetch profile
+      if (sessionStorage.getItem('userRole') === 'patient') {
+        setAuthorized(true)
+        try {
+          const prof = await getProfile(session.user.id)
+          setProfile(prof)
+        } catch {}
+        return
+      }
+
+      // No cache — verify role against DB
+      const { data: roleRows } = await supabase
+        .from('user_roles')
+        .select('roles(name)')
+        .eq('user_id', session.user.id)
+
+      const role = roleRows?.[0]?.roles?.name
+      if (role !== 'patient') {
+        sessionStorage.removeItem('userRole')
+        navigate('/', { replace: true })
+        return
+      }
+
+      sessionStorage.setItem('userRole', 'patient')
+      setAuthorized(true)
+
+      try {
+        const prof = await getProfile(session.user.id)
+        setProfile(prof)
+      } catch {
+        // profile fetch failed — name falls back to placeholder
+      }
+    }
+
+    checkAccess()
+  }, [navigate])
+
+  const handleLogout = async () => {
+    sessionStorage.removeItem('userRole')
+    await supabase.auth.signOut()
+    navigate('/login')
+  }
+
+  if (!authorized) {
+    const cached = sessionStorage.getItem('userRole')
+    return <Navigate to={cached ? '/' : '/login'} replace />
+  }
+
+  const displayName  = profile?.name ?? '…'
+  const firstName    = displayName !== '…' ? displayName.split(' ')[0] : '…'
+  const upcomingCount = MOCK_APPOINTMENTS.filter(a => a.status === 'confirmed' || a.status === 'pending').length
+
+  return (
+    <div className="pdb-layout">
+
+      {/* ── Sidebar ── */}
+      <aside className="pdb-sidebar">
+
+        <div className="pdb-profile">
+          <div className="pdb-avatar">
+            <IconUser />
+          </div>
+          <button className="pdb-profile-name" onClick={() => navigate('/patient-profile')}>
+            {displayName}
+          </button>
+          <span className="pdb-profile-role">Patient</span>
+        </div>
+
+        <nav className="pdb-nav">
+          <div className="pdb-nav-item active">
+            <span className="pdb-nav-icon-svg"><IconDashboard /></span>
+            <span className="pdb-nav-label">Dashboard</span>
+          </div>
+          <div className="pdb-nav-item">
+            <img className="pdb-nav-icon" src={calendarIcon} alt="" />
+            <span className="pdb-nav-label">My Appointments</span>
+          </div>
+          <div className="pdb-nav-item">
+            <img className="pdb-nav-icon" src={documentsIcon} alt="" />
+            <span className="pdb-nav-label">Medical Records</span>
+          </div>
+          <div className="pdb-nav-item">
+            <img className="pdb-nav-icon" src={settingsIcon} alt="" />
+            <span className="pdb-nav-label">Settings</span>
+          </div>
+          <div className="pdb-nav-item pdb-nav-logout" onClick={handleLogout}>
+            <img className="pdb-nav-icon" src={logoutIcon} alt="" />
+            <span className="pdb-nav-label">Log Out</span>
+          </div>
+        </nav>
+
+      </aside>
+
+      {/* ── Main content ── */}
+      <main className="pdb-main">
+
+        <button className="pdb-back-btn" onClick={() => navigate('/')}>
+          <IconBack /> Home
+        </button>
+
+        <h1 className="pdb-welcome">Welcome, {firstName}</h1>
+        <p className="pdb-subtitle">Here is your health overview for today.</p>
+
+        <div className="pdb-stats-card">
+          <p className="pdb-stats-label">Upcoming Appointments</p>
+          <p className="pdb-stats-count">{upcomingCount}</p>
+          <p className="pdb-stats-next">Next: Tomorrow, 9:00 AM</p>
+        </div>
+
+        <p className="pdb-section-heading">Upcoming Appointments</p>
+
+        <div className="pdb-apt-list">
+          {MOCK_APPOINTMENTS.map(apt => {
+            const { label, dotColor } = STATUS_CONFIG[apt.status] ?? { label: apt.status, dotColor: '#ccc' }
+            return (
+              <div key={apt.id} className="pdb-apt-card">
+                <span className="pdb-apt-dot" style={{ background: dotColor }} />
+                <div className="pdb-apt-info">
+                  <p className="pdb-apt-doctor">{apt.doctorName} — {apt.specialty}</p>
+                  <p className="pdb-apt-date">{formatDatetime(apt.appointment_datetime)}</p>
+                </div>
+                <span className={`pdb-apt-badge ${apt.status}`}>{label}</span>
+              </div>
+            )
+          })}
+        </div>
+
+        <button className="pdb-book-btn" disabled>+ Book New Appointment</button>
+
+      </main>
+    </div>
+  )
+}
+
+export default PatientDashboard
