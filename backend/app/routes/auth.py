@@ -74,3 +74,12 @@ def register():
         }), 500
 
     return jsonify({'message': 'User registered successfully.'}), 201
+
+
+# TODO: Implement account deactivation endpoint (backend task)
+# The frontend sets is_active=false in the profiles table via PUT /api/profile/<user_id>,
+# but Supabase Auth still allows the user to sign in because it has no knowledge of that field.
+# A proper implementation requires calling the Supabase Admin API:
+#   PUT /auth/v1/admin/users/<user_id>  with body { "ban_duration": "876000h" }
+# using the service role key. This will prevent the user from authenticating entirely.
+# To reactivate, call the same endpoint with { "ban_duration": "none" }.
