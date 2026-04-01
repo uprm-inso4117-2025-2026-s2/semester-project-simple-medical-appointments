@@ -1,0 +1,73 @@
+==== *Domain Requirements*
+
+[[requirements-table]]
+.Domain Requirements
+[options="header"]
+|===
+| ID | Description | Explanation
+
+| DR-001
+| The system must associate each appointment slot with a finite capacity defined by the clinic or provider.
+| This requirement derives from the domain property that consultation periods are limited by time, staff, and facility availability.
+
+| DR-002
+| The system must prevent allocation of appointments beyond the defined capacity of a slot.
+| This reflects the domain observation that clinics cannot attend more patients than the physical and temporal limits allow.
+
+| DR-003
+| The system must associate each scheduled appointment with exactly one patient and at least one provider.
+| This derives from the domain property that consultations occur between a patient and a healthcare professional.
+
+| DR-004
+| The system must maintain the association between a patient and their scheduled appointments over time.
+| This reflects the domain observation that consultations form part of a patient’s medical history and continuity of care.
+
+| DR-005
+| The system must represent provider availability as bounded time intervals during which appointments may occur.
+| This requirement follows from the domain observation that providers work within defined schedules that vary by clinic and day.
+
+| DR-006
+| The system must ensure that appointments only occur within declared availability intervals.
+| This reflects the domain constraint that consultations cannot occur outside provider working hours.
+
+| DR-007
+| The system must represent whether an appointment requires confirmation before becoming final.
+| This derives from the domain observation that some consultations depend on insurance authorization, referrals, or administrative review.
+
+| DR-008
+| The system must prevent appointments requiring confirmation from being treated as finalized until confirmation has occurred.
+| This reflects the domain practice that provisional bookings do not guarantee consultation.
+
+| DR-009
+| The system must release appointment capacity when a scheduled consultation is canceled.
+| This requirement derives from the domain observation that canceled time periods become available for reassignment.
+
+| DR-010
+| The system must provide means to reassign released appointment slots to other patients.
+| This reflects the domain practice of redistributing cancellations in order to reduce waiting time.
+
+| DR-011
+| The system must record whether a patient attended a scheduled appointment.
+| This derives from the domain observation that clinics monitor attendance to evaluate workload, reliability, and resource use.
+
+| DR-012
+| The system must preserve attendance records as part of appointment history.
+| This reflects the domain property that past participation influences future scheduling and clinical planning.
+
+| DR-013
+| The system must represent when a consultation depends on an external referral or authorization.
+| This requirement follows from the domain observation that certain specialist visits cannot occur without prior approval.
+
+| DR-014
+| The system must prevent scheduling of consultations requiring referral until such referral is recorded.
+| This reflects the domain constraint that authorization conditions must be satisfied before care is delivered.
+
+| DR-015
+| The system must represent appointment time as an ordered temporal position within a schedule.
+| This derives from the domain property that consultations occur in sequence and cannot overlap for the same provider.
+
+| DR-016
+| The system must prevent overlapping appointments for a single provider.
+| This reflects the domain observation that a provider cannot conduct multiple consultations simultaneously.
+
+|===

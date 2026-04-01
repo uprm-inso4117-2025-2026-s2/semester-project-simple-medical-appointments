@@ -9,6 +9,20 @@ if os.path.exists(db_path):
 
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
+
+# Create the users table — stores a local mirror of Supabase Auth users.
+# supabase_uid: the UUID assigned by Supabase Auth (primary external key).
+# role: default 'patient'; updated by the role-assignment step (issue #193).
+cursor.execute("""
+CREATE TABLE users (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    supabase_uid TEXT    NOT NULL UNIQUE,
+    email       TEXT    NOT NULL UNIQUE,
+    role        TEXT    NOT NULL DEFAULT 'patient',
+    created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+)
+""")
+
 # Create the appointments table
 cursor.execute("""
 CREATE TABLE appointments (

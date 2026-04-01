@@ -19,6 +19,9 @@ ENV/
 instance/
 .webassets-cache
 
+# SQLite
+*.db
+
 # Node / React
 node_modules/
 dist/

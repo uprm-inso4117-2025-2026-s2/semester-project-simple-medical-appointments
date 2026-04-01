@@ -1,0 +1,207 @@
+/*
+  home.css — Dashboard / Home page
+  Matches the teal gradient design language of auth.css
+*/
+
+/* ── PAGE ─────────────────────────────────────────────────────────────── */
+
+.home-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── NAVBAR ───────────────────────────────────────────────────────────── */
+
+.home-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem clamp(1.5rem, 4.51vw, 65px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.home-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+}
+
+.home-nav-brand img {
+  width: clamp(28px, 2.5vw, 36px);
+  height: auto;
+  filter: brightness(0) invert(1);
+}
+
+.home-nav-brand span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(0.9rem, 1.25vw, 1.125rem);
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+
+.home-nav-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.home-nav-email {
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.home-nav-logout {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 70px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 0.97vw, 0.875rem);
+  font-weight: 400;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.home-nav-logout:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* ── MAIN CONTENT ─────────────────────────────────────────────────────── */
+
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 4.51vw, 65px);
+}
+
+/* Welcome heading */
+.home-welcome {
+  text-align: center;
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+
+.home-welcome h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1.75rem, 4.44vw, 4rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.5rem;
+  line-height: 1.2;
+}
+
+.home-welcome p {
+  font-size: clamp(0.875rem, 1.39vw, 1.125rem);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* ── CARDS GRID ───────────────────────────────────────────────────────── */
+
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2vw, 1.75rem);
+  width: 100%;
+  max-width: min(86.81vw, 1100px);
+}
+
+.home-card {
+  background: #fff;
+  border-radius: 30px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: clamp(1.5rem, 2.5vw, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  border: none;
+  text-align: left;
+}
+.home-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+.home-card.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.home-card-icon {
+  width: clamp(40px, 3.47vw, 50px);
+  height: clamp(40px, 3.47vw, 50px);
+  background: linear-gradient(135deg, #248daa, #0e3844);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-card-icon svg {
+  width: 55%;
+  height: 55%;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.home-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0;
+}
+
+.home-card-desc {
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  font-weight: 300;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.home-card-arrow {
+  margin-top: auto;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #248daa;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.home-card-badge {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #888;
+  background: #f0f0f0;
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+  margin-top: auto;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .home-cards {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+  .home-nav-email { display: none; }
+}
