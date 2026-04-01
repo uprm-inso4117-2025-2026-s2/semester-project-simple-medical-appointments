@@ -1,13 +1,4 @@
-// AdminDashboard.jsx — Admin dashboard at "/admin-dashboard".
-// Profile name fetched from GET /api/profile/:userId (returns display_name as `name`).
-// All stats and appointments are MOCKED — replace once backend endpoints exist:
-//   - Appointments Today: COUNT appointments WHERE DATE(appointment_datetime) = today
-//   - Active Doctors:     COUNT providers
-//   - Active Clinics:     COUNT clinics
-//   - Recent Appointments: appointments JOIN profiles (patient display_name)
-//                          + providers→profiles (doctor display_name) + clinics (name)
-// Appointments schema: id, patient_id, doctor_id, clinic_id, appointment_datetime, status, notes
-// Status values: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'

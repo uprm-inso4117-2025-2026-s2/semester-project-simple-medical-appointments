@@ -1,7 +1,4 @@
-// AdminDetails.jsx — "Admin Access" onboarding step at "/admin-details".
-// Only reachable from RoleSelection when role === 'admin'.
-// TODO: access code verification against backend not yet implemented.
-// Currently syncs user to DB and navigates to admin dashboard without verifying the code.
+
 
 import { useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'

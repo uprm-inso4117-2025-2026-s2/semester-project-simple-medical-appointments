@@ -1,5 +1,4 @@
-// Login.jsx — "Log in" page at "/login".
-// Matches the Figma "log in" frame. Auth logic is a stub for the Login issue.
+
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'

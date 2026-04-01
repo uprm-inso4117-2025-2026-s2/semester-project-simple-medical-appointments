@@ -1,6 +1,4 @@
-// DoctorProfile.jsx — Doctor profile page at "/doctor-profile".
-// All data fetched from GET /api/profile/:userId which returns fields from:
-//   profiles, providers, provider_settings, profile_settings tables.
+
 
 import { useEffect, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'

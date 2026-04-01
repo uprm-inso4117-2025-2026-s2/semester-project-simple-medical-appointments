@@ -1,6 +1,4 @@
-// DoctorDetails.jsx — "Doctor Details" onboarding step at "/doctor-details".
-// Only reachable from RoleSelection when role === 'doctor'.
-// DB sync is handled here for testing; will move to final onboarding step once all steps are built.
+
 
 import { useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
