@@ -17,8 +17,7 @@ secret).
     # Used to sign session cookies and tokens — must be set to a strong
     # random
     # value in production. See backend/.env.example.
-    SECRET_KEY = os.getenv('SECRET_KEY',
-'dev-secret-key-change-in-production')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
@@ -33,8 +32,7 @@ secret).
     SUPABASE_JWT_SECRET = os.getenv('SUPABASE_JWT_SECRET')
 
     # SQLAlchemy — used by the scheduling module.
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
-'sqlite:///clinic.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///clinic.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
