@@ -1298,3 +1298,191 @@ Testing is complete when:
 ===== References
 
 *Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+==== Forgot Password Test Strategy
+:author: Luis Marrero Morales
+
+===== Overview
+
+The purpose of this test strategy is to define how the Forgot Password and Reset Password features will be tested to ensure reliability, security, accessibility, and proper error handling before release.
+
+This strategy focuses on the complete password reset request flow, including requesting a reset email, validating reset tokens, and setting a new password.
+
+===== Scope of Testing
+
+====== In Scope
+
+* Submitting a password reset request using an email address
+* Handling the password reset email link
+* Reset Password screen (new password and confirmation)
+* Input validation for email and password fields
+* Success, loading, and error states
+* Redirect to Login page after successfully resetting the password
+* Security checks related to reset tokens and privacy
+* Accessibility and use checks
+
+====== Out of Scope
+
+* Full authentication system testing (login/logout)
+* Email provider infrastructure reliability
+* Full penetration testing
+* Performance or load testing
+* UI styling beyond basic use checks
+
+===== Test Levels
+
+====== Unit Testing
+
+Focus on isolated logic and components:
+
+* Email format validation
+* Password strength validation
+* Password confirmation matching
+* Error handling utilities
+* Form validation helpers
+
+====== Integration Testing
+
+Focus on communication between UI and authentication service:
+
+* Password reset email request integration
+* Reset token validation
+* Password update API integration
+* Error handling between backend and UI
+
+====== End-to-End Testing
+
+Focus on the complete user workflow:
+
+* Request password reset email
+* Open the reset link and set a new password
+* Redirect to login after successful reset
+* Handle invalid or expired tokens
+
+===== Test Types
+
+====== Functional Testing
+
+Forgot Password scenarios:
+
+* Submit a valid email address
+* Submit an invalid email format
+* Submit an empty email field
+* Submit a non-existing email (generic response)
+
+Reset Password scenarios:
+
+* Successful password reset
+* Password mismatch validation
+* Weak password rejection
+* Expired token handling
+* Invalid or reused token handling
+
+====== Security Testing
+
+* Prevent user enumeration (generic responses)
+* Verify token expiration and ensure it is one-time use
+* Enforce secure password requirements
+* Confirm HTTPS reset links
+* Verify rate-limiting behavior
+
+====== Accessibility Testing
+
+* Screen reader compatibility
+* Keyboard navigation
+* Focus management after submission
+* Accessible error messages
+* Adequate color contrast
+
+====== Usability Testing
+
+* Clear confirmation and error messaging
+* Smooth redirect to login
+* Mobile responsiveness
+* Simple and intuitive user flow
+
+====== Regression Testing
+
+Ensure password reset changes do not break:
+
+* Login functionality
+* Sign-up functionality
+* Session handling
+
+===== Test Environment
+
+Testing will occur in a development or staging environment that resembles production.
+
+====== Environment Setup
+
+* Environment Type: Development or Staging
+* Database: Test project environment
+* Access: Test email accounts
+
+====== Supported Browsers
+
+* Chrome (latest)
+* Firefox (latest)
+* Safari (latest)
+* Edge (latest)
+
+====== Supported Devices
+
+* Desktop (Windows / macOS)
+* Mobile (iOS Safari / Android Chrome)
+
+===== Test Automation Approach
+
+====== Automation Priorities
+
+* Unit tests for validation and helper logic
+* Integration tests for authentication interactions (mocked)
+* End-to-end smoke tests for full reset flow
+
+====== Automated Scenarios
+
+* Request reset email (happy path)
+* Reset password using valid token
+* Invalid token flow
+* Password mismatch error
+* Redirect after successful reset
+
+====== Continuous Integration
+
+* Tests run on every pull request
+* Failing tests block merges
+* End-to-End tests run on staging deployments
+
+====== Manual Testing
+
+* Exploratory testing
+* Cross-browser validation
+* Accessibility verification
+
+===== Risks and Mitigation
+
+|===
+|Risk |Mitigation
+
+|User enumeration vulnerability
+|Security tests ensure generic responses
+
+|Expired or reused reset tokens
+|Add End-to-End tests for token edge cases
+
+|Email delivery delays in staging
+|Use test inbox and mocked email retrieval
+
+|Unreliable End-to-End tests due to email flow
+|Mock email retrieval where possible
+
+|Accessibility regressions
+|Run automated accessibility scans in CI
+
+|Cross-browser inconsistencies
+|Run tests across multiple browsers
+|===
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
