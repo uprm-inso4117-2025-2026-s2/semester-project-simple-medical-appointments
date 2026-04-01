@@ -4,6 +4,23 @@
   Sidebar reuses adminDashboard.css (adb-*) — only content styles here.
 */
 
+/* ── LAYOUT OVERRIDES (scoped to .as-layout) ────────────────────────────── */
+
+/* Sticky sidebar — stays in view while content scrolls */
+.as-layout .adb-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  align-self: flex-start;
+}
+
+/* Greyish-blue content background for contrast against white cards */
+.as-layout .adb-main {
+  background: #eef2f7;
+  min-height: 100vh;
+}
+
 /* ── SIDEBAR GROUP LABELS ───────────────────────────────────────────────── */
 
 .as-nav-group-label {
