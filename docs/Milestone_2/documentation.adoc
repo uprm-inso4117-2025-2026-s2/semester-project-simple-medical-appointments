@@ -30,13 +30,15 @@ Prof. Marko Schütz-Schmuck
 | `[.removed]#This text is no longer relevant.#`
 |===
 
-include::sections/section1/section.adoc[]
+include::sections/section-1/section.adoc[]
 
-include::sections/section2/section.adoc[]
+include::sections/section-2/section.adoc[]
 
-include::sections/section3/section.adoc[]
+include::sections/section-3/section.adoc[]
 
-// include::sections/section4-LTT/section.adoc[]
+include::sections/section-4/section.adoc[]
+
+// include::sections/section-LTT/section.adoc[]
 
 include::sections/AI_Disclosure_Statement.adoc[]
 
