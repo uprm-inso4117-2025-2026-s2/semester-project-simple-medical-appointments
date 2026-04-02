@@ -8,6 +8,7 @@ import Home from './pages/Home'
 import ClosuresAdmin from './pages/ClosuresAdmin'
 import AppointmentHistory from './pages/AppointmentHistory'
 import AppointmentSchedule from "./pages/AppointmentScheduling";
+import AppointmentSuccess from "./pages/AppointmentSuccess";
 import Register from './pages/Register'
 import Login from './pages/Login'
 
@@ -21,6 +22,8 @@ function App() {
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/appointment-schedule" element={<AppointmentSchedule />} />
+      <Route path="/appointment-success" element={<AppointmentSuccess />} />
+
       {/* Add new routes below as the app grows */}
     </Routes>
   )

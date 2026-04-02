@@ -118,6 +118,19 @@
   width: 100%;
 }
 
+.selected-date-label {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+  text-align: center;
+}
+
+.date-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .rdp {
   margin: 0 auto;
