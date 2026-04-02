@@ -3,7 +3,10 @@ import sqlite3
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load variables from backend/.env using an explicit path so it works
+# regardless of which directory Flask is launched from.
+_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(_BACKEND_DIR, ".env"))
 
 
 class Config:

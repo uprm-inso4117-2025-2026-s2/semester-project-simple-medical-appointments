@@ -7,7 +7,16 @@ from flask import Blueprint, current_app, jsonify, request
 
 profile_bp = Blueprint('profile', __name__)
 
-ALLOWED_UPDATE_FIELDS = {'name', 'avatar', 'specialty'}
+ALLOWED_UPDATE_FIELDS = {
+    'name', 'avatar',
+    'phone_number',
+    'specialty', 'bio',
+    'insurance_provider', 'insurance_member_id',
+    'emergency_contact_name', 'emergency_contact_phone',
+    'notify_appointment_reminders', 'notify_appointment_updates', 'notify_messages',
+}
+
+BOOLEAN_SETTINGS_FIELDS = {'notify_appointment_reminders', 'notify_appointment_updates', 'notify_messages'}
 
 
 def _get_supabase_credentials() -> tuple[str | None, str | None]:
@@ -147,22 +156,60 @@ def _is_valid_http_url(value: str) -> bool:
     return parsed.scheme in {'http', 'https'} and bool(parsed.netloc)
 
 
-def _normalize_profile_response(profile_row: dict, specialty: str | None) -> dict:
+def _normalize_profile_response(
+    profile_row: dict,
+    provider_row: dict | None,
+    provider_settings_row: dict | None,
+    patient_row: dict | None,
+    settings_row: dict | None,
+) -> dict:
     return {
-        'user_id': profile_row.get('user_id'),
-        'name': profile_row.get('display_name'),
-        'avatar': profile_row.get('avatar_url'),
-        'specialty': specialty,
+        # Core identity
+        'user_id':      profile_row.get('user_id'),
+        'name':         profile_row.get('display_name'),
+        'avatar':       profile_row.get('avatar_url'),
+        # Personal information
+        'first_name':   profile_row.get('first_name'),
+        'last_name':    profile_row.get('last_name'),
+        'display_name': profile_row.get('display_name'),
+        'username':     profile_row.get('username'),
+        'phone_number': profile_row.get('phone_number'),
+        'date_of_birth': profile_row.get('date_of_birth'),
+        'gender':       profile_row.get('gender'),
+        'member_since': profile_row.get('created_at'),
+        # Provider-specific (None for non-providers)
+        'specialty':         provider_row.get('specialty')         if provider_row else None,
+        'profession_title':  provider_row.get('profession_title')  if provider_row else None,
+        'license_number':    provider_row.get('license_number')    if provider_row else None,
+        'license_state':     provider_row.get('license_state')     if provider_row else None,
+        'bio':               provider_row.get('bio')               if provider_row else None,
+        # Provider settings (None for non-providers)
+        'auto_accept_appointments':      provider_settings_row.get('auto_accept_appointments')      if provider_settings_row else None,
+        'appointment_buffer_minutes':    provider_settings_row.get('appointment_buffer_minutes')    if provider_settings_row else None,
+        'default_appointment_duration':  provider_settings_row.get('default_appointment_duration')  if provider_settings_row else None,
+        # Patient-specific (None for non-patients)
+        'insurance_provider':      patient_row.get('insurance_provider')      if patient_row else None,
+        'insurance_member_id':     patient_row.get('insurance_member_id')     if patient_row else None,
+        'emergency_contact_name':  patient_row.get('emergency_contact_name')  if patient_row else None,
+        'emergency_contact_phone': patient_row.get('emergency_contact_phone') if patient_row else None,
+        # Settings (None if no settings row exists)
+        'preferred_contact_method':     settings_row.get('preferred_contact_method')     if settings_row else None,
+        'preferred_language':           settings_row.get('preferred_language')           if settings_row else None,
+        'notify_appointment_reminders': settings_row.get('notify_appointment_reminders') if settings_row else None,
+        'notify_appointment_updates':   settings_row.get('notify_appointment_updates')   if settings_row else None,
+        'notify_messages':              settings_row.get('notify_messages')              if settings_row else None,
+        'accessibility_mode':           settings_row.get('accessibility_mode')           if settings_row else None,
     }
 
 
 def _fetch_profile_payload(user_id: str) -> tuple[dict | None, tuple | None]:
+    # ── profiles ──────────────────────────────────────────────────────────────
     profile_status, profile_response, transport_error = _supabase_request(
         'GET',
         '/rest/v1/profiles',
         query={
             'user_id': f'eq.{user_id}',
-            'select': 'user_id,display_name,avatar_url',
+            'select': 'user_id,first_name,last_name,display_name,username,avatar_url,phone_number,date_of_birth,gender,created_at',
         },
     )
     if transport_error:
@@ -176,20 +223,63 @@ def _fetch_profile_payload(user_id: str) -> tuple[dict | None, tuple | None]:
 
     profile_row = profile_response[0]
 
-    specialty = None
+    # ── providers (only present for doctor accounts) ──────────────────────────
+    provider_row = None
     provider_status, provider_response, _ = _supabase_request(
         'GET',
         '/rest/v1/providers',
         query={
             'user_id': f'eq.{user_id}',
-            'select': 'specialty',
+            'select': 'profession_title,specialty,license_number,license_state,bio',
             'limit': '1',
         },
     )
     if provider_status == 200 and isinstance(provider_response, list) and provider_response:
-        specialty = provider_response[0].get('specialty')
+        provider_row = provider_response[0]
 
-    return _normalize_profile_response(profile_row, specialty), None
+    # ── provider_settings (only present for doctor accounts) ──────────────────
+    provider_settings_row = None
+    ps_status, ps_response, _ = _supabase_request(
+        'GET',
+        '/rest/v1/provider_settings',
+        query={
+            'user_id': f'eq.{user_id}',
+            'select': 'auto_accept_appointments,appointment_buffer_minutes,default_appointment_duration',
+            'limit': '1',
+        },
+    )
+    if ps_status == 200 and isinstance(ps_response, list) and ps_response:
+        provider_settings_row = ps_response[0]
+
+    # ── patients (insurance + emergency contact — only present for patient accounts) ──
+    patient_row = None
+    patient_status, patient_response, _ = _supabase_request(
+        'GET',
+        '/rest/v1/patients',
+        query={
+            'user_id': f'eq.{user_id}',
+            'select': 'insurance_provider,insurance_member_id,emergency_contact_name,emergency_contact_phone',
+            'limit': '1',
+        },
+    )
+    if patient_status == 200 and isinstance(patient_response, list) and patient_response:
+        patient_row = patient_response[0]
+
+    # ── profile_settings (notifications + preferences) ────────────────────────
+    settings_row = None
+    settings_status, settings_response, _ = _supabase_request(
+        'GET',
+        '/rest/v1/profile_settings',
+        query={
+            'user_id': f'eq.{user_id}',
+            'select': 'preferred_contact_method,preferred_language,notify_appointment_reminders,notify_appointment_updates,notify_messages,accessibility_mode',
+            'limit': '1',
+        },
+    )
+    if settings_status == 200 and isinstance(settings_response, list) and settings_response:
+        settings_row = settings_response[0]
+
+    return _normalize_profile_response(profile_row, provider_row, provider_settings_row, patient_row, settings_row), None
 
 
 @profile_bp.route('/<user_id>', methods=['GET'])
@@ -235,6 +325,8 @@ def update_profile(user_id: str):
 
     profile_updates = {}
     provider_updates = {}
+    patient_updates = {}
+    settings_updates = {}
 
     if 'name' in data:
         name = data.get('name')
@@ -269,7 +361,57 @@ def update_profile(user_id: str):
                 return jsonify({'error': 'Field "specialty" must be at most 100 characters.'}), 400
             provider_updates['specialty'] = specialty
 
-    if not profile_updates and not provider_updates:
+    if 'phone_number' in data:
+        phone = data.get('phone_number')
+        if phone is None:
+            profile_updates['phone_number'] = None
+        else:
+            if not isinstance(phone, str):
+                return jsonify({'error': 'Field "phone_number" must be a string or null.'}), 400
+            phone = phone.strip()
+            if len(phone) > 30:
+                return jsonify({'error': 'Field "phone_number" must be at most 30 characters.'}), 400
+            profile_updates['phone_number'] = phone or None
+
+    if 'bio' in data:
+        bio = data.get('bio')
+        if bio is None:
+            provider_updates['bio'] = None
+        else:
+            if not isinstance(bio, str):
+                return jsonify({'error': 'Field "bio" must be a string or null.'}), 400
+            bio = bio.strip()
+            if len(bio) > 1000:
+                return jsonify({'error': 'Field "bio" must be at most 1000 characters.'}), 400
+            provider_updates['bio'] = bio or None
+
+    PATIENT_TEXT_FIELDS = {
+        'insurance_provider':      ('insurance_provider',      150),
+        'insurance_member_id':     ('insurance_member_id',     50),
+        'emergency_contact_name':  ('emergency_contact_name',  100),
+        'emergency_contact_phone': ('emergency_contact_phone', 30),
+    }
+    for api_key, (col_name, max_len) in PATIENT_TEXT_FIELDS.items():
+        if api_key in data:
+            value = data.get(api_key)
+            if value is None:
+                patient_updates[col_name] = None
+            else:
+                if not isinstance(value, str):
+                    return jsonify({'error': f'Field "{api_key}" must be a string or null.'}), 400
+                value = value.strip()
+                if len(value) > max_len:
+                    return jsonify({'error': f'Field "{api_key}" must be at most {max_len} characters.'}), 400
+                patient_updates[col_name] = value or None
+
+    for field in BOOLEAN_SETTINGS_FIELDS:
+        if field in data:
+            value = data.get(field)
+            if not isinstance(value, bool):
+                return jsonify({'error': f'Field "{field}" must be a boolean.'}), 400
+            settings_updates[field] = value
+
+    if not profile_updates and not provider_updates and not patient_updates and not settings_updates:
         return jsonify({'error': 'No valid fields provided for update.'}), 400
 
     if profile_updates:
@@ -314,8 +456,35 @@ def update_profile(user_id: str):
         if provider_update_status not in (200, 204):
             return jsonify({'error': 'Failed to update profile.'}), 500
 
+    if patient_updates:
+        patient_update_status, _, transport_error = _supabase_request(
+            'PATCH',
+            '/rest/v1/patients',
+            query={'user_id': f'eq.{user_id}'},
+            json_body=patient_updates,
+            prefer='return=minimal',
+        )
+        if transport_error:
+            return jsonify({'error': 'Failed to update patient info.', 'detail': transport_error}), 500
+        if patient_update_status not in (200, 204):
+            return jsonify({'error': 'Failed to update patient info.'}), 500
+
+    if settings_updates:
+        settings_update_status, _, transport_error = _supabase_request(
+            'PATCH',
+            '/rest/v1/profile_settings',
+            query={'user_id': f'eq.{user_id}'},
+            json_body=settings_updates,
+            prefer='return=minimal',
+        )
+        if transport_error:
+            return jsonify({'error': 'Failed to update settings.', 'detail': transport_error}), 500
+        if settings_update_status not in (200, 204):
+            return jsonify({'error': 'Failed to update settings.'}), 500
+
     payload, fetch_error = _fetch_profile_payload(user_id)
     if fetch_error:
-        return fetch_error
+        # Updates succeeded but profile row couldn't be re-fetched
+        return jsonify({'message': 'Profile updated successfully.'}), 200
 
     return jsonify(payload), 200
