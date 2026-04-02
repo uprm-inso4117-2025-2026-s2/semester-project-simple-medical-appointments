@@ -1,0 +1,437 @@
+/*
+  accountSettings.css — Account Settings page
+  Layout follows Figma node 57:10 (all sections stacked, not tabbed)
+  Sidebar reuses adminDashboard.css (adb-*) — only content styles here.
+*/
+
+/* ── LAYOUT OVERRIDES (scoped to .as-layout) ────────────────────────────── */
+
+/* Sticky sidebar — stays in view while content scrolls */
+.as-layout .adb-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  align-self: flex-start;
+}
+
+/* Greyish-blue content background for contrast against white cards */
+.as-layout .adb-main {
+  background: #eef2f7;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR GROUP LABELS ───────────────────────────────────────────────── */
+
+.as-nav-group-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 16px 28px 4px;
+}
+
+/* ── TOP ACTION ROW (Back + Logout) ─────────────────────────────────────── */
+
+.as-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2.5rem;
+}
+
+/* override adb-back-btn's own bottom margin since .as-top-actions handles spacing */
+.as-top-actions .adb-back-btn {
+  margin-bottom: 0;
+}
+
+.as-logout-btn {
+  height: 32px;
+  padding: 0 16px;
+  border: 1.25px solid #dc2626;
+  border-radius: 70px;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.as-logout-btn:hover { background: rgba(220, 38, 38, 0.07); }
+
+/* ── SECTION CARDS ──────────────────────────────────────────────────────── */
+
+.as-card {
+  background: #fff;
+  border: 1.25px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.as-card-danger {
+  border-color: #fecaca;
+  background: #fff;
+}
+
+.as-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 6px;
+}
+
+.as-card-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+.as-card-sub strong {
+  font-weight: 500;
+  color: #334155;
+}
+
+/* ── FIELDS ─────────────────────────────────────────────────────────────── */
+
+.as-field {
+  margin-bottom: 16px;
+}
+
+.as-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.as-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: 1.25px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #0c0f28;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.as-input::placeholder { color: #94a3b8; }
+.as-input:focus        { border-color: #248daa; }
+.as-input.error        { border-color: #dc2626; }
+
+/* ── PASSWORD REVEAL WRAPPER ────────────────────────────────────────────── */
+
+.as-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.as-input-wrap .as-input {
+  padding-right: 40px; /* room for the eye button */
+}
+
+.as-eye-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.as-eye-btn:hover { color: #475569; }
+.as-eye-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+/* ── PASSWORD HINT ──────────────────────────────────────────────────────── */
+
+.as-pw-hint {
+  font-size: 11.5px;
+  color: #94a3b8;
+  margin: 3px 0 8px;
+  line-height: 1.5;
+}
+
+/* ── PASSWORD STRENGTH ──────────────────────────────────────────────────── */
+
+.as-strength-bar {
+  display: flex;
+  gap: 5px;
+  margin-top: 10px;
+}
+.as-strength-seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  transition: background 0.25s ease;
+}
+.as-strength-seg.filled-weak   { background: #ef4444; }
+.as-strength-seg.filled-fair   { background: #f59e0b; }
+.as-strength-seg.filled-good   { background: #248daa; }
+.as-strength-seg.filled-strong { background: #20963c; }
+
+.as-strength-text {
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 5px;
+  transition: color 0.25s ease;
+}
+
+/* ── CARD FOOTER ────────────────────────────────────────────────────────── */
+
+.as-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1.25px solid #e2e8f0;
+  margin-top: 8px;
+}
+
+.as-btn-cancel {
+  height: 34px;
+  padding: 0 20px;
+  border: 1.25px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.as-btn-cancel:hover { background: #f8fafc; }
+
+.as-btn-primary {
+  height: 34px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 8px;
+  background: #113c51;
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.as-btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.as-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── NOTIFICATION TOGGLES ───────────────────────────────────────────────── */
+
+.as-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.as-toggle-row:last-of-type { border-bottom: none; }
+
+.as-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+
+.as-toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+}
+.as-toggle-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #334155;
+}
+
+/* Toggle switch */
+.as-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.as-toggle input { opacity: 0; width: 0; height: 0; }
+.as-toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  background: #e2e8f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.as-toggle input:checked + .as-toggle-track { background: #113c51; }
+.as-toggle-track::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.as-toggle input:checked + .as-toggle-track::after { transform: translateX(18px); }
+
+/* ── DANGER ZONE ────────────────────────────────────────────────────────── */
+
+.as-danger-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.as-danger-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #b91c1c;
+  margin: 0;
+}
+
+.as-danger-sub {
+  font-size: 13px;
+  font-weight: 400;
+  color: #64748b;
+  margin: 0 0 16px;
+}
+
+.as-danger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #fecaca;
+}
+.as-danger-row:last-of-type { border-bottom: none; }
+
+.as-danger-info { display: flex; flex-direction: column; gap: 3px; }
+
+.as-danger-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0c0f28;
+}
+.as-danger-item-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: #334155;
+  max-width: 400px;
+}
+
+.as-btn-danger-outline {
+  height: 34px;
+  padding: 0 18px;
+  border: 1.25px solid #dc2626;
+  border-radius: 8px;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc2626;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.as-btn-danger-outline:hover { background: rgba(220,38,38,0.06); }
+
+.as-btn-danger-fill {
+  height: 34px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #dc2626;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.as-btn-danger-fill:hover { opacity: 0.88; }
+
+/* ── FEEDBACK ────────────────────────────────────────────────────────────── */
+
+.as-feedback {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.as-feedback.success { background: rgba(32,150,60,0.08); color: #166534; border: 1px solid rgba(32,150,60,0.25); }
+.as-feedback.error   { background: rgba(220,38,38,0.06); color: #dc2626; border: 1px solid rgba(220,38,38,0.25); }
+
+/* ── MODAL ───────────────────────────────────────────────────────────────── */
+
+.as-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+.as-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.22);
+}
+.as-modal-header {
+  background: #dc2626;
+  padding: 16px 22px;
+  color: #fff;
+}
+.as-modal-header h2 { margin: 0; font-size: 1rem; font-weight: 700; }
+.as-modal-header p  { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.85; }
+.as-modal-body {
+  padding: 18px 22px;
+  font-size: 0.9rem;
+  color: #374151;
+  line-height: 1.5;
+}
+.as-modal-body p { margin: 0; }
+.as-modal-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 22px 18px;
+}
+.as-modal-cancel {
+  flex: 1;
+  height: 44px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.as-modal-cancel:hover { background: #e5e7eb; }

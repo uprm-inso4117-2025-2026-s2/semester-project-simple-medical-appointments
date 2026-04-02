@@ -1,0 +1,180 @@
+
+
+/* ── PAGE ────────────────────────────────────────────────────────────── */
+
+.role-selection-page {
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── CARD ────────────────────────────────────────────────────────────── */
+
+.role-selection-card {
+  width: min(86.1vw, 1240px);
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 1.75rem 3.5rem 2rem;
+}
+
+/* ── STEP DOTS ───────────────────────────────────────────────────────── */
+
+.role-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+}
+
+.role-step-dot {
+  height: 8px;
+  border-radius: 10px;
+  background: #113c51;
+  width: 10px;
+}
+
+.role-step-dot.active {
+  width: 31px;
+  background: #248daa;
+}
+
+/* ── HEADING & SUBTITLE ─────────────────────────────────────────────── */
+
+.role-selection-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.role-selection-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  margin-top: 6px;
+  margin-bottom: 1.25rem;
+  line-height: 1.26;
+}
+
+/* ── ROLE CARDS GRID ─────────────────────────────────────────────────── */
+
+.role-cards-grid {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 1.25rem;
+}
+
+/* Individual card */
+
+.role-card {
+  flex: 1;
+  border: 2px solid rgba(168, 155, 155, 0.5);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  background: #fff;
+  text-align: center;
+  outline: none;
+}
+
+.role-card:hover {
+  border-color: rgba(36, 141, 170, 0.6);
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.1);
+}
+
+.role-card.selected {
+  border-color: #248daa;
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.18);
+}
+
+/* Icon */
+
+.role-card-icon {
+  width: 40px;
+  height: auto;
+  margin-bottom: 0.75rem;
+}
+
+/* Role name — PJS SemiBold 24px */
+
+.role-card h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 1.67vw, 1.5rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.4rem;
+  line-height: 1.5;
+}
+
+/* Description — Inter Light 16px #555 */
+
+.role-card p {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.11vw, 1rem);
+  font-weight: 300;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── CONTINUE BUTTON ─────────────────────────────────────────────────── */
+/* Reuses .auth-btn from auth.css — no override needed                   */
+
+/* ── ERROR MESSAGE ───────────────────────────────────────────────────── */
+/* Reuses .auth-error from auth.css                                      */
+
+/* ── RESPONSIVE (< 900px) ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .role-selection-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .role-selection-card {
+    width: 100%;
+    border-radius: 30px;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .role-cards-grid {
+    flex-direction: column;
+  }
+
+  .role-card {
+    flex-direction: row;
+    text-align: left;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .role-card-icon {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  .role-card h3 {
+    margin-bottom: 0.25rem;
+  }
+}

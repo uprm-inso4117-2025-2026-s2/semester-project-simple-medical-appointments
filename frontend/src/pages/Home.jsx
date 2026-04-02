@@ -1,39 +1,15 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabaseClient'
-import medicalIcon from '../assets/medicalPng.png'
-import '../styles/home.css'
-
-const IconCalendar = () => (
-  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-)
-const IconClipboard = () => (
-  <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-)
-const IconPlus = () => (
-  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-)
+// Home.jsx — the landing page rendered at the "/" route.
+// Replace the contents of this component with actual UI as development progresses.
+import { Link } from 'react-router-dom'
+import ServiceCatalog from './ServiceCatalog'
 
 function Home() {
-  const navigate = useNavigate()
-  const [userEmail, setUserEmail] = useState('')
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data?.user) {
-        navigate('/login')
-      } else {
-        setUserEmail(data.user.email)
-      }
-    })
-  }, [navigate])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
-
   return (
+<<<<<<< HEAD
+    <div>
+      <h1>Medical Appointments</h1>
+      <p>Welcome to the medical appointments system.</p>
+=======
     <div className="home-page">
       <nav className="home-nav">
         <div className="home-nav-brand">
@@ -42,39 +18,19 @@ function Home() {
         </div>
         <div className="home-nav-user">
           <span className="home-nav-email">{userEmail}</span>
+          <button className="home-nav-settings" onClick={() => navigate('/settings')}>Settings</button>
           <button className="home-nav-logout" onClick={handleLogout}>Log out</button>
         </div>
       </nav>
+>>>>>>> origin/base-code
 
-      <main className="home-main">
-        <div className="home-welcome">
-          <h1>Welcome back!</h1>
-          <p>What would you like to do today?</p>
-        </div>
+      <ServiceCatalog />
 
-        <div className="home-cards">
-          <Link to="/appointmenthistory" className="home-card">
-            <div className="home-card-icon"><IconCalendar /></div>
-            <p className="home-card-title">My Appointments</p>
-            <p className="home-card-desc">View your full appointment history and upcoming visits.</p>
-            <span className="home-card-arrow">View all →</span>
-          </Link>
-
-          <div className="home-card disabled">
-            <div className="home-card-icon"><IconPlus /></div>
-            <p className="home-card-title">Book Appointment</p>
-            <p className="home-card-desc">Schedule a new appointment with a doctor or clinic.</p>
-            <span className="home-card-badge">Coming soon</span>
-          </div>
-
-          <div className="home-card disabled">
-            <div className="home-card-icon"><IconClipboard /></div>
-            <p className="home-card-title">Patient Form</p>
-            <p className="home-card-desc">Submit your symptoms, allergies, and current medications.</p>
-            <span className="home-card-badge">Coming soon</span>
-          </div>
-        </div>
-      </main>
+      <p>
+        <Link to="/appointmenthistory">
+          View appointment history
+        </Link>
+      </p>
     </div>
   )
 }
