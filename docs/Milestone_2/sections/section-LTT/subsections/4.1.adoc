@@ -131,6 +131,8 @@ The system will only be approved for deployment if:
 . No unresolved defects exist in core booking functionality.
 . No open security vulnerabilities affecting patient data.
 
+---
+
 ==== Static vs Dynamic Analysis
 :author: Marymar Maldonado Roche
 
