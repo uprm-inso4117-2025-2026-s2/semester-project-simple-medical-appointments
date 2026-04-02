@@ -10,6 +10,8 @@ def create_app():
     to create multiple app instances for testing.
     """
     app = Flask(__name__)
+    from flask_cors import CORS
+    CORS(app)
 
     # Load configuration from the Config class (reads from .env via config.py)
     app.config.from_object(Config)
