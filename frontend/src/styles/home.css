@@ -60,6 +60,20 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+.home-nav-settings {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 70px;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 0.97vw, 0.875rem);
+  font-weight: 400;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.home-nav-settings:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
 .home-nav-logout {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -194,6 +208,28 @@
   border-radius: 20px;
   padding: 0.15rem 0.6rem;
   margin-top: auto;
+}
+
+/* ── DASHBOARD BUTTON ─────────────────────────────────────────────────── */
+
+.home-dashboard-btn {
+  margin-top: clamp(1.5rem, 2.5vw, 2.25rem);
+  width: 100%;
+  max-width: min(86.81vw, 1100px);
+  height: clamp(48px, 4.17vw, 60px);
+  background: #38babd;
+  color: #fff;
+  border: none;
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.11vw, 1rem);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.home-dashboard-btn:hover {
+  background: #2d8784;
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────────────────── */
