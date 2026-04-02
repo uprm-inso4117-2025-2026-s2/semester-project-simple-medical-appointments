@@ -1486,3 +1486,117 @@ Testing will occur in a development or staging environment that resembles produc
 ===== References
 
 * Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+= Test plan for Doctor Availability rules 
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The objective of this test plan is to verify that availability rules are correctly created, validated, and stored in the system. The focus is on preventing invalid configurations such as overlapping time slots or incorrect time ranges, since these issues can lead to scheduling conflicts and inconsistent system behavior.
+
+This plan follows a risk-based approach, prioritizing scenarios based on their likelihood and impact.
+
+== Scope
+
+The scope includes the creation and validation of availability rules such as working days, working hours, blocked times, and closed days. It also includes validation logic, API interactions, and database storage.
+
+The plan additionally incorporates multiple testing approaches such as behavior-driven testing, property-based testing, mutation testing, performance testing, and usability testing to improve coverage and reliability.
+
+== Risk-Based Approach
+
+Testing is prioritized based on risk, defined as the probability of a defect multiplied by its impact. High-risk scenarios include overlapping intervals, invalid time ranges, and incorrect storage, since these directly affect scheduling correctness.
+
+== Test Strategy
+
+Testing will be conducted at the system and integration levels, focusing on functional correctness and validation logic.
+
+The strategy combines multiple testing techniques. Functional testing ensures correct behavior according to requirements. Behavior-driven development is used to define clear acceptance criteria from user stories, ensuring shared understanding between stakeholders.
+
+* Property-based testing is used to validate general rules of the system across a wide range of automatically generated inputs, instead of relying only on fixed test cases. 
+
+* Mutation testing is applied to evaluate the strength of the test suite by introducing small changes in the code and verifying that tests detect them. :contentReference
+
+* Performance testing is used to ensure the system behaves correctly under expected load conditions. 
+
+* Usability testing is considered to ensure that users can correctly define availability rules without confusion or errors. 
+
+== Behavior-Driven Test Scenarios
+
+Feature: Availability Rules
+
+* Scenario: Create valid availability
+
+Given a user defines working days and working hours  
+When valid blocked times are added within working hours  
+Then the system stores the availability rules correctly  
+
+* Scenario: Prevent overlapping times
+
+Given existing blocked time from 12:00 to 13:00  
+When a new blocked time overlaps with it  
+Then the system rejects the new interval  
+
+* Scenario: Invalid time range
+
+Given a user enters an end time earlier than the start time  
+When the rule is submitted  
+Then the system returns a validation error  
+
+These scenarios follow the Given-When-Then structure used in behavior-driven development to define executable specifications. 
+
+== Functional Test Cases
+
+The system must allow valid availability configurations and reject invalid ones. This includes detecting overlapping intervals, invalid time ranges, and inconsistencies between closed days and working hours.
+
+API endpoints must correctly create and retrieve availability rules, and the database must store data accurately.
+
+== Property-Based Testing
+
+Instead of testing only fixed inputs, properties of the system are defined and tested with multiple generated values.
+
+Examples of properties include:
+
+* All blocked times must be within working hours  
+* No two time intervals should overlap  
+* All stored time ranges must satisfy start time < end time  
+
+These properties are verified using randomly generated inputs to increase coverage and detect unexpected edge cases. 
+
+== Mutation Testing
+
+Mutation testing is used to evaluate the effectiveness of the test suite. Small changes are introduced into the availability validation logic, such as modifying comparison operators or removing validation checks.
+
+If the tests fail after these changes, the test suite is considered strong. If the tests still pass, this indicates missing or weak test cases.
+
+== Performance Testing
+
+Performance testing ensures that the system can handle realistic usage conditions. This includes testing API response times when multiple users create or retrieve availability rules simultaneously.
+
+Load testing simulates expected usage, while stress testing evaluates behavior under higher-than-normal conditions. 
+
+== Usability Testing
+
+Usability testing evaluates how easily users can define availability rules. Users are asked to perform tasks such as creating schedules and blocked times, while their interactions are observed.
+
+The goal is to detect confusion, hesitation, or incorrect inputs, ensuring that the system is intuitive and reduces user errors.
+
+== Test Execution and Defect Management
+
+Each test case includes inputs, steps, and expected results, ensuring consistency and repeatability during execution. 
+Defects are recorded with clear descriptions, reproduction steps, and expected versus actual results. This supports efficient debugging and communication within the team.
+
+== Success Criteria
+
+The test plan is successful when all high-risk scenarios pass, invalid configurations are consistently rejected, API and database interactions behave correctly, and the system maintains consistent scheduling rules.
+
+The test suite must also demonstrate effectiveness through mutation testing and provide broad coverage through property-based testing.
+
+== References
+
+* Vélez, B. (2019). Test Planning, INSO 4117.
+* Schütz-Schmuck, M. (2023). Property-Based Testing. 
+* Schütz-Schmuck, M. (2023). Behavior Driven Development. 
+* Vélez, B. (2019). Test Case Execution and Defect Management. 
+* Schütz-Schmuck, M. (2022). Mutation Testing. 
+* Schütz-Schmuck, M. (2022). Performance Testing. 
+* Schütz-Schmuck, M. (2022). Usability Testing. 
