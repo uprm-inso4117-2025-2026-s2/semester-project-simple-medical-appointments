@@ -5,9 +5,24 @@ import ServiceCatalog from './ServiceCatalog'
 
 function Home() {
   return (
+<<<<<<< HEAD
     <div>
       <h1>Medical Appointments</h1>
       <p>Welcome to the medical appointments system.</p>
+=======
+    <div className="home-page">
+      <nav className="home-nav">
+        <div className="home-nav-brand">
+          <img src={medicalIcon} alt="Simple Medical Appointments" />
+          <span>Simple Medical Appointments</span>
+        </div>
+        <div className="home-nav-user">
+          <span className="home-nav-email">{userEmail}</span>
+          <button className="home-nav-settings" onClick={() => navigate('/settings')}>Settings</button>
+          <button className="home-nav-logout" onClick={handleLogout}>Log out</button>
+        </div>
+      </nav>
+>>>>>>> origin/base-code
 
       <ServiceCatalog />
 
