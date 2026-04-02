@@ -12,6 +12,8 @@ load_dotenv(os.path.join(_BACKEND_DIR, ".env"))
 class Config:
     """Base configuration. Values are read from environment variables."""
 
+    # Used to sign session cookies and tokens — must be set to a strong
+    # random value in production. See backend/.env.example.
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
     DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
