@@ -1,1 +1,118 @@
 ==== *Mutation Testing*
+
+Mutation testing is a technique used to evaluate the effectiveness of a test suite by introducing small changes, or “mutations,” into the source code. This approach helps assess how well the tests can identify potential faults in the code.
+
+Mutation testing was carried out using Stryker together with Vitest, which is the testing framework used in this project. Vitest is responsible for running the tests each time a mutation is introduced and verifying whether the expected behavior is still maintained. The testing focused on the `AppointmentHistory.test.jsx` file, which contains the tests for the `AppointmentHistory.jsx` component. This component handles the display of a patient’s appointment history, including loading states, error messages, and the separation of upcoming and past appointments. Because this functionality involves both logic and user interface behavior, it is an important part of the application to evaluate.
+
+During mutation testing, Stryker introduced changes and repeatedly executed the Vitest test suite. On average, about 4.37 tests were executed per mutation. The results showed that 29 mutations were detected (killed) by the tests, while 33 survived, resulting in a mutation score of 46.77%. This indicates that the current tests are able to detect a significant portion of faults, but there are still several cases where incorrect behavior wouldn't be identified, suggesting room for improvement in the test suite.
+
+==== Survived Mutations
+
+The following are some examples where the tests were unable to detect mutations:
+
+===== *Case 1: ArrowFunction (Survived)*
+
+- *Original code*
+
+vi.mock('../services/api', () => ({
+getAppointmentHistory: vi.fn(),
+}))
+
+- *Mutated version*
+
+vi.mock('../services/api', () => undefined)
+
+This mutation replaced the API mock with `undefined`, effectively removing the mocked function. Despite this change, the tests still passed, meaning they didn't detect that the API was no longer available. This indicates that the tests don't fully verify the component’s dependency on the API, allowing incorrect behavior to go unnoticed.
+
+===== Case 2: BlockStatement (Survived):
+
+- *Original code*
+
+it('shows an error message when the appointment history request fails', async () => {
+getAppointmentHistory.mockRejectedValue(new Error('Network failed'))
+
+render(<AppointmentHistory />)
+
+expect(await screen.findByText(/error: network failed/i)).toBeInTheDocument()
+})
+
+- *Mutated version*
+
+it('shows an error message when the appointment history request fails', async () => {})
+
+The mutation removed the entire test logic, leaving an empty test. The test suite still passed, meaning this test doesn't effectively verify behavior and its removal doesn't impact the results, indicating weak test coverage.
+
+===== Case 3: StringLiteral (Survived)
+
+- *Original code*
+
+it('shows a loading message while appointment history is being fetched', () => {
+getAppointmentHistory.mockReturnValue(new Promise(() => {}))
+})
+--
+
+- *Mutated version*
+
+it('', () => {
+getAppointmentHistory.mockReturnValue(new Promise(() => {}))
+})
+--
+
+The mutation removed the test description string. The test still passed, meaning the description isn't used to validate behavior, so this change doesn't affect test effectiveness.
+
+Most of the remaining surviving mutations fall into similar categories:
+
+* StringLiteral → text changed
+* BlockStatement → code removed
+* ArrowFunction → function behavior changed
+
+==== Killed Mutations
+
+There were 29 mutations that were successfully detected by the test suite. Some examples include:
+
+===== Case 1: ObjectLiteral (Killed)
+
+- *Original*
+
+vi.mock('../services/api', () => ({
+getAppointmentHistory: vi.fn(),
+}))
+---
+
+- *Mutated*
+
+vi.mock('../services/api', () => ({}))
+
+The mutation removed the mocked function. The test failed because it depends on the API mock, showing that the test correctly verifies the component’s dependency on external data.
+
+===== Case 2: BlockStatement (Killed)
+- *Original*
+
+screen.findByRole('heading', { name: /upcoming appointments/i })
+
+- *Mutated*
+
+screen.findByRole('', { name: /upcoming appointments/i })
+
+The mutation removed the role value. The test failed because it relies on correctly identifying elements in the UI, showing that it validates the structure and accessibility of the component.
+
+===== Case 3: StringLiteral (Killed)
+- *Original*
+
+getAppointmentHistory.mockResolvedValue([
+{ id: 1, doctor_name: 'Dr. Future', ... },
+{ id: 2, doctor_name: 'Dr. Past', ... }
+])
+
+
+- *Mutated*
+
+getAppointmentHistory.mockResolvedValue([])
+
+The mutation removed all appointment data. The test failed because it expects specific data to be rendered, showing that it properly verifies how data is displayed and processed.
+
+==== *Analysis and Reliability*
+
+These findings suggest that the project is fairly reliable when it comes to its core features, since the tests are able to catch major issues like missing data, broken API interactions, and incorrect UI rendering. This lowers the risk of obvious failures that would directly affect users.
+
+At the same time, the surviving mutations show that there are still gaps in the tests, especially around more subtle logic and edge cases. This means there is still some risk that certain bugs could go unnoticed, particularly in less common scenarios or when small changes are made to the code. Strengthening the tests in these areas would help reduce that risk and make the system more dependable.
