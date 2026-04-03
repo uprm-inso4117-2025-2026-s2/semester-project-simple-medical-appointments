@@ -5,11 +5,6 @@ import ServiceCatalog from './ServiceCatalog'
 
 function Home() {
   return (
-<<<<<<< HEAD
-    <div>
-      <h1>Medical Appointments</h1>
-      <p>Welcome to the medical appointments system.</p>
-=======
     <div className="home-page">
       <nav className="home-nav">
         <div className="home-nav-brand">
@@ -22,7 +17,6 @@ function Home() {
           <button className="home-nav-logout" onClick={handleLogout}>Log out</button>
         </div>
       </nav>
->>>>>>> origin/base-code
 
       <ServiceCatalog />
 
