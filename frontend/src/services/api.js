@@ -54,9 +54,14 @@ export function getHealth() {
 
 // --- Appointment history ---
 
-// Retrieves appointment history for a given user.
-export function getAppointmentHistory(userId) {
-  return request(`/appointment-history/${userId}`)
+// Retrieves all appointment history (patient_id, doctor_name, clinic_name, status, date).
+export function getAllAppointmentHistory() {
+  return request('/appointment-history')
+}
+
+// Retrieves appointment history for a specific patient.
+export function getAppointmentHistory(patientId) {
+  return request(`/appointment-history/${patientId}`)
 }
 
 // --- Auth / Registration ---

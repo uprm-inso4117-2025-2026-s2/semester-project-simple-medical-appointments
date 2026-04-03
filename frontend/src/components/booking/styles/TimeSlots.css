@@ -1,0 +1,45 @@
+.time-slots-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.time-slot-button {
+  width: 100%;
+  height: 48px;
+  padding: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.time-slot-button:hover:not(:disabled) {
+  border-color: #2563eb;
+}
+
+.time-slot-button.selected {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.time-slot-button.unavailable {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.time-slots-message {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 14px;
+}

@@ -11,7 +11,7 @@ load_dotenv(os.path.join(_BACKEND_DIR, ".env"))
 
 class Config:
     """Base configuration. Values are read from environment variables.
-    Add new config values here as the app grows (e.g. database URL, JWT secret).
+    Add new config values here as the app grows (e.g. Supabase URL, JWT secret).
     """
 
     # Used to sign session cookies and tokens — must be set to a strong
@@ -21,10 +21,14 @@ class Config:
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
-    # Supabase — used for user management DB operations.
-    # Use the service role key on the backend (bypasses RLS for trusted server ops).
-    SUPABASE_URL = os.getenv("SUPABASE_URL")
+    # Supabase — URL and keys for REST/auth and the Python client (init_supabase).
+    SUPABASE_URL = os.getenv("SUPABASE_URL") or os.getenv("VITE_SUPABASE_URL")
     SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    SUPABASE_KEY = (
+        os.getenv("SUPABASE_KEY")
+        or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        or os.getenv("VITE_SUPABASE_ANON_KEY")
+    )
     # JWT secret from Supabase project settings → API → JWT Secret.
     # Used to verify Supabase-issued access tokens on every protected request.
     SUPABASE_JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
