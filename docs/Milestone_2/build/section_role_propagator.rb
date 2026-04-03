@@ -38,6 +38,7 @@ module SectionRolePropagation
     roles_by_level = {}
     pending_role = nil
     inside_fenced_block = false
+    delimited_stack = []
     in_table = false
     discrete_pending = false
 
@@ -53,6 +54,23 @@ module SectionRolePropagation
       end
 
       if inside_fenced_block
+        out << line
+        next
+      end
+
+      # Track delimited blocks (listing, literal, example, passthrough)
+      if %w[---- .... ==== **** ++++].include?(stripped)
+        if delimited_stack.last == stripped
+          delimited_stack.pop
+        else
+          delimited_stack.push(stripped)
+        end
+
+        out << line
+        next
+      end
+
+      if delimited_stack.any?
         out << line
         next
       end
