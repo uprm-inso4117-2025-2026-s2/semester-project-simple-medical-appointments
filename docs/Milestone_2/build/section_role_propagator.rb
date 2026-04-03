@@ -11,22 +11,65 @@ module SectionRolePropagation
     "[.#{role}]##{body}#"
   end
 
+  def self.wrap_table_row(raw, role)
+    leading_ws = raw[/^\s*/] || ''
+    body = raw[leading_ws.length..] || ''
+    parts = body.split('|', -1)
+    return raw if parts.length < 2
+
+    wrapped_parts = parts.each_with_index.map do |cell, idx|
+      # Keep text that appears before the first pipe (e.g., "3+" in "3+|")
+      next cell if idx.zero?
+      next cell if cell.empty?
+
+      cell_leading_ws = cell[/^\s*/] || ''
+      cell_body = cell[cell_leading_ws.length..] || ''
+      cell_trailing_ws = cell_body[/\s*\z/] || ''
+      cell_text = cell_body.sub(/\s*\z/, '')
+
+      "#{cell_leading_ws}#{wrap_inline(cell_text, role)}#{cell_trailing_ws}"
+    end
+
+    "#{leading_ws}#{wrapped_parts.join('|')}"
+  end
+
   def self.rewrite_lines(lines)
     out = []
     roles_by_level = {}
     pending_role = nil
+    inside_fenced_block = false
+    in_table = false
+    discrete_pending = false
 
     lines.each do |line|
       trailing_ws = line[/\s*\z/] || ''
       raw = line.sub(/\s*\z/, '')
       stripped = raw.strip
 
+      if stripped.start_with?('```', '~~~')
+        inside_fenced_block = !inside_fenced_block
+        out << line
+        next
+      end
+
+      if inside_fenced_block
+        out << line
+        next
+      end
+
       if stripped == '[discrete]'
         active_role = roles_by_level[roles_by_level.keys.max]
         if active_role
           out << "[discrete,#{active_role}]#{trailing_ws}"
+          discrete_pending = true
           next
         end
+      end
+
+      if stripped == '|==='
+        in_table = !in_table
+        out << line
+        next
       end
 
       if (m = stripped.match(%r{\A\[\.(added|changed|removed|red|orange|green)\]\z}))
@@ -37,7 +80,7 @@ module SectionRolePropagation
 
       if (m = raw.match(/^(=+)\s+(.+)$/))
         level = m[1].length
-        roles_by_level.delete_if { |k, _| k >= level }
+        roles_by_level.delete_if { |k, _| k >= level } unless discrete_pending
 
         inline_role = nil
         if (ir = m[2].match(%r{\A\[\.(added|changed|removed|red|orange|green)\]#(.+)#\z}))
@@ -48,17 +91,23 @@ module SectionRolePropagation
         pending_role = nil if active_role
 
         if active_role.nil?
-          parent_level = roles_by_level.keys.select { |k| k < level }.max
+          parent_level =
+            if discrete_pending
+              roles_by_level.keys.max
+            else
+              roles_by_level.keys.select { |k| k < level }.max
+            end
           active_role = parent_level ? roles_by_level[parent_level] : nil
         end
 
-        roles_by_level[level] = active_role if active_role
+        roles_by_level[level] = active_role if active_role && !discrete_pending
 
         if active_role
           out << "#{m[1]} #{wrap_inline(m[2], active_role)}#{trailing_ws}"
         else
           out << line
         end
+        discrete_pending = false
         next
       end
 
@@ -73,9 +122,14 @@ module SectionRolePropagation
         next
       end
 
+      if in_table && raw.lstrip.start_with?('|', '!|', '<|', '>|', '^|', '*|')
+        out << "#{wrap_table_row(raw, active_role)}#{trailing_ws}"
+        next
+      end
+
       skip_line = stripped.empty? ||
                   stripped.start_with?('[', ':', 'include::', 'ifdef::', 'ifndef::', 'endif::', '|===', '.', '//', 'image::', 'link:') ||
-                  %w[---- .... ==== **** ++++].include?(stripped) ||
+                  %w[--- ---- .... ==== **** ++++].include?(stripped) ||
                   raw.lstrip.start_with?('|')
       if skip_line
         out << line
