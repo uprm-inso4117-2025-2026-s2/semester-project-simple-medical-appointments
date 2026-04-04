@@ -7,6 +7,8 @@ import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import ClosuresAdmin from './pages/ClosuresAdmin'
 import AppointmentHistory from './pages/AppointmentHistory'
+import AppointmentSchedule from './pages/AppointmentScheduling'
+import AppointmentSuccess from './pages/AppointmentSuccess'
 import Register from './pages/Register'
 import Login from './pages/Login'
 import RoleSelection from './pages/RoleSelection'
@@ -30,6 +32,8 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/admin/closures" element={<ClosuresAdmin />} />
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
+      <Route path="/appointment-scheduling" element={<AppointmentSchedule />} />
+      <Route path="/appointment-success" element={<AppointmentSuccess />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/role-selection" element={<RoleSelection />} />

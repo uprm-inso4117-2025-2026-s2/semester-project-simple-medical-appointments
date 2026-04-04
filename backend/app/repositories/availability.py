@@ -26,11 +26,15 @@ def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> Daily
     - working_hours (start_time, end_time)
     - blocked_periods or breaks (start_time, end_time)
     - appointment_duration_minutes (from clinic or doctor config)
+    - max_appointments_per_slot (clinic / doctor capacity rule)
     """
     # Stub: assume Mon–Sat 09:00–17:00, 30-min slots, lunch 12:00–13:00.
     # Sunday (weekday 6) has no working hours — used for "no slots" scenarios.
     # In production, filter by doctor_id and target_date (and apply closed days).
     _ = doctor_id  # use when querying by doctor
+
+    # Example: allow up to 2 concurrent appointments per slot (e.g. double-booking cap).
+    max_appointments_per_slot = 2
 
     if target_date.weekday() == 6:
         # No working hours (e.g. closed on Sunday).
@@ -47,4 +51,5 @@ def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> Daily
         working_hours=working_hours,
         blocked_periods=blocked_periods,
         slot_minutes=slot_minutes,
+        max_appointments_per_slot=max_appointments_per_slot,
     )

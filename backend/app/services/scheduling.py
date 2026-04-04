@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, date, time, timedelta
-from typing import List, Optional
+from typing import List
 
 
 @dataclass(frozen=True)
@@ -97,6 +97,7 @@ class DailyAvailability:
     working_hours: TimeRange
     blocked_periods: List[TimeRange]
     slot_minutes: int
+    max_appointments_per_slot: int = 1
 
 
 def generate_available_slots(availability: DailyAvailability) -> List[datetime]:

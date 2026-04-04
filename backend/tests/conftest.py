@@ -1,10 +1,11 @@
+"""Pytest fixtures."""
 import jwt
 import pytest
 
 from app import create_app
-from app.middleware import auth_middleware
 
 TEST_JWT_SECRET = "test-jwt-secret-for-pytest-only-32bytes!!"
+from app.middleware import auth_middleware
 
 _production_verify_jwt = auth_middleware.verify_jwt
 
@@ -40,10 +41,9 @@ def _patch_jwt_verification_for_tests(monkeypatch, app):
 
 @pytest.fixture
 def app():
-    app = create_app()
+    app = create_app(testing=True)
     app.config.update(
         {
-            "TESTING": True,
             "SUPABASE_JWT_SECRET": TEST_JWT_SECRET,
         }
     )
