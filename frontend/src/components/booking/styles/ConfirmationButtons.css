@@ -1,0 +1,44 @@
+.confirmation-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.confirmation-button {
+  height: 44px;
+  border-radius: 999px;
+  font-size: 16px;
+  cursor: pointer;
+  border: 1px solid #7a7a7a;
+  transition: all 0.2s ease;
+}
+
+/* Cancel */
+.confirmation-button.cancel {
+  background: #e5e5e5;
+  color: #222;
+  border: 1px solid #7a7a7a;
+}
+
+/* Confirm */
+.confirmation-button.confirm {
+  background: #2563eb;
+  color: #ffffff;
+  border: 1px solid #2563eb;
+}
+
+/* Hover */
+.confirmation-button.cancel:hover:not(:disabled) {
+  background: #dcdcdc;
+}
+
+.confirmation-button.confirm:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* Disabled */
+.confirmation-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

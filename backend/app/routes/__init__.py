@@ -9,10 +9,7 @@ from .scheduling_appointments import scheduling_appointments_bp
 from .dailySlots import slots_bp
 
 def register_routes(app):
-    """Register all Flask blueprints with the app.
-    Each blueprint groups a set of related routes (e.g. all appointment routes).
-    Add new blueprints here as the API grows.
-    """
+    """Register all Flask blueprints with the app."""
     app.register_blueprint(main_bp, url_prefix='/api')
     app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
