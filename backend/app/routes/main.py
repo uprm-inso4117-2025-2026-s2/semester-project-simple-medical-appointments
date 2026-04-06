@@ -40,7 +40,11 @@ def get_doctor_available_slots(doctor_id: str):
     except ValueError:
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
 
-    availability = get_availability_for_doctor_date(doctor_id, target_date)
-    slot_datetimes = generate_available_slots(availability)
+    try:
+        availability = get_availability_for_doctor_date(doctor_id, target_date)
+        slot_datetimes = generate_available_slots(availability)
+    except ValueError as exc:
+        return jsonify({'error': f'Invalid working hours configuration: {str(exc)}'}), 500
+
     slots = [dt.strftime('%H:%M') for dt in slot_datetimes]
     return jsonify({'slots': slots})

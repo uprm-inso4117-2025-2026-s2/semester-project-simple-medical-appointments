@@ -6,6 +6,7 @@ from .auth import auth_bp
 from .profile import profile_bp
 from .admin import admin_bp
 from .scheduling_appointments import scheduling_appointments_bp
+from .doctor_working_hours import working_hours_bp
 
 def register_routes(app):
     """Register all Flask blueprints with the app.
@@ -19,3 +20,4 @@ def register_routes(app):
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(closures_bp, url_prefix='/api/closures')
     app.register_blueprint(scheduling_appointments_bp, url_prefix='/api/scheduling/appointments')
+    app.register_blueprint(working_hours_bp, url_prefix='/api/admin')
