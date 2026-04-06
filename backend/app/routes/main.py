@@ -1,9 +1,9 @@
 from datetime import date
+
 from flask import Blueprint, jsonify, request
 
-from app.repositories.availability import get_availability_for_doctor_date
-from app.services.scheduling import generate_available_slots
 from app.middleware.auth_middleware import requires_auth
+from app.repositories.slot_bookings import slot_time_strings_for_doctor_day
 
 # A Blueprint groups related routes together.
 # 'main' is the name used internally by Flask to identify this blueprint.
@@ -40,11 +40,5 @@ def get_doctor_available_slots(doctor_id: str):
     except ValueError:
         return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD.'}), 400
 
-    try:
-        availability = get_availability_for_doctor_date(doctor_id, target_date)
-        slot_datetimes = generate_available_slots(availability)
-    except ValueError as exc:
-        return jsonify({'error': f'Invalid working hours configuration: {str(exc)}'}), 500
-
-    slots = [dt.strftime('%H:%M') for dt in slot_datetimes]
+    slots = slot_time_strings_for_doctor_day(doctor_id, target_date)
     return jsonify({'slots': slots})

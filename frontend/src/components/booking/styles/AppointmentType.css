@@ -1,0 +1,92 @@
+.booking-section {
+  width: 100%;
+}
+
+.appointment-type-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.appointment-type-card {
+  width: 100%;
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid #d6d6d6;
+  border-radius: 6px;
+  background: #f4f4f4;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.appointment-type-card:hover {
+  border-color: #b8b8b8;
+  background: #eeeeee;
+}
+
+.appointment-type-card.selected {
+  background: #e0f2ff;
+  border: 2px solid #007bff;
+}
+
+.appointment-type-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.appointment-type-image-wrapper {
+  width: 92px;
+  height: 92px;
+  flex-shrink: 0;
+  background: #e9e9e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.appointment-type-image {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+}
+
+.appointment-type-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.appointment-type-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2b2b2b;
+}
+
+.appointment-type-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #7a7a7a;
+}
+
+.appointment-type-status {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  line-height: 1;
+  color: #333;
+  background: #e6e6e6;
+  border: 1px solid #a8a8a8;
+  border-radius: 4px;
+}
+
+.appointment-type-error {
+  color: red;
+}
