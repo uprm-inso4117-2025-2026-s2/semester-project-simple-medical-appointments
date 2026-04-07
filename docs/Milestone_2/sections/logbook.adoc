@@ -14,4 +14,5 @@
 | 1.3.1 Scope & Span | Alejandro López | Removed & Added | Revised and rewrote scope and span as per professor's feedback
 
 | 1.4 Other Activities | Alejandro López | Removed & Added | Revised and rewrote "Other Activities than Just Developing Source Code" per professor's feedback.
+| 2.1.3 Narrative | Juan Ortiz Abouomar | Changed | Revised and rewrote paragraphs 1,3 and 4 of "Narrative" per professor's feedback.
 |===
