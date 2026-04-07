@@ -78,4 +78,225 @@
 - *Definition:* A patient registers interest in future appointment availability when no slots are currently available.  
 - *Trigger:* A patient opts into a waitlist due to lack of availability.  
 - *Observable Condition / Resulting State:* A waitlist entry exists; the patient becomes eligible for reassignment when slots open.  
-[.changed]#- Reference to sketch: Natalia joined a waitlist in February 2026 and never received status updates.#  
+[.changed]#- Reference to sketch: Natalia joined a waitlist in February 2026 and never received status updates.#
+
+[.added]
+===== Conceptual Function Signatures
+
+*Purpose:* These conceptual functions describe the core domain operations from a system-independent perspective, including their purpose, required inputs, outputs, and dependencies. They map to the domain events and actions defined above.
+
+====== Publish Slot
+
+----
+publishSlot(timeSlotCatalog: TimeSlotCatalog, provider: Provider, slot: TimeSlot): Result TimeSlotId Error
+----
+
+- *Description:* Adds a new appointment slot to the provider’s availability and makes it discoverable.
+- *Conceptual Inputs:* Time slot catalog, provider, time slot definition.
+- *Conceptual Output:* Identifier of the created slot or an error.
+- *Dependencies:* Requires provider authorization and valid scheduling constraints.
+- *Related Domain Events/Actions:* Corresponds to *Appointment slot published* (event).
+
+====== Request Appointment
+
+----
+requestAppointment(appointmentBook: AppointmentBook, patient: Patient, slotId: TimeSlotId): Result AppointmentId Error
+----
+
+- *Description:* Registers a patient’s request to book a specific appointment slot.
+- *Conceptual Inputs:* Appointment book, patient, slot identifier.
+- *Conceptual Output:* Appointment identifier or error.
+- *Dependencies:* Slot must exist and be available.
+- *Related Domain Events/Actions:* Corresponds to *Appointment requested* (action/event).
+
+====== Confirm Appointment
+
+----
+confirmAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, referralRegistry: ReferralRegistry, insuranceRegistry: InsuranceRegistry, appointmentId: AppointmentId): Result Appointment Error
+----
+
+- *Description:* Validates and confirms an appointment based on constraints such as referrals and insurance.
+- *Conceptual Inputs:* Appointment book, slot catalog, referral and insurance registries, appointment ID.
+- *Conceptual Output:* Confirmed appointment or error.
+- *Dependencies:* Requires eligibility validation and slot availability.
+- *Related Domain Events/Actions:* Corresponds to *Appointment confirmed* (event).
+
+====== Cancel Appointment
+
+----
+cancelAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId): Result Unit Error
+----
+
+- *Description:* Cancels an existing appointment and releases its associated slot.
+- *Conceptual Inputs:* Appointment book, slot catalog, appointment ID.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Appointment must exist and be cancelable.
+- *Related Domain Events/Actions:* Corresponds to *Appointment canceled* (action/event).
+
+====== Reschedule Appointment
+
+----
+rescheduleAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId, newSlotId: TimeSlotId): Result Unit Error
+----
+
+- *Description:* Changes an existing appointment to a different available slot.
+- *Conceptual Inputs:* Appointment book, slot catalog, appointment ID, new slot ID.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* New slot must be available and compatible.
+- *Related Domain Events/Actions:* Impacts *Appointment confirmed* and *Provider availability modified*.
+
+====== Modify Availability
+
+----
+modifyAvailability(schedule: Schedule, provider: Provider, range: DateTimeRange, policy: Policy): Result Unit Error
+----
+
+- *Description:* Updates a provider’s working hours or scheduling constraints.
+- *Conceptual Inputs:* Schedule, provider, time range, policy.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Must respect scheduling policies and avoid conflicts.
+- *Related Domain Events/Actions:* Corresponds to *Provider availability modified* (action/event).
+
+====== Join Waitlist
+
+----
+joinWaitlist(waitlist: Waitlist, patient: Patient, specialty: Specialty): Result Unit Error
+----
+
+- *Description:* Registers a patient in a waitlist for a given specialty.
+- *Conceptual Inputs:* Waitlist, patient, specialty.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Requires absence of immediate availability.
+- *Related Domain Events/Actions:* Corresponds to *Patient joins waitlist* (action/event).
+
+====== Select Waitlist Candidate
+
+----
+selectWaitlistCandidate(waitlist: Waitlist, slot: TimeSlot): Option Patient
+----
+
+- *Description:* Selects an eligible patient from the waitlist for a newly available slot.
+- *Conceptual Inputs:* Waitlist, time slot.
+- *Conceptual Output:* Optional patient.
+- *Dependencies:* Depends on prioritization rules.
+- *Related Domain Events/Actions:* Supports *Slot reassigned to waiting patient* (event).
+
+====== Reassign Slot
+
+----
+reassignSlot(waitlist: Waitlist, appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, notificationQueue: NotificationQueue, slotId: TimeSlotId): Option AppointmentId
+----
+
+- *Description:* Assigns an available slot to a waitlisted patient and notifies them.
+- *Conceptual Inputs:* Waitlist, appointment book, slot catalog, notification queue, slot ID.
+- *Conceptual Output:* Optional appointment ID.
+- *Dependencies:* Requires candidate selection and slot availability.
+- *Related Domain Events/Actions:* Corresponds to *Slot reassigned to waiting patient* (event).
+
+====== Queue Reminder
+
+----
+queueReminder(notificationQueue: NotificationQueue, appointment: Appointment): NotificationQueue
+----
+
+- *Description:* Adds a reminder notification for a scheduled appointment.
+- *Conceptual Inputs:* Notification queue, appointment.
+- *Conceptual Output:* Updated notification queue.
+- *Dependencies:* Appointment must be confirmed.
+- *Related Domain Events/Actions:* Supports *Appointment reminder issued* (action/event).
+
+====== Issue Reminder
+
+----
+issueReminder(notificationQueue: NotificationQueue, channel: Channel): Result Unit Error
+----
+
+- *Description:* Sends queued reminders through a communication channel.
+- *Conceptual Inputs:* Notification queue, channel.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Requires configured communication channels.
+- *Related Domain Events/Actions:* Corresponds to *Appointment reminder issued* (event).
+
+====== Mark No-Show
+
+----
+markNoShow(appointmentBook: AppointmentBook, appointmentId: AppointmentId): Result Unit Error
+----
+
+- *Description:* Marks an appointment as unattended.
+- *Conceptual Inputs:* Appointment book, appointment ID.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Triggered after appointment time passes.
+- *Related Domain Events/Actions:* Corresponds to *Patient marked absent* (event).
+
+====== Record Referral
+
+----
+recordReferral(referralRegistry: ReferralRegistry, patient: Patient, provider: Provider, referral: Referral): Result Unit Error
+----
+
+- *Description:* Registers a referral required for consultation eligibility.
+- *Conceptual Inputs:* Referral registry, patient, provider, referral.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Requires external provider input.
+- *Related Domain Events/Actions:* Corresponds to *Referral recorded for consultation* (event).
+
+====== Record Insurance Approval
+
+----
+recordInsuranceApproval(insuranceRegistry: InsuranceRegistry, patient: Patient, provider: Provider, appointmentId: AppointmentId): Result Unit Error
+----
+
+- *Description:* Stores insurance approval for a scheduled appointment.
+- *Conceptual Inputs:* Insurance registry, patient, provider, appointment ID.
+- *Conceptual Output:* Success or failure.
+- *Dependencies:* Requires insurer validation.
+- *Related Domain Events/Actions:* Supports *Appointment confirmed* (event).
+
+====== Search Providers
+
+----
+searchProviders(system: ClinicSystem, specialty: Specialty): List Provider
+----
+
+- *Description:* Retrieves providers matching a given specialty.
+- *Conceptual Inputs:* Clinic system, specialty.
+- *Conceptual Output:* List of providers.
+- *Dependencies:* None (public operation).
+- *Related Domain Events/Actions:* Supports discovery behavior.
+
+====== List Available Slots
+
+----
+listAvailableSlots(timeSlotCatalog: TimeSlotCatalog, provider: Provider): List TimeSlot
+----
+
+- *Description:* Lists available slots for a provider.
+- *Conceptual Inputs:* Slot catalog, provider.
+- *Conceptual Output:* List of time slots.
+- *Dependencies:* Slots must be published.
+- *Related Domain Events/Actions:* Supports *Appointment slot published*.
+
+====== Authorize Action
+
+----
+authorizeAction(policy: Policy, actor: Actor, action: Action): Result Unit Error
+----
+
+- *Description:* Determines whether an actor is allowed to perform an action.
+- *Conceptual Inputs:* Policy, actor, action.
+- *Conceptual Output:* Authorization result.
+- *Dependencies:* Depends on role and policy definitions.
+- *Related Domain Events/Actions:* Governs all domain actions.
+
+====== Booking Behavior
+
+----
+bookingBehavior(system: ClinicSystem, patient: Patient): BehaviorTrace
+----
+
+- *Description:* Represents the full interaction flow of a patient booking an appointment.
+- *Conceptual Inputs:* Clinic system, patient.
+- *Conceptual Output:* Behavior trace.
+- *Dependencies:* Composes multiple domain functions.
+- *Related Domain Events/Actions:* Maps to booking-related behavior scenarios.
