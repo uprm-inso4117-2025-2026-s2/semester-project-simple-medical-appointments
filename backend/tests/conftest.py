@@ -1,4 +1,9 @@
 """Pytest fixtures."""
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 import jwt
 import pytest
 
@@ -45,6 +50,8 @@ def app():
     app.config.update(
         {
             "SUPABASE_JWT_SECRET": TEST_JWT_SECRET,
+            "SUPABASE_URL": os.getenv("SUPABASE_URL", "http://test-supabase"),
+            "SUPABASE_SERVICE_ROLE_KEY": os.getenv("SUPABASE_SERVICE_ROLE_KEY", "test-key"),
         }
     )
     return app
