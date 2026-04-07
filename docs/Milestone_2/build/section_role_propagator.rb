@@ -148,7 +148,7 @@ module SectionRolePropagation
 
       skip_line = stripped.empty? ||
                   stripped.start_with?('[', ':', 'include::', 'ifdef::', 'ifndef::', 'endif::', '|===', '.', '//', 'image::', 'link:') ||
-                  %w[--- ---- .... ==== **** ++++].include?(stripped) ||
+                  %w[--- ---- .... ==== **** ++++ ____].include?(stripped) ||
                   raw.lstrip.start_with?('|')
       if skip_line
         out << line
