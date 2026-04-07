@@ -7,7 +7,7 @@
 - Triggered by: Clinic or provider defining availability.
 - Immediate response: Slot becomes visible in schedules and searchable listings.
 - Expected outcome/postcondition: Patients may request the slot; clinic workload capacity increases.
-- Reference to sketch: Providers define working hours and schedules vary across clinics.
+[.changed]#- Reference to sketch: Providers define working hours; Jose cannot see other sites’ calendars to compare newly published slots.#
 
 ===== Appointment requested (event / action)
 
@@ -16,7 +16,7 @@
 - Triggered by: Patient selecting a slot and submitting request.
 - Immediate response: System checks availability, referral conditions, and scheduling rules.
 - Expected outcome/postcondition: Appointment enters confirmation flow or waitlist.
-- Reference to sketch: Patients call multiple clinics seeking earlier appointments.
+[.changed]#- Reference to sketch: Carmen redialed 23 times starting 5 Feb 2026 at 8:02 a.m. to request a slot.#
 
 ===== Appointment confirmed (event)
 
@@ -34,7 +34,7 @@
 - Triggered by: Patient or clinic withdrawing consultation.
 - Immediate response: Slot released; waitlist or redistribution logic triggered.
 - Expected outcome/postcondition: Capacity becomes available for reassignment.
-- Reference to sketch: Cancellations redistributed informally or through staff communication.
+[.changed]#- Reference to sketch: Laura flips through a notebook and spreadsheet to reassign cancellations.#
 
 ===== Slot reassigned to waiting patient (event)
 
@@ -43,7 +43,7 @@
 - Triggered by: Cancellation or new availability combined with waiting demand.
 - Immediate response: Selected patient notified and slot reserved.
 - Expected outcome/postcondition: Waiting time reduced; clinic utilization improves.
-- Reference to sketch: Staff maintain informal priority lists for earlier openings.
+[.changed]#- Reference to sketch: Informal priority lists used when earlier openings appear (same workflow Laura described).#
 
 ===== Provider availability modified (operation / event)
 
@@ -52,7 +52,7 @@
 - Triggered by: Doctor changing working hours, clinic shifts, or service limits.
 - Immediate response: Conflict checks performed; affected appointments evaluated.
 - Expected outcome/postcondition: Patients may be rescheduled or notified.
-- Reference to sketch: Providers split time across clinics and schedules change frequently.
+[.changed]#- Reference to sketch: Providers split time across clinics and schedules change frequently; Miguel found doors locked after 6:00 p.m.#
 
 ===== Appointment reminder issued (event / operation)
 
@@ -70,7 +70,7 @@
 - Triggered by: Appointment time passes without attendance.
 - Immediate response: Attendance record updated; analytics adjusted.
 - Expected outcome/postcondition: Reliability patterns inform future scheduling decisions.
-- Reference to sketch: No-show rates fluctuate and are difficult to predict.
+[.changed]#- Reference to sketch: Dr. Rivera reported fluctuating no-shows.#
 
 ===== Referral recorded for consultation (entity / event)
 
@@ -88,4 +88,4 @@
 - Triggered by: Lack of immediate appointment availability.
 - Immediate response: Patient inserted into priority queue for future slots.
 - Expected outcome/postcondition: Patient becomes candidate for reassigned or newly published slots.
-- Reference to sketch: Patients repeatedly contact clinics seeking earlier appointments.
+[.changed]#- Reference to sketch: Natalia joined a waitlist in February 2026 and never received status updates.#

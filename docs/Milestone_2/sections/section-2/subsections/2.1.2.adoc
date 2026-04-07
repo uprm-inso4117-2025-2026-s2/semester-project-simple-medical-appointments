@@ -14,19 +14,19 @@ Terms are organized into Domain Nouns, Domain Verbs, and Domain Constraints to a
 
 *Patient* :: (actor, domain)
 A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
-[.small]*Derived from: repeated references to calling clinics, joining waitlists, coordinating care.*
+[.added]#[.small]*Derived from: Carmen’s redial marathon to secure a May slot (5 Feb 2026) and Natalia’s stalled waitlist (Feb 2026).*#
 
 *Caregiver* :: (actor, domain)
 A person managing appointments on behalf of a patient who cannot coordinate independently.
-[.small]*Derived from: “I manage my mother’s appointments because she doesn’t use a smartphone.”*
+[.added]#[.small]*Derived from: Elena coordinating three linked visits for her mother in March 2026.*#
 
 *Healthcare Provider* :: (actor, domain)
 A licensed professional offering medical consultations (e.g., general practitioner, specialist).
-[.small]*Derived from: overloaded schedules, consultation variability.*
+[.added]#[.small]*Derived from: Dr. Rivera’s variable consult durations and no-shows (Feb 2026 sketch).*#
 
 *Doctor* :: (actor, domain)
 A specific type of healthcare provider with a medical degree. Doctors may have different scheduling constraints than other providers.
-[.small]*Derived from: “Physician migration” and “doctors are leaving.”*
+[.added]#[.small]*Derived from: provider-level constraints voiced by Dr. Rivera and Dr. Morales (Feb 2026 sketches).*#
 
 *Clinic* :: (entity, domain)
 A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
@@ -45,15 +45,18 @@ A classification of medical visit (e.g., follow-up, first-time visit, procedure)
 
 *Waitlist* :: (entity, domain)
 An ordered collection of patients waiting for a time slot when no immediate availability exists.
+[.added]#[.small]*Derived from: Natalia’s opaque position after joining a waitlist (Feb 2026).*#
 
 *Cancellation* :: (event, domain)
 The release of a previously reserved appointment before its scheduled time.
 
 *No-Show* :: (event, domain)
 The absence of a patient at a scheduled appointment without prior cancellation.
+[.added]#[.small]*Derived from: Dr. Rivera’s no-show fluctuation (Feb 2026 sketch).*#
 
 *Insurance Authorization* :: (process, domain)
 An external approval required before certain appointments can be confirmed.
+[.added]#[.small]*Derived from: Marcos waiting on insurer portals before confirming slots (Feb 2026 sketch).*#
 
 *Referral* :: (entity/event, domain)
 A directive from one provider requiring a patient to consult another provider before treatment.
@@ -66,6 +69,7 @@ The current condition of an appointment (pending, confirmed, canceled, completed
 
 *Operational Hours* :: (constraint entity, domain)
 The defined time boundaries within which a clinic accepts or schedules appointments.
+[.added]#[.small]*Derived from: Miguel finding the clinic closed after his shift (21–22 Jan 2026).*#
 
 
 [discrete]
@@ -74,6 +78,7 @@ The defined time boundaries within which a clinic accepts or schedules appointme
 
 *Request Appointment* :: (action, domain)
 A patient expresses intent to reserve an available time slot.
+[.added]#[.small]*Derived from: Carmen repeatedly calling at 8:00 a.m. to request a slot (5 Feb 2026).*#
 
 *Reserve Time Slot* :: (action, domain)
 The act of assigning a specific time slot to a patient.
@@ -89,12 +94,14 @@ The replacement of one reserved time slot with another.
 
 *Join Waitlist* :: (action, domain)
 A patient registers interest in being assigned a slot if one becomes available.
+[.added]#[.small]*Derived from: Natalia joining a waitlist without receiving position updates (Feb 2026).*#
 
 *Assign Waitlisted Patient* :: (event, domain)
 The allocation of a newly freed time slot to the next eligible patient in the waitlist.
 
 *Authorize Coverage* :: (external event, domain)
 Insurance approval required before final confirmation of certain appointment types.
+[.added]#[.small]*Derived from: Marcos pausing confirmations until insurer approval arrives (Feb 2026).*#
 
 *Expire Slot* :: (event, domain)
 Automatic release of a temporarily held slot after a defined confirmation window.
@@ -105,12 +112,14 @@ Automatic release of a temporarily held slot after a defined confirmation window
 
 *No Double Booking* ::
 A single time slot cannot be reserved by more than one patient simultaneously.
+[.added]#[.small]*Derived from: Dr. Morales observing duplicate bookings that cancel late (Feb 2026 sketch).*#
 
 *Single Active Appointment per Provider Constraint* ::
 A patient may not hold multiple concurrent active appointments with the same provider.
 
 *Operational Hour Restriction* ::
 Appointments cannot be scheduled outside clinic operational hours.
+[.added]#[.small]*Derived from: Miguel’s inability to book after 6:00 p.m. when the clinic door was locked (22 Jan 2026).*#
 
 *Consultation Duration Integrity* ::
 The allocated time slot must match the required duration for the selected consultation type.
@@ -120,6 +129,7 @@ Waitlisted patients must be assigned based on defined priority rules.
 
 *Authorization Dependency* ::
 Certain appointments cannot transition to confirmed status without required insurance approval.
+[.added]#[.small]*Derived from: Marcos losing slots while waiting for insurer authorization (Feb 2026 sketch).*#
 
 
 [discrete]
@@ -152,4 +162,3 @@ The authenticated runtime context allowing authorized actions.
 . If a waitlist exists, the next patient may be assigned automatically.
 . The appointment either completes successfully or becomes a no-show.
 . Historical records preserve appointment outcomes for traceability.
-
