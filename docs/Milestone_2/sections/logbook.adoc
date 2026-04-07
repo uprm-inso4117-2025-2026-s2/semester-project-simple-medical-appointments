@@ -9,4 +9,5 @@
 | 4 Specific Class Topics | Julian Vivas| Added & Modified | Added a new section to document specific class topics covered in the course, including TDD, BDD, and debugging techniques.
 | 3.3.6 Mutation Testing | Natanael Batista | Added  | Added a new section to document the mutation testing process, including examples of surviving and killed mutations, and their implications for test effectiveness.
 
+| 1.2.1 Current Situation, Needs, Ideas | Alejandro López | Added & Modified | Followed professor's feedback to revise where needed. Added a new references section.
 |===
