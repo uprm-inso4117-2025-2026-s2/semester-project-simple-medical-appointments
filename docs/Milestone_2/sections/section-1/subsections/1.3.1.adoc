@@ -15,7 +15,7 @@
 * [.removed]#Appointment status management (pending, confirmed, canceled)#
 * [.removed]#Appointment rescheduling and cancellation#
 
-[.removed]#2. User Management#
+[.removed]#2. Roles and Permissions#
 
 * [.removed]#Role-based access control (Patient, Doctor, Clinic/Admin)#
 * [.removed]#Registration and login system (prototype level)#
