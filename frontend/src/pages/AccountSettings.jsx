@@ -51,6 +51,7 @@ function AccountSettings() {
   // refs for scroll-to
   const refEmail    = useRef(null)
   const refPassword = useRef(null)
+  const refAccessibility = useRef(null)
   const refNotifs   = useRef(null)
   const refDanger   = useRef(null)
 
@@ -79,6 +80,11 @@ function AccountSettings() {
   const [pwMsg,     setPwMsg]     = useState(null)
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
+
+  //Accessibility
+  const [highContrast,   setHighContrast]   = useState(false)
+  const [fontSize,       setFontSize]       = useState('small')
+  const [colorBlindMode, setColorBlindMode] = useState('normal')
 
   // Notifications
   const [notifEmail,    setNotifEmail]    = useState(true)
@@ -221,6 +227,9 @@ function AccountSettings() {
 
           {/* PREFERENCES */}
           <span className="as-nav-group-label">PREFERENCES</span>
+          <div className="adb-nav-item" onClick={() => scrollTo(refAccessibility)}>
+            <span className="adb-nav-label">Accessibility</span>
+          </div>
           <div className="adb-nav-item" onClick={() => scrollTo(refNotifs)}>
             <span className="adb-nav-label">Notifications</span>
           </div>
@@ -359,6 +368,103 @@ function AccountSettings() {
               {pwSaving ? 'Updating…' : 'Update Password'}
             </button>
           </div>
+        </div>
+
+        {/* ── Accessibility ── */}
+        <div className="as-card" ref={refAccessibility}>
+          <h2 className="as-card-title">Accessibility Options</h2>
+          <p className="as-card-sub">Adjust visual settings for better readability and usability.</p>
+        
+          <div className="as-toggle-row">
+            <div className="as-toggle-info">
+              <span className="as-toggle-label">High Contrast Mode</span>
+              <span className="as-toggle-desc">Increase contrast for better visibility</span>
+            </div>
+            <label className="as-toggle">
+              <input type="checkbox" checked={highContrast} onChange={e => setHighContrast(e.target.checked)} />
+              <span className="as-toggle-track" />
+            </label>
+          </div>
+
+          <div className="as-accessibility-grid">
+            <div className="as-field">
+              <label className="as-label">Font Size</label>
+              <div className="as-radio-group">
+                <label className="as-radio">
+                  <input type="radio" name="fontSize" value="small" checked={fontSize === 'small'} onChange={e => setFontSize(e.target.value)} />
+                  <span>Small</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="fontSize" value="medium" checked={fontSize === 'medium'} onChange={e => setFontSize(e.target.value)} />
+                  <span>Medium</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="fontSize" value="large" checked={fontSize === 'large'} onChange={e => setFontSize(e.target.value)} />
+                  <span>Large</span>
+                </label>
+              </div>
+            </div>  
+
+            <div className="as-field">
+              <label className="as-label">Colorblind Theme</label>
+              <div className="as-radio-group">
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme"value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Normal</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="protanopia" checked={colorBlindMode === 'protanopia'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Protanopia (Red-Blind)</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="deuteranopia" checked={colorBlindMode === 'deuteranopia'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Deuteranopia (Green-Blind)</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="tritanopia" checked={colorBlindMode === 'tritanopia'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Tritanopia (Blue-Blind)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="as-accessibility-preview">
+            <label className="as-label">Preview</label>
+
+            <div className="as-preview-box">
+              <p className="as-label" style={{marginBottom: 4}}>Confirm appointment details:</p>
+              <p className="as-preview-copy">Book normal appointment September 5th 2025 at 9 am?</p>
+
+              <div className="as-preview-actions">
+                <button type="button" className="as-btn-cancel">Cancel</button>
+                <button type="button" className="as-btn-primary">Confirm</button>
+              </div>
+            </div>
+
+            <div className="as-preview-status">
+              <h4 className="as-label">Status Indicators</h4>
+
+              <div className="as-status-item">
+                <span className="as-status-dot confirmed" />
+                <span>Confirmed</span>
+              </div>
+
+              <div className="as-status-item">
+                <span className="as-status-dot pending" />
+                <span>Pending</span>
+              </div>
+
+              <div className="as-status-item">
+                <span className="as-status-dot cancelled" />
+                <span>Cancelled</span>
+              </div>
+            </div>
+          </div>  
         </div>
 
         {/* ── Notifications ── */}
