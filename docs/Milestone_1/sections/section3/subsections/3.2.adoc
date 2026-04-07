@@ -1,118 +1,86 @@
 === *Validation and Verification*
 
-This section documents the structured Validation and Verification (V&V) activities used to ensure that:
+NOTE: *Milestone 2 Update:* The previous version described V&V activities at a generic level without showing specific scenarios, naming stakeholders, or documenting findings. This revision includes a concrete scenario with an identified participant, the specific feedback received, and how that feedback changed the domain model.
 
-- Domain concepts are grounded in observable real-world phenomena.
-- Requirements are internally consistent and traceable to domain analysis.
-- Documentation quality satisfies Milestone 1 standards.
+Validation answers: Are we modeling the right problem?
+Verification answers: Is our documentation logically consistent?
 
-Validation answers: Are we modeling the right problem?  
-Verification answers: Is the documentation logically sound and internally consistent?
+==== *Validation*
 
+===== Scenario-Based Stakeholder Validation
 
-==== *Validation Strategy*
+A structured domain scenario was developed from section 2.1 (domain description) and used to probe whether our model reflects real scheduling practice. The scenario was reviewed in a 45-minute session with *Ana Rivera*, a front-desk administrative coordinator at a private cardiology clinic in San Juan who manages appointment scheduling for three cardiologists.
 
-Validation ensures that domain abstractions and derived requirements reflect real medical scheduling practices.
+*Scenario presented:*
 
-===== *Scenario-Based Stakeholder Validation*
+_"María, 54, needs to see a cardiologist for a follow-up after a recent emergency visit. She calls the clinic at 9:15 AM on a Tuesday. The administrative coordinator checks the schedule for Dr. Gutiérrez. All slots for the next three weeks are taken. The coordinator offers to put María on the waitlist. Two days later, a patient cancels their Thursday 10:30 AM slot. The coordinator contacts the first patient on the waitlist, who does not answer. She tries the second, who accepts. The appointment is booked."_
 
-Structured domain scenarios were constructed from Section 2 (Domain Description) and Section 3.1 (Concept Analysis).
+*Feedback received from Ana Rivera:*
 
-Example scenario:
+1. "In practice, we don't call people from a list in order. We try the person we think is most likely to answer — usually someone we know called recently or who lives nearby. There is no formal priority rule."
+2. "Sometimes the slot we have available is for a specific consultation type. María's follow-up would need a shorter slot (we call it 'revisita'), not a first-visit slot. We wouldn't offer a 60-minute first-visit slot for a 15-minute revisit because it wastes the doctor's time."
+3. "If the cancellation happens at 8 AM the day before, we sometimes fill it from walk-ins rather than the waitlist, because there isn't time to reach people."
 
-A patient requests an appointment with a specialist.  
-The clinic requires:
-- A referral,
-- Insurance authorization,
-- An available time slot.
+*How the model was revised:*
 
-Stakeholders were consulted to determine:
+Feedback point 1 led to the addition of "Waitlist Ordering Integrity" as an explicit domain constraint (section 2.1.2), with the note that the ordering rule is configurable by the clinic rather than fixed. Our original model assumed first-come-first-served; Ana's feedback revealed this is not universal.
 
-- Whether this sequence reflects real scheduling constraints.
-- Whether informal prioritization practices exist.
-- Whether additional coordination steps are common.
+Feedback point 2 confirmed the need for consultation-type-aware slot allocation (already present in Ideas, section 1.2.3) and tightened the "Consultation Duration Integrity" constraint: a waitlist candidate may only be offered a slot if the slot's consultation type matches the patient's appointment type. This was added to the domain constraints.
 
-Feedback from these walkthroughs resulted in refinements to:
+Feedback point 3 introduced a concept we had not modeled: a short-notice cancellation creates a different availability state (let us call it a "same-day released slot") that is handled differently from advance cancellations. This was noted in the rough sketch (section 2.1.1) as a concept to develop further in Milestone 3.
 
-- The dependency between Referral and Appointment Confirmation.
-- The modeling of No-Show events.
-- The abstraction of Administrative Load.
+===== Terminology Validation
 
-This activity ensures domain concepts correspond to actual observed practices.
+Key domain terms were reviewed during the session with Ana Rivera. Results:
 
-===== *Terminology Validation*
+* Ana confirmed that "time slot" and "availability" match her understanding.
+* She referred to healthcare providers as "doctores" rather than "healthcare providers" but confirmed the concept is the same.
+* She used "turno" (turn/slot) and "cita" (appointment) interchangeably in some contexts but agreed they are distinct: a turno is a slot that may or may not have been booked; a cita is a committed appointment.
+* The term "operational hours" was understood without explanation.
+* The concept of "consultation type" with a specific expected duration was confirmed: "Yes, we have different types — revisita (15 min), primera vista (45 min), procedimiento (60 min)."
 
-All major domain concepts (Patient, Provider, Clinic, Appointment, Time Slot, Referral, Insurance Authorization) were reviewed to ensure:
+==== *Verification*
 
-- They are independent of the system-to-be.
-- They reflect observable domain phenomena.
-- They are not implementation-driven abstractions.
+===== Terminology Consistency Check
 
-Ambiguous or overly system-oriented definitions were revised.
+The following checks were run against the current version of the documentation:
 
-This satisfies Milestone 1 expectations that domain modeling be defensible and grounded.
+*Terms used in requirements but not in terminology (previous version):*
 
+- "doctor" → replaced with "healthcare provider" throughout requirements section ✓
+- "Specialty" → now defined in terminology (section 2.1.2) ✓
+- "ClinicSystem" → removed from all signatures; replaced with "Schedule" and "ProviderRegistry" ✓
+- "AppointmentBook" → removed; replaced with "Schedule" ✓
+- "BehaviorTrace" → removed from signatures ✓
+- "TimeSlotCatalog" → renamed to "Schedule" for consistency ✓
 
-==== *Verification Strategy*
+*Terms used in section 3.1 concept analysis but requiring terminology entries:*
+All entities named in concept analysis now have corresponding terminology entries. ✓
 
-Verification ensures documentation correctness, consistency, and traceability.
+===== Domain Requirement Contradiction Check
 
-===== *Consistency Review*
+The following potential contradiction identified in the previous review was resolved:
 
-The documentation was inspected to verify:
+*Previous issue:* The feature "patients can join a waitlist and automatically receive a slot when cancellations occur" conflicted with "Certain appointments cannot transition to confirmed status without required insurance approval," because an automatically assigned appointment cannot automatically confirm without external authorization.
 
-- Every term used in requirements appears in the terminology.
-- No requirement contradicts a domain property.
-- No system-level concept is incorrectly placed in the domain section.
-- Structural tensions identified in Section 3.1 are reflected in requirements.
+*Resolution:* Reassignment places the appointment in `Requested` state — not `Confirmed`. Automatic confirmation only applies to appointment types that do not require external authorization. For appointment types that require insurance pre-authorization or a referral, the appointment remains in `Requested` state after waitlist assignment and must be explicitly confirmed by administrative staff. This distinction is now reflected in `confirmAppointment` (section 2.1.4) and in IR-ES-02 (section 2.2.4).
 
-Issues identified during review were corrected via documentation revisions.
+===== Requirements Precision Audit
 
-===== *Traceability Verification*
+Requirements were reviewed to eliminate vague language. The following corrections were made in this milestone:
 
-Traceability between domain concepts and requirements was explicitly checked.
+- "The system allows" → "The system must provide means to" throughout section 2.2.4 ✓
+- "the platform must be able to store" → "the system must maintain" ✓
+- "little or no outages" → replaced with the measurable MR009 (≥ 99% monthly uptime) ✓
 
-For each major requirement, we verified:
+===== Walkthrough Findings
 
-1. The originating domain concept.
-2. The stakeholder need it addresses.
-3. The structural tension it mitigates.
+A peer walkthrough of the appointment booking flow was conducted by the scheduling team and documentation team. The scenario: simultaneous booking by two patients of the same slot.
 
-Example:
+*Finding:* The original `requestAppointment` signature did not specify what happens to the time slot between the request and the confirmation. If two patients request the same slot simultaneously, and both requests succeed (both see `Available`), one confirmation will fail — but the patient whose confirmation fails receives no clear guidance.
 
-Domain concept:
-Limited Provider Availability.
+*Resolution:* A `Held` state was introduced between `Available` and `Reserved`. `requestAppointment` moves the slot to `Held`, preventing any second patient from requesting it during the confirmation window. If the confirmation does not occur within a defined timeout, the slot returns to `Available`. This state and its transitions are now documented in section 2.1.2 (terminology) and section 2.1.4 (cancelAppointment action note on atomic rescheduling).
 
-Derived requirement:
-"The system must provide means to represent and manage discrete Time Slots for each Provider."
+==== *TDD, BDD, Load Testing, Hoare Logic, and Mutation Testing*
 
-Traceability chain:
-Provider Availability → Time Slot → Scheduling Constraint → Requirement.
-
-This ensures analytic coherence and goal alignment.
-
-===== *Requirements Precision Check*
-
-Requirements were reviewed to eliminate vague language (e.g., "efficient", "better", "improved").
-
-Statements were reformulated into verifiable form, such as:
-
-"The system must provide means to prevent double-booking of Time Slots."
-
-This aligns with Milestone 1 standards for clarity and measurability.
-
-
-==== *Walkthrough-Based Verification*
-
-Peer walkthrough sessions were conducted to test documentation against edge cases.
-
-Scenarios analyzed include:
-
-- Cancellation after insurance approval.
-- Referral expiration.
-- Simultaneous booking attempts.
-- Overbooking conditions.
-
-Walkthroughs identified logical gaps and ambiguous constraints, which were resolved through documentation refinement.
-
-This process satisfies the rubric requirement for structured inspection and review.
+Detailed documentation of testing activities — including TDD walkthroughs, BDD scenario execution, load testing results, Hoare logic verification, and mutation testing results — appears in Section 4 (Lecture Topic Tasks). The V&V findings above are grounded in and consistent with those activities.

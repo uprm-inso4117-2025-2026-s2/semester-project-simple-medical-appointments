@@ -1,61 +1,35 @@
 ==== *Ideas*
 
-===== Real-Time Agenda
- * Live availability display
- * Synchronization of schedule updates between patients and clinics
- * Management of time blocks and appointment durations
+NOTE: *Milestone 2 Update:* The ideas section now explicitly connects each idea to the need it addresses. Ideas are kept at a feature level — they describe what the system-to-be could do, not how it does it. Implementation details (JWT, bcrypt, React components) belong in the descriptive part.
 
-===== Waitlist Feature
-If a doctor's schedule is full, patients can join a waitlist and automatically receive a slot when cancellations occur.
+The following ideas describe how the needs identified in 1.2.2 could be satisfied by a medical appointment scheduling platform.
 
-===== Conflict Detection and Capacity Handling
-Prevent double bookings and manage maximum appointment limits per time slot.
+===== Idea 1: A Consolidated Availability View Across Providers and Clinics _(addresses Need 1)_
 
-===== Appointment type Configuration
-Allow clinics to assign different durations for specific procedures and restrict certain procedures to designated time blocks.
+Rather than contacting each clinic individually, a patient could access a single interface that shows which providers have open appointment slots, filtered by specialty, location, and accepted insurance. Providers or administrative staff would publish availability in advance. Patients would see only confirmed open time windows — not a full clinical calendar — preserving confidentiality while enabling informed search.
 
-===== Staff Review and Confirmation
-Appointments may enter a pending state for staff approval before being finalized, ensuring correct booking types and improved reliability.
+===== Idea 2: Structured Appointment States with Explicit Notifications _(addresses Need 2)_
 
-===== Patient Appointment Limits
-Limit the number of active appointments per specialist (e.g., one at a time) to prevent unnecessary reservation of multiple slots.
+Each appointment could occupy one of a defined set of states: requested, confirmed, canceled, rescheduled, completed. Transitions between states would be explicit and would trigger notifications to the affected patient. An appointment confirmed by clinic staff would not be reassignable without first notifying the patient and formally canceling the original booking. This replaces informal slot reassignment with a traceable state machine.
 
-===== Clinic Constraints Configuration
-* Allow institutes to define rules such as:
-* No appointments on specific days
-* No appointments after certain hours
-* Custom availability restrictions
+===== Idea 3: A Waitlist with Automatic Slot Reassignment _(addresses Need 3)_
 
-===== Accessibility Features
-* Clear interface design
-* Larger text options
-* Simplified navigation
-* Accessibility-friendly layout for elderly users
+When no immediate availability exists, a patient could join a structured waitlist for a given provider or specialty. When a slot is freed by cancellation, the system could automatically offer it to the next eligible patient on the waitlist rather than requiring staff to identify and contact candidates manually. Staff would retain the ability to review and approve reassignments, or configure the system to handle them automatically.
 
-===== Advanced Filtering Options
-* Filter by specialty
-* Filter by location
-*Filter by accepted health insurance plans
-* Filter by doctor availability
-* Filter by services offered
+===== Idea 4: Consultation-Type-Aware Slot Durations _(addresses Need 4)_
 
-===== Clear Calendar Separation
-Display schedules per doctor and per location without overlapping all calendars simultaneously.
+Providers could define different appointment durations for different consultation types (e.g., 15 minutes for a follow-up, 45 minutes for a first visit, 60 minutes for a procedure). The scheduling system would then only offer time windows of the appropriate length for the selected consultation type, preventing the structural mismatch between allocated and required time that currently causes schedule drift.
 
-===== Data Privacy and Protection Measures
-* Secure document storage
-*Controlled access permissions
-* Patient history visibility limited to authorized roles
-* Change history tracking
+===== Idea 5: Domain Description, Requirements Prescription, Architecture, and Design as Project Artifacts _(addresses Need 5)_
 
-===== HIPAA Compliance Considerations
-Availability data must be handled in a way that does not expose confidential patient information.
+The project team would produce, as explicit deliverables: a domain description capturing the concepts and phenomena of medical appointment scheduling independent of any system; a requirements prescription defining what the system-to-be must do; a software architecture defining the major components and their relationships; and component-level design artifacts sufficient to guide implementation. These artifacts would be developed iteratively and kept consistent with one another as the project progresses.
 
-===== Secure Authentication and Role Management
-Distinct roles (patient, doctor, location, admin) with clearly defined permissions.
+===== Additional Feature Ideas
 
-===== Automated Notifications
-* Appointment confirmations
-* Cancellation alerts
-* Rescheduling updates
-* Reminder messages
+The following ideas are worth exploring but require more detailed specification before becoming requirements:
+
+* *Conflict detection:* Prevent a provider from having two confirmed appointments at overlapping times.
+* *Clinic configuration:* Allow clinics to define operational constraints (e.g., no appointments on specific days, restricted hours for certain consultation types).
+* *Role-differentiated views:* Patients, providers, and administrative staff see different information appropriate to their role — patients see their own appointments; providers see their schedule; administrative staff see all appointments for their clinic.
+* *Appointment reminders:* Automated notifications sent to patients before scheduled appointments to reduce no-shows.
+* *Appointment history:* A record of past appointments accessible to both patient and provider, supporting continuity of care.

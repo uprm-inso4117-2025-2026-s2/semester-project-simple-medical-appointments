@@ -1,9 +1,17 @@
 ==== *Narrative*
 
-In Puerto Rico, access to medical care is affected by a shortage of doctors and a high number of patients. Because there are fewer doctors available in many specialties, clinics must manage limited consultation time while demand continues to grow.
+NOTE: *Milestone 2 Update:* The previous narrative mixed project justification (physician shortage statistics, project motivation) with domain description. The domain narrative must describe only what can be observed in the domain, independently of the system-to-be. References to "the application," "the platform," and project rationale have been removed.
 
-The process begins when a patient needs medical attention and identifies the appropriate specialty. The patient contacts a clinic or doctor to request an appointment. Each doctor maintains a schedule that defines available time slots for consultations. Clinic staff review the schedule and assign an available time slot, creating an appointment between one patient and one doctor at a specific date and time.
+In Puerto Rico, medical appointment scheduling involves patients, healthcare providers, clinics, and administrative staff operating within defined temporal and organizational constraints.
 
-As appointments fill the schedule, fewer time slots remain available. In high demand specialties, patients may experience significant waiting time before receiving care. If a patient cancels an appointment, the time slot becomes available again and may be reassigned to another patient.
+When a patient needs medical attention, they identify the appropriate specialty and contact a clinic to request an appointment. Each healthcare provider maintains a schedule composed of available time slots — discrete intervals during which the provider is available for consultation. Administrative staff at the clinic review the schedule and assign an available time slot to the patient, producing an appointment: a reserved time interval binding one patient to one provider at one location on a specific date.
 
-Clinics coordinate multiple doctors and schedules while managing appointment requests and cancellations. The interaction between patients, doctors, clinics, specialties, schedules, appointments, cancellations, and waiting time defines how medical appointment scheduling operates in practice in Puerto Rico, independent of any technological system.
+Each appointment has a consultation type — such as a first visit, a follow-up, or a procedure — that determines the expected duration of the consultation. Some consultation types take consistently more time than others. If the slot allocated to an appointment is shorter than the expected duration of the consultation type, subsequent appointments in the schedule shift, causing delays throughout the day.
+
+As appointments fill the schedule, fewer time slots remain available. A patient who contacts the clinic when all slots are taken may be placed on a waitlist: an ordered record of patients who have expressed intent to book an appointment and are waiting for a slot to become available. When a patient cancels an appointment, the released time slot becomes available again and may be assigned to a patient from the waitlist or to a new requester.
+
+Some appointment types require a referral from another provider before the consultation can take place. A referral is a directive from one healthcare provider authorizing a patient to consult a different provider, typically a specialist. Until the referral is recorded, the appointment cannot be finalized. Similarly, some appointments require insurance authorization — an approval from the patient's insurance carrier confirming coverage before the consultation — before the appointment can be confirmed.
+
+A no-show occurs when a patient fails to attend a scheduled appointment without prior cancellation. No-shows affect schedule reliability and reduce the effective capacity available to other patients.
+
+A healthcare provider may operate within one or more clinics, maintaining a separate schedule at each location. Clinics define operational hours — the time intervals during which appointments may be scheduled — and may impose constraints such as minimum advance booking windows or maximum capacity per day.
