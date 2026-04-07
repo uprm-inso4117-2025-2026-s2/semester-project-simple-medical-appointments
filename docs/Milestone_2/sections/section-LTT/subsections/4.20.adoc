@@ -1,5 +1,7 @@
 === *Defect Reporting and Management*
 
+The following is a practice defect report written to apply the defect reporting concepts covered in the "Test Case Execution and Defect Management" lecture. The bug scenario was provided as an exercise in writing a professional, reproducible defect report using all standard elements.
+
 ==== Late-Cancellation Time Slot Not Released Back to Availability
 :author: Diego Perez
 
