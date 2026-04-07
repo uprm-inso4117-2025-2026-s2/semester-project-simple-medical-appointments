@@ -4,7 +4,7 @@
 
 The process begins when a patient needs medical attention and identifies the appropriate specialty. The patient contacts a clinic or doctor to request an appointment. Each doctor maintains a schedule that defines available time slots for consultations. Clinic staff review the schedule and assign an available time slot, creating an appointment between one patient and one doctor at a specific date and time.
 
-As appointments fill the schedule, fewer time slots remain available. In high demand specialties, patients may experience significant waiting time before receiving care. If a patient cancels an appointment, the time slot becomes available again and may be reassigned to another patient.
+[.changed]#Appointments occupy time slots within a doctor's schedule, reducing availability as they are assigned. When an appointment is canceled, the corresponding time slot is released and becomes available for reassignment or for the readjustment of an already existing appointment. This dynamic reflects the continuous update of schedules based on patient interactions when booking and canceling appointments.#
 
 [.added]#Because providers work across locations and schedules shift, clinics must continuously reconcile calendars, redistribute freed slots, and keep patients informed. The domain hangs together through the lifecycle of a time slot—published, requested, confirmed (sometimes conditionally), potentially reassigned, and finally completed or marked absent—under operational-hour constraints and policies that prevent double booking.#
 
