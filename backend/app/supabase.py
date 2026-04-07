@@ -11,6 +11,11 @@ def init_supabase(app):
     """
     global supabase
 
+    if app.config.get("TESTING"):
+        supabase = None
+        app.supabase = None
+        return None
+
     url = app.config.get('SUPABASE_URL')
     key = app.config.get('SUPABASE_KEY')
 
