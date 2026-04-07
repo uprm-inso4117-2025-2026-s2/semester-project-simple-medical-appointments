@@ -1,9 +1,9 @@
 ==== *Narrative*
 
-In Puerto Rico, access to medical care is affected by a shortage of doctors and a high number of patients. Because there are fewer doctors available in many specialties, clinics must manage limited consultation time while demand continues to grow.
+[.changed]#Medical appointment scheduling involves the coordination of doctors; clinics and their staff; their specialties that fulfill certain needs; and the patients themselves to organize access to healthcare services. Each doctor is associated with one or more specialties and operates within a clinic, where consultation services are provided according to defined schedules.#
 
 The process begins when a patient needs medical attention and identifies the appropriate specialty. The patient contacts a clinic or doctor to request an appointment. Each doctor maintains a schedule that defines available time slots for consultations. Clinic staff review the schedule and assign an available time slot, creating an appointment between one patient and one doctor at a specific date and time.
 
-As appointments fill the schedule, fewer time slots remain available. In high demand specialties, patients may experience significant waiting time before receiving care. If a patient cancels an appointment, the time slot becomes available again and may be reassigned to another patient.
+[.changed]#Appointments occupy time slots within a doctor's schedule, reducing availability as they are assigned. When an appointment is canceled, the corresponding time slot is released and becomes available for reassignment or for the readjustment of an already existing appointment. This dynamic reflects the continuous update of schedules based on patient interactions when booking and canceling appointments.#
 
-Clinics coordinate multiple doctors and schedules while managing appointment requests and cancellations. The interaction between patients, doctors, clinics, specialties, schedules, appointments, cancellations, and waiting time defines how medical appointment scheduling operates in practice in Puerto Rico, independent of any technological system.
+[.changed]#Clinics manage multiple doctors, each with their own schedules, and coordinate the allocation of appointments across specialties. The relationships between patients, doctors, clinics, specialties, schedules, and appointments define the structure and behavior of the domain, including how availability is managed and how consultation services are organized.#
