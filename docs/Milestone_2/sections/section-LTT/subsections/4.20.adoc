@@ -11,7 +11,7 @@ Time slot remains unavailable after patient cancels appointment within 1 hour of
 
 ===== Severity
 
-*High* — The defect directly reduces appointment availability for patients during peak demand windows, blocking bookings that would otherwise succeed. Clinics operating with limited open slots are particularly affected.
+*High* - The defect directly reduces appointment availability for patients during peak demand windows, blocking bookings that would otherwise succeed. Clinics operating with limited open slots are particularly affected.
 
 ===== Status
 
@@ -27,7 +27,7 @@ Time slot remains unavailable after patient cancels appointment within 1 hour of
 ===== Software Configuration
 
 * *Application*: Simple Medical Appointments web application (`base-code` branch)
-* *Frontend*: React — any modern browser (Chrome, Firefox, Edge, Safari)
+* *Frontend*: React - any modern browser (Chrome, Firefox, Edge, Safari)
 * *Backend*: Node.js with Supabase as the database/auth provider
 * *OS*: No specific operating system dependency
 
@@ -37,7 +37,7 @@ Time slot remains unavailable after patient cancels appointment within 1 hour of
 . Navigate to the *Upcoming Appointments* section.
 . Select a confirmed appointment whose start time is less than 1 hour from now (e.g., appointment at 10:00, current time is 09:15).
 . Click *Cancel Appointment* and confirm the cancellation dialog.
-. Observe the appointment status — it should change to *Cancelled*.
+. Observe the appointment status - it should change to *Cancelled*.
 . Log out and log in as a different patient account (or use an incognito session).
 . Navigate to *Book an Appointment* and search for the same doctor and time slot that was just cancelled.
 . Observe whether the previously cancelled slot appears as available.
@@ -60,7 +60,7 @@ This defect has real-world consequences for both patients and clinics:
 
 ===== Proposed Solution
 
-The root cause is likely in the cancellation handler — when a late cancellation is processed, the slot availability flag is not being updated in the database. The fix should ensure that, upon any successful cancellation (regardless of timing), the corresponding time slot record is set back to *Available*.
+The root cause is likely in the cancellation handler. When a late cancellation is processed, the slot availability flag is not being updated in the database. The fix should ensure that, upon any successful cancellation (regardless of timing), the corresponding time slot record is set back to *Available*.
 
 Specifically:
 
@@ -71,3 +71,11 @@ Specifically:
   .. Cancels the appointment.
   .. Asserts that the slot is available again.
 . Verify that any cron jobs or background processes responsible for slot management are not overriding the release with stale cached state.
+
+===== Priority
+
+*Medium* - While the severity is High, this defect occurs only under a specific time constraint (cancellation within 1 hour of the appointment). It does not affect the majority of cancellations and does not block core booking functionality. It should be addressed before release but is not a blocker for ongoing development.
+
+===== Root Cause
+
+*To be determined* - Suspected coding error in the cancellation handler, where the slot availability update is either skipped or conditionally blocked when the cancellation occurs within the 1-hour window. Possibly an unintended guard clause tied to the late-cancellation policy logic.
