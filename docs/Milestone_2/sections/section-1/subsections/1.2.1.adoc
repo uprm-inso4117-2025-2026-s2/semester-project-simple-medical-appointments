@@ -51,6 +51,21 @@ to suggest that the performance of these types of reminders are suboptimal <<sms
 Because these solutions operate independently within individual clinics, they do not address the wider
 coordination challenges across the healthcare system.
 
+[.added]
+===== Observed Pain Points
+
+These systemic issues manifest in various ways for patients and providers alike,  (from rough sketches; see <<_domain_rough_sketches, 2.1.2>> and <<_events_actions_and_behaviors, 2.1.4>> for analysis)
+
+- Call saturation and multi-month wait times; patients resort to paper reminders (Carmen, 5 Feb 2026).
+- Office-hour constraints force repeated walk-ins and extra trips (Miguel, multiple visits in Jan 2026).
+- Caregiver juggling cascades when one appointment shifts (Elena, March 2026).
+- Waitlist status is opaque, leaving patients uncertain (Natalia).
+- Insurance acceptance is hard to verify; multiple calls before finding a match (Rosa, 14 Feb 2026).
+- Staff rely on notebooks plus spreadsheets and memory to reassign cancellations (Laura).
+- Clinics cannot see each other's calendars, so patients must phone hop (Jose).
+- Unpredictable consult lengths and no-shows distort schedules; defensive double booking adds churn (Dr. Rivera, Dr. Morales).
+- Authorization checks can stall bookings and cause released slots (Marcos).
+
 ===== [.added]#References:#
 
 [.added]#- [1] [[prDocMigration]] Health Policy OPEN. 
