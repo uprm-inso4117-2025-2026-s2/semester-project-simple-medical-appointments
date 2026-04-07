@@ -1,5 +1,6 @@
 === *Requirements*
 
+[.changed]
 ==== *User Stories, Epics, Features*
 
 [NOTE]
@@ -42,14 +43,30 @@ This subsection defines the product scope of the Simple Medical Appointments sys
 |`REQ-BOOK-F-01`
 |===
 
+[discrete]
+==== Functional Requirement Definitions (ReqRef)
+
+[cols="1,3,2",options="header,autowidth"]
+|===
+|Req ID |Description |Linked Epics/Features
+|REQ-AUTH-F-01 |Authenticate users, create accounts, and enforce role-based access (patient, doctor, admin). Provide clear failure reasons and lockout on repeated failures. |E1 -> F1.1, F1.4
+|REQ-PROF-F-01 |Persist patient and doctor profile data (name, contact, specialty/clinic, accessibility prefs). Validate required fields, allow users to update their own profiles, and audit changes. |E1 -> F1.2, F1.3
+|REQ-AVAIL-F-01 |Allow providers to declare weekly availability and ad-hoc slots; prevent overlapping slots and surface conflicts to the user. |E2 -> F2.1, F2.2, F2.3
+|REQ-BOOK-F-01 |Let patients book available slots, reserve the slot atomically, and prevent double booking. |E3 -> F3.2, F3.3, F3.4
+|REQ-BOOK-F-02 |Allow patients to cancel upcoming appointments and immediately release the slot for reuse. |E3 -> F3.3
+|REQ-NOTIF-F-01 |Send confirmation notifications after successful booking, including appointment details. |E4 -> F4.1
+|REQ-NOTIF-F-02 |Send reminder notifications before the appointment based on user preferences. |E4 -> F4.2, F4.3
+|REQ-ADMIN-F-01 |Provide admins with read-only oversight dashboards (appointments, users, activity) with filtering/export; enforce least-privilege access. |E5 -> F5.1, F5.2
+|===
+
 &#160;
 
 [discrete]
-===== *_Epic E1: User Registration & Profiles_*
+===== *_Epic E1: Trusted Care Identity & Profiles_*
 
-*Goal:* Enable secure identification of patients and doctors.
+*Goal:* Ensure patients and doctors are recognized securely so their appointments, history, and permissions travel with them.
 
-*Problem/value:* Patients and doctors must have clear, trusted profiles to enable appointment scheduling and communication.
+*Problem/value:* Users need trusted identities and accurate profiles to receive the right care, see their history, and communicate with providers.
 
 *Features (F1):*
 
@@ -59,9 +76,9 @@ This subsection defines the product scope of the Simple Medical Appointments sys
 - F1.4 Role-based access control
 
 [discrete]
-===== _US.AUTH.01: Register an account | ReqRef: REQ-AUTH-F-01_
+===== _US.AUTH.01: Be recognized securely | ReqRef: <<REQ-AUTH-F-01>>_
 
-_"As a user, I want to register as a patient or doctor so that I can use the system according to my role."_
+_"As a patient or doctor, I want the system to recognize me securely so that my appointments, notes, and permissions are tied to me across visits."_
 
 *Acceptance criteria:*
 
@@ -73,7 +90,7 @@ _"As a user, I want to register as a patient or doctor so that I can use the sys
 |===
 
 [discrete]
-===== _US.PROF.01: Maintain my profile | ReqRef: REQ-PROF-F-01_
+===== _US.PROF.01: Maintain my profile | ReqRef: <<REQ-PROF-F-01>>_
 
 _"As a patient, I want to manage my personal information so that doctors have accurate details during appointments."_
 
@@ -87,13 +104,13 @@ _"As a patient, I want to manage my personal information so that doctors have ac
 |===
 
 [discrete]
-===== E1 Traceability (Stories → Features → Requirements):
+===== E1 Traceability (Stories -> Features -> Requirements):
 
 [cols="1,2,2,2",options="header,autowidth"]
 |===
 |Story ID |Feature |ReqRef |Notes
-|US-AUTH-01 |F1.1, F1.4 |REQ-AUTH-F-01 |Authentication and role logic.
-|US-PROF-01 |F1.2, F1.3 |REQ-PROF-F-01 |Profile persistence and validation.
+|[[US-AUTH-01]]US-AUTH-01 |F1.1, F1.4 |<<REQ-AUTH-F-01>> |Authentication and role logic.
+|US-PROF-01 |F1.2, F1.3 |<<REQ-PROF-F-01>> |Profile persistence and validation.
 |===
 
 &#160;
@@ -112,7 +129,7 @@ _"As a patient, I want to manage my personal information so that doctors have ac
 - F2.3 Prevent overlapping availability
 
 [discrete]
-===== _US.AVAIL.01: Set my availability | ReqRef: REQ-AVAIL-F-01_
+===== _US.AVAIL.01: Set my availability | ReqRef: <<REQ-AVAIL-F-01>>_
 
 _"As a doctor, I want to define my available time slots so that patients can book appointments."_
 
@@ -126,12 +143,12 @@ _"As a doctor, I want to define my available time slots so that patients can boo
 |===
 
 [discrete]
-===== E2 Traceability (Stories → Features → Requirements):
+===== E2 Traceability (Stories -> Features -> Requirements):
 
 [cols="1,2,2,2",options="header,autowidth"]
 |===
 |Story ID |Feature |ReqRef |Notes
-|US-AVAIL-01 |F2.1, F2.2, F2.3 |REQ-AVAIL-F-01 |Calendar conflict rules.
+|[[US-AVAIL-01]]US-AVAIL-01 |F2.1, F2.2, F2.3 |<<REQ-AVAIL-F-01>> |Calendar conflict rules.
 |===
 
 &#160;
@@ -151,7 +168,7 @@ _"As a doctor, I want to define my available time slots so that patients can boo
 - F3.4 Prevent double booking
 
 [discrete]
-===== _US.BOOK.01: Book an appointment | ReqRef: REQ-BOOK-F-01_
+===== _US.BOOK.01: Book an appointment | ReqRef: <<REQ-BOOK-F-01>>_
 
 _"As a patient, I want to book an available time slot so that I can secure a consultation with a doctor."_
 
@@ -165,7 +182,7 @@ _"As a patient, I want to book an available time slot so that I can secure a con
 |===
 
 [discrete]
-===== _US.BOOK.02: Cancel an appointment | ReqRef: REQ-BOOK-F-02_
+===== _US.BOOK.02: Cancel an appointment | ReqRef: <<REQ-BOOK-F-02>>_
 
 _"As a patient, I want to cancel my appointment so that the time slot becomes available again."_
 
@@ -179,13 +196,13 @@ _"As a patient, I want to cancel my appointment so that the time slot becomes av
 |===
 
 [discrete]
-===== E3 Traceability (Stories → Features → Requirements):
+===== E3 Traceability (Stories -> Features -> Requirements):
 
 [cols="1,2,2,2",options="header,autowidth"]
 |===
 |Story ID |Feature |ReqRef |Notes
-|US-BOOK-01 |F3.2, F3.3, F3.4 |REQ-BOOK-F-01 |Booking transaction and conflict handling.
-|US-BOOK-02 |F3.3 |REQ-BOOK-F-02 |Cancellation logic.
+|[[US-BOOK-01]]US-BOOK-01 |F3.2, F3.3, F3.4 |<<REQ-BOOK-F-01>> |Booking transaction and conflict handling.
+|[[US-BOOK-02]]US-BOOK-02 |F3.3 |<<REQ-BOOK-F-02>> |Cancellation logic.
 |===
 
 &#160;
@@ -203,7 +220,7 @@ _"As a patient, I want to cancel my appointment so that the time slot becomes av
 - F4.3 Notification preferences
 
 [discrete]
-===== _US.NOTIF.01: Receive appointment confirmation | ReqRef: REQ-NOTIF-F-01_
+===== _US.NOTIF.01: Receive appointment confirmation | ReqRef: <<REQ-NOTIF-F-01>>_
 
 _"As a patient, I want to receive confirmation after booking so that I know my appointment is secured."_
 
@@ -216,7 +233,7 @@ _"As a patient, I want to receive confirmation after booking so that I know my a
 |===
 
 [discrete]
-===== _US.NOTIF.02: Receive appointment reminder | ReqRef: REQ-NOTIF-F-02_
+===== _US.NOTIF.02: Receive appointment reminder | ReqRef: <<REQ-NOTIF-F-02>>_
 
 _"As a user, I want to receive a reminder before my appointment so that I do not forget it."_
 
@@ -229,13 +246,13 @@ _"As a user, I want to receive a reminder before my appointment so that I do not
 |===
 
 [discrete]
-===== E4 Traceability (Stories → Features → Requirements):
+===== E4 Traceability (Stories -> Features -> Requirements):
 
 [cols="1,2,2,2",options="header,autowidth"]
 |===
 |Story ID |Feature |ReqRef |Notes
-|US-NOTIF-01 |F4.1 |REQ-NOTIF-F-01 |Confirmation trigger.
-|US-NOTIF-02 |F4.2, F4.3 |REQ-NOTIF-F-02 |Reminder scheduler and preferences.
+|[[US-NOTIF-01]]US-NOTIF-01 |F4.1 |<<REQ-NOTIF-F-01>> |Confirmation trigger.
+|[[US-NOTIF-02]]US-NOTIF-02 |F4.2, F4.3 |<<REQ-NOTIF-F-02>> |Reminder scheduler and preferences.
 |===
 
 &#160;
@@ -254,7 +271,7 @@ _"As a user, I want to receive a reminder before my appointment so that I do not
 - F5.3 Deactivate accounts
 
 [discrete]
-===== _US.ADMIN.01: Monitor appointments | ReqRef: REQ-ADMIN-F-01_
+===== _US.ADMIN.01: Monitor appointments | ReqRef: <<REQ-ADMIN-F-01>>_
 
 _"As an administrator, I want to view all appointments so that I can ensure system integrity."_
 
@@ -267,10 +284,10 @@ _"As an administrator, I want to view all appointments so that I can ensure syst
 |===
 
 [discrete]
-===== E5 Traceability (Stories → Features → Requirements):
+===== E5 Traceability (Stories -> Features -> Requirements):
 
 [cols="1,2,2,2",options="header,autowidth"]
 |===
 |Story ID |Feature |ReqRef |Notes
-|US-ADMIN-01 |F5.1, F5.2 |REQ-ADMIN-F-01 |Admin read access and filtering.
+|[[US-ADMIN-01]]US-ADMIN-01 |F5.1, F5.2 |<<REQ-ADMIN-F-01>> |Admin read access and filtering.
 |===
