@@ -1,27 +1,5 @@
 ==== *Need*
 
-NOTE: *Milestone 2 Update:* This section has been completely rewritten. The previous version restated the current situation and described system features, which are ideas — not needs. Needs must be independent of the system-to-be. They describe what people out in the domain lack, not what a system will provide.
+Puerto Rico is currently facing significant challenges in accessing timely medical care due to the high demand for appointments and the continued reduction in available doctors. Many clinics still rely on traditional phone-based scheduling systems, which are inefficient, time-consuming, and prone to delays, double bookings, and miscommunication. Patients often struggle to find available appointments by specialty or location, while clinics and doctors experience increased administrative burdens that further contribute to long waiting times.
 
-The following needs are derived from the current situation described in 1.2.1. They are framed from the perspective of the people in the domain: patients, healthcare providers, and administrative staff.
-
-===== Need 1: Patients Need a Way to Learn What Appointment Times Are Available Without Calling Each Clinic Individually
-
-Currently, patients who need to see a specialist have no mechanism to learn which providers have open slots without initiating direct contact with each clinic. Patients report calling three or more clinics before finding one that accepts their insurance and has a near-term opening. The time and effort this requires causes some patients to abandon the search entirely, delaying care. What patients need is a way to discover, from a single point of reference, which providers have availability and whether those providers accept their insurance — without requiring a phone call for each.
-
-This need exists in the domain regardless of any technological solution. One might satisfy it through a published directory updated weekly by clinic staff, through a centralized phone line staffed by a coordination service, or through a digital platform. The need itself is for accessible, consolidated availability information.
-
-===== Need 2: Patients Need Confirmation That a Booked Appointment Is Secure and Will Not Be Quietly Reassigned
-
-Patients who successfully book an appointment currently have no reliable way to know whether that appointment is still valid in the days leading up to it. Clinics occasionally reassign slots informally when higher-priority patients call, without notifying the original patient. Some patients call the clinic the day before to confirm. Elderly patients in particular report high anxiety around appointment uncertainty. What patients need is assurance that once an appointment is established, it will be honored or they will be explicitly notified if anything changes.
-
-===== Need 3: Administrative Staff Need to Coordinate Cancellations and Reassignments Without Relying on Memory or Parallel Paper Records
-
-When a patient cancels, clinic staff currently attempt to reassign the freed slot by recalling which patients on a paper or mental waitlist might want it. This process is unreliable: some patients are missed, others are unreachable, and the slot is lost. Staff report maintaining a notebook and a spreadsheet simultaneously to manage this. What administrative staff need is a structured mechanism for redistributing canceled slots to patients who have expressed interest, without relying on informal memory or redundant manual records.
-
-===== Need 4: Healthcare Providers Need Predictable, Organized Schedules That Reflect Actual Consultation Durations
-
-Healthcare providers report that their schedules frequently fall behind because the allocated time per slot does not match the actual consultation duration for different types of visits. A follow-up consultation requires less time than a first visit or a procedure. Currently, all slots are uniform. Providers need a way for their schedules to reflect the real temporal requirements of different consultation types, so that slot allocation is realistic and patients do not experience cascading delays.
-
-===== Need 5: The Project Team Needs Domain Description, Requirements, Architecture, and Design as a Foundation for Building a Sound System
-
-The project team currently has no formal domain description, no structured requirements collection, no software architecture, and no component design for this system. These are not needs that patients or providers feel directly — but they are genuine needs that arise from the decision to develop a system that addresses the needs above. Without a clear domain description, requirements may be specified in ways that contradict how the domain actually works. Without a requirements collection, the implementation may satisfy the wrong goals. Without a software architecture, components may be developed in ways that cannot be composed. These are real needs that the team must satisfy in order for the project to succeed, and the current situation is that none of these artifacts exist.
+This project is necessary to address these inefficiencies by introducing a centralized and structured online scheduling platform. For patients, the system provides easier access to real-time availability, appointment management, and specialty-based search tools. For doctors and clinics, it reduces manual workload, improves schedule organization, and streamlines communication. For developers and project stakeholders, the platform offers a scalable, modular system that can evolve to include analytics, secure document handling, and improved operational insights. Overall, the project responds directly to an urgent healthcare access problem while delivering measurable improvements in efficiency, organization, and user experience.

@@ -2,81 +2,120 @@
 
 === *Concept Analysis*
 
-NOTE: *Milestone 2 Update:* The previous version listed domain entities and "core tensions" without showing derivation from the rough sketch. Events were listed without explanation of how they were identified. This revision shows explicitly how each concept was derived from concrete stakeholder statements in section 2.1.1.
+==== *From Raw Observations to Domain Structure*
 
-==== *From Raw Observations to Concepts*
+The descriptive section revealed fragmented scheduling practices, overloaded communication channels, informal coordination patterns, and systemic access inequalities. 
+The following concept analysis abstracts these raw observations into structured domain elements and relationships that define the medical appointment scheduling problem.
+The goal of this section is not to repeat observations, but to transform them into coherent domain concepts.
 
-The rough sketch (section 2.1.1) contains specific observations from five patient personas, two clinic staff personas, two provider personas, and one insurance coordinator persona. Below we show how recurring specifics led to shared abstractions.
+==== *Core Domain Entities*
 
-===== Deriving the Appointment and Time Slot concepts
+From recurring patterns in stakeholder fragments and operational observations, the following primary entities were identified:
 
-Carmen (patient, 67): _"I kept dialing for almost an hour. When someone finally answered, they said the next available appointment was in three months."_
+*Patient*  
+An individual seeking medical consultation. Patients may differ in digital literacy, transportation availability, insurance type, and appointment urgency.
 
-Miguel (patient, 34): _"I can't always call during work hours. By the time I get out, the office is closed."_
+*Provider*  
+A doctor or specialist offering medical consultations. Providers may operate in multiple clinics and manage overloaded schedules.
 
-Laura (clinic administrator): _"If someone cancels, we try to call another patient from memory, but not everyone picks up. We use a notebook and a spreadsheet, just to be safe."_
+*Clinic*  
+An organization where providers offer consultations. Clinics manage scheduling logistics, administrative staff, and communication workflows.
 
-Holding these side by side: Carmen's statement concerns a specific consultation she is trying to secure at a specific point in time. Miguel's statement concerns temporal access to the scheduling process itself. Laura's statement concerns what happens to a specific block of time when a patient cancels.
+*Appointment*  
+A scheduled interaction between a Patient and a Provider at a specific time and location. Appointments vary in duration and consultation type.
 
-*Abstraction derived:* There is a thing — distinct from the appointment itself — that represents a reservable interval in a provider's schedule. We call this a *Time Slot*. An *Appointment* is the binding of a patient to a Time Slot. Laura's "trying to call another patient" is the redistribution of a freed Time Slot. These two concepts are distinct and both necessary.
+*Time Slot*  
+A discrete unit of provider availability that can be reserved, canceled, or reassigned.
 
-*Concept not accepted:* We considered calling the time slot an "opening" (from Carmen's description) but decided "time slot" is more precise because it captures the discrete, fixed-duration nature of the interval.
+*Referral*  
+A requirement that introduces dependency between providers and adds coordination steps before scheduling.
 
-===== Deriving the Waitlist concept
+*Insurance Authorization*  
+An external validation process that may delay confirmation of appointments.
 
-Natalia (patient, university student): _"I joined a waitlist once, but nobody ever told me if I moved up or not. I didn't know whether to wait or book somewhere else."_
+==== *Events in the Domain*
 
-Laura: _"If someone cancels, we try to call another patient from memory."_
+The domain is event-driven. The following events structure system behavior:
 
-Holding these side by side: Natalia confirms that a waitlist concept exists in the domain. Laura confirms that the redistribution of freed slots is a real administrative activity. Natalia's complaint — "nobody told me if I moved up" — reveals a property: the waitlist has an ordering, and that ordering should be observable by patients on the list.
+* Appointment Request
+* Appointment Confirmation
+* Cancellation
+* Rescheduling
+* No-Show
+* Walk-In Arrival
+* Reminder Notification
+* Referral Submission
+* Insurance Approval
 
-*Abstraction derived:* A *Waitlist* is an ordered collection of patients waiting for a Time Slot to become available. The order must be defined by an explicit rule (first-come-first-served, urgency, or another configurable criterion). See also the validation finding from Ana Rivera (section 3.2): clinics do not always use first-come-first-served; the ordering rule must be configurable.
+These events alter system state and influence availability, workload, and waiting time.
 
-===== Deriving the Consultation Type concept
+==== *Behavioral Patterns Identified*
 
-Dr. Rivera (cardiologist): _"My schedule looks full weeks ahead, but sometimes there are no-shows. Other days, appointments take longer than expected, and everything runs late."_
+The descriptive material revealed recurring behavioral patterns:
 
-Ana Rivera (validation session, section 3.2): _"We have different types — revisita (15 min), primera vista (45 min), procedimiento (60 min)."_
+* Patients contact multiple clinics simultaneously.
+* Staff maintain informal priority lists.
+* Providers prioritize returning patients.
+* Cancellations are redistributed informally.
+* Appointment duration frequently exceeds planned time.
 
-*Abstraction derived:* A *Consultation Type* classifies a visit and determines its expected duration. Uniform slot lengths cause schedule drift when appointment types have different durations. The Time Slot must carry a consultation type so that the allocated length matches the expected duration.
+These behaviors indicate a lack of centralized visibility and systematic coordination.
 
-===== Deriving the Referral and Insurance Authorization concepts
+==== *Operational Concepts*
 
-Marcos (insurance coordinator): _"Sometimes we have to confirm insurance authorization before finalizing an appointment. If approval takes too long, the slot might already be given to someone else."_
+Beyond entities and events, higher-level operational abstractions emerged:
 
-Elena (patient, caregiver): _"If one appointment changes, everything else has to move too."_ (The context was coordinating primary doctor, specialist, and lab tests — the specialist visit required a referral from the primary doctor.)
+*Availability Visibility*  
+The degree to which real-time time slots are visible to patients and staff.
 
-*Abstraction derived:* Some appointments have *preconditions* that must be satisfied before they can be confirmed. Two types of preconditions were identified: a *Referral* (authorization from a provider to consult a specialist) and an *Insurance Authorization* (carrier approval for coverage). These must be modeled explicitly because they affect whether an appointment can transition to Confirmed state.
+*Scheduling Coordination*  
+The mechanism used to assign appointments (manual, semi-digital, or automated).
 
-===== Deriving the No-Show event
+*Administrative Load*  
+The amount of time and effort clinic staff dedicate to scheduling-related tasks.
 
-Dr. Morales (general practitioner): _"Some patients book multiple appointments just in case, then cancel last minute. I understand why they do it — they're afraid of losing the slot — but it makes scheduling unpredictable."_
+*Waiting Time*  
+The time between appointment request and confirmed consultation.
 
-Dr. Rivera: _"Sometimes there are no-shows."_
+*No-Show Rate*  
+The proportion of scheduled appointments not attended by patients.
 
-*Abstraction derived:* A *No-Show* is an event in the domain: the appointment time passes without the patient attending and without a prior cancellation. It differs from a Cancellation in that it does not free the slot for reassignment — the slot is lost. No-show frequency affects clinic capacity planning and informs whether policies like overbooking or appointment limits make sense.
+*Access Inequality*  
+Differences in scheduling success due to geography, transportation, or digital literacy.
+
+==== *Domain Tensions (Structural Conflicts)*
+
+From the raw notes, several structural tensions were identified:
+
+* Limited provider availability vs. high patient demand
+* Manual coordination vs. unpredictable appointment durations
+* Need for flexibility vs. administrative overload
+* Regional inequality vs. centralized access expectations
+* Informal communication vs. need for transparency
+
+These tensions define the core problem space the system must address.
 
 ==== *Concept Relationships*
 
-The primary relationships in the domain, derived from the analysis above:
+The primary relationships in the domain are:
 
-* A Patient requests an Appointment (action: `requestAppointment`).
-* An Appointment reserves a Time Slot (postcondition of `confirmAppointment`).
-* A Healthcare Provider offers multiple Time Slots within a Schedule.
-* A Healthcare Provider operates within one or more Clinics, with a separate Schedule per Clinic.
-* A Cancellation by a Patient or Clinic releases the associated Time Slot (action: `cancelAppointment`).
-* A Cancellation may trigger reassignment of the freed Time Slot to a Waitlisted Patient.
-* A Referral may constrain an Appointment from transitioning to Confirmed state.
-* An Insurance Authorization may constrain an Appointment from transitioning to Confirmed state.
-* A No-Show preserves the Appointment record but does not free the Time Slot.
-* A Patient may join a Waitlist for a given Specialty when no Time Slots are immediately available.
+* A Patient requests an Appointment.
+* An Appointment reserves a Time Slot.
+* A Provider offers multiple Time Slots.
+* A Provider operates within one or more Clinics.
+* A Cancellation releases a Time Slot.
+* Referral and Insurance Authorization may constrain Appointment confirmation.
+* Reminder Notifications aim to reduce No-Show rates.
+* Administrative Load increases when Scheduling Coordination is manual.
 
-These relationships are reflected in the function signatures in section 2.1.5 and the domain requirements in section 2.2.3.
+These relationships reveal that the system’s central coordination node is the management of Time Slots under real-time constraints.
 
-==== *Concepts Considered and Rejected*
+==== *Conceptual Abstraction of the Problem*
 
-* *"Walk-in arrival"* — raised in the rough sketch from Miguel's behavior of going in person. This was discussed but not included as a first-class domain concept because it is a degenerate case of the request flow (patient arrives physically and an available slot is assigned on the spot). The same `requestAppointment` + `confirmAppointment` operations apply; no additional concept is needed.
+The core abstraction of the domain can be summarized as:
 
-* *"Informal priority list"* — Laura's notebook constitutes an informal waitlist. We absorbed this into the formal Waitlist concept with a configurable ordering rule, rather than modeling informality as a separate concept.
+A constrained resource allocation system where limited provider time must be dynamically distributed among patients under uncertainty, administrative friction, and access inequality.
 
-* *"Schedule drift"* — the accumulation of delays when appointments run long. This is an emergent phenomenon, not a domain entity. It is relevant to the Consultation Type concept (correct durations reduce drift) but does not need its own term.
+The descriptive material demonstrates that the current system relies heavily on informal coordination and manual communication, resulting in inefficiencies and long waiting times.
+
+This concept analysis provides the structural foundation necessary for defining system architecture and validation strategies in subsequent sections.

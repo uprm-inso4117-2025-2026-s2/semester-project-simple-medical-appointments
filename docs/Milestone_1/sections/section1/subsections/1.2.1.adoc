@@ -2,36 +2,40 @@
 
 ==== *Current Situation*
 
-NOTE: *Milestone 2 Update:* All claims now cite supporting evidence. Sources are listed at the end of this section.
+===== Healthcare Access Pressure in Puerto Rico 
 
-===== Healthcare Access Pressure in Puerto Rico
-
-Access to medical services in Puerto Rico has become measurably strained in recent years due to structural pressures on the healthcare system. The island has experienced a significant loss of licensed physicians: according to data from the Puerto Rico Medical Association (PRMA), Puerto Rico lost approximately 3,000 physicians between 2006 and 2016 — a decline of roughly 30% — driven primarily by migration to the continental United States in search of higher salaries and improved living conditions after Hurricane Maria and the island's prolonged economic crisis <<PRMA2019>>. As of 2022, Puerto Rico had approximately 9,100 active licensed physicians to serve a population of approximately 3.2 million people, yielding a physician-to-population ratio that lags behind the U.S. national average <<PRHealth2022>>.
-
-As a result of this workforce reduction, many specialty clinics operate at or near full capacity. A 2021 survey conducted by the Puerto Rico Department of Health found that average wait times for a specialist appointment ranged from 4 to 12 weeks depending on the specialty, with cardiology and endocrinology exhibiting the longest delays <<PRDOH2021>>. Patients seeking non-urgent care in these specialties reported average phone-scheduling attempts of 3.4 calls before successfully booking an appointment.
+Access to medical services in Puerto Rico has become increasingly strained in
+recent years due to structural pressures on the healthcare system. One major
+factor is the sustained migration of healthcare professionals away from the
+island, which has reduced the number of practicing physicians available to meet
+patient demand. As a result, many clinics operate at or near full capacity and
+patients often experience delays when attempting to obtain appointments.
 
 ===== Scheduling Practices and Operational Constraints
 
-Medical appointment scheduling in the majority of Puerto Rico's private clinics still relies heavily on manual coordination, particularly phone-based booking systems. A 2020 practice management survey published by the Puerto Rico Chapter of the Medical Group Management Association (MGMA-PR) found that 68% of surveyed outpatient practices managed appointment scheduling primarily by telephone, with 21% using hybrid systems (phone plus a basic digital form) and only 11% employing a fully digital self-service portal <<MGMAPR2020>>.
-
-Because scheduling is handled manually, common operational problems include: missed calls during off-hours (reported by 74% of surveyed practices), double bookings (reported by 31%), and unused appointment slots caused by failed cancellation notifications (reported by 58%). These inefficiencies translate directly into lost consultation capacity and increased administrative burden on front-desk staff.
+Medical appointment scheduling in many clinics still relies heavily on manual
+coordination methods, particularly phone-based booking systems. These methods
+require administrative staff to manage calendars, answer calls, and coordinate
+changes throughout the day. Because scheduling is handled manually, issues such
+as missed calls, limited office-hour availability, and double bookings may occur.
+These inefficiencies can leave appointment slots unused while other patients
+remain waiting for care.
 
 ===== Patient Experience and Information Fragmentation
 
-From the patient perspective, the process of securing a medical appointment is often time-consuming and uncertain. Patients frequently contact multiple clinics individually to find available times or appropriate specialists, since there is no unified registry of physician availability in Puerto Rico. A patient-experience survey conducted by Consumers Union Puerto Rico in 2019 found that 62% of respondents had contacted more than two healthcare providers before securing an appointment with a given specialist, and 41% had abandoned a scheduling attempt entirely due to the effort required <<CUPR2019>>.
-
-Information fragmentation also extends to insurance compatibility: patients are often unaware which providers accept their specific insurance plan until after making contact, adding additional search overhead to an already inefficient process.
+From the patient perspective, the process of securing a medical appointment is
+often time-consuming and uncertain. Patients frequently must contact multiple
+clinics individually to find available times or appropriate specialists. There
+is typically no unified way to view appointment availability across providers,
+making it difficult to compare options or plan medical visits efficiently.
+Delays in securing consultations may result in postponed treatment and increased
+patient frustration.
 
 ===== Partial Digital Measures and Their Limitations
 
-Some clinics have introduced limited digital measures, such as SMS appointment reminders or web-based contact forms. While these efforts can reduce no-show rates by an estimated 20–30% (based on industry benchmarks published by the Healthcare Financial Management Association <<HFMA2018>>), they do not provide patients with interactive scheduling capabilities or real-time visibility into broader appointment availability. Because these solutions operate independently within individual clinics, they address only one dimension of the coordination problem without resolving the fragmentation of availability information across providers.
-
-===== Sources
-
-[bibliography]
-* [[[PRMA2019]]] Puerto Rico Medical Association. (2019). _Physician Workforce Report: Puerto Rico 2019_. San Juan, PR: PRMA.
-* [[[PRHealth2022]]] Puerto Rico Department of Health. (2022). _Annual Health Statistics Report_. San Juan, PR: PRDOH. Available at: http://www.salud.gov.pr
-* [[[PRDOH2021]]] Puerto Rico Department of Health. (2021). _Patient Access and Wait-Time Survey: Outpatient Specialty Care_. San Juan, PR: PRDOH.
-* [[[MGMAPR2020]]] Medical Group Management Association – Puerto Rico Chapter. (2020). _Practice Management Technology Survey_. San Juan, PR: MGMA-PR.
-* [[[CUPR2019]]] Consumers Union Puerto Rico. (2019). _Patient Experience Report: Accessing Specialty Care in Puerto Rico_. San Juan, PR: CUPR.
-* [[[HFMA2018]]] Healthcare Financial Management Association. (2018). _Digital Patient Engagement and No-Show Reduction: Industry Benchmarks_. Westchester, IL: HFMA.
+Some clinics have introduced limited digital measures, such as sending
+appointment reminders via text message or email. While these efforts can reduce
+missed appointments, they do not provide patients with interactive scheduling
+capabilities or visibility into broader availability. Because these solutions
+operate independently within individual clinics, they do not address the wider
+coordination challenges across the healthcare system.

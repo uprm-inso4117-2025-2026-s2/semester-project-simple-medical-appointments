@@ -1,94 +1,100 @@
 ==== *Terminology*
 
-NOTE: *Milestone 2 Update:* (1) Function signatures have been added to domain verbs, now integrated into section 2.1.4. (2) The "Single Active Appointment per Provider Constraint" has been relaxed — a patient may hold multiple active appointments with the same provider (e.g., one for a routine cleaning and one for a procedure), but may not hold two appointments for the same time slot. (3) Missing terms used in function signatures (Specialty, Schedule, ReferralRegistry, InsuranceRegistry, NotificationQueue) have been added. (4) Consultation Type now explicitly states what can be observed from it.
+[NOTE]
+====
+Each term below is derived from raw observations in the Domain Rough Sketch (2.1.1) and refined through concept analysis. Terms are presented with their classification (entity, actor, event, behavior, function, etc.) and the phase in which they appear (domain, requirements, implementation).
 
-Each term is annotated with its classification and the development phase that introduces it.
+Terms are organized into Domain Nouns, Domain Verbs, and Domain Constraints to align with ubiquitous language principles.
+====
+
 
 [discrete]
 ===== Domain Nouns (entities, actors, abstractions)
 
+
 *Patient* :: (actor, domain)
 A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
-_Derived from: repeated references to calling clinics, joining waitlists, coordinating care._
+[.small]*Derived from: repeated references to calling clinics, joining waitlists, coordinating care.*
 
 *Caregiver* :: (actor, domain)
 A person managing appointments on behalf of a patient who cannot coordinate independently.
-_Derived from: "I manage my mother's appointments because she doesn't use a smartphone."_
+[.small]*Derived from: “I manage my mother’s appointments because she doesn’t use a smartphone.”*
 
 *Healthcare Provider* :: (actor, domain)
-A licensed professional offering medical consultations (e.g., general practitioner, specialist). Also referred to as "provider." Not to be confused with "doctor" in informal usage — the domain term is "healthcare provider."
-_Derived from: overloaded schedules, consultation variability._
+A licensed professional offering medical consultations (e.g., general practitioner, specialist).
+[.small]*Derived from: overloaded schedules, consultation variability.*
 
 *Clinic* :: (entity, domain)
 A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
 
 *Appointment* :: (entity, domain)
-A reserved time block binding one patient to one provider at one clinic location on a specific date and time. An appointment has a consultation type, a status, and a unique identifier. From an appointment, one can observe: the patient, the provider, the time slot, the consultation type, the booking status, and the attendance outcome (if past).
+A reserved time block allocated to a patient for consultation with a provider at a specific clinic location.
 
 *Time Slot* :: (entity, domain)
-A discrete, reservable interval in a provider's schedule at a clinic. A time slot carries: a start time, an end time, a consultation type (determining expected duration), and a status. Status values: `Available`, `Held`, `Reserved`, `Expired`.
+A discrete, reservable interval in a provider’s schedule. A time slot may be available, reserved, canceled, or expired.
 
 *Schedule* :: (entity, domain)
-The structured allocation of time slots for one provider at one clinic. A provider operating at multiple clinics has a separate schedule per clinic. A schedule is the primary structure over which all booking operations are performed.
-
-*Specialty* :: (taxonomy, domain)
-A classification of a provider's medical expertise (e.g., cardiology, general practice, endocrinology). Patients search for providers by specialty. Referrals are issued to a specialty, not to a specific provider. This term appears explicitly in provider records and in the referral system.
+The structured allocation of time slots associated with a provider or clinic.
 
 *Consultation Type* :: (taxonomy, domain)
-A classification of medical visit (e.g., follow-up, first visit, procedure). From a consultation type, one can observe: the expected consultation duration (which determines slot length), and any prerequisite conditions (e.g., whether a referral or prior visit is required). Clinics may revise expected durations based on observed consultation data.
+A classification of medical visit (e.g., follow-up, first-time visit, procedure) that influences duration and constraints.
 
 *Waitlist* :: (entity, domain)
-An ordered collection of patients waiting for a time slot when no immediate availability exists for a given provider and specialty. A waitlist has a defined ordering rule (e.g., first-come-first-served, or by urgency).
+An ordered collection of patients waiting for a time slot when no immediate availability exists.
 
-*Referral* :: (entity, domain)
-A directive from one healthcare provider authorizing a patient to consult another provider in a specific specialty. A referral may have an expiration date. From a referral, one can observe: the source provider, the patient, the target specialty, and the validity window.
+*Cancellation* :: (event, domain)
+The release of a previously reserved appointment before its scheduled time.
+
+*No-Show* :: (event, domain)
+The absence of a patient at a scheduled appointment without prior cancellation.
 
 *Insurance Authorization* :: (process, domain)
-An external approval from an insurance carrier confirming that a specific appointment type for a specific patient is covered. Some appointment types cannot be confirmed without a current authorization.
+An external approval required before certain appointments can be confirmed.
 
-*Operational Hours* :: (constraint entity, domain)
-The time intervals during which a clinic accepts or schedules appointments on a given day. Appointments cannot be scheduled outside a clinic's operational hours.
-
-*Booking Status* :: (state, domain)
-The current condition of an appointment. Values: `Requested` (patient has reserved a slot, pending confirmation), `Confirmed` (slot is firmly held), `Canceled` (released by patient or clinic), `Completed` (consultation occurred), `NoShow` (patient did not attend).
+*Referral* :: (entity/event, domain)
+A directive from one provider requiring a patient to consult another provider before treatment.
 
 *Availability* :: (state, domain)
-The property of a time slot being open for reservation.
+The condition of a time slot being open for reservation.
+
+*Booking Status* :: (state, domain)
+The current condition of an appointment (pending, confirmed, canceled, completed).
+
+*Operational Hours* :: (constraint entity, domain)
+The defined time boundaries within which a clinic accepts or schedules appointments.
+
 
 [discrete]
 ===== Domain Verbs (actions, events, domain operations)
 
-Full function signatures and explanations appear in section 2.1.4 (Actions) and 2.1.5 (Supplementary Detail).
-
-*Publish Slot* :: (action, domain)
-A provider makes a time slot available for booking.
 
 *Request Appointment* :: (action, domain)
-A patient selects an available time slot and expresses intent to book it.
+A patient expresses intent to reserve an available time slot.
 
-*Confirm Appointment* :: (action/event, domain)
-The appointment transitions from `Requested` to `Confirmed` after all preconditions (referral, insurance) are satisfied.
+*Reserve Time Slot* :: (action, domain)
+The act of assigning a specific time slot to a patient.
+
+*Confirm Appointment* :: (event, domain)
+The transition of an appointment from pending to confirmed state.
 
 *Cancel Appointment* :: (action/event, domain)
-A patient or clinic releases a reserved appointment, returning the slot to `Available`.
+The intentional release of a reserved time slot by patient or clinic.
 
 *Reschedule Appointment* :: (action, domain)
-The replacement of a reserved time slot with a different available slot.
+The replacement of one reserved time slot with another.
 
 *Join Waitlist* :: (action, domain)
-A patient registers intent to be assigned a slot when one becomes available.
+A patient registers interest in being assigned a slot if one becomes available.
 
 *Assign Waitlisted Patient* :: (event, domain)
-A freed slot is offered to the next eligible patient on the waitlist.
+The allocation of a newly freed time slot to the next eligible patient in the waitlist.
 
-*Record Referral* :: (action, domain)
-A referral from one provider to another is formally entered into the record.
+*Authorize Coverage* :: (external event, domain)
+Insurance approval required before final confirmation of certain appointment types.
 
-*Mark No-Show* :: (action, domain)
-A clinic staff member records that a patient did not attend their appointment.
+*Expire Slot* :: (event, domain)
+Automatic release of a temporarily held slot after a defined confirmation window.
 
-*Modify Availability* :: (action, domain)
-A provider updates their working hours or blocked periods.
 
 [discrete]
 ===== Domain Constraints (invariant business rules)
@@ -96,44 +102,50 @@ A provider updates their working hours or blocked periods.
 *No Double Booking* ::
 A single time slot cannot be reserved by more than one patient simultaneously.
 
-*No Overlapping Appointments for One Provider* ::
-A provider cannot have two confirmed appointments at overlapping times.
+*Single Active Appointment per Provider Constraint* ::
+A patient may not hold multiple concurrent active appointments with the same provider.
 
 *Operational Hour Restriction* ::
-Appointments cannot be scheduled outside a clinic's operational hours.
+Appointments cannot be scheduled outside clinic operational hours.
 
 *Consultation Duration Integrity* ::
-The allocated time slot must match the expected duration for the selected consultation type.
+The allocated time slot must match the required duration for the selected consultation type.
 
 *Waitlist Ordering Integrity* ::
-Waitlisted patients must be assigned based on the defined priority rule for the waitlist.
+Waitlisted patients must be assigned based on defined priority rules.
 
 *Authorization Dependency* ::
-An appointment that requires insurance authorization cannot transition to `Confirmed` until authorization is recorded.
+Certain appointments cannot transition to confirmed status without required insurance approval.
 
-*Referral Dependency* ::
-An appointment that requires a referral cannot transition to `Confirmed` until a valid referral for the appropriate specialty is recorded.
 
 [discrete]
 ===== Cross-Phase Terms (Explicitly Annotated)
 
-*User Account* :: (entity, requirements/implementation)
-A technical authentication construct representing a system login identity. _Not a domain concept._ Introduced when specifying how patients and providers identify themselves to the system-to-be.
+These terms appear in later phases and are included for clarity.
+
+*User Account* :: (entity, implementation)
+A technical authentication construct representing a system login identity.
+*Not a domain concept.*
 
 *Authentication Token* :: (artifact, implementation)
-A signed credential used to verify session identity within the system-to-be.
+A signed credential used to verify session identity.
 
 *Notification* :: (system event, requirements)
-A system-generated alert informing patients or clinics about appointment state changes.
+A system-generated alert informing patients or clinics about appointment changes.
 
 *Session* :: (technical state, implementation)
-The authenticated runtime context allowing authorized actions within the system-to-be.
+The authenticated runtime context allowing authorized actions.
 
-*ReferralRegistry* :: (technical entity, requirements)
-The internal representation, within the system-to-be, of all recorded referrals. Used by `confirmAppointment` to verify referral conditions.
 
-*InsuranceRegistry* :: (technical entity, requirements)
-The internal representation of received insurance authorizations. Used by `confirmAppointment`.
+[discrete]
+===== Core Domain Flow (Appointment Lifecycle)
 
-*NotificationQueue* :: (technical entity, requirements)
-The queue of pending notifications to be dispatched by the system.
+. A provider defines availability through structured time slots within operational hours.
+. A patient requests an appointment by selecting an available time slot.
+. If constraints apply (authorization or referral), the appointment enters pending status.
+. Upon confirmation, the slot becomes reserved.
+. If canceled, the slot returns to available state.
+. If a waitlist exists, the next patient may be assigned automatically.
+. The appointment either completes successfully or becomes a no-show.
+. Historical records preserve appointment outcomes for traceability.
+

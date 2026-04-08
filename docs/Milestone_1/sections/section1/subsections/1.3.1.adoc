@@ -2,37 +2,69 @@
 
 ==== *Scope & Span*
 
-NOTE: *Milestone 2 Update:* This section was misused in the previous submission — scope and span were treated as a feature list. Scope describes the broader field in which the project operates. Span narrows it to the specific area this project addresses. Implementation decisions do not belong in scope and span; they belong in the descriptive part.
+===== In Scope Features
+The project will focus on designing and prototyping a centralized medical appointment scheduling platform with the following component:
 
-===== Scope
+1. Core Scheduling System 
+* Appointment creation and management
+* Calendar and agenda views
+* Conflict detection and resolution logic
+* Capacity handling per time slot
+* Waitlist functionality
+* Appointment status management (pending, confirmed, canceled)
+* Appointment rescheduling and cancellation
 
-This project operates in the domain of *outpatient medical appointment coordination in Puerto Rico*. The broader field encompasses:
+2. User Management 
+* Role-based access control (Patient, Doctor, Clinic/Admin)
+* Registration and login system (prototype level)
+* User profiles and account settings
 
-* *Healthcare access and scheduling:* how patients find, book, and attend medical consultations with licensed healthcare providers, and how providers manage their time and caseload.
-* *Administrative coordination in clinical settings:* how front-desk staff and clinic administrators manage appointment records, handle cancellations and rescheduling, and ensure that available capacity is matched to patient demand.
-* *Domain engineering:* we will conduct a structured analysis of the medical appointment domain — its concepts, phenomena, actors, and constraints — independent of any system-to-be. This produces the domain description that grounds all subsequent work.
-* *Requirements engineering:* we will derive and specify what a system-to-be must do, tracing each requirement back to a domain observation or a stakeholder need.
-* *Software architecture and design:* we will define the structural components of the system-to-be and their relationships, and produce component-level designs sufficient to guide implementation.
-* *Implementation:* we will develop a working prototype that realizes the highest-value requirements as determined by the requirements engineering phase.
-* *Testing and verification:* we will apply testing strategies — including unit testing, behavior-driven development (BDD), and acceptance testing — to verify that the implementation satisfies the requirements.
-* *Validation:* we will validate domain concepts and requirements against stakeholder understanding, using scenarios and structured interviews.
+3. Patient Experience
+* Search and filtering by:
+- Specialty
+- Location
+- Availability
+- Accepted health insurance
+* Booking interface with confirmation feedback
+* Appointment history view
 
-The project does not cover: integration with live hospital database systems, real insurance provider APIs, full HIPAA legal compliance implementation, or production infrastructure deployment.
+4. Clinic/Doctor Experience
+* Availability configuration
+* Appointment-type duration management
+* Scheduling constraints (e.g., no appointments after certain hours)
+* Capacity limits per slot
+* Optional staff approval workflow
 
-===== Span
+5. Communication
+* Appointment confirmation notifications
+* Cancellation and rescheduling alerts
+* Reminder system (mocked or simulated)
 
-Within the scope above, this project narrows its focus to:
+6. Documents and Records
+* Secure document upload mockup
+* Role-based document visibility
 
-* *Geography:* Puerto Rico, with its specific physician-shortage context and characteristic patient demographics (including a high proportion of elderly patients and patients with limited digital literacy).
-* *Care setting:* outpatient clinic appointments — not emergency care, inpatient admissions, or telemedicine.
-* *Provider types:* general practitioners and specialists operating within private or semi-private clinics, not large hospital systems.
-* *Patient scale:* the system is designed for a patient population typical of a small-to-medium clinic network — on the order of hundreds to a few thousand registered patients — not a nationwide registry.
-* *Scheduling model:* slot-based scheduling, where providers publish discrete available time windows and patients request specific slots — as opposed to open-access or demand-driven scheduling models.
-* *Appointment lifecycle:* from the initial search for availability through slot reservation, confirmation, possible rescheduling or cancellation, and attendance recording.
-* *Methodology:* agile development with two-week sprints, milestone-based delivery, and continuous documentation — described further in the synopsis.
+7. System Extent 
+The project will result in:
+* A structured system design
+* Defined scheduling logic
+* Prototype-level interfaces
+* Defined testing strategies
+
+===== Out Of Scope Features
+To maintain realistic academic boundaries, the following will *NOT* be included: 
+
+* Real integration with hospital or clinic databases
+* Live synchronization with external healthcare systems
+* Real insurance provider API integrations
+* Handling of real Protected Health Information (PHI)
+* Full HIPAA certification or legal compliance implementation
+* Payment processing systems
+* AI-based predictive scheduling optimization
+* Nationwide or international expansion beyond Puerto Rico context
+* Production-level infrastructure deployment (cloud hosting, DevOps pipelines)
 
 ===== Data & Availability Constraints
-
-* Real doctor and clinic availability data will not be collected; the system will use representative test data for development and demonstration.
-* No actual protected health information will be handled.
-* HIPAA-compliant architecture patterns will be followed as design guidelines, but full legal compliance is out of scope for this academic project.
+* Real doctor/clinic availability data will not be collected. 
+* Dummy data will be used for demonstration and testing. 
+* No direct access to confidential patient appointment data will occur. 

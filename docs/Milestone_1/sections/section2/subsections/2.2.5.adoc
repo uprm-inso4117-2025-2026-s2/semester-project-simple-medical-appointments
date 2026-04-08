@@ -1,81 +1,87 @@
 ==== *Machine Requirements*
 
-NOTE: *Milestone 2 Update:* All references have been corrected to use Epic IDs defined in section 2.2.1. The previous version referenced non-existent epic labels (Epic-DevSetup, Epic-Performance, etc.). MR005–MR008 are now validated by load testing results documented in section 4.21.
+The following machine requirements define measurable hardware, software,
+performance, and environmental constraints for the system.
 
-These machine requirements define measurable hardware, software, performance, and environmental constraints for the system.
+These requirements are preliminary and remain under development.
+Some thresholds are theoretical and will be validated through testing
+in later milestones.
 
+NOTE: These machine requirements are still under development. Some thresholds are theoretical and will be validated through testing in later milestones. Items marked “TBD” remain to be researched and defined.
+
+[[requirements-table]]
 .Machine Requirements
-[options="header",cols="1,3,2,2"]
+[options="header"]
 |===
-| ID | Description | Linked Epic | Verification
+| ID | Description | Linked User Stories/Epics | Verification Tests
 
 | MR001
-| The server deployment target must provide ≥ 2 vCPU (≥ 2.0 GHz), ≥ 4 GB RAM, and ≥ 20 GB free storage.
-| E1–E5 (all epics)
-| Environment setup verification
+| Server (minimum deployment target) must provide **≥ 2 vCPU (≥ 2.0 GHz)**, **≥ 4 GB RAM**, and **≥ 20 GB free storage**.
+| Epic-DevSetup
+| T-Env-001
 
 | MR002
-| Client devices must support the latest 2 stable versions of Chrome, Firefox, Edge, or Safari; ≥ 4 GB RAM; screen resolution ≥ 1280×720.
-| E1–E5 (all epics)
-| Cross-browser compatibility test
+| Client devices must support a modern browser (latest **2** stable versions of Chrome/Firefox/Edge/Safari), have **≥ 4 GB RAM**, and screen resolution **≥ 1280×720**.
+| Epic-ClientSupport
+| T-Env-002
 
 | MR003
-| Server OS must be Linux (Ubuntu 22.04 LTS or equivalent) or Windows Server 2019+.
-| E1–E5 (all epics)
-| Server environment audit
+| Server OS must be **Linux (Ubuntu 22.04 LTS or equivalent)** or **Windows Server 2019+**.
+| Epic-DevSetup
+| T-Env-003
 
 | MR004
-| The database must be PostgreSQL 14+ and must not be publicly accessible (restricted to the internal network or VPC).
-| E1–E5 (all epics)
-| Network security scan
+| Database must be **MySQL 8.0+** or **PostgreSQL 14+** and must not be publicly accessible (restricted to internal/private network).
+| Epic-DataStore
+| T-Sec-001
 
 | MR005
-| "Simultaneous users" is defined as authenticated users issuing requests within a 10-second window. The system must support ≥ 100 concurrent active users performing standard operations (search availability, book appointment, confirm/cancel) with no data corruption.
-| E1, E2, E3
-| Load test — see section 4.21
+| “Simultaneous users” is defined as authenticated users issuing requests within a **10-second** window. The system must support **≥ 100 concurrent active users** performing standard operations (search availability, book appointment, confirm/cancel).
+| Epic-Performance
+| T-Perf-001
 
 | MR006
-| Under normal load (≤ 100 concurrent active users), average API response time must be ≤ 2 s and 95th-percentile response time must be ≤ 4 s.
-| E1, E2, E3
-| Load test — see section 4.21
+| Under normal load (≤ **100** concurrent active users), average API response time must be **≤ 2 seconds** and 95th percentile response time must be **≤ 4 seconds**.
+| Epic-Performance
+| T-Perf-002
 
 | MR007
-| Under heavy load (101–150 concurrent active users), average API response time must be ≤ 5 s and the system must not crash or lose persisted appointment data.
-| E1, E2, E3
-| Load test — see section 4.21
+| “Heavy load” is defined as **101–150** concurrent active users performing database-backed operations. Under heavy load, average API response time must be **≤ 5 seconds**, and the system must not crash.
+| Epic-Performance
+| T-Perf-003
 
 | MR008
-| If concurrent active users exceed 150, the system must degrade gracefully: new sessions may receive HTTP 503, while existing sessions must continue; no persisted appointment data must be lost.
-| E1, E2, E3
-| Load test — see section 4.21
+| If concurrent active users exceed **150**, the system must **degrade gracefully**: new sessions may receive **HTTP 503**, while existing sessions must continue; persisted appointment data must not be lost.
+| Epic-Performance
+| T-Perf-004
 
 | MR009
-| The system must achieve ≥ 99% monthly uptime excluding scheduled maintenance windows. Scheduled maintenance must not exceed 2 hours per month.
-| E1–E5 (all epics)
-| Uptime monitoring over a 30-day observation period
+| Availability target must be **≥ 99% monthly uptime** excluding scheduled maintenance. Scheduled maintenance must be **≤ 2 hours/month** (TBD if this constraint needs adjustment).
+| Epic-Reliability
+| T-Rel-001
 
 | MR010
-| If the application process crashes, it must restart automatically within ≤ 60 seconds and must not corrupt persisted data.
-| E1–E5 (all epics)
-| Controlled crash recovery test
+| If the application process crashes, it must restart automatically within **≤ 60 seconds** and must not corrupt persisted data.
+| Epic-Reliability
+| T-Rel-002
 
 | MR011
-| All client-server communication must use HTTPS (TLS 1.2 or later).
-| E1–E5 (all epics)
-| TLS configuration audit
+| All client-server communication must use **HTTPS (TLS 1.2+)**.
+| Epic-Security
+| T-Sec-002
 
 | MR012
-| Passwords must be stored using salted hashing (bcrypt or Argon2). Plain-text passwords must never be persisted.
-| E1, E5
-| Code audit; database inspection
+| Passwords must be stored using salted hashing (**bcrypt** or **Argon2**).
+| Epic-Security
+| T-Sec-003
 
 | MR013
-| Automated database backups must run at least once per day and be retained for ≥ 7 days.
-| E1–E5 (all epics)
-| Backup schedule and retention audit
+| Backups must run automatically **at least once per day** and be retained for **≥ 7 days** (TBD based on storage constraints).
+| Epic-DataProtection
+| T-Env-004
 
 | MR014
-| Under heavy load, the system may disable non-critical features (e.g., appointment history queries, notification batching) while keeping the core booking flow operational. Specific degradation criteria will be finalized after load testing (see section 4.21).
-| E2
-| Load test — see section 4.21
+| Acceptable degradation criteria under heavy load (e.g., which non-critical features may be temporarily disabled) remain **TBD** and will be defined after load testing.
+| Epic-Performance
+| T-Perf-005
 |===

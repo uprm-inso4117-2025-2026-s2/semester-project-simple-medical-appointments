@@ -1,21 +1,2 @@
 ==== *Synopsis*
-
-NOTE: *Milestone 2 Update:* The previous synopsis described only the end product. A synopsis is an executive summary of the entire project — including all the activities the team will carry out. This revision covers domain engineering, requirements engineering, architecture, implementation, testing, and validation.
-
-This project will develop a medical appointment scheduling platform for outpatient clinics in Puerto Rico. The platform will allow patients to discover available appointment slots across providers, book appointments, receive confirmation, and manage rescheduling or cancellation. It will allow healthcare providers to define their availability by consultation type and duration, and will allow administrative staff to oversee appointment state, manage waitlists, and coordinate cancellations without relying on paper records or informal memory.
-
-The project proceeds through the following activities:
-
-*Domain engineering* is the foundation. Before specifying requirements or writing code, the team will describe the medical appointment domain as it exists independently of any system-to-be. This produces a domain description — including a rough sketch from interviews and observations, a structured terminology, a narrative, and formal function signatures — that captures how appointment scheduling works in the observable world. The domain description ensures that requirements are grounded in reality and not inadvertently shaped by implementation assumptions.
-
-*Requirements engineering* follows from the domain description. The team will derive domain requirements (properties the system must preserve from the domain), interface requirements (how the system exchanges information with the outside world), and machine requirements (measurable non-functional constraints on system behavior). User stories, epics, and personas will guide the user-value framing of requirements. Acceptance criteria will be defined for each user story so that completion can be verified.
-
-*Software architecture and design* will define the major components of the system — the frontend, the backend API, the database, and the authentication service — and specify how they interact. Component-level designs will be produced where needed to support implementation.
-
-*Implementation* will realize the highest-value features end-to-end: patients can register, search for providers, book and cancel appointments; providers can define and modify their availability; administrative staff can view all appointments. The implementation will use a React frontend, a Flask REST API, and a PostgreSQL database hosted on Supabase. Completed features will be evidenced by passing end-to-end and acceptance tests.
-
-*Testing* will be conducted at multiple levels. Unit tests using pytest will verify individual scheduling functions. Behavior-driven development (BDD) with Cucumber/Gherkin will define and automate acceptance criteria tied to user stories. Load testing with Locust will verify that machine requirements for throughput and response time are met under realistic usage scenarios. Mutation testing with mutmut will assess the quality of the unit test suite. Hoare logic (using Dafny) will be applied to formally verify correctness properties of core scheduling functions.
-
-*Validation* will use scenario-based stakeholder walkthroughs to verify that domain concepts and requirements accurately reflect real scheduling practices. Scenarios will be constructed from domain observations and reviewed with persons knowledgeable in the medical scheduling domain. Feedback will be documented and used to refine the domain description and requirements.
-
-The project is developed iteratively across milestones. Domain description, requirements, and implementation evolve together — domain concepts are refined when requirements expose gaps, and requirements are refined when implementation reveals ambiguities. All phases of work are tracked in the project logbook.
+This project aims to develop a centralized online platform that simplifies the scheduling of medical appointments for patients, doctors and clinics in Puerto Rico. By replacing inefficient phone-based systems with real-time availability, organized search features, and user-friendly booking tools, the platform seeks to reduce waiting times and administrative workload while improving access to timely healthcare. Ultimately, the system provides a scalable and coordinated solution to address the growing demand for medical services and modernize the appointment scheduling process. 

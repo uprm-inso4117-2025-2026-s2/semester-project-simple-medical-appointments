@@ -1,12 +1,10 @@
-= Simple Medical Appointments — Milestone 2
-Software Testing — INSO 4117
-Prof. Marko Schütz-Schmuck
+= Simple Medical Appointments Proposal 
+First Milestone - Software Testing - INSO 4117
+Prof. Marko Schütz-Schmuck 
 :imagesdir: ../Images
 :doctype: book
 :toc:
 :sectnums:
-// Change highlighting: sections updated for Milestone 2 are preceded by a NOTE admonition
-// labeled "Milestone 2 Update:" describing what changed and why.
 
 include::sections/section1/section.adoc[]
 
@@ -14,8 +12,8 @@ include::sections/section2/section.adoc[]
 
 include::sections/section3/section.adoc[]
 
-include::sections/section4-LTT/section.adoc[]
+// include::sections/section4-LTT/section.adoc[]
 
 include::sections/AI_Disclosure_Statement.adoc[]
 
-include::sections/logbook.adoc[]
+// include::sections/logbook.adoc[]

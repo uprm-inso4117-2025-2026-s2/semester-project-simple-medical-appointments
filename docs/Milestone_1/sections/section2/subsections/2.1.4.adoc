@@ -1,96 +1,91 @@
 ==== *Events, Actions, and Behaviors*
 
-NOTE: *Milestone 2 Update:* The previous version misclassified several events and actions as "hybrid" concepts. An event is something that has just happened — a completed, instantaneous occurrence. An action is something being performed — an operation that consumes inputs and produces outputs or state changes. A behavior is a complex sequence of actions and events. Hybrid labels were removed. Function signatures now appear alongside the actions they describe.
+===== Appointment slot published (event / entity)
 
-===== Events
+- Type: hybrid — event (published) and entity (appointment slot)
+- Label: provider just published appointment slot
+- Triggered by: Clinic or provider defining availability.
+- Immediate response: Slot becomes visible in schedules and searchable listings.
+- Expected outcome/postcondition: Patients may request the slot; clinic workload capacity increases.
+- Reference to sketch: Providers define working hours and schedules vary across clinics.
 
-An *event* marks a transition: something has just occurred. Events are instantaneous from the domain's perspective.
+===== Appointment requested (event / action)
 
-*Appointment slot just published* (event) ::
-A healthcare provider has just made a time slot available for booking. +
-_Triggered by:_ The provider or administrative staff completing the slot definition process. +
-_Postcondition:_ The time slot is in the `Available` state and may be requested by patients. +
-_Related action:_ `publishSlot` (see below).
+- Type: hybrid — action (requesting) and event (request recorded)
+- Label: patient just requested appointment
+- Triggered by: Patient selecting a slot and submitting request.
+- Immediate response: System checks availability, referral conditions, and scheduling rules.
+- Expected outcome/postcondition: Appointment enters confirmation flow or waitlist.
+- Reference to sketch: Patients call multiple clinics seeking earlier appointments.
 
-*Appointment just confirmed* (event) ::
-A pending appointment has just transitioned to confirmed status. +
-_Triggered by:_ Completion of the `confirmAppointment` action. +
-_Postcondition:_ The associated time slot moves to `Reserved`; the patient's appointment is firm.
+===== Appointment confirmed (event)
 
-*Appointment just canceled* (event) ::
-A previously confirmed or pending appointment has just been released. +
-_Triggered by:_ Either the patient or the clinic completing the `cancelAppointment` action. +
-_Postcondition:_ The associated time slot returns to `Available`.
+- Type: event
+- Label: appointment just confirmed
+- Triggered by: Clinic validation, automatic confirmation, or approval process completion.
+- Immediate response: Slot capacity reserved; reminders scheduled.
+- Expected outcome/postcondition: Consultation becomes part of clinic workload planning.
+- Reference to sketch: Clinics maintain structured schedules once slots are assigned.
 
-*Slot just reassigned to waitlisted patient* (event) ::
-A freed time slot has just been offered to the next eligible patient on the waitlist. +
-_Triggered by:_ Execution of the `reassignSlot` action upon an `Appointment just canceled` event. +
-_Postcondition:_ The waitlisted patient holds a new appointment in `Requested` or `Confirmed` state.
+===== Appointment canceled (event / operation)
 
-*Patient just marked absent (no-show)* (event) ::
-A scheduled appointment time has passed without the patient attending. +
-_Triggered by:_ Execution of the `markNoShow` action after the appointment time elapses. +
-_Postcondition:_ The appointment record is updated with a `No-Show` status for traceability.
+- Type: hybrid — operation (canceling) and event (cancellation recorded)
+- Label: appointment just canceled
+- Triggered by: Patient or clinic withdrawing consultation.
+- Immediate response: Slot released; waitlist or redistribution logic triggered.
+- Expected outcome/postcondition: Capacity becomes available for reassignment.
+- Reference to sketch: Cancellations redistributed informally or through staff communication.
 
-*Referral just recorded* (event) ::
-A referral from one provider authorizing a specialist visit has just been entered into the record. +
-_Triggered by:_ Execution of `recordReferral`. +
-_Postcondition:_ The patient becomes eligible to confirm appointments that require a referral for that specialty.
+===== Slot reassigned to waiting patient (event)
 
-*Provider availability just modified* (event) ::
-A healthcare provider has just updated their working hours, breaks, or capacity for a given period. +
-_Triggered by:_ Execution of `modifyAvailability`. +
-_Postcondition:_ Conflict checks are performed on existing appointments that fall within the changed window.
+- Type: event
+- Label: appointment slot just reassigned
+- Triggered by: Cancellation or new availability combined with waiting demand.
+- Immediate response: Selected patient notified and slot reserved.
+- Expected outcome/postcondition: Waiting time reduced; clinic utilization improves.
+- Reference to sketch: Staff maintain informal priority lists for earlier openings.
 
-===== Actions
+===== Provider availability modified (operation / event)
 
-An *action* is a domain operation that consumes inputs and produces a result or modifies state.
+- Type: hybrid — operation (modification) and event (availability updated)
+- Label: provider just updated availability
+- Triggered by: Doctor changing working hours, clinic shifts, or service limits.
+- Immediate response: Conflict checks performed; affected appointments evaluated.
+- Expected outcome/postcondition: Patients may be rescheduled or notified.
+- Reference to sketch: Providers split time across clinics and schedules change frequently.
 
-*publishSlot* ::
-A provider makes a specific time interval available for booking. +
-`publishSlot : Schedule >< Provider >< TimeSlot -> Schedule >< Result TimeSlotId Error` +
-The `Schedule` is the provider's appointment book at a given clinic. The `TimeSlot` carries the start time, end time, and consultation type. The result is the updated `Schedule` and either the new slot's identifier or an error (e.g., the slot overlaps an existing one). The function must verify that the proposed slot falls within the provider's `OperationalHours` at that clinic.
+===== Appointment reminder issued (event / operation)
 
-*requestAppointment* ::
-A patient expresses intent to occupy a specific available time slot. +
-`requestAppointment : Schedule >< Patient >< TimeSlotId -> Schedule >< Result AppointmentId Error` +
-The `Schedule` is the booking record for the relevant clinic and provider. The function checks that the slot is still `Available` and that any referral requirements are satisfied. On success, the appointment enters `Requested` state and the time slot moves to `Held`.
+- Type: hybrid — operation (sending reminder) and event (reminder issued)
+- Label: system just issued appointment reminder
+- Triggered by: Appointment approaching scheduled time.
+- Immediate response: Notification sent through configured channels.
+- Expected outcome/postcondition: Attendance likelihood increases; clinic planning stabilizes.
+- Reference to sketch: Staff sometimes send manual reminders from personal phones.
 
-*confirmAppointment* ::
-An appointment transitions from `Requested` to `Confirmed`, finalizing the booking. +
-`confirmAppointment : Schedule >< ReferralRegistry >< InsuranceRegistry >< AppointmentId -> Schedule >< Result Appointment Error` +
-The function verifies that the time slot is still `Held`, that any required referral is present in `ReferralRegistry`, and that any required insurance authorization is present in `InsuranceRegistry`. If all conditions hold, the slot becomes `Reserved` and the appointment becomes `Confirmed`.
+===== Patient marked absent (event)
 
-*cancelAppointment* ::
-A patient or clinic releases a reserved appointment. +
-`cancelAppointment : Schedule >< AppointmentId -> Schedule >< Result Unit Error` +
-The time slot associated with the appointment is returned to `Available`. The appointment record is preserved with `Canceled` status for history.
+- Type: event
+- Label: patient just marked as no-show
+- Triggered by: Appointment time passes without attendance.
+- Immediate response: Attendance record updated; analytics adjusted.
+- Expected outcome/postcondition: Reliability patterns inform future scheduling decisions.
+- Reference to sketch: No-show rates fluctuate and are difficult to predict.
 
-*rescheduleAppointment* ::
-A patient or clinic moves an appointment from one time slot to another. +
-`rescheduleAppointment : Schedule >< AppointmentId >< TimeSlotId -> Schedule >< Result Unit Error` +
-This is equivalent to a `cancelAppointment` on the original slot followed by a `requestAppointment` on the new slot, executed atomically to prevent the freed slot from being taken by another patient in between.
+===== Referral recorded for consultation (entity / event)
 
-*markNoShow* ::
-A clinic staff member records that a patient did not attend their appointment. +
-`markNoShow : Schedule >< AppointmentId -> Schedule >< Result Unit Error` +
-The appointment status becomes `NoShow`. The time slot remains `Reserved` (not released) for historical traceability.
+- Type: hybrid — entity (referral) and event (referral registered)
+- Label: referral just recorded
+- Triggered by: External provider authorizing specialist visit.
+- Immediate response: Eligibility constraints for appointment satisfied.
+- Expected outcome/postcondition: Appointment request may proceed to confirmation.
+- Reference to sketch: Referral requirements introduce coordination steps.
 
-*recordReferral* ::
-A referral from one provider to another is entered into the record. +
-`recordReferral : ReferralRegistry >< Patient >< SourceProvider >< TargetSpecialty -> ReferralRegistry >< Result ReferralId Error`
+===== Patient joins waitlist (action / event)
 
-*modifyAvailability* ::
-A provider updates their working hours or blocked periods for a future date range. +
-`modifyAvailability : Schedule >< Provider >< DateTimeRange >< OperationalHours -> Schedule >< Result Unit Error` +
-If any existing `Confirmed` appointments fall within the modified window, those appointments must be flagged for rescheduling. The function does not automatically cancel them; that decision belongs to administrative staff.
-
-===== Behaviors
-
-A *behavior* is a complex, multi-step sequence of actions and events that together constitute a meaningful domain process.
-
-*Appointment Booking Behavior* ::
-A patient books an appointment with a specialist who requires a referral and insurance authorization. The behavior unfolds as: (1) administrative staff confirm the referral has been recorded (`recordReferral`), (2) the patient selects an available slot and submits a request (`requestAppointment`), (3) the insurance carrier provides authorization (`recordInsuranceApproval`), (4) the clinic confirms the appointment (`confirmAppointment`). This behavior may span hours or days depending on how quickly external authorization arrives.
-
-*Cancellation-and-Reassignment Behavior* ::
-A patient cancels a confirmed appointment (`cancelAppointment`). The released slot triggers an evaluation of the waitlist (`selectWaitlistCandidate`). If an eligible patient is found, the slot is offered to them (`reassignSlot`) and they are notified. If the first candidate does not respond within a defined window, the slot is offered to the next. This behavior continues until the slot is filled or the waitlist is exhausted.
+- Type: hybrid — action (joining waitlist) and event (entry recorded)
+- Label: patient just joined waitlist
+- Triggered by: Lack of immediate appointment availability.
+- Immediate response: Patient inserted into priority queue for future slots.
+- Expected outcome/postcondition: Patient becomes candidate for reassigned or newly published slots.
+- Reference to sketch: Patients repeatedly contact clinics seeking earlier appointments.
