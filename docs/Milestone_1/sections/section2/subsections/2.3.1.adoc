@@ -1,96 +1,172 @@
 === *Implementation*
 ==== *Selected Fragments of the Implementation*
 
-[NOTE]
-====
-Since the project's technology stack has not yet been finalized at the time of
-writing, the fragments presented in this section use pseudocode and abstract
-diagrams to describe intended implementation behavior. These will be replaced
-with actual source code once a framework and language are selected. The goal
-here is to communicate *design intent*, not finalized syntax.
-====
+NOTE: *Milestone 2 Update:* All code shown below is actual source code from the repository (branch: `base-code`). The previous version showed pseudocode for a stack that had not yet been decided. The implementation now uses Flask (Python) for the backend API and React (Vite) for the frontend. The fragments below are selected because they illustrate non-obvious design decisions, not because they are complex in themselves.
 
-The following fragments illustrate how key architectural decisions are
-reflected in the implementation. Rather than presenting raw code for its own
-sake, each fragment is accompanied by an explanation of the reasoning behind it
-and how it supports the system's design goals.
+===== Slot Generation: Pure Functional Core
 
-===== Authentication Flow
+The most conceptually important function in the scheduling module is `generate_available_slots` in `backend/app/services/scheduling.py`. This function is deliberately pure — it takes no database connections and performs no I/O — so it can be tested in complete isolation. It receives a `DailyAvailability` record describing a single provider's constraints for one day and returns the list of bookable start times.
 
-One of the foundational operations in the web application is user
-authentication. The system must verify a user's identity before granting access
-to protected resources, while keeping the session stateless on the server side.
-
-The following pseudocode describes the core logic of the authentication
-handler:
-
-[source,text]
+[source,python]
 ----
-function authenticate(request):
-    credentials = extract(request.body, ["email", "password"])
+# backend/app/services/scheduling.py
 
-    if not credentials.valid():
-        return Response(400, "Missing or malformed credentials")
+@dataclass(frozen=True)
+class TimeRange:
+    """A half-open time interval [start, end)."""
+    start: time
+    end: time
 
-    user = UserRepository.findByEmail(credentials.email)
+    def duration_minutes(self) -> int:
+        return int(
+            (datetime.combine(date.min, self.end)
+             - datetime.combine(date.min, self.start)).total_seconds() / 60
+        )
 
-    if user is null or not hash.verify(credentials.password, user.passwordHash):
-        return Response(401, "Invalid email or password")
+    def split(self, slot_minutes: int) -> List[time]:
+        """Split this range into start times for fixed-size slots.
+        The last partial slot (shorter than slot_minutes) is discarded.
+        """
+        if slot_minutes <= 0:
+            raise ValueError("slot_minutes must be positive")
+        slots: List[time] = []
+        current = datetime.combine(date.min, self.start)
+        end_dt = datetime.combine(date.min, self.end)
+        delta = timedelta(minutes=slot_minutes)
+        while current + delta <= end_dt:
+            slots.append(current.time())
+            current += delta
+        return slots
 
-    token = JWT.sign(payload={ userId: user.id, role: user.role },
-                     secret=ENV.JWT_SECRET,
-                     expiresIn="2h")
+    def subtract(self, blocked: List["TimeRange"]) -> List["TimeRange"]:
+        """Return sub-ranges remaining after removing all blocked intervals."""
+        remaining: List[TimeRange] = [self]
+        for block in blocked:
+            updated: List[TimeRange] = []
+            for segment in remaining:
+                updated.extend(_subtract_segment(segment, block))
+            remaining = updated
+        return remaining
 
-    return Response(200, { token: token })
+
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    """Generate concrete start datetimes for all valid slots on a given day."""
+    if availability.slot_minutes <= 0:
+        raise ValueError("slot_minutes must be positive")
+    base_range = availability.working_hours
+    unblocked_segments = base_range.subtract(availability.blocked_periods)
+    slots: List[datetime] = []
+    for segment in unblocked_segments:
+        for t in segment.split(availability.slot_minutes):
+            slots.append(datetime.combine(availability.date, t))
+    slots.sort()
+    return slots
 ----
 
-This logic reflects two key design decisions. First, passwords are never stored
-or compared in plain text. Only a hashed representation is kept in the
-database, and verification is done through a constant-time comparison function
-to prevent timing attacks. Second, the server issues a signed JWT rather than
-maintaining a session store, which means any server instance can independently
-validate a request without shared state.
+The key design decisions here:
 
-The diagram below illustrates the sequence of interactions between the client,
-the authentication handler, and the underlying data layer:
+1. *Separation of concerns:* The function does not talk to the database. The caller (`backend/app/repositories/availability.py`) is responsible for translating database records into a `DailyAvailability` instance. This separation means the core scheduling logic can be verified with Hoare logic (section 4.22) and tested with mutation testing (section 4.23) without requiring a running database.
 
-image::authentication-flow.png[Authentication Flow, align=center, pdfwidth=80%]
-_Figure 2.3.1. - 1. Authentication Flow Diagram for the Authentication Handler._
+2. *Immutable data classes:* `TimeRange` and `DailyAvailability` are frozen dataclasses — no state mutation. This prevents a class of bugs where a function inadvertently modifies its input while computing its output.
 
-As shown, the authentication handler acts as the sole coordinator. It queries
-the repository, delegates token creation to a dedicated service, and returns a
-uniform response to the client. This separation of concerns ensures that each
-component remains independently testable and replaceable as the stack evolves.
+3. *Blocked periods:* `subtract` removes lunch breaks, clinic closures, or other interruptions from the working hours range, yielding a list of continuous segments. `split` then divides each segment into uniform slots. A partial slot at the end of a segment is discarded — a provider's 17:00 end time is respected even if it falls mid-slot.
 
-===== Input Validation Strategy
+===== Registration Sync: Transactional Multi-Table Insert
 
-Another decision worth illustrating is how the application handles input
-validation. Rather than scattering validation logic across handlers, the design
-calls for a dedicated validation layer that intercepts requests before they
-reach business logic:
+The second fragment addresses a non-trivial coordination challenge: when a new user registers, their record must be inserted into four tables (`profiles`, `profile_settings`, `patients` or `providers`, `user_roles`). If any step fails, all previously inserted rows must be cleaned up to keep the database consistent. The function in `backend/app/services/registration.py` handles this:
 
-[source,text]
+[source,python]
 ----
-function validate(schema, request):
+# backend/app/services/registration.py (excerpt)
+
+def sync_user_after_registration(user_id: str, data: dict) -> dict:
+    supabase = _get_supabase()
+    inserted = []  # tracks inserted rows for cleanup on failure
+
+    try:
+        # Step 1: profiles
+        supabase.table('profiles').insert({
+            'user_id':      user_id,
+            'first_name':   data['first_name'],
+            'last_name':    data['last_name'],
+            'display_name': data.get('display_name',
+                            f"{data['first_name']} {data['last_name']}"),
+            'username':     data['username'],
+            'phone_number': data.get('phone_number'),
+        }).execute()
+        inserted.append(('profiles', user_id))
+
+        # Step 2: profile_settings (sensible defaults)
+        supabase.table('profile_settings').insert({
+            'user_id':                      user_id,
+            'preferred_contact_method':     'email',
+            'preferred_language':           'en',
+            'notify_appointment_reminders': True,
+            'notify_appointment_updates':   True,
+            'theme':                        'light',
+            'accessibility_mode':           'default',
+        }).execute()
+        inserted.append(('profile_settings', user_id))
+
+        # Step 3: role-specific table (patient or doctor)
+        if data['role'] == 'patient':
+            supabase.table('patients').insert({
+                'user_id':                  user_id,
+                'insurance_provider':       data.get('insurance_provider'),
+                'insurance_member_id':      data.get('insurance_member_id'),
+                'emergency_contact_name':   data.get('emergency_contact_name'),
+                'emergency_contact_phone':  data.get('emergency_contact_phone'),
+            }).execute()
+            inserted.append(('patients', user_id))
+
+        # Step 4: user_roles
+        role_id = _get_role_id(supabase, data['role'])
+        supabase.table('user_roles').insert(
+            {'user_id': user_id, 'role_id': role_id}
+        ).execute()
+        inserted.append(('user_roles', user_id))
+
+        return {'success': True}
+
+    except Exception as exc:
+        _cleanup(supabase, inserted, user_id)
+        return {'error': str(exc), 'step': inserted[-1][0] if inserted else 'profiles'}
+----
+
+The design decision illustrated here: because Supabase does not expose a true multi-table transaction from the client SDK, the function implements a manual compensating transaction. The `inserted` list tracks every row that was successfully inserted. If any step throws, `_cleanup` deletes them in reverse order (to respect foreign-key constraints) as a best-effort rollback. This is a non-obvious pattern that is worth documenting: standard library idioms do not handle this; the team chose it deliberately.
+
+===== Appointment Form Validation: Input Boundary
+
+The third fragment illustrates how the application handles input validation at the API boundary. From `backend/app/routes/appointments.py`:
+
+[source,python]
+----
+# backend/app/routes/appointments.py
+
+REQUIRED_FIELDS = ('name', 'surname', 'symptoms_and_or_allergies', 'medications')
+
+@appointments_bp.route('/submit', methods=['POST'])
+def submit_appointment():
+    if not request.is_json:
+        return jsonify({'error': 'Content-Type must be application/json'}), 415
+
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({'error': 'Invalid or empty JSON body'}), 415
+
     errors = []
+    normalized = {}
+    for field in REQUIRED_FIELDS:
+        value = data.get(field)
+        if value is None or (isinstance(value, str) and not value.strip()):
+            errors.append(field)
+        else:
+            normalized[field] = value.strip() if isinstance(value, str) else value
 
-    for each field in schema:
-        value = request.body[field.name]
+    if errors:
+        return jsonify({'error': 'Validation failed', 'errors': errors}), 400
 
-        if field.required and value is null:
-            errors.append({ field: field.name, issue: "required" })
-            continue
-
-        if not field.type.matches(value):
-            errors.append({ field: field.name, issue: "invalid type" })
-
-    if errors is not empty:
-        return Response(422, { errors: errors })
-
-    return next(request)
+    return jsonify({'success': True, 'data': normalized}), 201
 ----
 
-This middleware-style approach means that by the time a handler executes, it
-can safely assume its inputs are well-formed. It also makes validation rules
-explicit and centralized, which simplifies future maintenance and reduces the
-risk of inconsistent error responses across endpoints.
+The design decision: validation happens at the route level, before any business logic executes. Missing or blank fields produce a structured error listing all failing fields at once (not just the first), so the caller receives actionable feedback in a single round trip. Strings are trimmed on input to normalize whitespace from form submissions.

@@ -6,6 +6,12 @@
 |===
 | Section Name | Member | Added or Modified | Description
 
+| 4.1 TDD | Gerardo Ruiz | Added | Filled TDD with 5-iteration walkthrough of generate_available_slots: red/green/refactor cycle, 12 passing tests, traceability table.
+| 4.2 BDD and BDD Tool | Gerardo Ruiz | Added | Filled BDD with Gherkin feature (Background + 3 scenarios), pytest-bdd step definitions, execution output (3 passed), traceability table.
+| 4.3 Debugger | Gerardo Ruiz | Added | Filled debugging with two hypothesis-driven sessions: pdb breakpoint session and Chrome DevTools Network panel session (303ms gap finding).
+| 2.1.1 Rough Sketch | Gerardo Ruiz | Fixed | Removed all inline Observation and Derived concepts annotations. Raw quotes only. Fixed contradictory NOTE.
+| LTT 4.4 BDD | Gerardo Ruiz | Improved | Added Background block, fixed status to Requested, added traceability table.
+| documentation.adoc | Gerardo Ruiz | Fixed | Uncommented LTT section include.
 | 4 Specific Class Topics | Julian Vivas| Added & Modified | Added a new section to document specific class topics covered in the course, including TDD, BDD, and debugging techniques.
 
 | 3.3.6 Mutation Testing | Natanael Batista | Added  | Added a new section to document the mutation testing process, including examples of surviving and killed mutations, and their implications for test effectiveness.
