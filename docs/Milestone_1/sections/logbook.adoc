@@ -3,5 +3,12 @@
 
 [%header]
 |===
+[cols="3,^2,5",options="header"]
+|===
+| Name | Section | Added/Modified
+
+| Jean P. I. Sánchez
+| 3.3, 3.3.1, 3.3.2
+| Added section 3.3 (Test Scenario Design) including 3.3.1 (Scenario Coverage Overview) and 3.3.2 (BDD Scenario Design) with Given–When–Then examples and traceability table linking scenarios to functional requirements.
 
 |===
