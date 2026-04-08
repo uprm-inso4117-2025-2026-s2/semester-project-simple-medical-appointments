@@ -59,21 +59,21 @@ slot or query appointment availability at the same time.
 
 The main performance risks associated with appointment scheduling include:
 
-===== *Concurrent Booking Conflicts:* 
+==== *Concurrent Booking Conflicts:* 
 Multiple users attempting to book the same time slot simultaneously may lead to race 
 conditions or duplicate appointments.
 
-===== *Database Contention:*
+==== *Database Contention:*
 
 High volumes of booking transactions may slow database operations responsible for 
 checking slot availability and writing appointment records.
 
-===== *Slow System Response:*
+==== *Slow System Response:*
 
 Heavy server load may increase response times for availability queries or booking 
 confirmations, negatively impacting the patient experience.
 
-===== *Server Resource Exhaustion:*
+==== *Server Resource Exhaustion:*
 
 Large spikes in traffic may overload application servers or APIs responsible for 
 processing appointment requests.
@@ -85,20 +85,20 @@ measure system behavior under load.
 
 The strategy evaluates:
 
-===== *Concurrency:*
+==== *Concurrency:*
 
 How the system behaves when multiple users attempt to book appointments simultaneously.
 
-===== *Response Time:*
+==== *Response Time:*
 
 How quickly the system returns results when patients search for available appointment 
 slots or confirm bookings.
 
-===== *Throughput:*
+==== *Throughput:*
 
 The number of booking requests the system can process within a specific time frame.
 
-===== *Database Performance:*
+==== *Database Performance:*
 
 Transaction time required to validate slot availability and create appointment records.
 
@@ -106,18 +106,18 @@ Transaction time required to validate slot availability and create appointment r
 
 To simulate realistic usage conditions, several load levels are tested.
 
-===== *Scenario 1 – Moderate Load*
+==== *Scenario 1 – Moderate Load*
 
 - 50 concurrent users searching and booking appointments
 - Expected system response time below acceptable thresholds
 - No duplicate bookings occur
 
-===== *Scenario 2 – High Load*
+==== *Scenario 2 – High Load*
 
 - 100–200 concurrent users interacting with the scheduling system
 - Slight increase in response time but system remains stable
 
-===== *Scenario 3 – Peak Demand*
+==== *Scenario 3 – Peak Demand*
 
 - 500 or more concurrent users attempting to book appointments
 - System must maintain booking integrity and avoid data inconsistencies
@@ -230,7 +230,7 @@ The strategy simulates abnormal and edge-case inputs to observe system behavior 
 
 Fuzz testing will be implemented using input manipulation and random data generation.
 
-===== Input Categories
+==== Input Categories
 
 - Extremely long strings
 - Empty or null inputs
@@ -238,7 +238,7 @@ Fuzz testing will be implemented using input manipulation and random data genera
 - Invalid date/time formats
 - Malformed structured data (JSON payloads)
 
-===== Objective
+==== Objective
 
 Identify system weaknesses such as:
 

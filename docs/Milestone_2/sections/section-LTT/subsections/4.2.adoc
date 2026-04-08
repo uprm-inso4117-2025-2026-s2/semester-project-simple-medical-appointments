@@ -244,7 +244,7 @@ Testing healthcare appointment scheduling systems requires a comprehensive, risk
 
 The key to success is prioritizing edge cases and boundary conditions that have the greatest impact on system reliability and patient safety. By following this research-backed framework, teams can create robust test plans that ensure scheduling systems handle both typical workflows and extreme edge cases reliably.
 
-Remember that edge cases, while rare individually, collectively represent significant risk. As research states: "Edge cases represent low-probability, high-impact risks... These scenarios represent the difference between controlled quality and production disasters." Thorough testing of scheduling systems is not optional—it's essential for delivering reliable healthcare software.
+Remember that edge cases, while rare individually, collectively represent significant risk. As research states: "Edge cases represent low-probability, high-impact risks... These scenarios represent the difference between controlled quality and production disasters." Thorough testing of scheduling systems is not optionalit's essential for delivering reliable healthcare software.
 
 ====== References
 
@@ -255,7 +255,6 @@ Remember that edge cases, while rare individually, collectively represent signif
 . Fast-check, "Race Conditions Testing Framework." https://fast-check.dev/docs/advanced/race-conditions/
 . Doppler, "Reliably Testing Race Conditions: A Practical Guide." https://www.doppler.com/blog/reliably-testing-race-conditions
 . Braze, "Race Conditions in Event-Driven Systems." https://www.braze.com/docs/user_guide/engagement_tools/testing/race_conditions
-. FasterCapital, "Boundary Testing: How to Test Your Product's Boundary Values and Edge Cases." https://fastercapital.com/content/Boundary-Testing--How-to-Test-Your-Product-s-Boundary-Values-and-Edge-Cases.html
 . S. DEV Community, "The Edge Case Hunter's Guide: Comprehensive Unit Testing Beyond the Happy Path," 2025. https://dev.to/shreyas1009/the-edge-case-hunters-guide-comprehensive-unit-testing-beyond-the-happy-path-1nm8
 . LinkedIn Learning, "How can you test edge cases and boundary conditions in unit tests?" 2023. https://www.linkedin.com/advice/3/how-can-you-test-edge-cases-boundary-conditions-nwaoc
 . Testsigma, "What Is an Edge Case Testing? How To Find and Prioritize," 2023. https://testsigma.com/blog/edge-case-testing/

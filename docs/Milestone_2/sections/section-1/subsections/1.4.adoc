@@ -20,7 +20,7 @@ activities address the need for clarity, consistency, and traceability, which
 are not present in the current situation where scheduling practices are informal,
 fragmented, and insufficiently documented.#
 
-===== [.added]#Domain Engineering#
+==== [.added]#Domain Engineering#
 
 [.added]#Domain engineering activities focus on identifying, analyzing, and formalizing
 the core concepts, constraints, and interactions present in medical appointment
@@ -30,7 +30,7 @@ These activities are carried out through domain descriptions, concept
 identification, and interaction modeling, ensuring that the system-to-be
 represents real-world behavior rather than assumptions.#
 
-===== [.added]#Requirements Engineering#
+==== [.added]#Requirements Engineering#
 
 [.added]#Requirements engineering is necessary to translate domain observations into
 precise and verifiable system requirements. This involves identifying domain
@@ -40,7 +40,7 @@ into coherent categories, refining them iteratively, and ensuring alignment with
 the domain model so that implementation decisions are grounded in clearly defined
 behavior.#
 
-===== [.added]#System Design and Architecture#
+==== [.added]#System Design and Architecture#
 
 [.added]#System design and architecture activities define how domain concepts and
 requirements are structured within the system. This includes the organization of
@@ -49,7 +49,7 @@ logic and data relationships. Architectural decisions are guided by the need to
 maintain modularity, scalability, and consistency with the domain, enabling the
 system to evolve without violating its underlying structure.#
 
-===== [.added]#Verification and Validation#
+==== [.added]#Verification and Validation#
 
 [.added]#Verification and validation activities ensure that the system behaves according
 to its specified requirements and accurately reflects the domain. This includes
@@ -59,7 +59,7 @@ verification techniques such as Hoare logic to evaluate correctness. Additional
 validation is performed through consistency checks, traceability verification,
 and scenario-based walkthroughs derived from domain interactions.#
 
-===== [.added]#Documentation and Knowledge Management#
+==== [.added]#Documentation and Knowledge Management#
 
 [.added]#Documentation activities support the development process by maintaining a clear
 record of domain descriptions, requirements, design decisions, and validation
@@ -68,7 +68,7 @@ continuous updates to ensure that all project artifacts remain consistent and
 accessible. These activities enable coordination among team members and provide
 a basis for evaluating design and implementation choices.#
 
-===== [.added]#User Experience and Accessibility Considerations#
+==== [.added]#User Experience and Accessibility Considerations#
 
 [.added]#User experience and accessibility considerations address the need to ensure that
 interactions with the system are understandable and usable across different
