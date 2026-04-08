@@ -1,85 +1,89 @@
-==== *Function Signatures*
+==== *Function Signatures — Supplementary Detail*
 
-Notation:
-* `A >< B -> C` consumes A and B and produces C.
-* Updated state is returned.
-* `Result X Error` models success or failure.
-* `Option X` models a possible absence of result.
+NOTE: *Milestone 2 Update:* Function signatures are now integrated with natural-language explanations in section 2.1.4 (Events, Actions, and Behaviors), where each action's signature is presented alongside its description. This section provides a consolidated reference and addresses the relationships between the types used.
 
-Core Operations
+The types used in the function signatures require clarification. A function signature is only as useful as the clarity of the types it references.
+
+===== Type Relationships
+
+*Schedule* ::
+A `Schedule` is the primary coordination structure in the domain. It is associated with one `Provider` and one `Clinic` and contains all `TimeSlot` records for that provider at that clinic. The same provider may have separate `Schedule` instances at different clinics. Operations on a schedule are atomic — concurrent reservation attempts on the same time slot must be serialized to prevent double booking.
+
+*TimeSlot vs. TimeSlotId* ::
+A `TimeSlot` is the full record: start time, end time, status (`Available` / `Held` / `Reserved` / `Expired`), and the consultation type that determines its expected duration. A `TimeSlotId` is a stable, opaque identifier for a `TimeSlot` that can be passed between operations without carrying the full record. The `publishSlot` function returns a `TimeSlotId` (not a `TimeSlot`) because the caller typically needs only to reference the slot in subsequent operations, not to receive a copy of the full record.
+
+*AppointmentId vs. Appointment* ::
+Similarly, `requestAppointment` returns an `AppointmentId` to identify the newly created appointment. The full `Appointment` record is returned by `confirmAppointment` because confirmation is the point at which the appointment becomes a complete, stable entity that the caller may want to inspect (e.g., to generate a confirmation notification).
+
+*ReferralRegistry* ::
+A `ReferralRegistry` is the collection of all recorded referrals. A referral maps a `Patient` and a `SourceProvider` to a target `Specialty` (not to a specific target provider, because the referral may be satisfied by any provider in that specialty). `confirmAppointment` checks this registry to verify that the required referral exists before finalizing the appointment.
+
+*InsuranceRegistry* ::
+An `InsuranceRegistry` records insurance authorizations received from external insurance carriers. An authorization is specific to a `Patient` and an `AppointmentId`. `confirmAppointment` checks this registry when the appointment type requires pre-authorization.
+
+*Specialty* ::
+A `Specialty` is a domain concept that classifies providers by the type of care they offer (e.g., cardiology, general practice, endocrinology). It is used both in the referral system (a referral grants access to a specialty) and in patient search queries (a patient searches for providers by specialty). The same term appears in the SQL schema as the `specialty` column in the `providers` table.
+
+===== Consolidated Signatures
+
 [source,text]
 ----
-publishSlot : TimeSlotCatalog >< Provider >< TimeSlot
- -> TimeSlotCatalog >< Result TimeSlotId Error
+-- Slot management
+publishSlot : Schedule >< Provider >< TimeSlot
+  -> Schedule >< Result TimeSlotId Error
 
-requestAppointment : AppointmentBook >< Patient >< TimeSlotId
- -> AppointmentBook >< Result AppointmentId Error
+-- Appointment lifecycle
+requestAppointment : Schedule >< Patient >< TimeSlotId
+  -> Schedule >< Result AppointmentId Error
 
-confirmAppointment : AppointmentBook >< TimeSlotCatalog >< ReferralRegistry >< InsuranceRegistry >< AppointmentId
- -> AppointmentBook >< TimeSlotCatalog >< Result Appointment Error
+confirmAppointment : Schedule >< ReferralRegistry >< InsuranceRegistry >< AppointmentId
+  -> Schedule >< Result Appointment Error
 
-cancelAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId
- -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+cancelAppointment : Schedule >< AppointmentId
+  -> Schedule >< Result Unit Error
 
-rescheduleAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId >< TimeSlotId
- -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+rescheduleAppointment : Schedule >< AppointmentId >< TimeSlotId
+  -> Schedule >< Result Unit Error
 
-modifyAvailability : Schedule >< Provider >< DateTimeRange >< Policy
- -> Schedule >< Result Unit Error
-----
+markNoShow : Schedule >< AppointmentId
+  -> Schedule >< Result Unit Error
 
-Waitlist
-[source,text]
-----
+-- Availability
+modifyAvailability : Schedule >< Provider >< DateTimeRange >< OperationalHours
+  -> Schedule >< Result Unit Error
+
+-- Waitlist
 joinWaitlist : Waitlist >< Patient >< Specialty
- -> Waitlist >< Result Unit Error
+  -> Waitlist >< Result Unit Error
 
 selectWaitlistCandidate : Waitlist >< TimeSlot
- -> Waitlist >< Option Patient
+  -> Waitlist >< Option Patient
 
-reassignSlot : Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< TimeSlotId
- -> Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< Option AppointmentId
-----
+reassignSlot : Waitlist >< Schedule >< NotificationQueue >< TimeSlotId
+  -> Waitlist >< Schedule >< NotificationQueue >< Option AppointmentId
 
-Notifications
-[source,text]
-----
+-- External coordination
+recordReferral : ReferralRegistry >< Patient >< SourceProvider >< Specialty
+  -> ReferralRegistry >< Result ReferralId Error
+
+recordInsuranceApproval : InsuranceRegistry >< Patient >< AppointmentId
+  -> InsuranceRegistry >< Result Unit Error
+
+-- Search
+searchProviders : ProviderRegistry >< Specialty
+  -> List Provider
+
+listAvailableSlots : Schedule >< Provider
+  -> List TimeSlot
+
+-- Notifications
 queueReminder : NotificationQueue >< Appointment
- -> NotificationQueue
+  -> NotificationQueue
 
-issueReminder : NotificationQueue >< Channel
- -> NotificationQueue >< Result Unit Error
+issueReminder : NotificationQueue >< NotificationChannel
+  -> NotificationQueue >< Result Unit Error
 ----
 
-Lifecycle Updates
-[source,text]
-----
-markNoShow : AppointmentBook >< AppointmentId
- -> AppointmentBook >< Result Unit Error
+The type `ClinicSystem` from the previous version has been removed. It was too broad — pulling in all domain dependencies at once — and obscured the specific concerns of each operation. Functions now take only the inputs they actually need.
 
-recordReferral : ReferralRegistry >< Patient >< Provider >< Referral
- -> ReferralRegistry >< Result Unit Error
-
-recordInsuranceApproval : InsuranceRegistry >< Patient >< Provider >< AppointmentId
- -> InsuranceRegistry >< Result Unit Error
-----
-
-Search & Authorization
-[source,text]
-----
-searchProviders : ClinicSystem >< Specialty
- -> List Provider
-
-listAvailableSlots : TimeSlotCatalog >< Provider
- -> List TimeSlot
-
-authorizeAction : Policy >< Actor >< Action
- -> Result Unit Error
-----
-
-Behavior
-[source,text]
-----
-bookingBehavior : ClinicSystem >< Patient
- -> ClinicSystem >< BehaviorTrace
-----
+The type `BehaviorTrace` has been removed. It was not a domain concept but an artifact of attempting to describe behavior as a function return type. Behaviors are sequences, not function outputs, and are described narratively in section 2.1.4.

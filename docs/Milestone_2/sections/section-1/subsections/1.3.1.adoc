@@ -1,0 +1,123 @@
+=== *Scope, Span, and Synopsis*
+
+==== *Scope & Span*
+
+===== [.removed]#In Scope Features#
+[.removed]#The project will focus on designing and prototyping a centralized medical appointment scheduling platform with the following component:#
+
+[.removed]#1. Core Scheduling System#
+
+* [.removed]#Appointment creation and management#
+* [.removed]#Calendar and agenda views#
+* [.removed]#Conflict detection and resolution logic#
+* [.removed]#Capacity handling per time slot#
+* [.removed]#Waitlist functionality#
+* [.removed]#Appointment status management (pending, confirmed, canceled)#
+* [.removed]#Appointment rescheduling and cancellation#
+
+[.removed]#2. Roles and Permissions#
+
+* [.removed]#Role-based access control (Patient, Doctor, Clinic/Admin)#
+* [.removed]#Registration and login system (prototype level)#
+* [.removed]#User profiles and account settings#
+
+[.removed]#3. Patient Experience#
+
+* [.removed]#Search and filtering by:#
+- [.removed]#Specialty#
+- [.removed]#Location#
+- [.removed]#Availability#
+- [.removed]#Accepted health insurance#
+* [.removed]#Booking interface with confirmation feedback#
+* [.removed]#Appointment history view#
+
+[.removed]#4. Clinic/Doctor Experience#
+
+* [.removed]#Availability configuration#
+* [.removed]#Appointment-type duration management#
+* [.removed]#Scheduling constraints (e.g., no appointments after certain hours)#
+* [.removed]#Capacity limits per slot#
+* [.removed]#Optional staff approval workflow#
+
+[.removed]#5. Communication#
+
+* [.removed]#Appointment confirmation notifications#
+* [.removed]#Cancellation and rescheduling alerts#
+* [.removed]#Reminder system (mocked or simulated)#
+
+[.removed]#6. Documents and Records#
+
+* [.removed]#Secure document upload mockup#
+* [.removed]#Role-based document visibility#
+
+[.removed]#7. System Extent# 
+
+[.removed]#The project will result in:#
+
+* [.removed]#A structured system design#
+* [.removed]#Defined scheduling logic#
+* [.removed]#Prototype-level interfaces#
+* [.removed]#Defined testing strategies#
+
+===== [.removed]#Out Of Scope Features#
+[.removed]#To maintain realistic academic boundaries, the following will *NOT* be included:#
+
+* [.removed]#Real integration with hospital or clinic databases#
+* [.removed]#Live synchronization with external healthcare systems#
+* [.removed]#Real insurance provider API integrations#
+* [.removed]#Handling of real Protected Health Information (PHI)#
+* [.removed]#Full HIPAA certification or legal compliance implementation#
+* [.removed]#Payment processing systems#
+* [.removed]#AI-based predictive scheduling optimization#
+* [.removed]#Nationwide or international expansion beyond Puerto Rico context#
+* [.removed]#Production-level infrastructure deployment (cloud hosting, DevOps pipelines)#
+
+===== [.removed]#Data & Availability Constraints#
+* [.removed]#Real doctor/clinic availability data will not be collected.#
+* [.removed]#Dummy data will be used for demonstration and testing.# 
+* [.removed]#No direct access to confidential patient appointment data will occur.# 
+
+===== [.added]#Scope#
+
+[.added]#The scope of this project lies within the broader domain of healthcare
+service coordination, specifically focusing on the organization and
+management of outpatient medical appointments. This includes the
+interaction between patients, providers, and administrative entities in
+the process of requesting, scheduling, modifying, and attending medical
+consultations.#
+
+[.added]#Within this domain, scheduling is influenced by constraints such as
+provider availability, appointment capacity, referral requirements, and
+patient demand. These interactions occur within a larger healthcare
+ecosystem characterized by fragmented communication channels, varying
+levels of digital adoption, and resource limitations. The project is
+situated in the context of Puerto Rico, where healthcare access is
+affected by workforce availability, geographic distribution of services,
+and administrative coordination practices.#
+
+[.added]#The scope therefore encompasses the general problem space of how medical
+appointments are coordinated, managed, and accessed within a constrained
+healthcare environment.#
+
+
+===== [.added]#Span#
+
+[.added]#The span of this project is limited to the design and prototyping of a
+system that models appointment scheduling within outpatient, private
+clinic settings. The focus is on representing the core interactions,
+constraints, and entities involved in scheduling consultations between
+patients and providers.#
+
+[.added]#The project is restricted to an academic prototype and does not extend to
+full-scale system deployment or real-world integration. It does not
+include hospital systems, emergency care coordination, or large-scale
+healthcare infrastructure. Additionally, the system will not interact
+with external services such as insurance providers, electronic health
+record systems, or third-party scheduling platforms. No real patient data 
+or protected health information will be used. 
+All data represented within the system will be simulated for the purpose of
+demonstrating scheduling behavior and system interactions.#
+
+[.added]#The span is therefore confined to a controlled, simplified representation
+of outpatient appointment scheduling, focusing on core domain behavior
+rather than complete system implementation.#

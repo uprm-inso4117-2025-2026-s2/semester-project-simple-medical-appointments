@@ -1,0 +1,117 @@
+[.added]
+==== *Formal Verification (Hoare Logic / Weakest Preconditions)*
+
+[.added]
+The function selected for formal verification is the scheduling operation `book_appointment(patient_id, doctor_id, slot_id)`. This operation is a meaningful verification target because it transforms an available medical time slot into a confirmed reservation while preserving the scheduling constraint that double booking must not occur.
+
+[.added]
+The verification is applied at the level of the project’s booking logic as defined by the scheduling requirements and domain rules. This is appropriate because the correctness of the booking operation depends primarily on the preservation of its state constraints rather than on framework-specific implementation details.
+
+[.added]
+===== *Hoare Triple*
+
+[source,text]
+----
+{ P } book_appointment(patient_id, doctor_id, slot_id) { Q }
+----
+
+[.added]
+Where `P` and `Q` are defined as follows.
+
+[.added]
+===== *Preconditions*
+
+[.added]
+* `patientExists(patient_id)`
+* `doctorExists(doctor_id)`
+* `slotExists(slot_id)`
+* `slotBelongsToDoctor(slot_id, doctor_id)`
+* `slotAvailable(slot_id)`
+* `not booked(doctor_id, slot_id)`
+
+[.added]
+===== *Postconditions*
+
+[.added]
+* `booked(doctor_id, slot_id)`
+* `not slotAvailable(slot_id)`
+* `exists appointment a such that hasPatient(a, patient_id) and hasDoctor(a, doctor_id) and hasSlot(a, slot_id)`
+* No unrelated appointment or slot is modified
+
+[.added]
+===== *Invariants Preserved*
+
+[.added]
+* At most one confirmed appointment may exist for a given doctor-slot pair.
+* A slot that is booked for the verified doctor-slot pair is no longer available.
+* State outside the target booking remains unchanged.
+
+[.added]
+These properties capture the main safety objective of the project’s scheduling logic: a successful reservation consumes exactly one valid slot and cannot introduce double booking as a side effect.
+
+[.added]
+===== *Weakest-Precondition Reasoning*
+
+[.added]
+To make the proof explicit, the state-changing core of the operation can be abstracted as:
+
+[source,text]
+----
+assert slotAvailable(slot_id);
+assert not booked(doctor_id, slot_id);
+booked(doctor_id, slot_id) := true;
+slotAvailable(slot_id) := false;
+----
+
+[.added]
+Let the desired postcondition be:
+
+[source,text]
+----
+Q = booked(doctor_id, slot_id) and not slotAvailable(slot_id)
+----
+
+[.added]
+Computing the weakest precondition backwards gives:
+
+[source,text]
+----
+wp(slotAvailable(slot_id) := false, Q)
+  = booked(doctor_id, slot_id)
+
+wp(booked(doctor_id, slot_id) := true;
+   slotAvailable(slot_id) := false, Q)
+  = true
+
+wp(assert not booked(doctor_id, slot_id);
+   booked(doctor_id, slot_id) := true;
+   slotAvailable(slot_id) := false, Q)
+  = not booked(doctor_id, slot_id)
+
+wp(assert slotAvailable(slot_id);
+   assert not booked(doctor_id, slot_id);
+   booked(doctor_id, slot_id) := true;
+   slotAvailable(slot_id) := false, Q)
+  = slotAvailable(slot_id) and not booked(doctor_id, slot_id)
+----
+
+[.added]
+Therefore, the weakest precondition for reaching `Q` is exactly that the slot is available and not already booked before the state transition begins. This matches the intended scheduling rule for the project.
+
+[.added]
+===== *Verification Result*
+
+[.added]
+Under the Hoare triple `{P} book_appointment(patient_id, doctor_id, slot_id) {Q}`, the proof shows that if all preconditions hold, execution establishes the required booking state and preserves the invariant against double booking. If any precondition fails, the operation must reject the request and leave the system state unchanged.
+
+[.added]
+===== *Implications for System Correctness*
+
+[.added]
+This verification is important because the booking operation is safety-critical in the medical scheduling domain. The proof establishes that the operation may succeed only from a valid scheduling state and that a successful execution immediately makes the selected slot unavailable. In practical terms, this prevents one of the most serious scheduling errors in the system: assigning the same provider and time slot to more than one appointment.
+
+[.added]
+===== *References*
+
+[.added]
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576-580, Oct. 1969.

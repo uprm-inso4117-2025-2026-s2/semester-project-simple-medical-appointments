@@ -1,0 +1,247 @@
+== *Test-Driven Development (TDD)*
+
+=== *TDD Walkthrough: generate_available_slots*
+
+We apply TDD to the `generate_available_slots` function in `backend/app/services/scheduling.py`. This function is responsible for generating the list of bookable start times for a given provider on a given day — a core scheduling operation. We chose it because an incorrect implementation directly causes patients to see wrong availability.
+
+The TDD cycle follows: write a failing test (red) → write the minimum implementation to pass (green) → refactor if needed → repeat.
+
+All tests are in `backend/tests/unit/test_scheduling.py`.
+
+==== *Iteration 1 — The simplest possible case*
+
+*Specification:* Given a provider with a 1-hour working window and 30-minute slots, the function should return two start times.
+
+*Test written first:*
+
+[source,python]
+----
+def test_basic_two_slots():
+    avail = DailyAvailability(
+        date=date(2026, 4, 7),
+        working_hours=TimeRange(time(9, 0), time(10, 0)),
+        blocked_periods=[],
+        slot_minutes=30,
+    )
+    slots = generate_available_slots(avail)
+    assert len(slots) == 2
+----
+
+*Stub (fails):*
+
+[source,python]
+----
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    return []  # stub — always empty
+----
+
+Running `pytest`: ❌ `AssertionError: assert 0 == 2`
+
+*Minimal implementation to pass:*
+
+[source,python]
+----
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    slots = []
+    current = datetime.combine(availability.date, availability.working_hours.start)
+    end_dt  = datetime.combine(availability.date, availability.working_hours.end)
+    delta   = timedelta(minutes=availability.slot_minutes)
+    while current + delta <= end_dt:
+        slots.append(current)
+        current += delta
+    return slots
+----
+
+Running `pytest`: ✅ Pass
+
+==== *Iteration 2 — Correct start times, not just count*
+
+The first test only checks the count. The simplest passing implementation could return any two times. We refine.
+
+*Test written:*
+
+[source,python]
+----
+def test_correct_start_times():
+    avail = DailyAvailability(
+        date=date(2026, 4, 7),
+        working_hours=TimeRange(time(9, 0), time(10, 0)),
+        blocked_periods=[],
+        slot_minutes=30,
+    )
+    slots = generate_available_slots(avail)
+    assert slots == [
+        datetime(2026, 4, 7, 9,  0),
+        datetime(2026, 4, 7, 9, 30),
+    ]
+----
+
+Running `pytest`: ✅ Pass (current implementation already satisfies this)
+
+==== *Iteration 3 — Blocked periods must be respected*
+
+*Specification:* A 12:00–13:00 lunch block must remove those slots.
+
+*Test written:*
+
+[source,python]
+----
+def test_blocked_period_removes_slots():
+    avail = DailyAvailability(
+        date=date(2026, 4, 7),
+        working_hours=TimeRange(time(9, 0), time(14, 0)),
+        blocked_periods=[TimeRange(time(12, 0), time(13, 0))],
+        slot_minutes=60,
+    )
+    slots = generate_available_slots(avail)
+    # Expect 9:00, 10:00, 11:00, 13:00 — NOT 12:00
+    assert datetime(2026, 4, 7, 12, 0) not in slots
+    assert datetime(2026, 4, 7, 13, 0) in slots
+    assert len(slots) == 4
+----
+
+Running `pytest`: ❌ Fails — current implementation ignores `blocked_periods`
+
+*Updated implementation (GREEN):*
+
+[source,python]
+----
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    base_range = availability.working_hours
+    unblocked_segments = base_range.subtract(availability.blocked_periods)
+    slots: List[datetime] = []
+    for segment in unblocked_segments:
+        current = datetime.combine(availability.date, segment.start)
+        end_dt  = datetime.combine(availability.date, segment.end)
+        delta   = timedelta(minutes=availability.slot_minutes)
+        while current + delta <= end_dt:
+            slots.append(current)
+            current += delta
+    slots.sort()
+    return slots
+----
+
+Running `pytest`: ✅ Pass (all 3 tests)
+
+*Refactor:* The inner `while` loop duplicates the logic already inside `TimeRange.split`. We extract it:
+
+[source,python]
+----
+# After refactor — behavior identical, duplication eliminated
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    base_range = availability.working_hours
+    unblocked_segments = base_range.subtract(availability.blocked_periods)
+    slots: List[datetime] = []
+    for segment in unblocked_segments:
+        for t in segment.split(availability.slot_minutes):       # reuse split()
+            slots.append(datetime.combine(availability.date, t))
+    slots.sort()
+    return slots
+----
+
+Running `pytest`: ✅ Pass (all 3 tests) — behavior unchanged, loop no longer duplicated.
+
+==== *Iteration 4 — Empty working hours produces no slots*
+
+*Test written:*
+
+[source,python]
+----
+def test_empty_working_hours_no_slots():
+    avail = DailyAvailability(
+        date=date(2026, 4, 7),
+        working_hours=TimeRange(time(9, 0), time(9, 0)),  # zero-length
+        blocked_periods=[],
+        slot_minutes=30,
+    )
+    assert generate_available_slots(avail) == []
+----
+
+Running `pytest`: ✅ Pass immediately (implementation handles zero-length ranges via `subtract`)
+
+==== *Iteration 5 — Zero slot_minutes raises ValueError*
+
+*Specification:* A caller that passes `slot_minutes=0` must receive a `ValueError`, not infinite loop.
+
+*Test written:*
+
+[source,python]
+----
+def test_zero_slot_minutes_raises():
+    avail = DailyAvailability(
+        date=date(2026, 4, 7),
+        working_hours=TimeRange(time(9, 0), time(17, 0)),
+        blocked_periods=[],
+        slot_minutes=0,
+    )
+    with pytest.raises(ValueError):
+        generate_available_slots(avail)
+----
+
+Running `pytest`: ❌ Fails — current implementation does not validate `slot_minutes`
+
+*Minimal fix — add guard at top of function:*
+
+[source,python]
+----
+def generate_available_slots(availability: DailyAvailability) -> List[datetime]:
+    if availability.slot_minutes <= 0:
+        raise ValueError("slot_minutes must be positive")
+    # ... rest of function unchanged
+----
+
+Running `pytest`: ✅ Pass (all 5 tests)
+
+==== *Final test suite after 5 iterations*
+
+[source,bash]
+----
+$ pytest backend/tests/unit/test_scheduling.py -v
+
+test_scheduling.py::TestTimeRangeDuration::test_one_hour_range           PASSED
+test_scheduling.py::TestTimeRangeDuration::test_zero_duration            PASSED
+test_scheduling.py::TestTimeRangeSplit::test_exact_fit_two_slots         PASSED
+test_scheduling.py::TestTimeRangeSplit::test_partial_slot_discarded      PASSED
+test_scheduling.py::TestTimeRangeSplit::test_no_slots_when_range_shorter PASSED
+test_scheduling.py::TestTimeRangeSplit::test_zero_slot_minutes_raises    PASSED
+test_scheduling.py::TestTimeRangeSplit::test_boundary_slot_included      PASSED
+test_scheduling.py::TestGenerateAvailableSlots::test_weekday_no_blocks   PASSED
+test_scheduling.py::TestGenerateAvailableSlots::test_blocked_lunch       PASSED
+test_scheduling.py::TestGenerateAvailableSlots::test_empty_range         PASSED
+test_scheduling.py::TestGenerateAvailableSlots::test_zero_slot_minutes   PASSED
+test_scheduling.py::TestGenerateAvailableSlots::test_slots_are_sorted    PASSED
+
+12 passed in 0.18s
+----
+
+==== *What TDD revealed*
+
+The TDD process surfaced two implementation gaps that would not have been obvious from reading the spec:
+
+1. *Iteration 3* revealed that the initial implementation ignored `blocked_periods` entirely, which would have caused the function to return slots during lunch breaks or clinic closures — a correctness bug with direct user impact.
+2. *Iteration 5* revealed the infinite-loop risk with `slot_minutes=0`. The guard was not added until a test demanded it.
+
+Both gaps were caught before they could affect the running system.
+
+==== *TDD Cycle Summary*
+
+[cols="1,2,1,2",options="header"]
+|===
+| Iteration | Specification | Cycle | Outcome
+| 1 | Basic slot count | RED → GREEN | Stub → working loop
+| 2 | Correct start times | GREEN (no change) | Implementation already correct
+| 3 | Blocked periods respected | RED → GREEN → REFACTOR | Discovered blocked_periods ignored; refactored to reuse `split()`
+| 4 | Empty working hours → no slots | GREEN (no change) | `subtract` handles zero-length range
+| 5 | Zero slot_minutes → ValueError | RED → GREEN | Discovered infinite-loop risk; added guard
+|===
+
+==== *Traceability to Requirements*
+
+[cols="1,2,2",options="header"]
+|===
+| Test | User Story | Domain Requirement
+| test_basic_two_slots, test_correct_start_times | US.PROV.01 (define availability) | DR-005 (availability as bounded intervals)
+| test_blocked_period_removes_slots | US.BOOK.01 (book appointment) | DR-016 (no overlapping appointments)
+| test_empty_working_hours_no_slots | US.PROV.01 | DR-005
+| test_zero_slot_minutes_raises | US.PROV.01 | DR-006 (consultation duration)
+|===

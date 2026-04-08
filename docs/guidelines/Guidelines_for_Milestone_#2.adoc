@@ -1,0 +1,65 @@
+= GUIDELINES AND ADVICE ON THE PROJECT DOCUMENTATION
+Second Milestone
+Marko Schütz-Schmuck
+
+These guidelines will be used to evaluate each project's submission. The whole project is still in progress, so we still do not need to see any type of _completeness_. However, we do want to see some progress (not necessarily the same amount) on _each_ of those aspects. By now we do want to see at least some fruits on all of the branches, e.g. from domain description to implementation and verification and validation.The guidelines and examples are more detailed than what would easily fit into the format of rubrics, so the guidelines are stated separately and the rubrics then are quite generic.
+
+• Changes to the previous submission must be clearly visible. Use a different background color, change bars in the page margin, or other ways to clearly indicate the changes.
+• The log book gives an overview of the changes (but not the full changed content) since the last submission. You can include a link to the issues in your GitHub repository for the full detail, so full detail is not needed here.
+• The actual changes, new developments, etc are integrated into the overall document. Do NOT use a separate part of the document for "new stuff"…
+• All the criteria where the previous submission did not follow the guidelines have been improved.
+• Any additions and changes follow the guidelines already established for the milestone 1 submission.
+• Progress in the implementation has been made: there are completed features that are implemented end-to-end and that have a high value to the users. The completion of the feature is evidenced by passing acceptance/end-to-end tests. Do not show the full implementation in your document, but you can show high-lights.
+• Progress has been made in all phases of development: domain description, requirements prescription, design, … All these phases evolve WITH one another, do not make the mistake of treating e.g. domain description as a fire-and-forget activity. Evolve all these aspects of your project together.
+
+• Application of topics, techniques, tools, methods, … from the
+  lectures:
+
+== The following rubrics will have a higher weight than those above.
+
+  • *Load testing with gatling or locust or similar*
+
+- the project discusses plausible load expectations
+- they show typical usage scenarios and how they use them for load testing
+- they discuss and explain their load testing setup and how it relates to their expected load
+- they interpret the results they observe
+  • *Hoare logic (or WP) e.g. pyrefine, <https://www.key-project.org/>, frama-c, dafny*
+- the project applies Hoare logic to at least one meaningful example function from their project
+- if they want to use tool support, but cannot find a tool for their language, they can rewrite that function in a different language for which they do have a tool
+  • *mutation testing*
+- the project employs a mutation testing tool on their project e.g. mypy, stryker
+- they discuss the results they obtained using these tools
+
+
+
+== Rubrics 
+* Changes to the previous submission must be clearly visible. 	
+
+* The log book gives an overview of the changes (but not the full changed content). 	
+Does not follow the guidelines or missing.
+
+* The actual changes, new developments, etc are integrated into the overall document. 	
+
+* All the criteria where the previous submission did not follow the guidelines have been improved.	
+
+* Any additions and changes follow the guidelines already established for the milestone 1 submission. 	
+
+* Progress in the implementation has been made: there are completed features that are implemented end-to-end and that have a high value to the users. 	
+
+* Progress has been made in all phases of development: domain description, requirements prescription, design, ... 	
+
+* The project discusses plausible load expectations 	
+
+* The project shows typical usage scenarios and how they use them for load testing 	
+
+* The project discusses and explains their load testing setup and how it relates to their expected load 	
+
+* The project interprets the load testing results they observe	
+
+* The project applies Hoare logic to at least one meaningful example function from their project 	
+
+* Hoare logic:use tool support.	
+
+* The project employs a mutation testing tool on their project e.g. mypy, stryker	
+
+* The project discusses the results they obtained using the mutation testing tools

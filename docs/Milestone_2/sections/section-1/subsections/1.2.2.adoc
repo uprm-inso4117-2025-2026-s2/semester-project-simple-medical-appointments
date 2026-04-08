@@ -1,0 +1,53 @@
+==== *Needs*
+
+[.removed]#Puerto Rico is currently facing significant challenges in accessing timely medical care due to the high demand for appointments and the continued reduction in available doctors. Many clinics still rely on traditional phone-based scheduling systems, which are inefficient, time-consuming, and prone to delays, double bookings, and miscommunication. Patients often struggle to find available appointments by specialty or location, while clinics and doctors experience increased administrative burdens that further contribute to long waiting times.#
+
+[.removed]#This project is necessary to address these inefficiencies by introducing a centralized and structured online scheduling platform. For patients, the system provides easier access to real-time availability, appointment management, and specialty-based search tools. For doctors and clinics, it reduces manual workload, improves schedule organization, and streamlines communication. For developers and project stakeholders, the platform offers a scalable, modular system that can evolve to include analytics, secure document handling, and improved operational insights. Overall, the project responds directly to an urgent healthcare access problem while delivering measurable improvements in efficiency, organization, and user experience.#
+
+===== [.added]#Patients#
+
+[.added]#Patients are currently able to contact clinics individually, typically by
+phone, in order to request appointments or inquire about availability. However,
+this process requires repeated attempts across multiple providers, provides
+limited visibility into available options, and depends heavily on timing and
+response availability from clinic staff. As a result, patients are unable to
+efficiently determine which providers can meet their needs within a reasonable
+timeframe. Patients therefore need a more reliable way to identify and compare
+viable appointment options based on factors such as specialty, location, and
+availability without relying on repeated manual inquiries.#
+
+===== [.added]#Clinic Administrative Staff#
+
+[.added]#Clinic administrative staff are currently responsible for managing appointment
+scheduling through manual coordination methods, including handling phone calls,
+maintaining calendars, and processing changes throughout the day. While these
+methods allow schedules to be maintained, they require continuous attention and
+are prone to interruptions, errors, and inconsistencies when demand is high.
+This makes it difficult to maintain accurate schedules while simultaneously
+responding to patient requests. Administrative staff therefore need a way to
+manage scheduling activities that reduces dependence on constant manual
+intervention and minimizes the likelihood of coordination errors.#
+
+===== [.added]#Providers#
+
+[.added]#Providers are currently able to define their availability and conduct
+consultations according to clinic schedules. However, variability in appointment
+durations, patient attendance, and administrative coordination introduces
+uncertainty into daily operations and limits the effective use of available
+time. Additionally, providers often have limited visibility into how their
+availability is allocated or adjusted throughout the scheduling process.
+Providers therefore need a way to ensure that their available time is utilized
+in a predictable and controlled manner while maintaining flexibility to adapt
+to changing conditions.#
+
+===== [.added]#Development Stakeholders#
+
+[.added]#Development stakeholders are currently able to implement isolated solutions for
+specific aspects of appointment scheduling, such as reminders or record
+management. However, these solutions typically operate independently and do not
+capture the full set of relationships and constraints present in the scheduling
+domain. This fragmentation makes it difficult to represent scheduling processes
+consistently or to evolve the system in a structured way. Development
+stakeholders therefore need a way to model and manage scheduling as a coherent
+domain, where entities, constraints, and interactions can be consistently
+represented and extended over time.#

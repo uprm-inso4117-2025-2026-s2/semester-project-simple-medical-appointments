@@ -1,0 +1,271 @@
+=== *Implementation*
+==== *Selected Fragments of the Implementation*
+
+[.removed]#[NOTE]
+====
+Since the project's technology stack has not yet been finalized at the time of
+writing, the fragments presented in this section use pseudocode and abstract
+diagrams to describe intended implementation behavior. These will be replaced
+with actual source code once a framework and language are selected. The goal
+here is to communicate *design intent*, not finalized syntax.
+====
+
+The following fragments illustrate how key architectural decisions are
+reflected in the implementation. Rather than presenting raw code for its own
+sake, each fragment is accompanied by an explanation of the reasoning behind it
+and how it supports the system's design goals.
+
+===== [.removed]#Authentication Flow#
+
+[.removed]#One of the foundational operations in the web application is user authentication. The system must verify a user's identity before granting access to protected resources, while keeping the session stateless on the server side.#
+
+[.removed]
+[source,text]
+----
+function authenticate(request):
+    credentials = extract(request.body, ["email", "password"])
+
+    if not credentials.valid():
+        return Response(400, "Missing or malformed credentials")
+
+    user = UserRepository.findByEmail(credentials.email)
+
+    if user is null or not hash.verify(credentials.password, user.passwordHash):
+        return Response(401, "Invalid email or password")
+
+    token = JWT.sign(payload={ userId: user.id, role: user.role },
+                     secret=ENV.JWT_SECRET,
+                     expiresIn="2h")
+
+    return Response(200, { token: token })
+----
+
+===== [.removed]#Input Validation Strategy#
+
+[.removed]#Another decision worth illustrating is how the application handles input validation. Rather than scattering validation logic across handlers, the design calls for a dedicated validation layer that intercepts requests before they reach business logic:#
+
+[.removed]
+[source,text]
+----
+function validate(schema, request):
+    errors = []
+
+    for each field in schema:
+        value = request.body[field.name]
+
+        if field.required and value is null:
+            errors.append({ field: field.name, issue: "required" })
+            continue
+
+        if not field.type.matches(value):
+            errors.append({ field: field.name, issue: "invalid type" })
+
+    if errors is not empty:
+        return Response(422, { errors: errors })
+
+    return next(request)
+----
+
+[.added]#The following fragments illustrate how the system’s architecture is translated into concrete behavior. Each fragment is included only where it helps explain something that would otherwise be difficult to understand through text alone.#
+
+===== [.added]#Application Initialization and Structure#
+
+[.added]#The backend is initialized using an application factory pattern, implemented in `backend/app/__init__.py`.#
+
+[.added]
+[source,python]
+----
+def create_app(testing: bool = False):
+    app = Flask(__name__)
+
+    app.config.from_object(Config)
+    if testing:
+        app.config["TESTING"] = True
+
+    CORS(app)
+    init_supabase(app)
+    register_routes(app)
+
+    return app
+----
+
+ [.added]#This pattern allows the application to be created in a controlled and flexible way. Instead of relying on global initialization, the system builds the application step by step. Configuration is loaded first, followed by external service initialization and route registration.#
+
+[.added]#This separation is important because it allows different environments to be handled cleanly. For example, when running tests, the application can disable external integrations such as Supabase. It also makes the system easier to maintain, since each responsibility is clearly defined and isolated.#
+
+===== [.added]#Route Organization#
+
+[.added]#The API is structured using blueprints, defined in `backend/app/routes/__init__.py`.#
+
+[.added]
+[source,python]
+----
+def register_routes(app):
+    app.register_blueprint(main_bp, url_prefix='/api')
+    app.register_blueprint(appointment_bp, url_prefix='/api')
+    app.register_blueprint(profile_bp, url_prefix='/api/profile')
+    app.register_blueprint(settings_bp, url_prefix='/api/settings')
+----
+
+[.added]#This approach reflects a modular design where each functional area of the system is handled independently. For example, profile-related operations are separated from appointment-related operations.#
+
+[.added]#This modularity reduces coupling between components and makes it easier to extend the system. New features can be added as new blueprints without modifying existing ones, which reduces the risk of introducing bugs in unrelated parts of the application.#
+
+===== [.added]#Supabase Integration#
+
+[.added]#The system integrates with Supabase for authentication and data storage. This integration is centralized in `backend/app/supabase.py`.#
+
+[.added]
+[source,python]
+----
+def init_supabase(app):
+    global supabase
+
+    if app.config.get("TESTING"):
+        supabase = None
+        app.supabase = None
+        return None
+
+    url = app.config.get('SUPABASE_URL')
+    key = app.config.get('SUPABASE_KEY')
+
+    if not url or not key:
+        raise RuntimeError('Supabase environment variables are missing.')
+
+    supabase = create_client(url, key)
+    app.supabase = supabase
+    return supabase
+----
+
+[.added]#By initializing the client once and attaching it to the application, the system avoids duplicating configuration logic across different components.#
+
+[.added]#An important detail is the conditional behavior during testing. When the application runs in testing mode, the Supabase client is disabled. This prevents external dependencies from affecting test execution and ensures that tests remain fast and reliable.#
+
+===== [.added]#Backend Communication with Supabase#
+
+[.added]#To maintain consistency, all communication with Supabase is handled through a wrapper function defined in `backend/app/routes/profile.py`.#
+
+[.added]
+[source,python]
+----
+def _supabase_request(...):
+    headers = {
+        'apikey': service_key,
+        'Authorization': f"Bearer {user_token or service_key}",
+    }
+----
+    
+[.added]#This abstraction centralizes how requests are constructed and executed. Instead of writing HTTP logic in every endpoint, the system delegates this responsibility to a single function.#
+
+[.added]#This design improves maintainability. If the way requests are handled needs to change, it can be updated in one place without affecting the rest of the codebase. It also ensures consistent error handling and response parsing across all interactions with Supabase.#
+
+===== [.added]#Authentication and Authorization#
+
+[.added]#Authentication and authorization are handled as separate steps, both implemented in `backend/app/routes/profile.py`.#
+
+[.added]
+[source,python]
+----
+status, user_response, _ = _supabase_request('GET', '/auth/v1/user', user_token=token)
+
+role_status, role_response, _ = _supabase_request(
+    'GET',
+    '/rest/v1/user_roles',
+    query={'user_id': f'eq.{user_id}', 'select': 'roles(name)'},
+)
+----
+
+[.added]#The system first verifies the identity of the user using a token. Once the user is authenticated, a second query retrieves the user’s role.#
+
+[.added]#This separation is intentional. Authentication answers the question “who is the user?”, while authorization answers “what is the user allowed to do?”. Keeping these concerns independent makes the system more flexible and easier to evolve as role definitions change.#
+
+===== [.added]#Access Control in Profile Endpoints#
+
+[.added]#Access control is enforced directly within the endpoints, which are defined in `backend/app/routes/profile.py`.#
+
+[.added]
+[source,python]
+----
+if not _can_access_target(request_user_id, request_role, user_id):
+    return jsonify({'error': 'Forbidden'}), 403
+----
+
+[.added]#This check ensures that users can only access or modify their own data unless additional permissions are granted.#
+
+[.added]#Although simple, this explicit check is critical for system security. By placing it early in the request flow, the system prevents unauthorized access before any sensitive operations are performed.#
+
+===== [.added]#Frontend API Communication#
+
+[.added]#On the frontend, API communication is centralized in `frontend/src/services/api.js`.#
+
+[.added]
+[source,javascript]
+----
+const response = await fetch(`${BASE_URL}${path}`, {
+  headers: { 'Content-Type': 'application/json', ...authHeaders },
+  ...restOptions,
+})
+----
+
+[.added]#Before sending a request, the system retrieves the current session and attaches the authentication token automatically.#
+
+[.added]#This design removes the need for individual components to handle authentication manually. As a result, the code becomes more consistent and less error-prone, since all requests follow the same pattern.#
+
+==== [.added]#Role-Based UI Behavior#
+
+[.added]#The frontend adapts its behavior based on the user’s role, implemented in `frontend/src/pages/Home.jsx`.#
+
+[.added]
+[source,javascript]
+----
+const { data: roleRows } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', data.user.id)
+----
+
+[.added]#Once the role is retrieved, it is used to control what the user sees in the interface. This creates a direct connection between backend authorization and frontend behavior. The system not only enforces permissions internally but also reflects them in the user interface, improving both usability and security.#
+
+===== [.added]#Appointment Creation and Scheduling Logic#
+
+[.added]#One of the core operations of the system is the creation of appointments. This process involves multiple steps, including authentication, validation, conflict detection, and persistence. The API endpoint responsible for this operation is implemented in `backend/app/routes/scheduling_appointments.py`.#
+
+[.added]
+[source,python]
+----
+@scheduling_appointments_bp.route("/", methods=["POST"])  
+@requires_auth
+def create_appointment():
+    data = _validate_json_request()
+    supabase = _get_supabase_client()
+    response = supabase.table("appointments").insert(data).execute()
+    return jsonify({"success": True, "data": response.data}), 201
+----
+
+
+[.added]#Before reaching the endpoint, the request is processed by authentication middleware defined in `backend/app/middleware/auth_middleware.py`.#
+
+[.added]
+[source,python]
+----
+def requires_auth(f):
+    token = extract_token()
+    payload = verify_jwt(token)
+    g.user_id = payload.get("sub")
+    return f()
+----
+
+[.added]#This ensures that only authenticated users can create appointments, while keeping authentication logic separate from business logic.#
+
+[.added]#Beyond the API layer, the system includes a dedicated module for handling scheduling rules, implemented in `backend/src/booking.py`.#
+
+[.added]
+[source,python]
+----
+if has_conflict(proposed_start, proposed_end, existing_appointments):
+    return False, None, ["time_slot_conflict"]
+----
+
+[.added]#This logic ensures that appointments do not overlap with existing ones. It represents the core business rule of the scheduling system. Additional constraints are enforced through availability and closure checks. Availability is retrieved from `backend/app/repositories/availability.py`, while closures are handled in `backend/app/services/closure_service.py`. These components ensure that appointments are only scheduled within valid time ranges and do not conflict with blocked periods such as holidays or doctor unavailability.#
+
+[.added]#This flow demonstrates how different layers of the system interact. Authentication secures access, validation ensures correct input, and scheduling logic enforces consistency. Together, they implement the core behavior of the application in a structured way.#

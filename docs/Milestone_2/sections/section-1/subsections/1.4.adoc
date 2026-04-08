@@ -1,0 +1,79 @@
+=== *Other Activities than Just Developing Source Code*
+[.removed]#Projects are successful when coding is supported by planning, communication, and documentation. These activities keep the team organized and ready for future development.#
+
+* [.removed]#Beyond writing source code, the project requires continuous documentation efforts to ensure that ideas, decisions, and structures remain clear and traceable. This includes writing user guides that explain how patients and clinic staff interact with the system, preparing technical explanations of architectural decisions, documenting database structures, and maintaining updated project reports for academic evaluation. Documentation is not treated as a final step, but as an ongoing process that evolves alongside development to preserve clarity and coherence across milestones.#
+
+* [.removed]#While the application is not yet developed enough for full-scale testing, it is still necessary to plan for quality assurance. This involves deciding how unit testing, integration testing, and usability evaluation will eventually be carried out once prototypes and code are available. In parallel, version control practices such as branching strategies, pull requests, and code reviews can already be defined so the team is prepared to manage collaboration effectively when development begins. These preparatory activities set the standard for a structured and reliable workflow.#
+
+* [.removed]#Version control management is necessary to coordinate a large team working simultaneously on different parts of the system. Maintaining a structured repository allows team members to work in parallel branches without overwriting each other’s contributions. Code reviews, commit tracking, and organized pull requests reduce conflicts and improve accountability. Regular backups and repository hygiene also protect the project from accidental loss or corruption.#
+
+* [.removed]#Effective coordination requires deliberate project management practices. Timelines must be defined early, milestones clearly structured, and deliverables aligned with course deadlines. Task assignments are distributed according to functional teams, but progress must be monitored collectively to avoid bottlenecks. Regular meetings create opportunities to clarify misunderstandings, adjust priorities, and ensure that conceptual decisions remain aligned with the overall domain vision.#
+
+* [.removed]#Clear and structured communication supports collaboration across functional teams. Decisions taken in meetings must be recorded, responsibilities explicitly assigned, and updates shared consistently. Because different teams focus on distinct aspects of the domain—such as scheduling, patient experience, or documentation—misalignment can easily occur without deliberate communication channels. Maintaining transparency reduces duplication of work and prevents conceptual inconsistencies.#
+
+* [.removed]#Many of these supporting activities occur in parallel with development rather than sequentially. Documentation is written while features are implemented, testing begins as soon as a component becomes stable, and presentation materials are prepared before final deployment. This parallel execution improves efficiency and prevents last-minute overload before milestone deadlines. It also encourages iterative refinement instead of postponing evaluation.#
+
+[.removed]#In addition to implementation, the project requires several complementary
+engineering activities to ensure that the system accurately reflects the domain,
+meets defined requirements, and can be validated in a structured manner. These
+activities address the need for clarity, consistency, and traceability, which
+are not present in the current situation where scheduling practices are informal,
+fragmented, and insufficiently documented.#
+
+===== [.added]#Domain Engineering#
+
+[.added]#Domain engineering activities focus on identifying, analyzing, and formalizing
+the core concepts, constraints, and interactions present in medical appointment
+scheduling. This includes examining stakeholder perspectives, operational
+practices, and domain tensions in order to construct a consistent domain model.
+These activities are carried out through domain descriptions, concept
+identification, and interaction modeling, ensuring that the system-to-be
+represents real-world behavior rather than assumptions.#
+
+===== [.added]#Requirements Engineering#
+
+[.added]#Requirements engineering is necessary to translate domain observations into
+precise and verifiable system requirements. This involves identifying domain
+properties, defining constraints, and documenting requirements in a structured
+manner that supports traceability. The process includes organizing requirements
+into coherent categories, refining them iteratively, and ensuring alignment with
+the domain model so that implementation decisions are grounded in clearly defined
+behavior.#
+
+===== [.added]#System Design and Architecture#
+
+[.added]#System design and architecture activities define how domain concepts and
+requirements are structured within the system. This includes the organization of
+components, the definition of interfaces, and the representation of scheduling
+logic and data relationships. Architectural decisions are guided by the need to
+maintain modularity, scalability, and consistency with the domain, enabling the
+system to evolve without violating its underlying structure.#
+
+===== [.added]#Verification and Validation#
+
+[.added]#Verification and validation activities ensure that the system behaves according
+to its specified requirements and accurately reflects the domain. This includes
+the use of Test-Driven Development and Behavior-Driven Development 
+to guide implementation, as well as load testing, mutation testing, and formal
+verification techniques such as Hoare logic to evaluate correctness. Additional
+validation is performed through consistency checks, traceability verification,
+and scenario-based walkthroughs derived from domain interactions.#
+
+===== [.added]#Documentation and Knowledge Management#
+
+[.added]#Documentation activities support the development process by maintaining a clear
+record of domain descriptions, requirements, design decisions, and validation
+results. This includes structured documentation, version control practices, and
+continuous updates to ensure that all project artifacts remain consistent and
+accessible. These activities enable coordination among team members and provide
+a basis for evaluating design and implementation choices.#
+
+===== [.added]#User Experience and Accessibility Considerations#
+
+[.added]#User experience and accessibility considerations address the need to ensure that
+interactions with the system are understandable and usable across different
+stakeholder groups. These activities involve analyzing how patients,
+administrative staff, and providers interact with scheduling processes, and
+ensuring that representations of these interactions remain clear and consistent.
+Accessibility considerations are incorporated to account for variations in user
+capabilities and levels of digital literacy within the domain context.#

@@ -1,0 +1,35 @@
+==== *Synopsis*
+[.removed]#This project aims to develop a centralized online platform that simplifies the scheduling of medical appointments for patients, doctors and clinics in Puerto Rico. By replacing inefficient phone-based systems with real-time availability, organized search features, and user-friendly booking tools, the platform seeks to reduce waiting times and administrative workload while improving access to timely healthcare. Ultimately, the system provides a scalable and coordinated solution to address the growing demand for medical services and modernize the appointment scheduling process.#
+
+[.added]#This project addresses the difficulty of coordinating medical appointments
+within a constrained healthcare environment in Puerto Rico, where access to
+care is limited by provider availability, fragmented scheduling practices, and
+administrative overhead. The objective is to model and prototype a structured
+approach to appointment coordination that reflects the constraints and
+interactions observed in the domain.#
+
+[.added]#To achieve this, the project requires multiple types of work spanning analysis,
+design, implementation, and validation. Domain engineering activities are used
+to identify and formalize key concepts such as patients, providers, appointments,
+and scheduling constraints, ensuring that the system reflects real-world
+practices. Requirements engineering translates these domain observations into
+precise, traceable requirements that define system behavior.#
+
+[.added]#System design and architecture planning establish how scheduling logic,
+interactions, and data structures are organized, followed by implementation
+activities that develop prototype-level frontend and backend components.
+Supporting this, database design is used to represent domain entities and their
+relationships in a consistent and extensible manner.#
+
+[.added]#Verification and validation are performed through multiple approaches. These
+include Test-Driven Development and Behavior-Driven Development to
+guide implementation, as well as load testing, mutation testing, and formal
+verification techniques such as Hoare logic to evaluate correctness and
+robustness. Additional validation activities include consistency checks,
+traceability verification, and walkthrough-based analysis of domain scenarios.#
+
+[.added]#Throughout the project, continuous documentation, version control, and team
+coordination activities support development by maintaining clarity, alignment,
+and traceability across all components. These activities are carried out in
+parallel and iteratively, ensuring that the system evolves in a structured and
+verifiable manner toward a coherent representation of the scheduling domain.#
