@@ -1,71 +1,13 @@
 
 === Logbook
 
-The logbook records changes made since the Milestone 1 submission. For full detail, see the linked GitHub issues.
-
-[%header,cols="1,1,3,2"]
+[cols="3,^2,5",options="header"]
 |===
-| Date | Section | Change Summary | Issue / PR
+| Name | Section | Added/Modified
 
-| 2026-04-07
-| 1.1 Team
-| Renamed "User Management Team" to "Roles and Permissions Team" to remove implementation-oriented label.
-| M2 feedback fix
-
-| 2026-04-07
-| 1.2.1 Current Situation
-| Added citations for all quantitative claims (PRMA, PRDOH, MGMA-PR, CUPR, HFMA). Previous version made unsupported claims.
-| M2 feedback fix
-
-| 2026-04-07
-| 1.2.2 Need
-| Completely rewrote. Previous version restated the situation and described system features. New version states needs independently of the system-to-be, from the perspective of patients, providers, and administrative staff.
-| M2 feedback fix
-
-| 2026-04-07
-| 1.2.3 Ideas
-| Rewrote to explicitly connect each idea to the need it addresses. Removed implementation details (JWT, bcrypt).
-| M2 feedback fix
-
-| 2026-04-07
-| 1.3.1 Scope & Span
-| Replaced feature list with proper scope (broader domain field) and span (specific focus). Added domain engineering, requirements engineering, architecture, implementation, and testing to scope.
-| M2 feedback fix
-
-| 2026-04-07
-| 1.3.2 Synopsis
-| Expanded synopsis to cover all project activities: domain engineering, requirements engineering, architecture, implementation, testing, and validation. Previous version described only the end product.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.1.2 Terminology
-| Added function signatures to domain verbs (now in 2.1.4). Relaxed "Single Active Appointment" constraint. Added missing terms: Specialty, Schedule, ReferralRegistry, InsuranceRegistry, NotificationQueue. Added observable properties to Consultation Type.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.1.3 Narrative
-| Removed project justification content (physician shortage statistics, project motivation) that does not belong in the domain narrative. Kept only observable domain phenomena.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.1.4 Events, Actions, Behaviors
-| Removed all "hybrid" labels. Correctly classified all entries as event, action, or behavior. Added function signatures alongside each action description. Added `markNoShow` action to accompany the "patient just marked absent" event.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.1.5 Function Signatures
-| Integrated signatures with 2.1.4. Added supplementary explanation of type relationships (Schedule, TimeSlotId vs TimeSlot, ReferralRegistry, InsuranceRegistry, Specialty). Removed ClinicSystem and BehaviorTrace.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.2.1 User Stories / Epics
-| Replaced registration-focused Epic E1 with user-value epics: Finding a Provider (E1), Booking and Managing Appointments (E2), Provider Schedule Management (E3), Appointment History (E4), Administrative Oversight (E5). All epics now state explicit user value.
-| M2 feedback fix
-
-| 2026-04-07
-| 2.2.5 Machine Requirements
-| Fixed all broken references (Epic-DevSetup, Epic-Performance, etc.) to use actual epic IDs from 2.2.1. Added forward references to load testing results in 4.21.
-| M2 feedback fix
+| Jean P. I. Sánchez
+| 3.3, 3.3.1, 3.3.2
+| Added section 3.3 (Test Scenario Design) including 3.3.1 (Scenario Coverage Overview) and 3.3.2 (BDD Scenario Design) with Given–When–Then examples and traceability table linking scenarios to functional requirements.
 
 | 2026-04-07
 | 2.3.1 Implementation
