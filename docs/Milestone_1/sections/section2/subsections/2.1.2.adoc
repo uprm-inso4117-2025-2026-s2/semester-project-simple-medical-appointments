@@ -1,151 +1,174 @@
-==== *Terminology*
+= §2.1.2 Domain Terminology (Word Version)
 
 [NOTE]
 ====
-Each term below is derived from raw observations in the Domain Rough Sketch (2.1.1) and refined through concept analysis. Terms are presented with their classification (entity, actor, event, behavior, function, etc.) and the phase in which they appear (domain, requirements, implementation).
 
-Terms are organized into Domain Nouns, Domain Verbs, and Domain Constraints to align with ubiquitous language principles.
+Each entry is tagged with:
+
+* `[phase] ∈ { [domain], [requirements], [implementation] }`
+* `[type] ∈ { actor, entity, taxonomy, state, event, action, constraint, collection, system, artifact }`
 ====
 
+== Domain actors, entities, and core concepts
 
-[discrete]
-===== Domain Nouns (entities, actors, abstractions)
+Patient :: `[domain] [actor]`
+A person seeking medical consultation or treatment. A Patient may request, confirm, cancel, or reschedule appointments and may join a waitlist when no acceptable times are available.
 
+Caregiver :: `[domain] [actor]`
+A person who manages or coordinates appointments on behalf of a Patient who cannot coordinate independently.
 
-*Patient* :: (actor, domain)
-A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
-[.small]*Derived from: repeated references to calling clinics, joining waitlists, coordinating care.*
+Doctor :: `[domain] [actor]`
+A licensed medical professional who provides consultations and whose availability is scheduled through time slots at one or more clinics.
++
+Deprecated aliases: “Provider”, “Healthcare Provider” (replace these with Doctor across the document).
 
-*Caregiver* :: (actor, domain)
-A person managing appointments on behalf of a patient who cannot coordinate independently.
-[.small]*Derived from: “I manage my mother’s appointments because she doesn’t use a smartphone.”*
+Specialty :: `[domain] [taxonomy]` _(required missing term)_
+A classification of a Doctor’s practice area (e.g., cardiology, general practice) used to match patients to appropriate doctors.
 
-*Healthcare Provider* :: (actor, domain)
-A licensed professional offering medical consultations (e.g., general practitioner, specialist).
-[.small]*Derived from: overloaded schedules, consultation variability.*
+Clinic :: `[domain] [entity]`
+A healthcare facility/location that schedules appointments with Doctors and operates within defined operational hours.
 
-*Clinic* :: (entity, domain)
-A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
+Appointment :: `[domain] [entity]`
+A reserved time commitment for a Patient to consult a Doctor at a Clinic, associated with a consultation type and a booking status.
 
-*Appointment* :: (entity, domain)
-A reserved time block allocated to a patient for consultation with a provider at a specific clinic location.
+Time Slot :: `[domain] [entity]`
+A discrete reservable interval in a Doctor’s schedule. A time slot may be available, reserved, canceled/released, or expired.
 
-*Time Slot* :: (entity, domain)
-A discrete, reservable interval in a provider’s schedule. A time slot may be available, reserved, canceled, or expired.
+TimeSlotCatalog :: `[domain] [collection]` _(required missing term)_
+The collection of time slots that represents published availability. (Scope must be made clear elsewhere: per-doctor vs per-clinic catalog.)
 
-*Schedule* :: (entity, domain)
-The structured allocation of time slots associated with a provider or clinic.
+Schedule :: `[domain] [entity]`
+The structured allocation of time slots and appointments associated with a Doctor and/or Clinic.
 
-*Consultation Type* :: (taxonomy, domain)
-A classification of medical visit (e.g., follow-up, first-time visit, procedure) that influences duration and constraints.
+Consultation Type :: `[domain] [taxonomy]`
+A classification of medical visit (e.g., first-time visit, follow-up, procedure) that influences planning assumptions (like expected duration) and may introduce constraints (e.g., authorization required).
 
-*Waitlist* :: (entity, domain)
-An ordered collection of patients waiting for a time slot when no immediate availability exists.
+Waitlist :: `[domain] [entity]`
+An ordered collection of waiting patients when no acceptable time slots are available.
 
-*Cancellation* :: (event, domain)
+Cancellation :: `[domain] [event]`
 The release of a previously reserved appointment before its scheduled time.
 
-*No-Show* :: (event, domain)
+No-Show :: `[domain] [event]`
 The absence of a patient at a scheduled appointment without prior cancellation.
 
-*Insurance Authorization* :: (process, domain)
-An external approval required before certain appointments can be confirmed.
+Insurance Authorization :: `[domain] [process/entity]`
+An external approval outcome required before certain appointments can be confirmed for specific consultation types.
 
-*Referral* :: (entity/event, domain)
-A directive from one provider requiring a patient to consult another provider before treatment.
+Referral :: `[domain] [entity]`
+A directive indicating that a patient must meet referral conditions before certain consultations can be confirmed.
 
-*Availability* :: (state, domain)
-The condition of a time slot being open for reservation.
+Availability :: `[domain] [state]`
+The state of a time slot being open (or not) for reservation.
 
-*Booking Status* :: (state, domain)
-The current condition of an appointment (pending, confirmed, canceled, completed).
+Booking Status :: `[domain] [state]`
+The state of an appointment (e.g., pending, confirmed, canceled, completed).
 
-*Operational Hours* :: (constraint entity, domain)
-The defined time boundaries within which a clinic accepts or schedules appointments.
+Operational Hours :: `[domain] [constraint-entity/value]`
+The time boundaries within which a clinic accepts or schedules appointments.
 
+AppointmentBook :: `[domain] [collection]` _(required missing term)_
+The collection of scheduled appointments used as the official record of bookings (and used to detect scheduling conflicts).
 
-[discrete]
-===== Domain Verbs (actions, events, domain operations)
+ClinicSystem :: `[requirements] [system]` _(required missing term)_
+The system-to-be boundary referenced in requirements and function signatures: the scheduling system that maintains doctors, clinics, time slots, appointment booking, and related constraints.
 
+BehaviorTrace :: `[requirements] [artifact]` _(required missing term)_
+A trace/log of domain-relevant actions/events (e.g., request made, slot offered, appointment confirmed/canceled) used for accountability and analysis.
 
-*Request Appointment* :: (action, domain)
-A patient expresses intent to reserve an available time slot.
+== Domain actions (high-level names only)
 
-*Reserve Time Slot* :: (action, domain)
-The act of assigning a specific time slot to a patient.
+Request Appointment :: `[domain] [action]`
+A Patient expresses intent to reserve an available time slot.
 
-*Confirm Appointment* :: (event, domain)
-The transition of an appointment from pending to confirmed state.
+Reserve Time Slot :: `[domain] [action]`
+The act of assigning a specific time slot to a Patient (creating or updating an appointment record).
 
-*Cancel Appointment* :: (action/event, domain)
-The intentional release of a reserved time slot by patient or clinic.
+Confirm Appointment :: `[domain] [action]`
+The act of transitioning an appointment from pending to confirmed, once required conditions are satisfied.
 
-*Reschedule Appointment* :: (action, domain)
-The replacement of one reserved time slot with another.
+Cancel Appointment :: `[domain] [action]`
+The act of canceling an appointment, releasing the reserved time slot back to availability.
 
-*Join Waitlist* :: (action, domain)
-A patient registers interest in being assigned a slot if one becomes available.
+Reschedule Appointment :: `[domain] [action]`
+The act of replacing one reserved time slot with another for an existing appointment.
 
-*Assign Waitlisted Patient* :: (event, domain)
-The allocation of a newly freed time slot to the next eligible patient in the waitlist.
+Join Waitlist :: `[domain] [action]`
+A Patient registers interest in being assigned a slot if one becomes available.
 
-*Authorize Coverage* :: (external event, domain)
-Insurance approval required before final confirmation of certain appointment types.
+Assign Waitlisted Patient :: `[domain] [action/behavior]`
+The allocation workflow triggered by a newly freed time slot (often includes contacting the next eligible patient and updating the appointment status).
 
-*Expire Slot* :: (event, domain)
-Automatic release of a temporarily held slot after a defined confirmation window.
+Authorize Coverage :: `[domain] [external event]`
+An external authorization outcome is received (approved/denied), affecting whether an appointment can be confirmed.
 
+Expire Slot :: `[domain] [event]`
+A held or unconfirmed slot is released automatically after a confirmation window ends.
 
-[discrete]
-===== Domain Constraints (invariant business rules)
+== Domain constraints (invariants)
 
-*No Double Booking* ::
-A single time slot cannot be reserved by more than one patient simultaneously.
+No Double Booking :: `[domain] [constraint]`
+A single time slot must not be reserved by more than one patient simultaneously (unless the project explicitly defines capacity > 1 elsewhere).
 
-*Single Active Appointment per Provider Constraint* ::
-A patient may not hold multiple concurrent active appointments with the same provider.
+Single Active Appointment per Doctor Constraint :: `[domain] [constraint]` _(reinterpreted to avoid overly strict rule)_
+A patient may not hold overlapping active appointments with the same Doctor.
++
+(Important clarification: this does not forbid multiple future appointments with the same Doctor on different days.)
 
-*Operational Hour Restriction* ::
+Operational Hour Restriction :: `[domain] [constraint]`
 Appointments cannot be scheduled outside clinic operational hours.
 
-*Consultation Duration Integrity* ::
-The allocated time slot must match the required duration for the selected consultation type.
+Consultation Duration Integrity :: `[domain] [constraint]` _(updated for duration uncertainty)_
+Time slots are planned using an expected duration for the consultation type; actual visit length may vary, so the domain does not require exact duration matching in real-world execution.
 
-*Waitlist Ordering Integrity* ::
-Waitlisted patients must be assigned based on defined priority rules.
+Waitlist Ordering Integrity :: `[domain] [constraint]`
+Waitlisted patients must be prioritized and assigned according to the defined ordering rule.
 
-*Authorization Dependency* ::
-Certain appointments cannot transition to confirmed status without required insurance approval.
+Authorization Dependency :: `[domain] [constraint]`
+Certain appointment types cannot transition to confirmed status until required insurance authorization is obtained.
 
+== Observed domain phenomena
 
-[discrete]
-===== Cross-Phase Terms (Explicitly Annotated)
+Call saturation :: `[domain] [phenomenon]`
+High call congestion during clinic opening hours makes scheduling access difficult.
 
-These terms appear in later phases and are included for clarity.
+Appointment delay :: `[domain] [phenomenon]`
+Long waiting periods for non-urgent care (e.g., months until first available slot).
 
-*User Account* :: (entity, implementation)
-A technical authentication construct representing a system login identity.
-*Not a domain concept.*
+Manual reminder artifact :: `[domain] [phenomenon]`
+Patients rely on paper/manual reminders to avoid forgetting appointments.
 
-*Authentication Token* :: (artifact, implementation)
-A signed credential used to verify session identity.
+Office-hour constraint :: `[domain] [phenomenon]`
+Scheduling is hard for patients who cannot call during clinic office hours.
 
-*Notification* :: (system event, requirements)
-A system-generated alert informing patients or clinics about appointment changes.
+Waitlist opacity :: `[domain] [phenomenon]`
+Patients cannot see waitlist progress or status, causing uncertainty.
 
-*Session* :: (technical state, implementation)
-The authenticated runtime context allowing authorized actions.
+Schedule fragmentation :: `[domain] [phenomenon]`
+Clinics lack visibility into other clinic locations’ schedules; availability is siloed.
 
+Consultation variability :: `[domain] [phenomenon]`
+Consultations can take longer than expected, shifting the schedule.
 
-[discrete]
-===== Core Domain Flow (Appointment Lifecycle)
+No-show fluctuation :: `[domain] [phenomenon]`
+No-shows occur unpredictably, affecting schedule efficiency.
 
-. A provider defines availability through structured time slots within operational hours.
-. A patient requests an appointment by selecting an available time slot.
-. If constraints apply (authorization or referral), the appointment enters pending status.
-. Upon confirmation, the slot becomes reserved.
-. If canceled, the slot returns to available state.
-. If a waitlist exists, the next patient may be assigned automatically.
-. The appointment either completes successfully or becomes a no-show.
-. Historical records preserve appointment outcomes for traceability.
+Defensive reservation :: `[domain] [phenomenon]`
+Some patients book multiple appointments “just in case,” then cancel later, disrupting planning.
 
+External system latency :: `[domain] [phenomenon]`
+Insurance authorization processes introduce delays because they depend on external systems.
+
+== Cross-phase (non-domain) technical terms
+
+User Account :: `[implementation] [entity]`
+A technical authentication construct representing a system login identity (not a domain concept).
+
+Authentication Token :: `[implementation] [artifact]`
+A signed credential used to verify session identity (not a domain concept).
+
+Session :: `[implementation] [state]`
+Authenticated runtime context allowing authorized actions (not a domain concept).
+
+Notification :: `[requirements] [artifact]`
+A system-generated message informing stakeholders about appointment changes (system-to-be concern).
