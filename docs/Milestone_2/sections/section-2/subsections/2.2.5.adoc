@@ -1,86 +1,119 @@
 ==== *Machine Requirements*
 
-The following machine requirements define measurable hardware, software,
-performance, and environmental constraints for the system.
+[.changed]
+===== Machine Initialization Requirements
 
-These requirements are preliminary and remain under development.
-Some thresholds are theoretical and will be validated through testing
-in later milestones.
+[discrete]
+====== Resource Preparation
 
-NOTE: These machine requirements are still under development. Some thresholds are theoretical and will be validated through testing in later milestones. Items marked “TBD” remain to be researched and defined.
+*Domain basis:*  
+System operations depend on properly initialized machine resources, including memory, threads, and data structures.
 
-.Machine Requirements
-[cols="1,5,2,2",options="header"]
-|===
-| ID | Description | Linked User Stories/Epics | Verification Tests
+*Requirements:*
 
-| MR001
-| Server (minimum deployment target) must provide **≥ 2 vCPU (≥ 2.0 GHz)**, **≥ 4 GB RAM**, and **≥ 20 GB free storage**.
-| Epic-DevSetup
-| T-Env-001
+* [[REQ-MACH-F-01]]REQ-MACH-F-01: The system must initialize all machine-level resources before execution of scheduling and booking operations.
 
-| MR002
-| Client devices must support a modern browser (latest **2** stable versions of Chrome/Firefox/Edge/Safari), have **≥ 4 GB RAM**, and screen resolution **≥ 1280×720**.
-| Epic-ClientSupport
-| T-Env-002
+* [[REQ-MACH-F-02]]REQ-MACH-F-02: The system must create and validate Provider process threads, associating each with at least one Clinic process, with immutable identity attributes.
 
-| MR003
-| Server OS must be **Linux (Ubuntu 22.04 LTS or equivalent)** or **Windows Server 2019+**.
-| Epic-DevSetup
-| T-Env-003
+* [[REQ-MACH-F-03]]REQ-MACH-F-03: The system must instantiate Clinic data structures, maintaining references to associated Provider threads, with access restricted by system roles.
 
-| MR004
-| Database must be **MySQL 8.0+** or **PostgreSQL 14+** and must not be publicly accessible (restricted to internal/private network).
-| Epic-DataStore
-| T-Sec-001
+[discrete]
+===== Time Slot Object Requirements
 
-| MR005
-| “Simultaneous users” is defined as authenticated users issuing requests within a **10-second** window. The system must support **≥ 100 concurrent active users** performing standard operations (search availability, book appointment, confirm/cancel).
-| Epic-Performance
-| T-Perf-001
+[discrete]
+====== Slot Initialization
 
-| MR006
-| Under normal load (≤ **100** concurrent active users), average API response time must be **≤ 2 seconds** and 95th percentile response time must be **≤ 4 seconds**.
-| Epic-Performance
-| T-Perf-002
+*Domain basis:*  
+Time slots represent available consultation periods and must prevent conflicts at the machine level.
 
-| MR007
-| “Heavy load” is defined as **101–150** concurrent active users performing database-backed operations. Under heavy load, average API response time must be **≤ 5 seconds**, and the system must not crash.
-| Epic-Performance
-| T-Perf-003
+*Requirements:*
 
-| MR008
-| If concurrent active users exceed **150**, the system must **degrade gracefully**: new sessions may receive **HTTP 503**, while existing sessions must continue; persisted appointment data must not be lost.
-| Epic-Performance
-| T-Perf-004
+* [[REQ-MACH-SLOT-F-01]]REQ-MACH-SLOT-F-01: The system must initialize Time Slot objects with Provider and Clinic references, start and end times, and a default status of Available.
 
-| MR009
-| Availability target must be **≥ 99% monthly uptime** excluding scheduled maintenance. Scheduled maintenance must be **≤ 2 hours/month** (TBD if this constraint needs adjustment).
-| Epic-Reliability
-| T-Rel-001
+* [[REQ-MACH-SLOT-F-02]]REQ-MACH-SLOT-F-02: The system must reject overlapping time ranges at the machine level.
 
-| MR010
-| If the application process crashes, it must restart automatically within **≤ 60 seconds** and must not corrupt persisted data.
-| Epic-Reliability
-| T-Rel-002
+[discrete]
+===== Patient Object Requirements
 
-| MR011
-| All client-server communication must use **HTTPS (TLS 1.2+)**.
-| Epic-Security
-| T-Sec-002
+[discrete]
+====== Patient Initialization
 
-| MR012
-| Passwords must be stored using salted hashing (**bcrypt** or **Argon2**).
-| Epic-Security
-| T-Sec-003
+*Domain basis:*  
+Patient objects must be consistent and editable for core operations.
 
-| MR013
-| Backups must run automatically **at least once per day** and be retained for **≥ 7 days** (TBD based on storage constraints).
-| Epic-DataProtection
-| T-Env-004
+*Requirements:*
 
-| MR014
-| Acceptable degradation criteria under heavy load (e.g., which non-critical features may be temporarily disabled) remain **TBD** and will be defined after load testing.
-| Epic-Performance
-| T-Perf-005
-|===
+* [[REQ-MACH-PAT-F-01]]REQ-MACH-PAT-F-01: The system must initialize Patient objects with required fields validated before memory allocation.
+
+* [[REQ-MACH-PAT-F-02]]REQ-MACH-PAT-F-02: Patient contact information must be mutable after object creation, and accessibility constraints enforced.
+
+[discrete]
+===== Appointment Object Requirements
+
+[discrete]
+====== Appointment Creation
+
+*Domain basis:*  
+Appointments must be represented accurately in machine objects to support scheduling workflows.
+
+*Requirements:*
+
+* [[REQ-MACH-APPT-F-01]]REQ-MACH-APPT-F-01: Appointment objects must include referral and insurance authorization status, defaulting to Pending.
+
+* [[REQ-MACH-APPT-F-02]]REQ-MACH-APPT-F-02: Appointment creation must set status = Requested, and associated Time Slot objects remain unreserved until validation succeeds.
+
+[discrete]
+====== Appointment Confirmation
+
+*Domain basis:*  
+Some appointments depend on insurance authorization, referrals, or administrative review.
+
+*Requirements:*
+
+* [[REQ-MACH-CONFIRM-F-01]]REQ-MACH-CONFIRM-F-01: The system must verify slot availability, referral requirements, and insurance authorization before confirming an appointment.
+
+* [[REQ-MACH-CONFIRM-F-02]]REQ-MACH-CONFIRM-F-02: Upon validation, the system must set Appointment status = Confirmed and associated Time Slot status = Reserved atomically.
+
+[discrete]
+====== Appointment Cancellation and Reassignment
+
+*Domain basis:*  
+Canceled appointments free resources for reassignment to maintain efficient scheduling.
+
+*Requirements:*
+
+* [[REQ-MACH-REASSIGN-F-01]]REQ-MACH-REASSIGN-F-01: The system must cancel Appointment objects by setting status = Cancelled and revert associated Time Slot objects to Available atomically.
+
+* [[REQ-MACH-REASSIGN-F-02]]REQ-MACH-REASSIGN-F-02: The system must support atomic reassignment of previously reserved Time Slot objects to new appointments.
+
+[discrete]
+===== Time Slot and Appointment Constraints
+
+[discrete]
+====== State and Serialization Rules
+
+*Domain basis:*  
+System must prevent double-booking and maintain traceability of state transitions.
+
+*Requirements:*
+
+* [[REQ-MACH-TI-F-01]]REQ-MACH-TI-F-01: Each Time Slot object may be linked to at most one Appointment object.
+
+* [[REQ-MACH-TI-F-02]]REQ-MACH-TI-F-02: Concurrent reservation attempts must be serialized and double-booking prevented at the data layer.
+
+* [[REQ-MACH-ST-F-01]]REQ-MACH-ST-F-01: Valid state transitions include Requested → Confirmed → Completed, Confirmed → Cancelled, Confirmed → No-Show; invalid transitions must generate error responses.
+
+[discrete]
+===== Data Mutability and Security
+
+[discrete]
+====== Attribute Control
+
+*Domain basis:*  
+Certain attributes must remain immutable to maintain system integrity, while others remain editable for workflow operations.
+
+*Requirements:*
+
+* [[REQ-MACH-EC-F-01]]REQ-MACH-EC-F-01: Mutable attributes include Patient contact information, Appointment notes, and referral status prior to confirmation.
+
+* [[REQ-MACH-EC-F-02]]REQ-MACH-EC-F-02: Immutable attributes include Appointment ID, historical completed appointments, and Provider ID after confirmation; unauthorized modification attempts must generate system errors.

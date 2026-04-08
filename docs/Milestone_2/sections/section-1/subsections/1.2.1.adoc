@@ -8,16 +8,23 @@ Access to medical services in Puerto Rico has become increasingly strained in
 recent years due to structural pressures on the healthcare system. One major
 factor is the sustained migration of healthcare professionals away from the
 island, which has reduced the number of practicing physicians available to meet
-patient demand. As a result, many clinics operate at or near full capacity and
-patients often experience delays when attempting to obtain appointments.
+patient demand. [.added]#The WHO reccomends a ratio of 2.3 health workers per 1,000 population. 
+According to the PR College of Physicians and Surgeons (PRCPS), 
+there are only 9,000 practicing doctors in Puerto Rico. Per the PRCPS, 
+since 2014 365-500 physicians have left the island <<prDocMigration, [1]>>.# 
+[.changed]#Additionally, due to geographic isolation, limited infrastructure, 
+and chronic underfunding of healthcare services,# many clinics operate at or near full capacity and
+patients often experience delays when attempting to obtain appointments <<prHealthCrisis, [2]>>.
 
 ===== Scheduling Practices and Operational Constraints
 
 Medical appointment scheduling in many clinics still relies heavily on manual
 coordination methods, particularly phone-based booking systems. These methods
 require administrative staff to manage calendars, answer calls, and coordinate
-changes throughout the day. Because scheduling is handled manually, issues such
-as missed calls, limited office-hour availability, and double bookings may occur.
+changes throughout the day. [.changed]#Problems arise when staff are overwhelmed, 
+resulting in long hold times for patients and administrative burnout. 
+When paired with missed calls and manual data entry practices, mistakes such as
+double-bookings and incorrect patient details being entered into the system are likely to occur <<scheduleChallenges, [3]>>.#
 These inefficiencies can leave appointment slots unused while other patients
 remain waiting for care.
 
@@ -25,9 +32,11 @@ remain waiting for care.
 
 From the patient perspective, the process of securing a medical appointment is
 often time-consuming and uncertain. Patients frequently must contact multiple
-clinics individually to find available times or appropriate specialists. There
-is typically no unified way to view appointment availability across providers,
-making it difficult to compare options or plan medical visits efficiently.
+clinics individually to find available times or appropriate specialists. 
+[.added]#For example, Medicaid beneficiaries reported seeing an average of 7 providers and 4 practices each year <<healthcareFragmentation, [4]>>.# There is typically no unified way to view appointment availability across providers,
+making it difficult to compare options or plan medical visits efficiently. 
+[.added]#For Medicaid beneficiaries alone, the typical primary care physician has to coordinate 
+with 229 other physicians in 117 practices <<healthcareFragmentation, [4]>>.#
 Delays in securing consultations may result in postponed treatment and increased
 patient frustration.
 
@@ -36,6 +45,45 @@ patient frustration.
 Some clinics have introduced limited digital measures, such as sending
 appointment reminders via text message or email. While these efforts can reduce
 missed appointments, they do not provide patients with interactive scheduling
-capabilities or visibility into broader availability. Because these solutions
-operate independently within individual clinics, they do not address the wider
+capabilities or visibility into broader availability. [.added]#A review conducted by
+members of Sheffield Hallam University and the University of Sheffield found sufficient evidence
+to suggest that the performance of these types of reminders are suboptimal <<smsEfficiency, [5]>>.# 
+Because these solutions operate independently within individual clinics, they do not address the wider
 coordination challenges across the healthcare system.
+
+[.added]
+===== Observed Pain Points
+
+These systemic issues manifest in various ways for patients and providers alike,  (from rough sketches; see <<_domain_rough_sketches, 2.1.2>> and <<_events_actions_and_behaviors, 2.1.4>> for analysis)
+
+- Call saturation and multi-month wait times; patients resort to paper reminders (Carmen, 5 Feb 2026).
+- Office-hour constraints force repeated walk-ins and extra trips (Miguel, multiple visits in Jan 2026).
+- Caregiver juggling cascades when one appointment shifts (Elena, March 2026).
+- Waitlist status is opaque, leaving patients uncertain (Natalia).
+- Insurance acceptance is hard to verify; multiple calls before finding a match (Rosa, 14 Feb 2026).
+- Staff rely on notebooks plus spreadsheets and memory to reassign cancellations (Laura).
+- Clinics cannot see each other's calendars, so patients must phone hop (Jose).
+- Unpredictable consult lengths and no-shows distort schedules; defensive double booking adds churn (Dr. Rivera, Dr. Morales).
+- Authorization checks can stall bookings and cause released slots (Marcos).
+
+===== [.added]#References:#
+
+[.added]#- [1] [[prDocMigration]] Health Policy OPEN. 
+"Puerto Rican physician’s recommendations to mitigate medical migration from Puerto Rico to the mainland United States", 2024.
+https://www.sciencedirect.com/science/article/pii/S2590229624000091#
+
+[.added]#- [2] [[prHealthCrisis]] Arbona Health Hub.
+"When Seconds Count: Puerto Rico’s Ongoing Emergency Healthcare Crisis", 2025.
+https://arbonahealthhub.com/2025/08/04/when-seconds-count-puerto-ricos-ongoing-emergency-healthcare-crisis/#
+
+[.added]#- [3] [[scheduleChallenges]] Autonoly.
+"Telegram Patient Appointment Scheduling Automation Guide".
+https://www.autonoly.com/integrations/automation/telegram/patient-appointment-scheduling#
+
+[.added]#- [4] [[healthcareFragmentation]] National Library of Medicine.
+"Patients’ and Providers’ Views on Causes and Consequences of Healthcare Fragmentation in the Ambulatory Setting: a Qualitative Study"
+http://pmc.ncbi.nlm.nih.gov/articles/PMC6544669/#
+
+[.added]#- [5] [[smsEfficiency]] National Library of Medicine.
+"Appointment reminder systems are effective but not optimal: results of a systematic review and evidence synthesis employing realist principles"
+https://pmc.ncbi.nlm.nih.gov/articles/PMC4831598/#

@@ -1,1 +1,85 @@
+[.added]
 ==== *Behavior-Driven Development (BDD) Tooling and Execution*
+
+This subsection documents how BDD scenarios are executed as automated tests and integrated into the project testing cycle.
+
+===== *Tools Used and Rationale*
+
+* **Gherkin (`.feature` files)**
+	- Used to define behavior in domain language using *Given/When/Then*.
+	- Selected because it improves communication between technical and non-technical stakeholders.
+* **pytest-bdd**
+	- Python BDD framework used to bind Gherkin steps to executable step definitions.
+	- Selected because the backend is Flask/Python, allowing native integration with the existing test ecosystem.
+* **pytest**
+	- Test runner used to execute the BDD suite from the command line and CI.
+	- Selected because it is already the standard test runner in the backend environment.
+* **GitHub Actions**
+	- CI service used to run BDD tests automatically on push, pull request, and manual dispatch.
+	- Selected to guarantee repeatable verification in the shared repository workflow.
+
+===== *Automated Scenario Execution*
+
+BDD scenarios are defined in:
+
+* `backend/tests/bdd/features/appointment_booking.feature`
+
+Step definitions are implemented in:
+
+* `backend/tests/bdd/steps/test_appointment_booking.py`
+
+Execution command:
+
+[source,bash]
+----
+cd backend
+python -m pytest tests/bdd -v --tb=short
+----
+
+Representative execution result from this repository:
+
+[source,text]
+----
+============================= test session starts =============================
+plugins: anyio-4.13.0, bdd-8.1.0
+collected 3 items
+
+tests/bdd/steps/test_appointment_booking.py::test_patient_successfully_books_an_available_appointment PASSED
+tests/bdd/steps/test_appointment_booking.py::test_patient_attempts_to_book_an_alreadytaken_slot PASSED
+tests/bdd/steps/test_appointment_booking.py::test_doctor_cancels_a_scheduled_appointment PASSED
+
+============================== 3 passed in 0.03s ==============================
+----
+
+===== *Integration with the Testing Pipeline*
+
+BDD automation is integrated into the testing pipeline through:
+
+* Dependency integration in `backend/requirements.txt` (`pytest`, `pytest-bdd`).
+* CI integration in `.github/workflows/backend-tests.yml`.
+
+The CI workflow executes the BDD suite automatically in the following events:
+
+* Push to active project branches.
+* Pull requests affecting backend code.
+* Manual execution through `workflow_dispatch`.
+
+Workflow stage excerpt:
+
+[source,yaml]
+----
+- name: Run BDD scenarios
+	run: |
+		cd backend
+		pytest tests/bdd -v --tb=short
+----
+
+===== *Coverage Summary*
+
+Current BDD coverage in this milestone includes three domain-level scenarios for appointment workflows:
+
+* Successful booking of an available slot.
+* Rejection of a double-booking attempt (`409 Conflict`).
+* Provider cancellation and slot release.
+
+These scenarios are now part of the automated regression cycle and are executed consistently through the same command set in local development and CI.

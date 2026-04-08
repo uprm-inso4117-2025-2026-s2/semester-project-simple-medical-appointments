@@ -2,275 +2,246 @@
 
 ==== *User Stories, Epics, Features*
 
-[NOTE]
-This subsection defines the product scope of the Simple Medical Appointments system from a user-value perspective. It organizes the solution into Epics that capture high-level healthcare goals and Features that realize those goals in the system.
+NOTE: *Milestone 2 Update:* Epics and user stories now explicitly state user value. "User Registration" was removed as a standalone epic because registration provides no direct value to users — it is implementation infrastructure. The user-value-delivering epics are: finding a provider, booking an appointment, managing one's appointment history, and administrative oversight. Registration exists as a prerequisite feature within these, not as an end in itself.
 
 [discrete]
-==== Abbreviations and ID Conventions:
+==== Abbreviations
 
 [cols="1,3",options="header,autowidth"]
 |===
 |Abbrev. |Meaning
-|US |User Story: a user-centered need framed as intent and value.
-|E |Epic: a high-level goal that groups related features and stories.
-|F |Feature: a concrete capability that realizes part of an epic.
-|ReqRef |Requirement Reference: the requirement ID(s) a story or feature maps to.
-|REQ |Requirement: a functional or non-functional specification with a stable ID.
-|===
-
-[discrete]
-==== Identifier Formats:
-
-[cols="1,2,3,2",options="header,autowidth"]
-|===
-|Type |Format |Components |Example
-|User Story ID:
-|`US.AREA.NN`
-|`AREA` = functional area (`AUTH`, `PROF`, `AVAIL`, `BOOK`, `SCHED`, `NOTIF`, `ADMIN`)
-|`US.BOOK.01`
-|Epic ID:
-|`E#` or “Epic E#: Title”
-|`#` = epic number
-|`E1`
-|Feature ID:
-|`F#.N`
-|`#` = epic number; `N` = feature sequence
-|`F1.1`
-|Requirement ID:
-|`REQ-AREA-TYPE-NN`
-|`TYPE` = `F` (Functional) or `NF` (Non-functional)
-|`REQ-BOOK-F-01`
+|US |User Story — a user-centered need framed as intent and value.
+|E |Epic — a high-level goal grouping related features and stories.
+|F |Feature — a concrete capability that realizes part of an epic.
+|DR |Domain Requirement — derived from domain observations.
+|IR |Interface Requirement — concerning shared phenomena between domain and system.
+|MR |Machine Requirement — measurable non-functional constraint.
 |===
 
 &#160;
 
 [discrete]
-===== *_Epic E1: User Registration & Profiles_*
+===== *Epic E1: Finding the Right Provider*
 
-*Goal:* Enable secure identification of patients and doctors.
-
-*Problem/value:* Patients and doctors must have clear, trusted profiles to enable appointment scheduling and communication.
+*User value:* A patient can discover, from one place, which providers offer the care they need, when, and whether their insurance is accepted — without calling multiple clinics.
 
 *Features (F1):*
 
-- F1.1 Account registration and login
-- F1.2 Patient profile management
-- F1.3 Doctor profile management
-- F1.4 Role-based access control
+- F1.1 Search providers by specialty
+- F1.2 Filter by accepted insurance
+- F1.3 Filter by location / clinic
+- F1.4 View real-time slot availability for a selected provider
 
 [discrete]
-===== _US.AUTH.01: Register an account | ReqRef: REQ-AUTH-F-01_
+===== _US.SEARCH.01: Find an available specialist_
 
-_"As a user, I want to register as a patient or doctor so that I can use the system according to my role."_
+_"As a patient, I want to search for specialists by specialty and insurance plan so that I can find a provider who can see me without requiring me to call each clinic individually."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|Valid registration data |The form is submitted |An account is created with the selected role.
-|Missing required fields |Submission is attempted |Inline validation errors are displayed.
+|Patient selects specialty and insurance |Search is submitted |A list of providers with available slots is returned.
+|No providers match |Search is submitted |A clear "no results" message is shown; patient is offered the waitlist option.
 |===
 
 [discrete]
-===== _US.PROF.01: Maintain my profile | ReqRef: REQ-PROF-F-01_
+===== _US.SEARCH.02: See available times for a provider_
 
-_"As a patient, I want to manage my personal information so that doctors have accurate details during appointments."_
+_"As a patient, I want to see the available appointment times for a selected provider so that I can choose a slot that fits my schedule."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|Profile page is open |Information is updated and saved |Changes are stored and timestamp updated.
-|Invalid data entered |Save is attempted |Validation errors prevent saving.
+|Patient selects a provider |Available times page opens |Only Available time slots are shown, grouped by date.
+|A slot is booked by another patient during viewing |Patient attempts to book it |System reports "slot no longer available" and refreshes the list.
 |===
 
 [discrete]
-===== E1 Traceability (Stories → Features → Requirements):
+===== E1 Traceability:
 
-[cols="1,2,2,2",options="header,autowidth"]
+[cols="1,2,2",options="header,autowidth"]
 |===
-|Story ID |Feature |ReqRef |Notes
-|US-AUTH-01 |F1.1, F1.4 |REQ-AUTH-F-01 |Authentication and role logic.
-|US-PROF-01 |F1.2, F1.3 |REQ-PROF-F-01 |Profile persistence and validation.
+|Story ID |Feature |Domain Requirement
+|US.SEARCH.01 |F1.1, F1.2, F1.3 |DR-005 (provider availability as bounded intervals)
+|US.SEARCH.02 |F1.4 |DR-005, DR-016 (no overlapping appointments)
 |===
 
 &#160;
 
 [discrete]
-===== *_Epic E2: Doctor Availability & Scheduling_*
+===== *Epic E2: Booking and Managing Appointments*
 
-*Goal:* Allow doctors to define when they are available.
-
-*Problem/value:* Appointment booking requires clearly defined time slots to prevent overlaps and confusion.
+*User value:* A patient can book, cancel, and reschedule appointments and always knows the current state of their bookings.
 
 *Features (F2):*
 
-- F2.1 Define weekly availability
-- F2.2 Create specific appointment slots
-- F2.3 Prevent overlapping availability
+- F2.1 Book a time slot
+- F2.2 Cancel an appointment
+- F2.3 Reschedule an appointment
+- F2.4 View current appointment status
+- F2.5 Receive booking confirmation notification
+- F2.6 Join waitlist when no slots are available
 
 [discrete]
-===== _US.AVAIL.01: Set my availability | ReqRef: REQ-AVAIL-F-01_
+===== _US.BOOK.01: Book an appointment_
 
-_"As a doctor, I want to define my available time slots so that patients can book appointments."_
+_"As a patient, I want to book an available time slot with a provider so that I have a confirmed consultation scheduled."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|Availability form |Valid time range entered |Slot is saved and visible in calendar.
-|Overlapping time range |Save is attempted |System rejects with conflict message.
+|An available slot exists |Patient confirms booking |Appointment is created with status `Requested`; slot moves to `Held`; confirmation notification is sent.
+|Slot becomes unavailable before confirmation |Patient submits booking |System rejects with "slot no longer available"; no appointment is created.
 |===
 
 [discrete]
-===== E2 Traceability (Stories → Features → Requirements):
+===== _US.BOOK.02: Cancel an appointment_
 
-[cols="1,2,2,2",options="header,autowidth"]
+_"As a patient, I want to cancel an appointment I no longer need so that the slot becomes available to other patients."_
+
+*Acceptance criteria:*
+
+[cols="1,1,2",options="header,autowidth"]
 |===
-|Story ID |Feature |ReqRef |Notes
-|US-AVAIL-01 |F2.1, F2.2, F2.3 |REQ-AVAIL-F-01 |Calendar conflict rules.
+|Given |When |Then
+|Patient has a future confirmed appointment |Cancellation is confirmed |Appointment status → `Canceled`; slot → `Available`; waitlist candidate notified if applicable.
+|===
+
+[discrete]
+===== _US.BOOK.03: Join the waitlist_
+
+_"As a patient, I want to join a waitlist for a fully-booked provider so that I am automatically offered a slot when one becomes available, without having to call the clinic repeatedly."_
+
+*Acceptance criteria:*
+
+[cols="1,1,2",options="header,autowidth"]
+|===
+|Given |When |Then
+|All slots for a provider are booked |Patient joins waitlist |Patient receives confirmation of waitlist position; is notified when a slot opens.
+|===
+
+[discrete]
+===== E2 Traceability:
+
+[cols="1,2,2",options="header,autowidth"]
+|===
+|Story ID |Feature |Domain Requirement
+|US.BOOK.01 |F2.1, F2.4, F2.5 |DR-001, DR-002, DR-003, DR-016
+|US.BOOK.02 |F2.2 |DR-009, DR-010
+|US.BOOK.03 |F2.6 |DR-010
 |===
 
 &#160;
 
 [discrete]
-===== *_Epic E3: Appointment Booking_*
+===== *Epic E3: Provider Schedule Management*
 
-*Goal:* Enable patients to book medical appointments easily.
-
-*Problem/value:* Patients need a simple way to find available doctors and reserve time slots without manual coordination.
+*User value:* A healthcare provider can define their availability precisely — by consultation type and duration — and trust that the system will not overbook or misallocate their time.
 
 *Features (F3):*
 
-- F3.1 Search doctors by specialty
-- F3.2 View available time slots
-- F3.3 Book appointment
-- F3.4 Prevent double booking
+- F3.1 Define weekly availability with operational hours
+- F3.2 Configure slot duration per consultation type
+- F3.3 View and manage upcoming confirmed appointments
+- F3.4 Mark a patient as a no-show
 
 [discrete]
-===== _US.BOOK.01: Book an appointment | ReqRef: REQ-BOOK-F-01_
+===== _US.PROV.01: Define availability_
 
-_"As a patient, I want to book an available time slot so that I can secure a consultation with a doctor."_
+_"As a healthcare provider, I want to define my available time slots by consultation type and duration so that patients can only book slots of the appropriate length."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|An available slot exists |Booking is confirmed |Appointment is created and slot becomes unavailable.
-|Slot already booked |Booking attempted |System prevents double booking.
+|Provider defines a 45-minute first-visit slot |Slot is saved |Only 45-minute windows are shown to patients searching for that consultation type.
+|Provider tries to add a slot overlapping an existing one |Save is attempted |System rejects with "time conflict."
 |===
 
 [discrete]
-===== _US.BOOK.02: Cancel an appointment | ReqRef: REQ-BOOK-F-02_
+===== E3 Traceability:
 
-_"As a patient, I want to cancel my appointment so that the time slot becomes available again."_
-
-*Acceptance criteria:*
-
-[cols="1,1,2",options="header,autowidth"]
+[cols="1,2,2",options="header,autowidth"]
 |===
-|Given |When |Then
-|Existing future appointment |Cancel is confirmed |Appointment is removed and slot reopens.
-|Past appointment |Cancel attempted |System prevents cancellation.
-|===
-
-[discrete]
-===== E3 Traceability (Stories → Features → Requirements):
-
-[cols="1,2,2,2",options="header,autowidth"]
-|===
-|Story ID |Feature |ReqRef |Notes
-|US-BOOK-01 |F3.2, F3.3, F3.4 |REQ-BOOK-F-01 |Booking transaction and conflict handling.
-|US-BOOK-02 |F3.3 |REQ-BOOK-F-02 |Cancellation logic.
+|Story ID |Feature |Domain Requirement
+|US.PROV.01 |F3.1, F3.2 |DR-005, DR-006, DR-016
 |===
 
 &#160;
 
 [discrete]
-===== *_Epic E4: Notifications & Reminders_*
+===== *Epic E4: Appointment History and Continuity of Care*
 
-*Goal:* Reduce missed appointments.
-
-*Problem/value:* Patients and doctors benefit from timely reminders to avoid no-shows.
+*User value:* Both patients and providers can review past appointments, supporting continuity of care and informed follow-up decisions.
 
 *Features (F4):*
-- F4.1 Appointment confirmation notification
-- F4.2 Automated reminders before appointment
-- F4.3 Notification preferences
+
+- F4.1 View personal appointment history (patient)
+- F4.2 View patient consultation history (provider)
+- F4.3 Attendance records preserved for traceability
 
 [discrete]
-===== _US.NOTIF.01: Receive appointment confirmation | ReqRef: REQ-NOTIF-F-01_
+===== _US.HIST.01: View appointment history_
 
-_"As a patient, I want to receive confirmation after booking so that I know my appointment is secured."_
+_"As a patient, I want to see a record of my past appointments so that I can track my care history and refer to previous consultations."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|Appointment created |Booking succeeds |Confirmation notification is sent.
+|Patient has past completed or canceled appointments |Appointment history page is opened |All past appointments are listed with date, provider, and outcome.
 |===
 
 [discrete]
-===== _US.NOTIF.02: Receive appointment reminder | ReqRef: REQ-NOTIF-F-02_
+===== E4 Traceability:
 
-_"As a user, I want to receive a reminder before my appointment so that I do not forget it."_
-
-*Acceptance criteria:*
-
-[cols="1,1,2",options="header,autowidth"]
+[cols="1,2,2",options="header,autowidth"]
 |===
-|Given |When |Then
-|Appointment is 24 hours away |Reminder job runs |Reminder notification is delivered.
-|===
-
-[discrete]
-===== E4 Traceability (Stories → Features → Requirements):
-
-[cols="1,2,2,2",options="header,autowidth"]
-|===
-|Story ID |Feature |ReqRef |Notes
-|US-NOTIF-01 |F4.1 |REQ-NOTIF-F-01 |Confirmation trigger.
-|US-NOTIF-02 |F4.2, F4.3 |REQ-NOTIF-F-02 |Reminder scheduler and preferences.
+|Story ID |Feature |Domain Requirement
+|US.HIST.01 |F4.1, F4.3 |DR-004, DR-011, DR-012
 |===
 
 &#160;
 
 [discrete]
-===== *_Epic E5: Administrative Oversight_*
+===== *Epic E5: Administrative Oversight*
 
-*Goal:* Maintain system integrity and operational control.
-
-*Problem/value:* Administrators must monitor users, appointments, and resolve conflicts.
+*User value:* Clinic administrative staff can view and manage all appointments for their clinic, coordinate waitlists, and maintain schedule integrity without relying on paper records.
 
 *Features (F5):*
 
-- F5.1 View all users
-- F5.2 View all appointments
-- F5.3 Deactivate accounts
+- F5.1 View all appointments for a clinic with filters
+- F5.2 Confirm or adjust pending appointments
+- F5.3 Manage waitlist assignments
+- F5.4 Record referrals and insurance authorizations
 
 [discrete]
-===== _US.ADMIN.01: Monitor appointments | ReqRef: REQ-ADMIN-F-01_
+===== _US.ADMIN.01: Manage clinic appointments_
 
-_"As an administrator, I want to view all appointments so that I can ensure system integrity."_
+_"As a clinic administrator, I want to view all upcoming appointments for my clinic and adjust or confirm them so that the schedule remains accurate and patients are not left uncertain about their bookings."_
 
 *Acceptance criteria:*
 
 [cols="1,1,2",options="header,autowidth"]
 |===
 |Given |When |Then
-|Admin dashboard |Appointments page opened |All appointments are listed with filters.
+|Admin opens the clinic dashboard |Appointments page is loaded |All appointments for the clinic are listed, filterable by date, provider, and status.
+|Admin confirms a pending appointment |Confirm action is taken |Appointment → `Confirmed`; patient notified.
 |===
 
 [discrete]
-===== E5 Traceability (Stories → Features → Requirements):
+===== E5 Traceability:
 
-[cols="1,2,2,2",options="header,autowidth"]
+[cols="1,2,2",options="header,autowidth"]
 |===
-|Story ID |Feature |ReqRef |Notes
-|US-ADMIN-01 |F5.1, F5.2 |REQ-ADMIN-F-01 |Admin read access and filtering.
+|Story ID |Feature |Domain Requirement
+|US.ADMIN.01 |F5.1, F5.2, F5.3, F5.4 |DR-007, DR-008, DR-013, DR-014
 |===
