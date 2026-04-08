@@ -1,9 +1,12 @@
 ==== *Narrative*
 
-[.changed]#Medical appointment scheduling involves the coordination of doctors; clinics and their staff; their specialties that fulfill certain needs; and the patients themselves to organize access to healthcare services. Each doctor is associated with one or more specialties and operates within a clinic, where consultation services are provided according to defined schedules.#
+[.changed]#A patient identifies a needed specialty and contacts a clinic to request an appointment. Each provider keeps a schedule of discrete time slots. Clinic staff match the request to an open slot and create an appointment that links one patient, one provider, a consultation type, and a time.#
 
 The process begins when a patient needs medical attention and identifies the appropriate specialty. The patient contacts a clinic or doctor to request an appointment. Each doctor maintains a schedule that defines available time slots for consultations. Clinic staff review the schedule and assign an available time slot, creating an appointment between one patient and one doctor at a specific date and time.
 
 [.changed]#Appointments occupy time slots within a doctor's schedule, reducing availability as they are assigned. When an appointment is canceled, the corresponding time slot is released and becomes available for reassignment or for the readjustment of an already existing appointment. This dynamic reflects the continuous update of schedules based on patient interactions when booking and canceling appointments.#
 
-[.changed]#Clinics manage multiple doctors, each with their own schedules, and coordinate the allocation of appointments across specialties. The relationships between patients, doctors, clinics, specialties, schedules, and appointments define the structure and behavior of the domain, including how availability is managed and how consultation services are organized.#
+[.added]#Because providers work across locations and schedules shift, clinics must continuously reconcile calendars, redistribute freed slots, and keep patients informed. The domain hangs together through the lifecycle of a time slot—published, requested, confirmed (sometimes conditionally), potentially reassigned, and finally completed or marked absent—under operational-hour constraints and policies that prevent double booking.#
+
+
+
