@@ -1,6 +1,7 @@
-== #Specific Class Topics#
+== Specific Class Topics
 
-=== #*TDD*#
+[.added]
+=== *TDD*
 
 ==== TDD Walkthrough: generate_available_slots
 

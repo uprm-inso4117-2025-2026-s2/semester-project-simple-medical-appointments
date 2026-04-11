@@ -1,55 +1,123 @@
 [.added]
 ==== *Load Testing Strategy*
 
-This section documents the load testing conducted for the appointment scheduling system, including tools, assumptions, usage scenarios, setup, and results.
+This section documents how load testing was designed, executed, and interpreted to evaluate system performance under realistic and peak usage conditions.
 
 ===== *Tools Used*
-- **Locust** – a Python-based load testing tool that provides HTTP scripting, per-endpoint metrics, web UI visualization, and distributed load generation.  
-  *Justification*: The system stack is Python, which allows reuse of existing authentication helpers and simplifies scripting. Locust provides flexibility for scenario-based testing and distributed load tests.
+
+* **Locust**  
+  - Python-based load testing framework used to simulate concurrent users and execute HTTP workflows.  
+  - Supports scenario scripting, per-endpoint metrics, and distributed execution.  
+  - Selected because the backend is implemented in Python, allowing reuse of authentication logic and direct integration with API test utilities.
 
 ===== *Expected Load*
-- **Concurrent Active Users (MR005)**: Defined as the number of requests within a 10-second window; target is ≥100 active users.  
-- **Peak Load (Plain English)**:  
-  - On a busy Monday morning (8–10 a.m.), approximately 50 patients may be booking or browsing available appointments simultaneously, based on historical clinic usage and MR005 estimates.  
-  - During midday, an estimated 30 patients may be browsing schedules while 10 providers adjust availability.  
-  - Stress scenario: simulate 120 virtual users to provide a safety margin above MR005.
+
+Load expectations were defined using MR005 (≥100 concurrent active users within a 10-second window) and domain-specific usage patterns.
+
+*Plain-English assumptions:*
+
+- **Peak usage (Monday 8:00–10:00 AM):**  
+  Approximately 50 patients simultaneously search and book appointments. This reflects typical clinic demand at the start of the week when availability opens.
+
+- **Mixed midday usage:**  
+  Around 30 patients browse availability while ~10 providers update schedules. This represents concurrent read and write operations.
+
+- **Stress condition:**  
+  120 concurrent users are simulated to exceed MR005 and evaluate system behavior under overload conditions.
+
+These assumptions ensure that testing reflects both **normal operation** and **worst-case demand**.
 
 ===== *Usage Scenarios*
-1. **Concurrent Appointment Booking (Patient)**: login → search by specialty → view available slots → book appointment.  
-2. **Availability Browsing Spikes**: repeated searches and slot views without booking to test read-heavy load.  
-3. **Provider Availability Updates**: login → adjust availability → save updated slots.  
-4. **Cancellation/Reschedule Bursts**: patients cancel existing appointments and immediately rebook new slots.
 
-===== *Setup*
-- **Virtual Users**: 120 total, spawn rate of 20 users/sec.  
-- **Test Duration**: 10 minutes warm-up + 30 minutes steady-state.  
-- **Endpoints Exercised**:
-  - `/auth/login`  
-  - `/providers/search?specialty=*`  
-  - `/availability/{providerId}`  
-  - `/appointments` (POST for booking)  
-  - `/appointments/{id}` (PATCH for cancellation/rescheduling)  
-  - `/notifications/preview`  
-- **Execution Command**:
-```bash
-locust -f locustfile.py --users 120 --spawn-rate 20 --run-time 30m --headless --host https://api.local
-```
+Load tests are based on concrete system behaviors observed in the domain:
+
+1. **Appointment Booking Flow (write-heavy)**  
+   Patient logs in → searches provider → views availability → books appointment  
+   → Tests contention on Time Slot reservation (<<REQ-BOOK-F-01>>)
+
+2. **Availability Browsing (read-heavy)**  
+   Repeated provider search and slot viewing without booking  
+   → Tests read scalability and query performance
+
+3. **Provider Availability Updates (write operations)**  
+   Provider logs in → modifies schedule → saves slots  
+   → Tests concurrent updates to availability (<<REQ-AVAIL-F-01>>)
+
+4. **Cancellation and Rescheduling (state transitions)**  
+   Patient cancels → system releases slot → patient rebooks  
+   → Tests atomic updates and slot reuse (<<REQ-BOOK-F-02>>)
+
+These scenarios are selected because they represent the **highest-frequency and highest-impact operations** in the system.
+
+===== *Test Setup and Relation to Expected Load*
+
+The test configuration was chosen to match and slightly exceed expected load:
+
+- **Virtual Users:** 120  
+  → Exceeds MR005 requirement (≥100 users) to include safety margin  
+
+- **Spawn Rate:** 20 users/second  
+  → Simulates realistic surge (e.g., users logging in simultaneously at peak hours)
+
+- **Duration:**  
+  - 10 minutes warm-up → allows system stabilization (caches, connections)  
+  - 30 minutes steady-state → measures sustained performance under load  
+
+- **Endpoints Tested:**
+
+  - `/auth/login` → authentication overhead  
+  - `/providers/search` → read-heavy queries  
+  - `/availability/{providerId}` → slot retrieval  
+  - `/appointments` (POST) → booking (critical contention point)  
+  - `/appointments/{id}` (PATCH) → cancellation/rescheduling  
+  - `/notifications/preview` → side-effect validation  
+
+This setup ensures that both **read-heavy and write-heavy operations** are exercised under concurrent access conditions.
 
 ===== *Results and Interpretation*
 
-* **Average Response Time**: 1.4s (meets MR006 target avg ≤ 2s)
-* **95th Percentile**: 3.7s (meets MR006 target p95 ≤ 4s)
-* **Requests per Second (Steady State)**: ~48 RPS
-* **Failure Rate**: 0.6% (timeouts observed on `/appointments` due to database lock contention)
+Observed metrics from the latest execution:
 
-**Bottleneck Analysis and Mitigation**:
+- **Average Response Time:** 1.4s  
+  → Below MR006 threshold (≤ 2s), indicating acceptable overall responsiveness  
 
-* Issue: appointment insert/update lock contention under concurrent writes.
-* Recommended Mitigation: add a composite index on `time_slot_id, status` and use optimistic transactions with retry logic.
-* Conclusion: the system meets MR006 under 120 concurrent users; re-testing recommended after DB index changes to verify reduction of failure rate below 0.1%.
+- **95th Percentile Response Time:** 3.7s  
+  → Below MR006 threshold (≤ 4s), indicating that worst-case latency remains within acceptable bounds  
 
-===== *Recording and Comparison to MR006*
+- **Throughput:** ~48 requests/second  
+  → Consistent with expected user behavior (mix of reads and writes rather than constant booking)
 
-* Metrics to capture: average response time, 95th percentile, RPS, failure rate.
-* Pass Criteria (MR006): avg ≤ 2s; 95th percentile ≤ 4s; failure rate close to zero.
-* Document bottlenecks and remediation steps; rerun tests after improvements to confirm performance.
+- **Failure Rate:** 0.6%  
+  → Failures occurred primarily during concurrent booking attempts
+
+*Interpretation:*
+
+- The system performs reliably under expected and stress load conditions.
+- Latency remains within acceptable bounds even during peak concurrency.
+- Failures are not random—they occur during **high-contention operations**, specifically appointment booking.
+
+===== *Bottleneck Analysis*
+
+Identified issue:
+
+- **Database lock contention during appointment booking**  
+  - Multiple users attempt to reserve the same or overlapping Time Slots.
+  - Causes delays and occasional timeouts in `/appointments`.
+
+*Impact:*
+
+- Increased response time under contention
+- Non-zero failure rate during peak load
+
+===== *Mitigation and Follow-Up*
+
+Proposed improvements:
+
+- Add composite index on `(time_slot_id, status)` to optimize lookup and locking
+- Replace pessimistic locking with **optimistic concurrency control + retry**
+- Ensure atomic booking logic at the transaction level
+
+*Next steps:*
+
+- Re-run load tests after applying optimizations  
+- Target failure rate < 0.1% while maintaining MR006 latency constraints  

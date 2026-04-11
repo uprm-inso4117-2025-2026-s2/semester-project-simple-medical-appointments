@@ -22,7 +22,7 @@ The system must provide mechanisms to initialize internal representations of dom
 ====== Provider Creation
 
 *Domain basis:*  
-The system allows authorized users to create Provider records. A Provider must be associated with at least one Clinic. Provider identity attributes must be immutable after creation. Only authenticated users with appropriate roles (<<US.AUTH.01>>, F1.4) may perform this action.
+The system allows authorized users to create Provider records. A Provider must be associated with at least one Clinic. Provider identity attributes must be immutable after creation. Only authenticated users with appropriate roles (<<US-AUTH-01>>, F1.4) may perform this action.
 
 *Requirements:*
 
@@ -42,7 +42,7 @@ The system allows creation of Clinic entities. Clinics should maintain a collect
 ====== Time Slot Definition
 
 *Domain basis:*  
-The system allows Providers to define Time Slots (<<US.AVAIL.01>>). Each Time Slot has:
+The system allows Providers to define Time Slots (<<US-AVAIL-01>>). Each Time Slot has:
 
 * Provider reference
 * Clinic reference
@@ -60,7 +60,7 @@ A Time Slot must be initialized with status = Available. Overlapping time ranges
 ====== Patient Records
 
 *Domain basis:*  
-The system allows creation of Patient records (<<US.AUTH.01>>). Required fields must be validated prior to persistence. Patient contact information must be editable (<<US.PROF.01>>). Accessibility considerations must support simplified interaction needs.
+The system allows creation of Patient records (<<US-AUTH-01>>). Required fields must be validated prior to persistence. Patient contact information must be editable (<<US-PROF-01>>). Accessibility considerations must support simplified interaction needs.
 
 *Requirements:*
 
@@ -186,7 +186,7 @@ Invalid transitions must be rejected with appropriate error responses. Completed
 *Domain basis:*  
 Mutable Data:
 
-* Patient contact information (<<US.PROF.01>>)
+* Patient contact information (<<US-PROF-01>>)
 * Appointment notes
 * Referral status prior to confirmation
 
@@ -221,12 +221,12 @@ Appointment Transparency:
 
 Notification Feedback:
 
-* The UI must confirm successful booking, cancellation, or rescheduling (<<US.NOTIF.01>>).
+* The UI must confirm successful booking, cancellation, or rescheduling (<<US-NOTIF-01>>).
 * Error messages should be specific and validation-driven.
 
 Role-Based Access:
 
-* UI actions must be restricted according to authenticated role (<<US.AUTH.01>>, F1.4).
+* UI actions must be restricted according to authenticated role (<<US-AUTH-01>>, F1.4).
 * Administrative views support oversight needs.
 
 *Requirements:*
@@ -240,7 +240,7 @@ Role-Based Access:
 ====== POST /appointments
 
 *Domain basis:*  
-POST /appointments (<<US.BOOK.01>>) creates Appointment with status = Requested and validates required fields.
+POST /appointments (<<US-BOOK-01>>) creates Appointment with status = Requested and validates required fields.
 
 *Requirements:*
 
@@ -260,7 +260,7 @@ PUT /appointments/{id}/confirm validates slot availability and dependencies and 
 ====== PUT /appointments/{id}/cancel
 
 *Domain basis:*  
-PUT /appointments/{id}/cancel (<<US.BOOK.02>>) sets Appointment status = Cancelled and releases associated Time Slot.
+PUT /appointments/{id}/cancel (<<US-BOOK-02>>) sets Appointment status = Cancelled and releases associated Time Slot.
 
 *Requirements:*
 
@@ -270,7 +270,7 @@ PUT /appointments/{id}/cancel (<<US.BOOK.02>>) sets Appointment status = Cancell
 ====== GET /timeslots
 
 *Domain basis:*  
-GET /timeslots?provider={id} (<<US.AVAIL.01>>) returns only Available Time Slots. All endpoints enforce authentication via JWT (<<US.AUTH.01>>), validate input schema, and return structured error responses (400, 401, 422, 409).
+GET /timeslots?provider={id} (<<US-AVAIL-01>>) returns only Available Time Slots. All endpoints enforce authentication via JWT (<<US-AUTH-01>>), validate input schema, and return structured error responses (400, 401, 422, 409).
 
 *Requirements:*
 

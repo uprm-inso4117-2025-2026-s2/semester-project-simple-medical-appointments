@@ -68,22 +68,22 @@ These systemic issues manifest in various ways for patients and providers alike,
 
 ===== [.added]#References:#
 
-[.added]#- [1] [[prDocMigration]] Health Policy OPEN. 
+- [.added]#[1] [[prDocMigration]] Health Policy OPEN. 
 "Puerto Rican physician’s recommendations to mitigate medical migration from Puerto Rico to the mainland United States", 2024.
 https://www.sciencedirect.com/science/article/pii/S2590229624000091#
 
-[.added]#- [2] [[prHealthCrisis]] Arbona Health Hub.
+- [.added]#[2] [[prHealthCrisis]] Arbona Health Hub.
 "When Seconds Count: Puerto Rico’s Ongoing Emergency Healthcare Crisis", 2025.
 https://arbonahealthhub.com/2025/08/04/when-seconds-count-puerto-ricos-ongoing-emergency-healthcare-crisis/#
 
-[.added]#- [3] [[scheduleChallenges]] Autonoly.
+- [.added]#[3] [[scheduleChallenges]] Autonoly.
 "Telegram Patient Appointment Scheduling Automation Guide".
 https://www.autonoly.com/integrations/automation/telegram/patient-appointment-scheduling#
 
-[.added]#- [4] [[healthcareFragmentation]] National Library of Medicine.
+- [.added]#[4] [[healthcareFragmentation]] National Library of Medicine.
 "Patients’ and Providers’ Views on Causes and Consequences of Healthcare Fragmentation in the Ambulatory Setting: a Qualitative Study"
 http://pmc.ncbi.nlm.nih.gov/articles/PMC6544669/#
 
-[.added]#- [5] [[smsEfficiency]] National Library of Medicine.
+- [.added]#[5] [[smsEfficiency]] National Library of Medicine.
 "Appointment reminder systems are effective but not optimal: results of a systematic review and evidence synthesis employing realist principles"
 https://pmc.ncbi.nlm.nih.gov/articles/PMC4831598/#

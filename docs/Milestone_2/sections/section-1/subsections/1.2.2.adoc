@@ -6,8 +6,7 @@
 
 ===== [.added]#Patients#
 
-[.added]#Patients are currently able to contact clinics individually, typically by
-phone, in order to request appointments or inquire about availability. However,
+[.added]#Patients are currently able to contact clinics individually, typically by phone, in order to request appointments or inquire about availability. However,
 this process requires repeated attempts across multiple providers, provides
 limited visibility into available options, and depends heavily on timing and
 response availability from clinic staff. As a result, patients are unable to

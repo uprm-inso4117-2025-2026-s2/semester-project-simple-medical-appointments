@@ -6,7 +6,7 @@
 - *Definition:* A clinic or provider makes an appointment slot available to the community.  
 - *Trigger:* A provider defines availability in terms of time, location, and service.  
 - *Observable Condition / Resulting State:* A new appointment slot exists with status *available* and is visible to patients for discovery and booking.  
-[.changed]#- Reference to sketch: Providers define working hours; Jose cannot see other sites’ calendars to compare newly published slots.#  
+- [.changed]#Reference to sketch: Providers define working hours; Jose cannot see other sites’ calendars to compare newly published slots.#  
 
 ===== Appointment requested
 
@@ -30,7 +30,7 @@
 - *Definition:* A previously confirmed or requested appointment is withdrawn.  
 - *Trigger:* A patient or clinic cancels the appointment.  
 - *Observable Condition / Resulting State:* The slot becomes *available* again; downstream processes (e.g., waitlist handling) may be triggered.  
-[.changed]#- Reference to sketch: Laura flips through a notebook and spreadsheet to reassign cancellations.#  
+- [.changed]#Reference to sketch: Laura flips through a notebook and spreadsheet to reassign cancellations.#  
 
 ===== Slot reassigned to waiting patient
 
@@ -38,7 +38,7 @@
 - *Definition:* An available slot is allocated to a patient from a waiting list.  
 - *Trigger:* A cancellation or new availability combined with existing waitlist demand.  
 - *Observable Condition / Resulting State:* The slot becomes *reserved* for the selected patient; notification is issued.  
-[.changed]#- Reference to sketch: Informal priority lists used when earlier openings appear (same workflow Laura described).#  
+- [.changed]#Reference to sketch: Informal priority lists used when earlier openings appear (same workflow Laura described).#  
 
 ===== Provider availability modified
 
@@ -46,7 +46,7 @@
 - *Definition:* A provider updates their working schedule or availability constraints.  
 - *Trigger:* A provider changes working hours, location, or service capacity.  
 - *Observable Condition / Resulting State:* Availability records are updated; conflicting appointments may require rescheduling or notification.  
-[.changed]#- Reference to sketch: Providers split time across clinics and schedules change frequently; Miguel found doors locked after 6:00 p.m.#  
+- [.changed]#Reference to sketch: Providers split time across clinics and schedules change frequently; Miguel found doors locked after 6:00 p.m.#  
 
 ===== Appointment reminder issued
 
@@ -62,7 +62,7 @@
 - *Definition:* A patient fails to attend a scheduled appointment.  
 - *Trigger:* The appointment time passes without attendance confirmation.  
 - *Observable Condition / Resulting State:* The appointment is marked as *no-show*; attendance metrics are updated.  
-[.changed]#- Reference to sketch: Dr. Rivera reported fluctuating no-shows.#  
+- [.changed]#Reference to sketch: Dr. Rivera reported fluctuating no-shows.#  
 
 ===== Referral recorded for consultation
 
@@ -78,7 +78,7 @@
 - *Definition:* A patient registers interest in future appointment availability when no slots are currently available.  
 - *Trigger:* A patient opts into a waitlist due to lack of availability.  
 - *Observable Condition / Resulting State:* A waitlist entry exists; the patient becomes eligible for reassignment when slots open.  
-[.changed]#- Reference to sketch: Natalia joined a waitlist in February 2026 and never received status updates.#
+- [.changed]#Reference to sketch: Natalia joined a waitlist in February 2026 and never received status updates.#
 
 [.added]
 ===== Conceptual Function Signatures

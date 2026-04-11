@@ -1,3 +1,96 @@
 === *Testing Methodology*
 
-==== *Test-Driven Development (TDD) *
+[.added]
+==== *Test-Driven Development (TDD)*
+
+[.added]#This section documents the Test-Driven Development (TDD) approach used to guide the implementation of the Simple Medical Appointments system. The process ensures that system behavior is defined and validated through executable tests before implementation begins, maintaining alignment with functional requirements defined in Section 3.2.#
+
+===== *TDD Process (Red → Green → Refactor)*
+
+The development process follows the standard TDD cycle:
+
+[discrete]
+====== Red Phase (Define Expected Behavior)
+
+- Test cases are written before implementation.
+- Each test encodes a specific requirement using observable system behavior.
+- Tests initially fail, confirming that the behavior is not yet implemented.
+
+Examples:
+
+- Attempt to book an already reserved Time Slot → expected failure (<<REQ-BOOK-F-01>>)
+- Attempt to confirm an appointment without required insurance → expected failure (derived from scheduling constraints)
+
+[discrete]
+====== Green Phase (Minimal Implementation)
+
+- Implementation is written to satisfy the failing test with minimal logic.
+- Focus is strictly on meeting test expectations, not optimization.
+
+Examples:
+
+- Introduce atomic reservation logic to prevent double booking.
+- Add validation checks for referral and insurance status before confirmation.
+
+[discrete]
+====== Refactor Phase (Improve Structure)
+
+- Code is reorganized without changing external behavior.
+- Redundant logic is removed and responsibilities are separated.
+
+Examples:
+
+- Extract validation logic into dedicated service components.
+- Centralize scheduling rules (availability, conflicts) into a single module.
+
+===== *Scenario-Based Test Design*
+
+Test scenarios are derived directly from domain events identified in Section 3.1:
+
+- Appointment Request
+- Appointment Confirmation
+- Cancellation
+- Rescheduling
+- No-Show
+- Availability Definition
+
+Each scenario corresponds to one or more functional requirements and is expressed as a behavioral test.
+
+[discrete]
+====== Coverage Strategy
+
+- Every functional requirement has at least one associated test case.
+- Both normal flows and edge cases are covered.
+
+Examples:
+
+- Happy path: Patient books an available Time Slot successfully (<<REQ-BOOK-F-01>>)
+- Edge case: Concurrent booking attempts for the same Time Slot → only one succeeds (<<REQ-BOOK-F-01>>)
+- Edge case: Cancellation releases slot immediately (<<REQ-BOOK-F-02>>)
+
+===== *Design Impact of TDD*
+
+TDD directly influenced system design decisions:
+
+**Atomic Operations**:: Booking and cancellation logic were implemented as atomic transactions to satisfy concurrency tests.
+
+**Explicit State Modeling**:: Appointment states (Requested, Confirmed, Cancelled, No-Show) were formalized to support state-transition tests.
+
+**Separation of Concerns**:: Validation, scheduling logic, and persistence were separated to allow isolated testing.
+
+**Deterministic Behavior**:: All operations produce predictable outcomes under concurrent conditions, as required by test scenarios.
+
+===== *Traceability to Requirements*
+
+Each test case is explicitly linked to one or more requirements:
+
+- Booking validation → <<REQ-BOOK-F-01>>
+- Cancellation behavior → <<REQ-BOOK-F-02>>
+- Availability constraints → <<REQ-AVAIL-F-01>>
+- Authentication and role enforcement → <<REQ-AUTH-F-01>>
+
+This ensures:
+
+- Full coverage of functional requirements
+- Verifiable system behavior
+- Alignment between specification and implementation

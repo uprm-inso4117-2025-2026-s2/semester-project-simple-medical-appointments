@@ -1,5 +1,7 @@
-=== #*Use of debugging*#
+=== *Use of debugging*
 
+
+[.added]
 ==== Overview
 
 We document two debugging sessions conducted during development. Both use deliberate, hypothesis-driven debugging with specific tools. The first session uses Python's `pdb` to investigate a suspected defect; the second uses Chrome DevTools to explore an unexpected behavior in the frontend reschedule flow.

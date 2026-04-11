@@ -1,5 +1,6 @@
-=== #*BDD and BDD tool usage*#
+=== *BDD and BDD tool usage*
 
+[.added]
 ==== BDD Scenarios: Appointment Booking
 
 BDD shifts the conversation from implementation details to observable, user-facing behavior. Each scenario is a contract between the team and the stakeholders: if the system passes all scenarios, it satisfies the stated behavioral requirements.

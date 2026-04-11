@@ -49,14 +49,14 @@ This subsection defines the product scope of the Simple Medical Appointments sys
 [cols="1,3,2",options="header,autowidth"]
 |===
 |Req ID |Description |Linked Epics/Features
-|REQ-AUTH-F-01 |Authenticate users, create accounts, and enforce role-based access (patient, doctor, admin). Provide clear failure reasons and lockout on repeated failures. |E1 -> F1.1, F1.4
-|REQ-PROF-F-01 |Persist patient and doctor profile data (name, contact, specialty/clinic, accessibility prefs). Validate required fields, allow users to update their own profiles, and audit changes. |E1 -> F1.2, F1.3
-|REQ-AVAIL-F-01 |Allow providers to declare weekly availability and ad-hoc slots; prevent overlapping slots and surface conflicts to the user. |E2 -> F2.1, F2.2, F2.3
-|REQ-BOOK-F-01 |Let patients book available slots, reserve the slot atomically, and prevent double booking. |E3 -> F3.2, F3.3, F3.4
-|REQ-BOOK-F-02 |Allow patients to cancel upcoming appointments and immediately release the slot for reuse. |E3 -> F3.3
-|REQ-NOTIF-F-01 |Send confirmation notifications after successful booking, including appointment details. |E4 -> F4.1
-|REQ-NOTIF-F-02 |Send reminder notifications before the appointment based on user preferences. |E4 -> F4.2, F4.3
-|REQ-ADMIN-F-01 |Provide admins with read-only oversight dashboards (appointments, users, activity) with filtering/export; enforce least-privilege access. |E5 -> F5.1, F5.2
+|[[REQ-AUTH-F-01]]REQ-AUTH-F-01 |Authenticate users, create accounts, and enforce role-based access (patient, doctor, admin). Provide clear failure reasons and lockout on repeated failures. |E1 -> F1.1, F1.4
+|[[REQ-PROF-F-01]]REQ-PROF-F-01 |Persist patient and doctor profile data (name, contact, specialty/clinic, accessibility prefs). Validate required fields, allow users to update their own profiles, and audit changes. |E1 -> F1.2, F1.3
+|[[REQ-AVAIL-F-01]]REQ-AVAIL-F-01 |Allow providers to declare weekly availability and ad-hoc slots; prevent overlapping slots and surface conflicts to the user. |E2 -> F2.1, F2.2, F2.3
+|[[REQ-BOOK-F-01]]REQ-BOOK-F-01 |Let patients book available slots, reserve the slot atomically, and prevent double booking. |E3 -> F3.2, F3.3, F3.4
+|[[REQ-BOOK-F-02]]REQ-BOOK-F-02 |Allow patients to cancel upcoming appointments and immediately release the slot for reuse. |E3 -> F3.3
+|[[REQ-NOTIF-F-01]]REQ-NOTIF-F-01 |Send confirmation notifications after successful booking, including appointment details. |E4 -> F4.1
+|[[REQ-NOTIF-F-02]]REQ-NOTIF-F-02 |Send reminder notifications before the appointment based on user preferences. |E4 -> F4.2, F4.3
+|[[REQ-ADMIN-F-01]]REQ-ADMIN-F-01 |Provide admins with read-only oversight dashboards (appointments, users, activity) with filtering/export; enforce least-privilege access. |E5 -> F5.1, F5.2
 |===
 
 &#160;
@@ -110,7 +110,7 @@ _"As a patient, I want to manage my personal information so that doctors have ac
 |===
 |Story ID |Feature |ReqRef |Notes
 |[[US-AUTH-01]]US-AUTH-01 |F1.1, F1.4 |<<REQ-AUTH-F-01>> |Authentication and role logic.
-|US-PROF-01 |F1.2, F1.3 |<<REQ-PROF-F-01>> |Profile persistence and validation.
+|[[US-PROF-01]]US-PROF-01 |F1.2, F1.3 |<<REQ-PROF-F-01>> |Profile persistence and validation.
 |===
 
 &#160;
