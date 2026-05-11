@@ -1,0 +1,114 @@
+= Applying Refinement Types to Enforce Appointment Scheduling Constraints
+
+== Objective
+
+Explore how refinement types can be used to enforce correctness in appointment scheduling logic by shifting validation from runtime checks to compile-time guarantees.
+
+== Description
+
+Traditional systems rely on runtime validation to enforce constraints such as valid time ranges, non-overlapping appointments, and proper data formats.
+
+This approach introduces several issues:
+
+* Increased testing effort ("testing debt")
+* Possibility of missing validation checks
+* Runtime overhead
+* Risk of invalid states existing during execution
+
+An alternative is using refinement types, where constraints are encoded directly into the type system.
+
+Instead of validating during execution:
+
+[source,python]
+----
+if time < 0:
+    raise ValueError("Invalid time")
+----
+
+We define constraints structurally:
+
+[source]
+----
+type Time = x: int | valid_time_range(x)
+----
+
+This ensures invalid values cannot exist once accepted.
+
+== Application to Appointment System
+
+=== Appointment Time Constraint
+
+[source]
+----
+type AppointmentTime = t: int | 0 <= t <= 1440
+----
+
+Ensures appointments fall within a valid daily range.
+
+=== Appointment Duration Constraint
+
+[source]
+----
+type Duration = d: int | d > 0
+----
+
+Prevents invalid durations.
+
+=== Capacity Constraint
+
+[source]
+----
+type Capacity = c: int | c > 0
+----
+
+Ensures valid system limits.
+
+== Comparison with Traditional Approach
+
+[cols="1,1"]
+|===
+|Runtime Validation | Refinement Types
+
+|Checks occur during execution
+|Checks enforced at compile-time
+
+|Requires extensive testing
+|Reduces testing effort
+
+|Invalid states may exist
+|Invalid states are prevented
+
+|Higher overhead
+|More efficient structure
+|===
+
+The lecture highlights that relying only on testing can lead to coverage gaps and hidden issues. :contentReference[oaicite:0]{index=0}
+
+== Limitations
+
+Refinement types introduce:
+
+* Increased complexity
+* Need for language/tool support
+* Input validation still required at system boundaries
+
+They complement testing rather than replace it.
+
+== Verification Strategy
+
+* Attempt invalid assignments (e.g., negative time)
+* Confirm rejection by type system
+* Compare behavior with runtime validation
+* Evaluate reduction in test cases
+
+== Conclusion
+
+Refinement types enforce correctness by design.
+
+They:
+
+* Reduce testing complexity
+* Prevent entire classes of bugs
+* Improve reliability and maintainability
+
+This approach shifts validation from runtime to compile-time, aligning with modern software engineering practices.
