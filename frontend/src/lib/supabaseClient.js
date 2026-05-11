@@ -7,4 +7,5 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
 }
 
+// createClient enables persistent sessions and automatic token refresh by default.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
