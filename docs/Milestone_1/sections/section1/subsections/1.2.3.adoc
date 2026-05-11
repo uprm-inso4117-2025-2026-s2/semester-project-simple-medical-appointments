@@ -1,11 +1,11 @@
-==== [.changed]#Ideas#
+==== Ideas
 
-===== [.changed]#Real-Time Agenda#
+===== Real-Time Agenda
 The system displays up-to-date appointment availability to both patients and clinic staff. 
-[.changed]#When a clinic or doctor modifies their schedule, the change is reflected in the 
+When a clinic or doctor modifies their schedule, the change is reflected in the 
 system immediately, keeping all parties informed without allowing patients to unilaterally 
 alter clinic-controlled time slots. Patients may request changes, but clinic staff retain 
-control over confirming or rejecting schedule modifications.#
+control over confirming or rejecting schedule modifications.
 
 ===== Waitlist Feature
 If a doctor's schedule is full, patients can join a waitlist and automatically receive a slot when cancellations occur.
@@ -22,16 +22,12 @@ Appointments may enter a pending state for staff approval before being finalized
 ===== Patient Appointment Limits
 Limit the number of active appointments per specialist (e.g., one at a time) to prevent unnecessary reservation of multiple slots.
 
-===== [.changed]#Clinic Constraints Configuration#
-[.changed]#Beyond standard opening hours, clinics may define scheduling rules specific to 
+===== Clinic Constraints Configuration
+Beyond standard opening hours, clinics may define scheduling rules specific to 
 their operational context — such as blocking certain days for administrative tasks or 
 restricting appointment types during specific periods. This complements, rather than 
-duplicates, the appointment type configuration.#
+duplicates, the appointment type configuration.
 
-===== [.removed]#Accessibility Features#
-[.removed]#(Removed: custom accessibility options such as larger text and high-contrast 
-layouts are already provided by the underlying mobile platform (Android/iOS). Duplicating 
-these at the application level risks conflicting with user-configured system settings.)#
 
 ===== Advanced Filtering Options
 * Filter by specialty
@@ -40,23 +36,23 @@ these at the application level risks conflicting with user-configured system set
 * Filter by doctor availability
 * Filter by services offered
 
-===== [.changed]#Calendar Separation by Context#
-[.changed]#Clinic staff can view schedules organized per doctor or per location 
+===== Calendar Separation by Context
+Clinic staff can view schedules organized per doctor or per location 
 independently, rather than seeing all calendars merged into one view. This is useful for 
 front-desk staff managing multiple providers or rooms, reducing scheduling errors when 
-coordinating across several resources simultaneously.#
+coordinating across several resources simultaneously.
 
-===== [.changed]#Role-Based Access Control#
-[.changed]#Patient history, appointment records, and availability data are only visible 
+===== Role-Based Access Control
+Patient history, appointment records, and availability data are only visible 
 to roles authorized to access them (for example: the treating physician, authorized clinic staff). 
 This is distinct from HIPAA compliance requirements and addresses the operational need to 
-scope data visibility appropriately within the platform's own role hierarchy.#
+scope data visibility appropriately within the platform's own role hierarchy.
 
-===== [.changed]#HIPAA Compliance Framing#
-[.changed]#The platform operates as a scheduling tool and does not store or transmit 
+===== HIPAA Compliance Framing
+The platform operates as a scheduling tool and does not store or transmit 
 clinical records. Any handling of personally identifiable scheduling data will conform to 
 applicable HIPAA requirements. Features that would otherwise duplicate HIPAA-mandated 
-protections are not separately specified here.#
+protections are not separately specified here.
 
 ===== Secure Authentication and Role Management
 Distinct roles (patient, doctor, location, admin) with clearly defined permissions.

@@ -1,0 +1,74 @@
+== Usability Testing Plan for Login Page
+:doctype: article
+:sectnums:
+:author: Juan Ortiz Abouomar
+
+===== Introduction
+Usability testing is a user-centered evaluation method used to assess how easily users can interact with a system. It focuses on observing real users performing tasks to identify usability issues and improve overall user experience.
+
+In this project, usability testing is applied to the Login page, a critical entry point for users accessing the system. Ensuring that users can log in efficiently and without confusion is essential for system accessibility and satisfaction.
+
+---
+===== Objective
+The objective of this testing plan is to evaluate the usability of the Login page by identifying issues related to efficiency, learnability, and error handling, and proposing improvements based on observed user interactions.
+
+---
+===== Scope of the System
+The usability testing focuses on the following aspects of the Login page:
+
+* User input fields (email and password)  
+* Form submission behavior  
+* Error messages and feedback  
+* Navigation and user flow  
+
+---
+===== Usability Testing Approach
+
+====== User Tasks
+The following representative tasks are defined for testing:
+
+* Log in using valid credentials  
+* Attempt login with incorrect password  
+* Submit the form with empty or incomplete fields  
+
+
+====== Testing Process
+. Recruit representative users  
+. Assign predefined login tasks  
+. Observe user interactions and record behavior  
+. Collect data on task completion and errors  
+
+
+====== Evaluation Metrics
+The usability of the Login page is evaluated using:
+
+* Efficiency: Time required to complete login  
+* Learnability: Ease of use for first-time users  
+* Error Rate: Frequency of user errors during interaction  
+
+---
+===== Application to the Project
+Applying usability testing to the Login page helps identify issues such as:
+
+* Confusing form layout or unclear labels  
+* Ineffective or unclear error messages  
+* Difficulty completing login due to poor feedback  
+
+---
+===== Benefits
+* Improves user experience and satisfaction  
+* Reduces user errors during authentication  
+* Enhances clarity of feedback and system responses  
+* Supports user-centered design decisions  
+
+===== Conclusion
+Usability testing provides valuable insights into how users interact with the Login page. By identifying usability issues and addressing them, the system can offer a more intuitive and efficient authentication experience.
+
+===== References
+[1] “Usability Testing Lecture Notes,” Course Material.  
+
+[2] J. Nielsen, _Usability Engineering_, Morgan Kaufmann, 1994.  
+
+[3] ISO 9241-11, “Ergonomics of human-system interaction — Usability: Definitions and concepts,” 2018.
+
+---

@@ -1,0 +1,1601 @@
+=== *Test Planning*
+
+==== Risk-Based Test Planning Optimization
+:author: Segmar Rosado
+
+===== Objective
+
+Research risk-based test planning in software reliability engineering, focusing on how testing activities are prioritized using expected defect cost modeling and constrained resource allocation.
+
+===== Introduction
+
+Software testing operates under strict limitations in time, personnel, and budget. Exhaustive testing of all possible inputs, configurations, and system states is infeasible in practical environments. As a result, test planning must be strategic and risk-driven. Risk-based test planning provides a structured approach to allocating limited testing resources toward areas that present the highest expected impact on system reliability.
+
+===== Expected Defect Cost Model
+
+At the core of risk-based testing lies the expected defect cost equation:
+
+Expected Cost(D) = P(D occurs) × Cost(D occurs)
+
+Where:
+
+* P(D occurs) represents the probability that a defect exists in a given component or feature.
+* Cost(D occurs) represents the impact or severity if that defect manifests in production.
+
+This model transforms test prioritization into a quantitative decision-making process. Rather than distributing effort evenly, testing focuses first on components with the highest expected loss. Indicators that may increase defect probability include system complexity, synchronization and timing issues, high user interaction (e.g., GUI-heavy components), and inexperienced development. Indicators that increase defect impact include essential functionality, safety-critical behavior, reputational damage, and frequent user-facing failures.
+
+By combining probability and impact, the model provides a rational framework for determining which tests should be executed first.
+
+===== Multi-Axis Test Plan Decomposition
+
+Risk-based planning requires structured decomposition of the system under test. A comprehensive test plan unfolds across multiple axes, including:
+
+* Testing Level (Unit, Integration, System, Acceptance)
+* Testing Type (Functional, Security, Performance, Usability)
+* Input Space (common, corner, extreme, invalid cases)
+* Platform and Environment
+* Configuration
+* Load and Performance Conditions
+* UI Elements and Interaction Paths
+
+This multi-dimensional structure ensures coverage is systematic rather than arbitrary. Instead of viewing the system as a flat list of test cases, it is represented as a hierarchical tree. The root represents the entire system, and branches represent decomposition along selected axes. Each leaf eventually corresponds to an individual test case.
+
+This approach enables targeted prioritization within each axis while maintaining traceability and logical organization.
+
+===== Budget-Constrained Prioritization and Pruning
+
+Because resources are finite, not all identified test cases can be executed. Risk-based test planning incorporates prioritization and pruning to ensure that execution remains within budget constraints.
+
+The planning process typically follows these steps:
+
+. Define an overall test strategy.
+. Decompose the system along a selected axis.
+. Estimate time and effort required for candidate tests.
+. Rank tests according to expected defect cost.
+. Remove lower-priority tests until the total effort fits within available resources.
+. Repeat decomposition for higher-risk branches.
+
+This transforms testing into a constrained optimization problem. The objective is not maximum coverage, but maximum risk reduction per unit of effort.
+
+Additionally, the Law of Diminishing Returns applies to defect detection. Early testing phases tend to uncover many defects quickly, while later phases yield progressively fewer new findings. Recognizing this reliability growth behavior informs stopping decisions and prevents inefficient over-testing.
+
+===== Discussion
+
+Risk-based test planning aligns software reliability engineering with economic reasoning. It acknowledges uncertainty in defect presence and quantifies decision-making using expected impact. By structuring tests along multiple axes and systematically pruning lower-value activities, the approach ensures that limited resources are directed toward areas of highest risk exposure.
+
+This method strengthens reliability not through exhaustive verification, but through disciplined prioritization and strategic allocation of effort.
+
+===== Conclusion
+
+Risk-based test planning reframes software testing as a rational, risk-informed optimization process. By applying the expected defect cost model, decomposing the system across structured axes, and pruning tests to remain within budget constraints, testing becomes both economically justified and technically disciplined. This approach maximizes reliability improvement under practical development constraints and will be used and expanded upon in this project.
+
+---
+
+
+==== *Testing Strategies for Healthcare Appointment Scheduling Systems*
+
+===== Research Report: Testing Strategies for Healthcare Appointment Scheduling Systems
+:author: Pierre Vales
+
+===== Summary
+
+This research report examines best practices and critical test scenarios for healthcare appointment scheduling systems. Testing scheduling functionality requires special attention to conflict detection, race conditions, boundary conditions, and concurrent user scenarios. Research shows that properly tested scheduling systems reduce double-bookings by 60-95% and prevent costly production failures that occur when edge cases are overlooked.
+
+The most critical areas for testing are: concurrent booking scenarios (race conditions), conflict detection accuracy, timezone and date boundary conditions, appointment lifecycle state transitions, and role-based access controls. This report provides a comprehensive framework for creating an effective test plan that prioritizes high-risk scenarios while ensuring system reliability.
+
+====== Understanding the Testing Challenge
+
+Appointment scheduling systems present unique testing challenges compared to typical CRUD applications. According to research from the University of Washington, scheduling systems require testing for both "what to test (input conditions, edge cases, boundary cases) and how to test (code organization, asserts)."
+
+The complexity stems from several factors:
+
+*Time-Based Dependencies:* Unlike static data, appointments exist in time with dependencies on dates, timezones, daylight saving transitions, and duration calculations. A payment processing system that calculated "next year" by adding 365 days worked perfectly until February 29, 2020, when payments scheduled for 2021 were off by one day. This real-world example demonstrates how date boundary edge cases can cause production failures.
+
+*Concurrent Operations:* Healthcare scheduling research indicates that single-user testing validates functionality but misses race conditions, lock contention, and resource exhaustion that emerge under heavy concurrent load. When multiple users book appointments simultaneously, systems without proper conflict prevention can create double-bookings despite passing all single-user tests.
+
+*State Management Complexity:* Appointments transition through multiple states (scheduled, confirmed, cancelled, completed, no-show) with business rules governing each transition. Testing must verify that state changes cascade correctly to related systems like notifications, waitlists, and capacity management.
+
+Research on edge case testing reveals that "edge cases represent low-probability, high-impact risks. Any individual edge case might affect only 0.1% of users" but these scenarios "represent the difference between controlled quality and production disasters." In healthcare scheduling, double-bookings due to race conditions cause patient dissatisfaction and operational chaos, timezone miscalculations can result in missed appointments and no-shows, incorrect capacity validation can overbook providers or underutilize resources, and authorization failures can expose patient data or allow unauthorized modifications. Studies show that boundary value analysis reveals 15-40% more defects than testing typical values alone, making edge case testing essential for production readiness.
+
+====== Test Prioritization Framework
+
+Based on healthcare software testing research, test scenarios should be prioritized using three tiers:
+
+*HIGH PRIORITY (Critical - Must Pass Before Release)*
+
+* Scenarios that could cause data corruption, security breaches, or complete system failure
+* Concurrent booking race conditions that could create double-bookings
+* Authorization bypasses allowing unauthorized access to schedules
+* Financial impact scenarios (overbooking, capacity violations)
+* Patient safety scenarios (wrong patient scheduled, medication timing conflicts)
+
+*MEDIUM PRIORITY (Important - Should Be Tested)*
+
+* Edge cases in frequently used features with moderate failure consequences
+* Input validation edge cases in booking forms
+* Timezone boundary conditions for appointments near midnight or DST transitions
+* Workflow interruption scenarios in multi-step booking processes
+* Error handling in non-critical operations
+
+*LOW PRIORITY (Nice to Have - Test If Time Permits)*
+
+* Edge cases in rarely used administrative functions
+* Edge cases with purely cosmetic consequences
+* Highly improbable scenario combinations affecting negligible user populations
+* Performance optimization for unusual load patterns
+
+Healthcare applications must elevate certain edge cases regardless of frequency. According to edge case testing research for regulated industries, all scenarios involving patient data access must be tested for HIPAA compliance, audit trail completeness across unusual scenarios demands thorough validation, authorization edge cases must be tested even if statistically rare, and data persistence failures in healthcare applications have patient safety implications.
+
+====== Core Test Scenario Categories
+
+*Conflict Detection and Prevention*
+
+The objective is to verify the system correctly identifies and prevents overlapping appointments. Basic overlap scenarios (HIGH PRIORITY) include exact same time slot for same provider, new appointment starts during existing appointment (2:00-2:30 overlaps 1:45-2:15), new appointment ends during existing appointment (1:45-2:15 overlaps 2:00-2:30), new appointment completely contains existing appointment (1:00-3:00 contains 2:00-2:30), new appointment completely contained by existing appointment (2:00-2:15 within 1:30-3:00), and back-to-back appointments (ending exactly when next starts - should not conflict).
+
+Buffer time scenarios (HIGH PRIORITY) include appointments with 10-minute buffer should block adjacent slots, buffer violations should be detected (2:00-2:30 with 10min buffer conflicts with 2:30-3:00), zero-buffer appointments can be back-to-back, and different appointment types may have different buffer requirements. Multi-provider scenarios (MEDIUM PRIORITY) include same time slot with different providers should not conflict, same patient booking multiple providers simultaneously should succeed, and provider availability constraints must be respected per provider.
+
+Expected results: valid bookings save successfully with confirmation, conflicting bookings rejected with clear error message indicating conflict, system identifies which existing appointment causes the conflict, and no partial saves occur (transaction rollback on conflict).
+
+*Race Condition and Concurrent User Tests*
+
+The objective is to verify the system handles simultaneous booking attempts without creating double-bookings. According to research on race condition testing, "race conditions can easily occur in JavaScript due to its event-driven nature. Any situation where JavaScript has the ability to schedule tasks could potentially lead to race conditions."
+
+Concurrent booking scenarios (HIGH PRIORITY - CRITICAL) include two users attempting to book identical time slot within 100ms of each other, three or more users attempting to book same slot simultaneously, User A checking availability while User B is mid-booking (timing window test), rapid-fire clicks on submit button before page updates, and simultaneous API calls from multiple sources (mobile app + web). Session and state scenarios (HIGH PRIORITY) include user leaving booking page idle and returning after session near-expiration, form submission after session expires mid-booking, network interruption during booking transaction, browser crash/refresh during booking process, and user opening multiple tabs and booking from both simultaneously.
+
+Based on research from Doppler on reliably testing race conditions, tests should:
+
+. Create multiple simulated users (threads/promises)
+. Have each user check the same time slot availability
+. Inject controllable delays at critical points
+. Have all users attempt to book simultaneously
+. Verify only ONE booking succeeds
+. Verify all other attempts receive proper error
+. Verify no partial bookings exist in database
+
+Expected results: exactly one booking succeeds, all other attempts receive "no longer available" error, database contains only one appointment for that slot, no orphaned or partial records exist, and system logs show proper transaction rollback for failed attempts.
+
+*Date and Time Boundary Tests*
+
+The objective is to verify correct handling of date/time edge cases and timezone complexities. Research on time-based edge cases emphasizes: "Handling daylight saving time transitions, leap years, and time zone conversions can lead to subtle edge cases. A flight booking system must correctly display arrival times across different time zones."
+
+Date boundary scenarios (HIGH PRIORITY) include appointments on leap day (February 29) in leap years, invalid date attempts (February 30, November 31), year boundary transitions (December 31 to January 1), appointments at midnight (00:00:00), same-day appointments, far-future bookings (maximum date range limit), and past date booking attempts (should be rejected). Time boundary scenarios (HIGH PRIORITY) include midnight appointments (00:00 - edge of day boundary), appointments crossing midnight (11:30 PM - 12:30 AM), minimum appointment duration (e.g., 15 minutes), maximum appointment duration (e.g., 4 hours), 23:59 appointment (last minute of day), and 00:00 appointment (first minute of day).
+
+Timezone scenarios (HIGH PRIORITY) include provider in PST with patient booking from EST, Daylight Saving Time start date (March, 2:00 AM doesn't exist), Daylight Saving Time end date (November, 1:00 AM occurs twice), appointment scheduled for "skipped" hour during DST transition, international users booking across date line, server timezone different from user timezone, and display of appointment times in user's local timezone. Duration calculation scenarios (MEDIUM PRIORITY) include 30-minute appointment from 2:00 ending at 2:30 (not 2:29), adding buffer time to calculated end time, and appointments spanning DST transition (e.g., 1:30-3:30 on DST start day).
+
+Expected results: all dates validated against calendar rules, invalid dates rejected with clear error message, appointments display in user's correct timezone, DST transitions handled correctly, duration calculations account for DST when relevant, and database stores times in UTC for consistency.
+
+*Appointment Lifecycle and State Transition Tests*
+
+The objective is to verify appointments correctly transition through states and trigger appropriate actions. State transition scenarios (HIGH PRIORITY) include: Scheduled → Confirmed (patient confirms via link/call), Scheduled → Cancelled (patient or provider cancels before appointment), Confirmed → Completed (appointment occurs and is marked complete), Confirmed → No-Show (patient doesn't arrive for confirmed appointment), Scheduled → Rescheduled → Scheduled (patient moves to different time), and Cancelled → Cannot Reactivate (cancelled appointments cannot return to scheduled).
+
+Invalid transition scenarios (HIGH PRIORITY) include attempt to confirm already-completed appointment, attempt to complete future appointment, attempt to mark no-show for appointment that was cancelled, multiple state changes in rapid succession, and state change while notification is sending. Cascading effects (MEDIUM PRIORITY) include cancellation triggering waitlist notification, cancellation freeing time slot for new bookings, confirmation sending confirmation email/SMS, no-show updating patient's no-show history, rescheduling cancelling original and creating new booking, and completed appointment updating provider's schedule capacity.
+
+Expected results: only valid state transitions allowed, state changes are atomic (all or nothing), related systems updated correctly (notifications, waitlist, capacity), audit trail records all state changes with timestamp and user, and concurrency handled (two users can't transition same appointment simultaneously).
+
+*Capacity and Availability Validation Tests*
+
+The objective is to verify system enforces provider availability and capacity constraints. Provider availability scenarios (HIGH PRIORITY) include booking during blocked time (provider unavailable), booking outside clinic operating hours, booking on provider's day off, provider working modified hours (half day), holiday/vacation blocking entire days, and emergency blocking (urgent unavailability). Capacity limit scenarios (HIGH PRIORITY) include maximum appointments per day reached, maximum concurrent appointments reached, specific appointment type limit reached, room capacity limit reached, and equipment availability constraint. Appointment type constraints (MEDIUM PRIORITY) include provider doesn't offer requested appointment type, appointment type requires specific equipment, appointment type has minimum duration requirement, appointment type can't be back-to-back, and appointment type restricted to certain days/times.
+
+Expected results: bookings outside available times rejected, clear error message explaining constraint violation, system suggests alternative available times when possible, capacity limits enforced even under concurrent load, and override capability exists for administrative users with audit logging.
+
+*Input Validation and Boundary Value Tests*
+
+The objective is to verify proper handling of invalid, extreme, and boundary value inputs. According to research on boundary testing: "For fields accepting integers 1 to 100, test 0, 1, 2, 99, 100, and 101." This principle applies across all booking form inputs.
+
+Patient information validation (MEDIUM PRIORITY) includes empty patient name (required field), single character name (minimum boundary), very long name (200+ characters), special characters in name (O'Brien, José, 李明), numbers in name field (should reject), and patient ID at system limit (INT_MAX). Contact information validation (MEDIUM PRIORITY) includes invalid email format (missing @, no domain), international phone numbers (+44, +52), phone with extensions (123-456-7890 x123), empty required fields, and maximum length phone numbers. Appointment notes/reason (LOW PRIORITY) includes empty notes (should be allowed), extremely long notes (10,000 characters), special characters and emojis in notes, SQL injection attempts in notes field, and XSS attempts (<script> tags).
+
+Expected results: invalid inputs rejected with clear, user-friendly error message, field indicates specific validation rule violated, no crashes or database errors from malformed input, security-sensitive inputs sanitized (SQL injection blocked), and international characters handled correctly (Unicode support).
+
+*Role-Based Access Control Tests*
+
+The objective is to verify users can only perform actions appropriate to their role.
+
+Patient role scenarios (HIGH PRIORITY): patient can view own appointments, patient CANNOT view other patients' appointments, patient can book appointments for themselves, patient can cancel own appointments, patient CANNOT modify provider schedules, patient CANNOT access administrative functions, and patient CANNOT see other patients in schedule view.
+
+Provider role scenarios (HIGH PRIORITY): provider can view own schedule, provider can view patient details for own appointments, provider can mark appointments complete/no-show, provider can modify own availability, provider CANNOT modify other providers' schedules, provider can override certain restrictions (intentional double-booking), and provider CANNOT access billing/financial data (if not authorized).
+
+Administrator role scenarios (HIGH PRIORITY): admin can view all schedules, admin can create/modify appointments for any provider, admin can modify provider availability, admin can override capacity restrictions, admin can cancel any appointment, admin actions are logged in audit trail, and admin CANNOT impersonate users without audit trail.
+
+Authorization bypass attempts (HIGH PRIORITY - SECURITY) include direct API calls bypassing UI restrictions, token manipulation to access other users' data, session hijacking attempts, privilege escalation attempts, and CSRF attacks on booking endpoints.
+
+Expected results: users see only data they're authorized to access, unauthorized actions rejected with 403 Forbidden, security checks occur on server (not just UI), all authorization failures logged, and no sensitive data leaked in error messages.
+
+*Booking Flow and User Experience Tests*
+
+The objective is to verify complete booking workflows function correctly. Complete booking flows (MEDIUM PRIORITY) include: search for available times → select time → enter details → confirm, modify existing appointment → select new time → confirm change, cancel appointment → confirm cancellation → receive confirmation, and join waitlist → receive notification → accept offer → confirm booking.
+
+Interruption scenarios (MEDIUM PRIORITY) include starting booking and navigating away to resume, internet dropping mid-booking, browser back button during multi-step booking, closing browser tab mid-booking, and system timeout during booking process. Notification flow (MEDIUM PRIORITY) includes booking triggering confirmation email immediately, reminder sent 24 hours before appointment, cancellation triggering cancellation email, waitlist opening triggering notification to eligible patients, and confirmation of notification delivery.
+
+Expected results: complete workflows succeed end-to-end, interruptions handled gracefully (no corrupt data), users can resume interrupted bookings, notifications sent reliably and timely, and users receive appropriate feedback at each step.
+
+====== Test Data Strategy
+
+Research emphasizes using "realistic and representative data that reflects the user context and environment, and avoid hard-coding or reusing data that might cause conflicts or inconsistencies."
+
+Provider test data should include multiple providers with different specializations, providers with different availability patterns, providers in different timezones, providers with different capacity limits, and overlapping and non-overlapping schedules. Patient test data should include patients in different timezones, patients with complex names (international characters), patients with appointment history, new patients (first appointment), and patients with no-show history. Appointment test data should include various appointment types (different durations, requirements), appointments across multiple weeks/months, appointments in different states, recurring appointment patterns, and special appointment types (emergency, walk-in).
+
+Research indicates "applications performing well with test datasets often fail at production scale when data volumes create unanticipated performance bottlenecks." Testing should use realistic volumes including 1,000+ appointments for performance testing, 100+ concurrent users for load testing, full day schedules (8 AM - 6 PM, every 15 min = 40 slots), multiple days/weeks of data, and a full patient database (not just 10 test patients).
+
+====== Test Execution Strategy
+
+High priority areas for automation include conflict detection algorithms (unit tests), race condition scenarios (integration tests with controlled timing), input validation (unit tests), authorization checks (integration tests), and basic booking flows (end-to-end tests). Areas better suited for manual testing include user experience and UI usability, timezone display correctness (visual verification), error message clarity and helpfulness, complex multi-step workflows, and exploratory testing for unknown edge cases.
+
+Based on industry research, recommended testing tools include Jest or Mocha for unit testing individual functions like conflict detection, Supertest for integration testing API endpoints, Cypress or Playwright for end-to-end testing full workflows, Artillery or k6 for load testing concurrent user simulation, and custom scripts with controlled timing and Promise-based concurrency testing for race condition testing.
+
+The continuous testing approach should run unit tests on every code commit, run integration tests before merging to main branch, run full end-to-end tests nightly, run load tests weekly or before releases, and perform security testing before each release.
+
+====== Test Documentation Requirements
+
+Each test case should include a unique Test Case ID (e.g., SCHED-CONFLICT-001), Priority (HIGH / MEDIUM / LOW), Test Scenario (brief description), Preconditions (system state before test), Test Steps (numbered step-by-step actions), Test Data (specific data values to use), Expected Result (precise expected outcome), Actual Result (what actually happened, filled during execution), Status (PASS / FAIL / BLOCKED), and Notes (any observations or issues).
+
+When tests fail, defect documentation should capture: Severity (Critical / High / Medium / Low), steps to reproduce, expected vs. actual behavior, screenshots or logs, frequency (always / intermittent), and environment details.
+
+====== Discussion
+
+Research emphasizes that "edge case tests provide the same general benefit as other tests: it's proof to you and your team that the guarantees a block of code claims to provide remain true in light of future code changes." Teams should write tests before or alongside feature development (TDD approach), not wait until "the end" to start testing, and fix defects immediately rather than accumulating technical debt.
+
+High-risk areas should be addressed first: prioritize race condition and conflict detection tests to prevent double-bookings, test authorization thoroughly to prevent security breaches, validate date/time handling carefully to prevent timezone issues, and test state transitions comprehensively to prevent data inconsistency. Research on edge case testing notes: "Think like a hacker to crack the application but from user perspective only. Edge scenarios can be findable if you master the exploration of the application." Teams should consider how real users will use (and misuse) the system, test with realistic data and workflows, include accessibility testing for diverse user needs, and test error recovery and help/support flows.
+
+Test coverage targets should aim for 80%+ code coverage for critical modules, 100% coverage of conflict detection logic, 100% coverage of authorization checks, and tracking of which edge cases remain untested. Teams should also iterate and improve by reviewing production incidents and adding tests for discovered issues, regularly reviewing and updating test cases, retiring obsolete tests, and adding new edge cases as discovered.
+
+====== Conclusion
+
+Testing healthcare appointment scheduling systems requires a comprehensive, risk-based approach that prioritizes high-impact scenarios like race conditions, conflict detection, and authorization checks. Research demonstrates that proper testing reduces double-bookings by 60-95% and prevents costly production failures.
+
+The key to success is prioritizing edge cases and boundary conditions that have the greatest impact on system reliability and patient safety. By following this research-backed framework, teams can create robust test plans that ensure scheduling systems handle both typical workflows and extreme edge cases reliably.
+
+Remember that edge cases, while rare individually, collectively represent significant risk. As research states: "Edge cases represent low-probability, high-impact risks... These scenarios represent the difference between controlled quality and production disasters." Thorough testing of scheduling systems is not optionalit's essential for delivering reliable healthcare software.
+
+====== References
+
+. University of Washington, "ScheduleTest.java - Example of comprehensive unit testing for scheduling systems," Course materials CSE 331, 2011. https://courses.cs.washington.edu/courses/cse331/11au/sections/ScheduleTest.java
+. U.S. Department of Veterans Affairs, "VA Medical Appointment Scheduling Contest: Test Cases for Healthcare Scheduling Systems." https://vascheduling.devpost.com/updates/658-step-1-test-cases
+. VirtuosoQA, "Edge Case Testing Explained – What to Test & How to Do It," 2024. https://www.virtuosoqa.com/post/edge-case-testing
+. A. Ala, F. Chen, and H. R. Parsaei, "Appointment Scheduling Problem in Complexity Systems of the Healthcare Services: A Comprehensive Review," Journal of Healthcare Engineering, 2022. https://pmc.ncbi.nlm.nih.gov/articles/PMC8913063/
+. Fast-check, "Race Conditions Testing Framework." https://fast-check.dev/docs/advanced/race-conditions/
+. Doppler, "Reliably Testing Race Conditions: A Practical Guide." https://www.doppler.com/blog/reliably-testing-race-conditions
+. Braze, "Race Conditions in Event-Driven Systems." https://www.braze.com/docs/user_guide/engagement_tools/testing/race_conditions
+. S. DEV Community, "The Edge Case Hunter's Guide: Comprehensive Unit Testing Beyond the Happy Path," 2025. https://dev.to/shreyas1009/the-edge-case-hunters-guide-comprehensive-unit-testing-beyond-the-happy-path-1nm8
+. LinkedIn Learning, "How can you test edge cases and boundary conditions in unit tests?" 2023. https://www.linkedin.com/advice/3/how-can-you-test-edge-cases-boundary-conditions-nwaoc
+. Testsigma, "What Is an Edge Case Testing? How To Find and Prioritize," 2023. https://testsigma.com/blog/edge-case-testing/
+. ScienceDirect, "Robust appointment scheduling for random service times using min-max optimization," Operations Research Journal, 2025. https://www.sciencedirect.com/science/article/abs/pii/S3050784725000145
+
+---
+
+==== Risk-Based Test Plan: Authentication & Access Control
+
+:author: Carlos Pepin Delgado
+
+===== Scope
+
+====== In-Scope Areas
+
+[cols="1,3", options="header"]
+|===
+| Area | Description
+
+| Registration
+| Account creation, email uniqueness enforcement, role selection
+
+| Login
+| Credential validation, incorrect credentials, inactive or unverified account behavior
+
+| Logout
+| Session or token termination, post-logout access prevention
+
+| Session Expiry
+| Token expiration behavior, access denial after expiry
+
+| Role Model
+| Patient, Doctor, and Admin enforcement; missing role behavior; role assignment
+
+| Permission Gates
+| View and action restrictions at both UI and REST API layer
+
+| Account State Changes
+| Password reset, email change, deactivation, reactivation
+|===
+
+====== Out-of-Scope
+
+- *Penetration testing* -- No active attack simulation or injection testing is performed. Security coverage is limited to authorization boundary checks.
+- *Clinical, scheduling, and notification modules* -- Epics E2 through E5 are out of scope.
+- *Performance and load testing* -- No throughput, latency, or concurrency testing is included in this milestone.
+- *Frontend visual regression* -- UI layout, color, typography, and screen size behavior are not evaluated.
+- *Third-party integrations* -- Insurance authorization, referral workflows, and external communication services are excluded.
+
+===== Risk Model
+
+====== Prioritization Formula
+
+Because resources are limited and it is impossible to test every possible situation, testing effort must be invested wisely. The goal is to deliver the right tests, in the right order, to discover as many issues as time and budget allow [1]. Prioritization is based on the expected cost of each defect:
+
+____
+*D = P(D occurs) × Cost(D occurs)* [1]
+____
+
+Tests targeting the highest D values are executed first.
+
+====== What Raises Probability
+
+The following conditions increase the likelihood that a defect exists in a given area [1]:
+
+- Complex units
+- High user involvement through GUIs
+- Synchronization and timing issues
+- Inexperienced developers
+
+For this module, role-permission logic and session state management represent the primary complexity. Login and registration involve heavy form-based user interaction, which further raises P(D).
+
+====== What Raises Cost
+
+The following conditions increase the impact of a defect reaching production [1]:
+
+- *Sine qua non functionality* -- authentication is the prerequisite for every other system feature
+- *Damage to reputation and trust* -- unauthorized access to patient or provider data in a healthcare system
+- *Frequent or annoying defects* -- login and registration are the most exercised flows in the system
+
+====== Probability Scale
+
+[cols="1,1,3", options="header"]
+|===
+| Score | Label | Definition
+
+| 5
+| Very High
+| Defect is likely given complexity, unresolved specifications, or heavy GUI involvement [1].
+
+| 4
+| High
+| Defect is plausible; area involves role transitions, state changes, or unverified rules.
+
+| 3
+| Medium
+| Defect is possible but requires specific conditions.
+
+| 2
+| Low
+| Defect is unlikely; logic is straightforward.
+
+| 1
+| Very Low
+| Defect is improbable; area is simple and well-bounded.
+|===
+
+====== Cost Scale
+
+[cols="1,1,3", options="header"]
+|===
+| Score | Label | Definition
+
+| 5
+| Critical
+| Breaks authentication or exposes protected data -- sine qua non failure [1].
+
+| 4
+| High
+| Causes role confusion or persistent unauthorized state -- damage to trust.
+
+| 3
+| Medium
+| Causes degraded experience or incorrect UI state visible only to the affected user.
+
+| 2
+| Low
+| Minor inconvenience, no functional consequence.
+
+| 1
+| Negligible
+| Cosmetic only.
+|===
+
+===== Prioritized Risk Table
+
+Risks are ordered from highest to lowest D score. Tests for higher-D risks are executed first to maximize defect detection within the one-day budget [1].
+
+[cols="1,3,1,1,1,4", options="header"]
+|===
+| Risk ID | Risk Description | P | Cost | D | Downstream Impact
+
+| RISK-01
+| Patient accesses Doctor or Admin routes via direct URL manipulation
+| 5
+| 5
+| *25*
+| Every downstream feature -- scheduling, clinical records, administrative controls -- is gated behind role enforcement. If this boundary fails, no protected feature in the system is safe. This is sine qua non functionality [1].
+
+| RISK-02
+| Duplicate email registration creates multiple accounts for the same identity
+| 4
+| 5
+| *20*
+| Identity uniqueness is a prerequisite for reliable appointment records, role assignment, and audit trails. Duplicate identities corrupt the data model for every downstream module that references a user.
+
+| RISK-03
+| Permission gates enforced only at the UI layer, not at the REST API layer
+| 5
+| 4
+| *20*
+| A user who bypasses the frontend via direct API calls can perform unauthorized actions regardless of what the UI shows. This is a trust boundary violation with severe reputational damage in a healthcare context.
+
+| RISK-04
+| User with no assigned role gains access to protected views or actions
+| 4
+| 4
+| *16*
+| An undefined role produces unpredictable permission evaluation across every protected route. The role model is sine qua non for the entire access control structure.
+
+| RISK-05
+| Inactive or deactivated account successfully authenticates
+| 4
+| 4
+| *16*
+| A deactivated provider or suspended patient interacting with live scheduling data produces invalid records. Account state must be evaluated at authentication time or the failure propagates into every downstream module.
+
+| RISK-06
+| Session token remains valid after explicit logout
+| 3
+| 5
+| *15*
+| If logout removes the token only on the client side, a captured token remains usable until natural expiry. In a clinic shared-workstation environment this directly exposes patient data.
+
+| RISK-07
+| Password reset token can be reused or submitted after expiry
+| 3
+| 5
+| *15*
+| A reusable or non-expiring reset token enables full account takeover for any role. All appointments, patient records, and administrative actions under the compromised account are affected.
+
+| RISK-08
+| Browser back button exposes protected content after logout
+| 4
+| 3
+| *12*
+| On a shared clinical workstation, cached page content served after logout exposes a prior user's data to the next person. This is a frequent and realistic scenario in clinic environments.
+|===
+
+===== Test Cases
+
+Test cases are ordered by the D score of their linked risk. Each case declares its testing type, testing level, axes covered, and input partition, all drawn from the course framework [1].
+
+*Testing types used:* Functional, Security +
+*Testing level used throughout:* System -- consistent with favoring system-level tests when Cost(D) is high [1] +
+*Axes covered:* Functionality (Reqs/Specs), UI Elements, Input Space +
+*Input partitions:* Common (valid), Invalid, Corner, Extreme
+
+====== TC-01: Patient URL Manipulation to Admin Route
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-01
+
+| Title
+| Patient-role user attempts direct URL navigation to an Admin-only route
+
+| Linked Risk
+| RISK-01 (D = 25)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, UI Elements
+
+| Input Partition
+| Corner -- valid authenticated session, invalid route for role
+|===
+
+*Preconditions:* +
+A Patient-role account is authenticated. At least one Admin-only route exists.
+
+*Steps:*
+
+- Authenticate as a Patient and obtain a valid session token.
+- Manually enter the Admin-designated route URL in the browser address bar.
+- Observe the HTTP response and UI behavior.
+- Repeat using the Doctor-designated route.
+- Using a REST client, send a direct API request to the Admin route with the Patient token in the Authorization header.
+- Observe the API response.
+
+*Expected Result:* +
+Browser navigation returns HTTP 403 or redirects to an unauthorized page. No Admin or Doctor content is rendered. The Patient session remains active. Direct API call also returns HTTP 403 with no data.
+
+*Failure Condition:* Any protected content renders, or the API returns HTTP 200 with data.
+
+====== TC-02: Duplicate Email Registration Rejection
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-02
+
+| Title
+| Registration attempt using an email address already associated with an existing account
+
+| Linked Risk
+| RISK-02 (D = 20)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- email already present in the system
+|===
+
+*Preconditions:* +
+An account with email `test@example.com` exists in an active state.
+
+*Steps:*
+
+- Navigate to the registration form.
+- Enter `test@example.com` in the email field. Complete remaining required fields with valid data.
+- Submit the form.
+- Observe the UI response and the underlying API response.
+
+*Expected Result:* +
+A validation error indicates the email is already registered. No new account is created. The error does not reveal the role of the existing account. API returns HTTP 409 or 422.
+
+*Failure Condition:* A second account is created, or the system returns HTTP 200 without an error.
+
+====== TC-03: Direct REST API Call to Doctor Endpoint Using Patient Token
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-03
+
+| Title
+| Patient token submitted directly to a Doctor-only REST API endpoint
+
+| Linked Risk
+| RISK-03 (D = 20)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner -- valid token, invalid role for the target endpoint
+|===
+
+*Preconditions:* +
+A valid token exists for a Patient-role user. At least one API endpoint is designated for Doctor or Admin access only.
+
+*Steps:*
+
+- Authenticate as a Patient and capture the issued token.
+- Using a REST client, send an HTTP request to a Doctor-only endpoint with the Patient token in the Authorization header.
+- Observe the HTTP response code and body.
+
+*Expected Result:* +
+API returns HTTP 403. No data is returned in the response body. The unauthorized attempt is recorded server-side.
+
+*Failure Condition:* API returns HTTP 200 with data, or HTTP 401 masking the role mismatch.
+
+====== TC-04: Login with No Role Assigned to Account
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-04
+
+| Title
+| Account with no assigned role attempts authentication and protected route access
+
+| Linked Risk
+| RISK-04 (D = 16)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner -- account exists but role field is undefined
+|===
+
+*Preconditions:* +
+An account exists without an assigned role.
+
+*Steps:*
+
+- Authenticate using credentials of the role-less account. Observe whether a token is issued.
+- If a token is issued, attempt to access the Patient dashboard, Doctor schedule view, and Admin panel.
+- Observe HTTP responses and UI behavior for each.
+
+*Expected Result:* +
+Option A (preferred): Login is rejected with an error indicating the account is not fully configured. No token is issued. Option B (acceptable): A token is issued but all protected routes return HTTP 403. Under no condition should a role-less account access protected content.
+
+*Failure Condition:* A role-less account accesses any protected view or executes any role-specific action.
+
+====== TC-05: Login Attempt with Deactivated Account
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-05
+
+| Title
+| Account deactivated by an Admin attempts to authenticate
+
+| Linked Risk
+| RISK-05 (D = 16)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- account state is non-active
+|===
+
+*Preconditions:* +
+An account with correct credentials has been deactivated by an Admin (Epic E5, F5.3).
+
+*Steps:*
+
+- Confirm the account is in a deactivated state.
+- Navigate to the login form and enter the correct credentials.
+- Submit the form. Observe the HTTP response and UI feedback.
+
+*Expected Result:* +
+Authentication fails. No token is issued. The error message does not distinguish "wrong credentials" from "deactivated account." HTTP response is 401 or 403.
+
+*Failure Condition:* A token is issued to a deactivated account, or any form of access is granted.
+
+====== TC-06: Token Validity After Explicit Logout
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-06
+
+| Title
+| Previously issued token used against a protected API endpoint after the user has logged out
+
+| Linked Risk
+| RISK-06 (D = 15)
+
+| Testing Type
+| Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Extreme -- token is structurally valid but should be logically invalidated
+|===
+
+*Preconditions:* +
+A user is authenticated with a valid token.
+
+*Steps:*
+
+- Authenticate as any valid user. Capture the issued token.
+- Perform explicit logout via the UI or logout endpoint.
+- Using a REST client, send a protected API request using the captured token.
+- Observe the HTTP response.
+
+*Expected Result:* +
+API returns HTTP 401 or 403. The token is rejected regardless of its natural expiry time.
+
+*Failure Condition:* API returns HTTP 200 with data.
+
+====== TC-07: Password Reset Token Reuse and Expiry
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-07
+
+| Title
+| Previously used or expired password reset token submitted again
+
+| Linked Risk
+| RISK-07 (D = 15)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Invalid (reuse); Extreme (expiry)
+|===
+
+*Preconditions:* +
+A password reset flow exists and issues a reset token or link.
+
+*Steps (Reuse Variant):*
+
+- Initiate a password reset. Use the token to complete a password change.
+- Submit the same token again to the reset endpoint. Observe the response.
+
+*Steps (Expiry Variant):*
+
+- Initiate a password reset. Do not use the token.
+- Wait until the expiry window passes. Submit the expired token. Observe the response.
+
+*Expected Result:* +
+Both variants return an error indicating the token is invalid or expired. No password change is performed. HTTP response is 400 or 422.
+
+*Failure Condition:* The system accepts a reused or expired token and performs a password change.
+
+====== TC-08: Cached Page Accessible After Logout
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-08
+
+| Title
+| Browser back button exposes protected content after logout
+
+| Linked Risk
+| RISK-08 (D = 12)
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Corner -- browser cache retains previously loaded protected content
+|===
+
+*Preconditions:* +
+A user is authenticated and has navigated to at least one protected view. Testing uses a standard web browser.
+
+*Steps:*
+
+- Log in and navigate to a protected page.
+- Perform explicit logout.
+- Press the browser back button. Observe whether protected content renders or an auth challenge appears.
+
+*Expected Result:* +
+Protected content is not displayed. The page redirects to the login screen or shows an authentication error. Protected HTTP responses carry `Cache-Control: no-store, no-cache` headers.
+
+*Failure Condition:* Previously loaded protected content is displayed to an unauthenticated session from browser cache.
+
+====== TC-09: Registration Form -- Required Field and Email Format Validation
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-09
+
+| Title
+| Registration form enforces required fields and rejects malformed email formats
+
+| Linked Risk
+| RISK-02 (D = 20)
+
+| Testing Type
+| Functional
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Invalid -- empty fields; malformed email formats
+|===
+
+*Preconditions:* +
+Registration form is accessible. No prior session exists. +
+Acceptance criteria per US.AUTH.01: "Given missing required fields, when submission is attempted, then inline validation errors are displayed."
+
+*Steps:*
+
+- Submit the form with all fields empty. Observe validation output.
+- Enter malformed email values in sequence (`notanemail`, `user@`, `@domain.com`). Attempt submission for each.
+- Enter a valid email but leave the password field empty. Attempt submission.
+- For each step, observe the API response independently to confirm server-side validation is not UI-dependent.
+
+*Expected Result:* +
+Empty submission triggers inline field-level errors without reaching the API. Each malformed email format is rejected with a descriptive message. API returns HTTP 422 with field-level detail if a malformed request bypasses UI validation. No account is created in any failure variant.
+
+*Failure Condition:* Any invalid input produces an account, or errors are absent or not field-specific.
+
+====== TC-10: Doctor Role Cannot Execute Admin-Only Actions
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| TC-10
+
+| Title
+| Doctor-role user attempts Admin-only action via UI and direct REST API call
+
+| Linked Risk
+| RISK-03, RISK-04
+
+| Testing Type
+| Functional, Security
+
+| Axes Covered
+| Functionality, UI Elements, Input Space
+
+| Input Partition
+| Corner -- valid Doctor token, invalid role for the target action
+|===
+
+*Preconditions:* +
+A Doctor-role account is authenticated. At least one action is designated Admin-only (e.g., deactivate user account, Epic E5, F5.3).
+
+*Steps:*
+
+- Authenticate as a Doctor-role user.
+- Navigate to any view that may expose Admin-only controls. Attempt the Admin action via the UI. Observe result.
+- Using a REST client, send a direct API request to the Admin-only endpoint with the Doctor token.
+- Observe the HTTP response.
+
+*Expected Result:* +
+The UI does not render Admin-only controls for a Doctor. Direct API call returns HTTP 403. No action is executed.
+
+*Failure Condition:* The UI renders Admin controls for a Doctor, or the API accepts a Doctor token for an Admin-only operation.
+
+===== Assumptions
+
+The following assumptions were made due to information not yet documented in the project artifact. Sections 2.2.3, 2.2.4, and 2.2.5 of the project documentation are currently empty. These assumptions must be resolved before test execution begins.
+
+- The system issues bearer tokens that carry a role claim. Token format and structure have not been specified. Technology stack remains undecided as of Milestone 1.
+- Password reset uses a token-based email link mechanism. No reset flow has been documented in the artifact.
+- Account states include at minimum active and deactivated. A complete state enumeration has not been provided. The artifact references deactivation in Epic E5 without defining the full state model.
+- A role-less account state is reachable either as a transient post-registration condition or as an administrative edge case. The role assignment mechanism has not been confirmed.
+- Session token expiry exists. Duration is unknown. Server-side invalidation on logout is expected but has not been specified.
+- Email verification is required before a new account can authenticate. This has not been explicitly stated in the artifact.
+- No failed-login lockout policy has been defined. If a lockout policy is introduced, TC-05 must be updated accordingly.
+
+===== Success Criteria
+
+[cols="1,3,2", options="header"]
+|===
+| ID | Condition | Verification Method
+
+| SC-01
+| All ten test cases executed by one person within one working day.
+| Test execution log with timestamps.
+
+| SC-02
+| RISK-01, RISK-02, and RISK-03 (D >= 20) produce no FAIL outcomes.
+| TC-01, TC-02, TC-03 results.
+
+| SC-03
+| No Patient token receives HTTP 200 from a Doctor or Admin API endpoint.
+| TC-01, TC-03, TC-10 results.
+
+| SC-04
+| No duplicate email registration succeeds.
+| TC-02 result.
+
+| SC-05
+| No deactivated account receives a valid token.
+| TC-05 result.
+
+|===
+
+===== References
+
+[1] B. Vélez, "Test Planning," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019. [Online]. Available: https://online.upr.edu/pluginfile.php/5616003/mod_resource/content/1/Lecture%202%20Test%20Planning.pdf
+
+---
+
+==== User Profile Test Plan
+:author: Viviana Ramos Vivoni
+
+===== Overview
+
+The purpose of this test plan is to define how the User Profiles feature will be tested to ensure correct functionality, data integrity, and proper role-based access control.
+
+This plan outlines the testing approach for profile creation, viewing, editing, and validation across all defined user roles (Patient, Doctor, and Admin). It also ensures that sensitive information is properly protected and accessible only to authorized users.
+
+===== Scope
+
+====== In Scope
+
+* Profile creation (initial account setup)
+* Viewing profile information
+* Editing profile fields
+* Saving and persisting changes
+* Field validation (required fields, format checks, boundary values)
+* Role-based access control (who can view/edit which fields)
+* Basic security checks related to profile access
+
+====== Out of Scope
+
+* Authentication system testing (login/logout functionality)
+* Password reset workflows (unless directly tied to profile editing)
+* Appointment scheduling functionality
+* Full system security penetration testing
+* Performance or load testing
+* UI design/styling beyond basic usability checks
+
+===== Roles Covered
+
+This test plan covers the User Profiles feature for the following roles:
+
+* *Patient* – Can create and manage their own profile information and must not access or modify other users’ profiles.
+* *Doctor* – Can manage their own professional profile information and may only access patient information when authorized.
+* *Admin* – Can view and manage user accounts as needed for system administration, including role assignment and account status.
+
+If additional roles are introduced (e.g., Clinic Staff), this test plan must be updated accordingly.
+
+===== Assumptions and Dependencies
+
+====== Assumptions
+
+* The authentication system is functioning correctly.
+* User roles are properly defined in the system.
+* Profile data is stored in a persistent database.
+* Role-based access control logic has been implemented.
+* Test accounts are available for each role.
+
+====== Dependencies
+
+* User authentication and authorization module
+* Database connectivity and data persistence layer
+* Role assignment functionality
+* Profile API endpoints (create, read, update)
+* Test environment (development or staging)
+
+===== Test Environment
+
+Testing will be conducted in a controlled development or staging environment that mirrors the expected production configuration.
+
+====== Environment Setup
+
+* Environment Type: Development or Staging
+* Database: Test database with sample user accounts
+* Access: Role-based test accounts for Patient, Doctor, and Admin
+
+====== Test Data
+
+Pre-created accounts for:
+
+* At least 2 Patients
+* At least 1 Doctor
+* At least 1 Admin
+
+Test data must include:
+
+* Valid input examples
+* Invalid input examples
+* Boundary values (e.g., maximum-length strings)
+
+===== Risk and Prioritization
+
+Testing will be prioritized based on risk (likelihood of occurrence × impact).
+
+====== High Risk (Priority 1)
+
+* Unauthorized access to another user’s profile
+* Incorrect role-based editing permissions
+* Profile updates not saving correctly
+* Viewing profile data while not authenticated
+
+====== Medium Risk (Priority 2)
+
+* Missing or unclear validation messages
+* Optional fields not saving correctly
+* Partial data persistence issues
+* Incorrect default values
+
+====== Low Risk (Priority 3)
+
+* Minor UI layout issues
+* Text/label inconsistencies
+* Minor usability concerns
+
+===== Expected Results
+
+A test is considered *Pass* when:
+
+* The system behaves exactly as expected.
+* Validation rules trigger correctly.
+* Access restrictions are enforced.
+* Data saves and persists accurately.
+
+A test is considered *Fail* when:
+
+* Invalid input is accepted.
+* Unauthorized access occurs.
+* Data does not persist correctly.
+* Restricted fields are incorrectly visible or editable.
+
+===== Exit Criteria
+
+Testing will be considered complete when:
+
+* All High-risk test scenarios have been executed.
+* Critical and high-severity defects are resolved.
+* Medium-risk defects are documented and triaged.
+* No open defects compromise data integrity or access control.
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
+
+==== Risk In Implementing Scheduling Virtually
+:author: Victoria Miranda Osuna
+
+===== Goal
+Assessment of the risk patients and doctors experience when creating virtual appointments
+based on the risk based test methodology discussed in class.
+
+===== Proposed Solution
+* Identify system level risks (security, data integrity, scalability, notification reliability).
+* Classify each risk using: Risk Level is (Probability)(Impact). These levels include: high (critical
+business impact), medium, and low. Risk will be evaluated on a scale 1-5.
+* Stakeholder impact mapping (doctor, patient, and organization).
+
+===== Success Criteria
+* At least 5 major risk factors identified.
+====== 1. Authentication and authorization failure
+Unauthorized users gain access to appointment management such as the viewing, modifying, or
+cancelling of appointments. This affects:
+* Doctors as it can cause a privacy breach.
+* Clients because their medical data would be exposed.
+* Organization could be held liable due to the previous reasons.
+
+====== 2. Data loss or corruption during system crash
+Appointment data becomes lost or inconsistent if the system crashes during booking or
+modification. This affects:
+* Doctors as they would have scheduling inconsistencies.
+* Clients because their appointments would disappear.
+
+====== 3. Notification delivery failure
+Confirmation emails, SMS, push notifications fail to send or are delayed. This affects:
+* Doctors as they can experience people not showing up to their appointments.
+* Clients because they would miss important appointments after long waits.
+* There would be a negative impact in trusting the system.
+
+====== 4. Calendar synchronization failure
+The virtual scheduling system fails to properly synchronize appointments with external calendar
+systems. This affects:
+* Doctors would have incorrect available visibility in their calendars.
+* Clients would receive conflicting commitments when their appointment is.
+* The staff would revert to manually correcting the schedule.
+
+====== 5. System scalability and performance degradation
+System becomes slow or unresponsive during high booking demand. This affects:
+* All users would be affected.
+* There would be a negative impact on trust in the system and usability.
+
+====== Probability and impact assessment
+- There is a medium probability (3) that the authentication fails, this impact (5) would be very
+high for the website, clients and doctors.
+- There is a medium probability (3) that data loss or corruption fails, this impact would be high
+(4) for the website, clients and doctors.
+- There is a high probability (4) that notification delivery fails, this impact would be medium (3)
+for the website, clients and doctors.
+- There is a high probability (4) that calendar synchronization fails, this impact would be high (4)
+for the website, clients and doctors.
+- There is a very high probability (5) that system scalability fails, this impact would be very high
+(5) for the website, clients and doctors.
+====== Risk level classified (Low / Medium / High)
+Due to the previous analysis of probability and impact the risk levels are:
+- Level 4 risk (MEDIUM-HIGH)
+- Level 3.5 risk (MEDIUM)
+- Level 3.5 risk (MEDIUM)
+- Level 4 risk (MEDIUM-HIGH)
+- Level 5 risk (VERY HIGH, this is considered a critical impact to the business.)
+
+====== Testing intensity adjusted according to risk
+
+====== Buffer time justified for high-risk features.
+
+====== Clear link to risk-based testing methodology. My suggestions for testing to deter the
+previously mentioned risks:
+* Role based access testing.
+* Attempted unauthorized API calls.
+* Backup and recovery validation.
+* Email and SMS gateway failure simulation.
+* Retry logic validation.
+* Delivery status verification.
+* Notification queue backlog testing.
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
+
+==== Regression Testing Strategy for Appointment Booking System
+:author: Iralys Sánchez Milián
+
+===== Overview
+
+This Lecture Topic Task defines a regression testing strategy for the Clinic Experience appointment booking system. 
+Its purpose is to ensure that updates to booking-related functionality do not break behavior that previously worked correctly.
+
+===== Regression Testing Scope
+
+The core booking workflows that must continue working after changes are introduced:
+
+* booking an appointment
+* canceling an appointment
+* updating availability after booking or cancellation
+* waitlist handling
+* override handling
+
+===== When Regression Testing Should Occur
+
+Regression testing should be performed:
+
+* after any booking logic change
+* after database or schema changes affecting scheduling
+* before merging booking-related changes into the main development branch
+
+===== Regression Test Suite
+
+The regression test suite should include:
+
+====== Previously Passed Test Cases
+
+* All tests that have previously passed for booking, cancellation, availability, waitlist, and overrides
+
+====== High-Risk and Critical Workflows
+
+* Booking an appointment in an available slot
+* Attempting to book a full slot
+* Canceling an appointment and updating availability
+* Booking during edge cases (closures, limits)
+* Waitlist and override scenarios
+
+===== Test Selection Criteria
+
+Regression tests should be selected based on the parts of the system affected by a change.
+
+Examples:
+
+* if booking validation changes, retest booking acceptance and rejection scenarios
+* if availability logic changes, retest slot updates after booking and cancellation
+* if waitlist or override logic changes, retest those flows and their effect on standard booking
+
+===== Test Frequency Criteria
+
+* run relevant regression tests whenever a booking-related feature changes
+* run the full regression suite before merging major booking updates
+
+===== Automation Considerations
+
+* Automate core workflows (booking, cancellation, availability)
+* Run tests in CI before merging
+
+===== References
+
+*Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+*Framework:* Schütz-Schmuck, M. (2022). _Management of Testing_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+==== Risk-Based Testing Strategy for Appointment Booking System
+:author: Iralys Sánchez Milián
+
+===== Overview
+
+This Lecture Topic Task defines a risk-based testing strategy for the Clinic Experience appointment booking system by identifying high-risk components and prioritizing testing efforts accordingly.
+
+===== Risk Categorization and Mapping
+
+The following areas are considered risk prone and are categorized based on impact and likelihood, with corresponding test priorities, levels, and types.
+
+====== High Risk
+
+* Double booking conflicts
+* Concurrency issues (multiple users booking simultaneously)
+* Invalid time slot assignments
+
+Priority:
+
+* Highest priority
+* Tested first and included in all test cycles
+
+Test Levels:
+
+* Unit: validation of slot and capacity logic
+* Integration: booking + database consistency
+* System: end-to-end booking scenarios
+
+Test Types:
+
+* Functional tests
+* Edge case tests (simultaneous requests, full capacity)
+
+---
+
+====== Medium Risk
+
+* Override logic
+* Waitlist logic
+
+Priority:
+
+* Medium priority
+* Tested regularly after high-risk scenarios
+
+Test Levels:
+
+* Unit: rule validation
+* Integration: interaction with booking system
+* System: workflow validation
+
+Test Types:
+
+* Functional tests
+* Edge case tests (limit boundaries)
+
+---
+
+====== Low Risk
+
+* Non-critical validation errors
+* Minor edge cases
+
+Priority:
+
+* Lower priority
+* Tested after high- and medium-risk scenarios
+
+Test Levels:
+
+* Unit testing primarily
+
+Test Types:
+
+* Functional tests
+
+===== Entry Criteria
+
+Testing begins when:
+
+* A feature or change is ready for validation (e.g., pull request opened)
+* Relevant test cases exist or are created alongside the change
+* Required components (e.g., database, APIs) are available or mocked
+
+===== Exit Criteria
+
+Testing is complete when:
+
+* All relevant tests (based on risk level) pass
+* No critical defects remain in high-risk areas
+* The change does not break existing functionality (regression tests pass)
+* The system remains stable for integration into the main branch
+
+===== References
+
+*Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+==== Forgot Password Test Strategy
+:author: Luis Marrero Morales
+
+===== Overview
+
+The purpose of this test strategy is to define how the Forgot Password and Reset Password features will be tested to ensure reliability, security, accessibility, and proper error handling before release.
+
+This strategy focuses on the complete password reset request flow, including requesting a reset email, validating reset tokens, and setting a new password.
+
+===== Scope of Testing
+
+====== In Scope
+
+* Submitting a password reset request using an email address
+* Handling the password reset email link
+* Reset Password screen (new password and confirmation)
+* Input validation for email and password fields
+* Success, loading, and error states
+* Redirect to Login page after successfully resetting the password
+* Security checks related to reset tokens and privacy
+* Accessibility and use checks
+
+====== Out of Scope
+
+* Full authentication system testing (login/logout)
+* Email provider infrastructure reliability
+* Full penetration testing
+* Performance or load testing
+* UI styling beyond basic use checks
+
+===== Test Levels
+
+====== Unit Testing
+
+Focus on isolated logic and components:
+
+* Email format validation
+* Password strength validation
+* Password confirmation matching
+* Error handling utilities
+* Form validation helpers
+
+====== Integration Testing
+
+Focus on communication between UI and authentication service:
+
+* Password reset email request integration
+* Reset token validation
+* Password update API integration
+* Error handling between backend and UI
+
+====== End-to-End Testing
+
+Focus on the complete user workflow:
+
+* Request password reset email
+* Open the reset link and set a new password
+* Redirect to login after successful reset
+* Handle invalid or expired tokens
+
+===== Test Types
+
+====== Functional Testing
+
+Forgot Password scenarios:
+
+* Submit a valid email address
+* Submit an invalid email format
+* Submit an empty email field
+* Submit a non-existing email (generic response)
+
+Reset Password scenarios:
+
+* Successful password reset
+* Password mismatch validation
+* Weak password rejection
+* Expired token handling
+* Invalid or reused token handling
+
+====== Security Testing
+
+* Prevent user enumeration (generic responses)
+* Verify token expiration and ensure it is one-time use
+* Enforce secure password requirements
+* Confirm HTTPS reset links
+* Verify rate-limiting behavior
+
+====== Accessibility Testing
+
+* Screen reader compatibility
+* Keyboard navigation
+* Focus management after submission
+* Accessible error messages
+* Adequate color contrast
+
+====== Usability Testing
+
+* Clear confirmation and error messaging
+* Smooth redirect to login
+* Mobile responsiveness
+* Simple and intuitive user flow
+
+====== Regression Testing
+
+Ensure password reset changes do not break:
+
+* Login functionality
+* Sign-up functionality
+* Session handling
+
+===== Test Environment
+
+Testing will occur in a development or staging environment that resembles production.
+
+====== Environment Setup
+
+* Environment Type: Development or Staging
+* Database: Test project environment
+* Access: Test email accounts
+
+====== Supported Browsers
+
+* Chrome (latest)
+* Firefox (latest)
+* Safari (latest)
+* Edge (latest)
+
+====== Supported Devices
+
+* Desktop (Windows / macOS)
+* Mobile (iOS Safari / Android Chrome)
+
+===== Test Automation Approach
+
+====== Automation Priorities
+
+* Unit tests for validation and helper logic
+* Integration tests for authentication interactions (mocked)
+* End-to-end smoke tests for full reset flow
+
+====== Automated Scenarios
+
+* Request reset email (happy path)
+* Reset password using valid token
+* Invalid token flow
+* Password mismatch error
+* Redirect after successful reset
+
+====== Continuous Integration
+
+* Tests run on every pull request
+* Failing tests block merges
+* End-to-End tests run on staging deployments
+
+====== Manual Testing
+
+* Exploratory testing
+* Cross-browser validation
+* Accessibility verification
+
+===== Risks and Mitigation
+
+|===
+|Risk |Mitigation
+
+|User enumeration vulnerability
+|Security tests ensure generic responses
+
+|Expired or reused reset tokens
+|Add End-to-End tests for token edge cases
+
+|Email delivery delays in staging
+|Use test inbox and mocked email retrieval
+
+|Unreliable End-to-End tests due to email flow
+|Mock email retrieval where possible
+
+|Accessibility regressions
+|Run automated accessibility scans in CI
+
+|Cross-browser inconsistencies
+|Run tests across multiple browsers
+|===
+
+===== References
+
+* Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+= Test plan for Doctor Availability rules 
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The objective of this test plan is to verify that availability rules are correctly created, validated, and stored in the system. The focus is on preventing invalid configurations such as overlapping time slots or incorrect time ranges, since these issues can lead to scheduling conflicts and inconsistent system behavior.
+
+This plan follows a risk-based approach, prioritizing scenarios based on their likelihood and impact.
+
+== Scope
+
+The scope includes the creation and validation of availability rules such as working days, working hours, blocked times, and closed days. It also includes validation logic, API interactions, and database storage.
+
+The plan additionally incorporates multiple testing approaches such as behavior-driven testing, property-based testing, mutation testing, performance testing, and usability testing to improve coverage and reliability.
+
+== Risk-Based Approach
+
+Testing is prioritized based on risk, defined as the probability of a defect multiplied by its impact. High-risk scenarios include overlapping intervals, invalid time ranges, and incorrect storage, since these directly affect scheduling correctness.
+
+== Test Strategy
+
+Testing will be conducted at the system and integration levels, focusing on functional correctness and validation logic.
+
+The strategy combines multiple testing techniques. Functional testing ensures correct behavior according to requirements. Behavior-driven development is used to define clear acceptance criteria from user stories, ensuring shared understanding between stakeholders.
+
+* Property-based testing is used to validate general rules of the system across a wide range of automatically generated inputs, instead of relying only on fixed test cases. 
+
+* Mutation testing is applied to evaluate the strength of the test suite by introducing small changes in the code and verifying that tests detect them. :contentReference
+
+* Performance testing is used to ensure the system behaves correctly under expected load conditions. 
+
+* Usability testing is considered to ensure that users can correctly define availability rules without confusion or errors. 
+
+== Behavior-Driven Test Scenarios
+
+Feature: Availability Rules
+
+* Scenario: Create valid availability
+
+Given a user defines working days and working hours  
+When valid blocked times are added within working hours  
+Then the system stores the availability rules correctly  
+
+* Scenario: Prevent overlapping times
+
+Given existing blocked time from 12:00 to 13:00  
+When a new blocked time overlaps with it  
+Then the system rejects the new interval  
+
+* Scenario: Invalid time range
+
+Given a user enters an end time earlier than the start time  
+When the rule is submitted  
+Then the system returns a validation error  
+
+These scenarios follow the Given-When-Then structure used in behavior-driven development to define executable specifications. 
+
+== Functional Test Cases
+
+The system must allow valid availability configurations and reject invalid ones. This includes detecting overlapping intervals, invalid time ranges, and inconsistencies between closed days and working hours.
+
+API endpoints must correctly create and retrieve availability rules, and the database must store data accurately.
+
+== Property-Based Testing
+
+Instead of testing only fixed inputs, properties of the system are defined and tested with multiple generated values.
+
+Examples of properties include:
+
+* All blocked times must be within working hours  
+* No two time intervals should overlap  
+* All stored time ranges must satisfy start time < end time  
+
+These properties are verified using randomly generated inputs to increase coverage and detect unexpected edge cases. 
+
+== Mutation Testing
+
+Mutation testing is used to evaluate the effectiveness of the test suite. Small changes are introduced into the availability validation logic, such as modifying comparison operators or removing validation checks.
+
+If the tests fail after these changes, the test suite is considered strong. If the tests still pass, this indicates missing or weak test cases.
+
+== Performance Testing
+
+Performance testing ensures that the system can handle realistic usage conditions. This includes testing API response times when multiple users create or retrieve availability rules simultaneously.
+
+Load testing simulates expected usage, while stress testing evaluates behavior under higher-than-normal conditions. 
+
+== Usability Testing
+
+Usability testing evaluates how easily users can define availability rules. Users are asked to perform tasks such as creating schedules and blocked times, while their interactions are observed.
+
+The goal is to detect confusion, hesitation, or incorrect inputs, ensuring that the system is intuitive and reduces user errors.
+
+== Test Execution and Defect Management
+
+Each test case includes inputs, steps, and expected results, ensuring consistency and repeatability during execution. 
+Defects are recorded with clear descriptions, reproduction steps, and expected versus actual results. This supports efficient debugging and communication within the team.
+
+== Success Criteria
+
+The test plan is successful when all high-risk scenarios pass, invalid configurations are consistently rejected, API and database interactions behave correctly, and the system maintains consistent scheduling rules.
+
+The test suite must also demonstrate effectiveness through mutation testing and provide broad coverage through property-based testing.
+
+== References
+
+* Vélez, B. (2019). Test Planning, INSO 4117.
+* Schütz-Schmuck, M. (2023). Property-Based Testing. 
+* Schütz-Schmuck, M. (2023). Behavior Driven Development. 
+* Vélez, B. (2019). Test Case Execution and Defect Management. 
+* Schütz-Schmuck, M. (2022). Mutation Testing. 
+* Schütz-Schmuck, M. (2022). Performance Testing. 
+* Schütz-Schmuck, M. (2022). Usability Testing. 

@@ -1,0 +1,206 @@
+=== *Behavior Driven Development*
+
+==== Test Case Execution and Defect Management
+:author: Ivan Morales
+                                                                                
+===== Objective
+                                                                            
+Research Behavior-Driven Development (BDD) in software reliability engineering, focusing on how Gherkin/Cucumber Given-When-Then scenarios are used to define, execute, and validate system behavior through structured, human readable test cases.
+
+===== Appointment Booking System Scenarios
+
+The following scenarios describe the expected behavior of the appointment booking system in Gherkin syntax. A shared `Background` block establishes preconditions common to all three scenarios, reflecting the real domain invariant that every booking interaction presupposes a registered provider with an available slot.
+
+[source,gherkin]
+----
+Feature: Appointment Booking
+  As a patient
+  I want to book, cancel, and be protected from double-booking
+  So that I can manage my medical appointments reliably
+
+  Background:
+    Given the system has a registered provider "Dr. Schutz" with specialty "cardiology"
+    And the provider has an available slot on "2026-04-10" at "10:00" for 30 minutes
+----
+
+====== Scenario 1: Patient Successfully Books an Available Appointment
+
+[source,gherkin]
+----
+  Scenario: Patient successfully books an available appointment
+    Given the patient "Ivan Morales" has a registered account
+    When the patient selects the slot and submits the booking
+    Then the appointment is saved with status "Requested"
+    And the slot on "2026-04-10" at "10:00" is marked as unavailable
+    And the patient receives a booking confirmation
+----
+
+This scenario validates the happy path of the booking flow. Status `Requested` (not `Confirmed`) reflects the domain requirement that an appointment record is created before insurance or referral verification is complete. The slot is immediately marked unavailable to prevent concurrent bookings. These scenarios are automated with pytest-bdd (see section 4 — Specific Class Topics for full tool setup and execution evidence).
+
+====== Scenario 2: Patient Attempts to Book an Already-Taken Slot
+
+[source,gherkin]
+----
+  Scenario: Patient attempts to book an already-taken slot
+    Given the patient "Ivan Morales" has already booked the slot
+    And a second patient "Maximus Aurelius" has a registered account
+    When "Maximus Aurelius" attempts to book the same slot
+    Then the system rejects the request with status 409
+    And no appointment is created for "Maximus Aurelius"
+    And the slot remains reserved by "Ivan Morales"
+----
+
+This scenario addresses the conflict condition. HTTP 409 Conflict is the semantically correct response — the resource exists but cannot be reserved in the current state. The scenario verifies the rejection leaves the system in a consistent state: Ivan's appointment is unchanged.
+
+====== Scenario 3: Doctor Cancels a Scheduled Appointment
+
+[source,gherkin]
+----
+  Scenario: Doctor cancels a scheduled appointment
+    Given the patient "Ivan Morales" has a confirmed appointment on "2026-04-10" at "10:00"
+    When "Dr. Schutz" cancels the appointment with reason "Doctor unavailable"
+    Then the appointment status is updated to "Cancelled"
+    And the slot on "2026-04-10" at "10:00" is marked as available
+----
+
+This scenario verifies that cancellation restores slot availability and records the reason for audit purposes.
+
+===== Traceability
+
+[cols="1,2,2,2",options="header"]
+|===
+| Scenario | User Story | Requirement | Automated Result
+| Successful booking | US.BOOK.01 | REQ-BOOK-F-01 | PASSED
+| Double-booking prevention | US.BOOK.01 | REQ-BOOK-F-01 | PASSED
+| Doctor cancels | US.BOOK.02 | REQ-BOOK-F-02 | PASSED
+|===
+
+===== Discussion
+
+BDD test scenarios serve a dual purpose in the software reliability lifecycle.
+First, they act as executable specifications that define expected system behavior before implementation begins. Second, they function as regression tests that detect behavioral regressions as the system evolves.
+
+The three scenarios above cover the primary behavioral paths:
+
+. The success path confirms the system works under ideal conditions.
+. The conflict path verifies the system handles concurrent or invalid states gracefully.
+. The cancellation path validates state reversal and downstream notifications.
+
+Together, they provide targeted behavioral coverage without requiring exhaustive input enumeration. Each scenario is traceable to a specific requirement and is automated using `pytest-bdd`.
+
+===== Conclusion
+
+Behavior Driven Development reframes test case design as a collaborative, requirement-driven activity. By expressing scenarios in the Given-When-Then format, test cases become understandable to all stakeholders while remaining executable by automated tools. The use of a shared `Background` block reflects real domain structure — every booking scenario presupposes a registered provider with an available slot — which keeps scenarios focused on the behavior under test rather than setup noise.
+
+---
+
+==== *Test Driven Development*
+
+NOTE: The following lecture topic was added to this file as they both focus on software development driven by different aspects. 
+
+===== Appointment Conflict Detection via Test-Driven Development (TDD)
+The scheduling system must enforce rules that prevent booking conflicts while allowing fair access to appointment slots. The following assumptions define the domain behavior:
+
+1. Each appointment contains the following attributes:
+- Doctor/Specialist identifier
+- Clinic or location
+- Appointment start time
+- Appointment end time
+- Appointment status (pending, confirmed, cancelled)
+
+2. A doctor cannot have overlapping confirmed appointments during the same time interval.
+
+3. Appointment slots may have a capacity limit, allowing more than one patient only if the slot capacity permits it.
+
+4. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+5. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+6. Appointment status affects scheduling behavior:
+- Confirmed appointments occupy the time slot.
+- Cancelled appointments release the slot.
+- Pending appointments may temporarily reserve a slot depending on scheduling policy.
+
+Following the TDD approach, we will write testable scenarios to define the expected behavior of the scheduling system. These tests are expected to initially fail because the scheduling conflict logic has not yet been implemented.
+
+Test 1.1 – Partial Overlap Conflict 
+
+* Scenario: A doctor already has a confirmed appointment from 10:00–10:30. A patient attempts to book an appointment from 10:15–10:45. 
+* Expected Result: Booking is rejected because the appointment partially overlaps an existing confirmed appointment. 
+
+Code:
+
+    def test_partial_overlap_conflict(): 
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ] 
+        new_appt = appointment(“10:15”, “10:45”, doctor_id=1) 
+        assert can_book_appt(new_appt, existing) #comparing if existing array has appointments already, since it does, it returns false
+
+Test 1.2 – Full Overlap Conflict 
+
+* Scenario: A doctor has an existing appointment from 10:00–10:30. A patient attempts to book an appointment from 10:00–10:30. 
+* Expected Result: Booking is rejected due to complete overlap. 
+
+Test 2.1 – Boundary Case (End-Start Match) 
+
+* Scenario: A doctor has an appointment from 10:00–10:30. Another appointment request is made for 10:30–11:00. 
+* Expected Result: Booking is accepted because the previous appointment ends exactly when the new one begins. 
+
+Test 2.2 – Boundary Case (Start-End Match) 
+
+* Scenario: A doctor has an appointment from 10:30–11:00. Another appointment request is made for 10:00–10:30. 
+* Expected Result: Booking is accepted because the appointments do not overlap. 
+
+Test 3.1 – Capacity Reached 
+
+* Scenario: A time slot allows a maximum capacity of two appointments. Two appointments already exist for that slot. 
+* Expected Result: A third booking attempt is rejected due to capacity limits. 
+
+Code: 
+
+    def test_capacity_reached():
+        capacity = 2
+        existing_bookings = 2
+        assert check_capacity(existing_bookings, capacity) #checks if these two values are equal, then returns false
+
+Test 3.2 – Capacity Available
+
+* Scenario: A slot has capacity for two appointments and only one exists.
+* Expected Result: A second appointment is accepted.
+
+Test 4 – Cancelled Appointment Behavior
+
+* Scenario: A confirmed appointment is cancelled for a given time slot.
+* Expected Result: The time slot becomes available for booking.
+
+Code:
+
+    def test_cancelled_appt_behavior():
+        existing = [ appointment(“10:00”, “10:30”, status= “cancelled”) ]
+        new_appt = appointment(“10:00”, “10:30”)
+        assert can_book_appt(new_appt, existing) #since appointment was cancelled, blocked time slot gets removed, allowing new appointment to be confirmed, returning true
+
+Test 5 – Pending Appointment Handling
+
+* Scenario: An appointment is submitted and marked as pending.
+* Expected Result: System behavior should follow the defined policy: either temporarily block the slot or allow another pending request depending on system rules.
+
+Test 6 – Multiple Doctors Same Location
+
+* Scenario: Two doctors work at the same clinic location. Each doctor receives appointment requests during the same time interval.
+* Expected Result: Appointments are allowed because conflicts are evaluated per doctor, not per location.
+
+Code:
+
+    def multiple_docs_same_location():
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ]
+        new_appt = appointment(“10:00”, “10:30”, doctor_id=2)
+        assert can_book_appt(new_appt, existing) #should return true as doctor_id are different
+
+When the time for implementation comes, several potential edge cases should be considered:
+
+- Simultaneous booking attempts - multiple users attempting to book the same slot at the same time may cause race conditions.
+- Clinic constraint overrides - scheduling rules such as blocked days or limited operating hours may affect slot availability.
+- Rescheduling behavior - moving an appointment must trigger the same conflict detection rules as new bookings.
+- Day boundary overlaps - appointments that extend past date boundaries.
+
+In summary, we begin in the “Red phase” writing unit tests that define expected scheduling behavior that are written first and initially fail because there’s no implementation yet. Then, in the “Green phase”, developers will implement the minimal scheduling logic required to make the tests pass. Lastly, in the “Refactor phase”, once the tests pass, the code is cleaned and optimized while ensuring the test suite continues to succeed. By defining scheduling behavior through tests first, the team can ensure that the conflict detection and capacity rules are clearly specified, verifiable, and maintainable before the scheduling engine is implemented.
