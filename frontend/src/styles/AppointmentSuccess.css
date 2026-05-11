@@ -1,0 +1,174 @@
+.appointment-success-page {
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    rgb(6, 21, 27) 24.038%,
+    rgb(17, 60, 81) 78.365%,
+    rgb(27, 94, 125) 94.702%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.appointment-success-shell {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 88vh;
+  background: #f7f7f7;
+  border-radius: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  padding: 24px 32px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.appointment-success-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.appointment-success-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.appointment-success-patient-name {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: #222;
+}
+
+.appointment-success-profile-icon-box {
+  width: 84px;
+  height: 84px;
+  border: 1px solid #d0d0d0;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.appointment-success-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.appointment-success-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+.appointment-success-card {
+  width: 100%;
+  max-width: 760px;
+  border: 1px solid #d0d0d0;
+  border-radius: 12px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.appointment-success-icon {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: #2cc39a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 68px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.appointment-success-title {
+  margin: 0 0 12px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #111;
+}
+
+.appointment-success-text {
+  margin: 0;
+  font-size: 20px;
+  font-style: italic;
+  color: #222;
+  max-width: 640px;
+}
+
+.appointment-success-home-button {
+  width: 100%;
+  max-width: 760px;
+  height: 48px;
+  border: 1px solid #9b9b9b;
+  border-radius: 999px;
+  background: #e5e5e5;
+  font-size: 18px;
+  color: #222;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.appointment-success-home-button:hover {
+  background: #dcdcdc;
+}
+
+@media (max-width: 900px) {
+  .appointment-success-page {
+    padding: 1rem;
+  }
+
+  .appointment-success-shell {
+    min-height: auto;
+    border-radius: 24px;
+    padding: 20px;
+  }
+
+  .appointment-success-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .appointment-success-profile-icon-box {
+    align-self: flex-end;
+  }
+
+  .appointment-success-card {
+    padding: 32px 20px;
+  }
+
+  .appointment-success-title {
+    font-size: 22px;
+  }
+
+  .appointment-success-text {
+    font-size: 18px;
+  }
+}
