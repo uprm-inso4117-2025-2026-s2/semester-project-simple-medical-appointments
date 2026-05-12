@@ -1,0 +1,59 @@
+= GUIDELINES AND ADVICE ON THE PROJECT DOCUMENTATION
+Third Milestone
+Marko Schütz-Schmuck
+
+These guidelines will be used to evaluate each project's submission. The whole project is culminating, so we now want to see some type of _completeness_. In terms of features, completeness means that there is at least a minimal collection of features that make the application viable. Completeness also refers to the other activities on the project (domain description, requirements prescription, software architecture, design, testing, …). For example, does the project document the
+requirements of the features that are implemented? Are the phenomena from the domain that the requirements refer to fully described? Does the team use automated tests for their features? The guidelines and examples are more detailed than what would easily fit into the format of rubrics, so the guidelines are stated separately and the rubrics then are quite generic.
+
+• Changes to the previous submission must be clearly visible. Use a different background color, change bars in the page margin, or other ways to clearly indicate the changes.
+• The log book gives an overview of the changes (but not the full changed content) since the last submission.
+• The actual changes, new developments, etc are integrated into the overall document.
+• All the criteria where the previous submission did not follow the guidelines have been improved.
+• Any additions and changes follow the guidelines already established for the proposal submission.
+• At least a minimal collection of features has been completed. The completed features are implemented end-to-end and have a high value to the users. The completion of the features is evidenced by passing acceptance/end-to-end tests.
+• Progress has been made in all phases of development: domain description, requirements prescription, design, …
+
+• Application of topics, techniques, tools, methods, … from the
+  lectures:
+
+== The following rubrics will have a higher weight than those above.
+
+The following rubrics will have a higher weight than those above. These following should be merged into their corresponding sections of your document.
+
+Observe that by default we automate such tests that we integrate into our project. If a test should not be integrated there should be special mention of the reasons why this should be so.
+
+* Usability testing: the project conducted at least one usability study. They identified a a few meaningful usability questions or test objectives for at least one usage scenario/task that is valuable for their target audience. For example, "how many of our students will be able to enroll into all their courses for the next semester with our system without having to consult any help screens in at most 15 minutes?" They explain their test setup, the choice of test participants, their monitoring, etc. They also explain their minimal expectations for considering the system to suffice. Furthermore, they recommended improvements and draw conclusions from their test results.
+
+* Property-based testing: the project incorporates property-based testing in their project using corresponding tools. They use it to show a few meaningful properties of their web API (or similar high-level, in case they use a different structure).
+
+* types
+  - the project uses types on at least one non-trivial example function
+  - they use types to communicate insights about their functions and
+    enhance understandability e.g. by introducing meaningful types to
+    represent domain concepts such as Student, Course, or Doctor,
+    Appointment, etc.
+
+* Fuzzing: similar to property-based testing, the project incorporates
+  fuzzing in their project using the approaches described in the
+  fuzzing book. In particular, they use fuzzing for testing their web
+  interface along the lines of the "Testing Web Applications" chapter.
+
+== Rubrics 
+* Change tracking 	
+
+* Log book gives an overview
+
+* The actual changes, new developments, etc are integrated.
+
+* New material follows guidelines already set.
+
+* Completeness of all development phases.
+
+* Usability testing
+
+* Property-based testing
+
+* Fuzzing
+
+* Types to express/test properties
+
