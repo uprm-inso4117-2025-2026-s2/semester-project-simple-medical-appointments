@@ -1,1 +1,102 @@
 === *Usability Testing*
+
+=== *Appointment Scheduling UI Usability Review*
+:author: Ariana Rodriguez
+
+==== Overview
+
+Identify strengths, possible usability concerns, and improvement opportunities within the scheduling workflow. Document how users interact with the interface while booking an appointment and whether the process is intuitive, efficient, and easy to understand.
+
+==== Patient Experience Scheduling Workflow
+
+The current scheduling process follows these steps:
+
+. User selects an appointment type
+. User selects an available date
+. User selects an available time slot
+. User reviews confirmation details
+. User confirms or cancels the appointment
+
+==== Usability Strengths
+
+===== S1 - Clear Section Organization
+
+The scheduling interface separates each scheduling step into distinct visual sections. Appointment selection, calendar selection, time slots, and confirmation details are easy to identify.
+
+This helps reduce visual clutter, improve readability, and supports first-time.
+
+===== S2 - Visible Selected States
+
+Selected appointment types and selected dates are highlighted clearly using borders and color indicators.
+
+This improves user confidence, makes selections easy to identify, and reduces accidental mistakes.
+
+===== S3 - Time Slot Availability Feedback
+
+Unavailable time slots are visually disabled while available slots remain selectable.
+
+Helps prevent invalid selections, improve scheduling efficiency, and provides immediate visual feedback.
+
+==== Usability Observations
+
+===== U1 - Incomplete Confirmation Message
+
+The confirmation section displays incomplete information before a user selects a time slot.
+
+Example:
+
+----
+Book Normal appointment appointment September 5, 2025 at ?
+----
+
+Potential issues:
+
+* May confuse users
+* Makes the interface appear unfinished
+
+===== U2 - Confirmation Button Appears Active Too Early
+
+The Confirm button is visible before all required scheduling selections are completed.
+
+Potencial issues:
+
+* Users may attempt incomplete confirmations
+* Creates unnecessary interactions
+* Can interrupt workflow clarity
+
+==== Recommendations
+
+===== R1 - Improve Confirmation Message Logic
+
+Update the confirmation section so incomplete information is not displayed before all required selections are made.
+
+Recommended behavior:
+
+* Display helper text until all selections are completed
+* Replace the "?" placeholder with a helper message
+
+Expected benefits:
+
+* Improves workflow clarity
+* Reduces confusion
+* Improves user guidance
+
+===== R2 - Disable Confirmation Until Completion
+
+Disable the Confirm button until:
+
+* Appointment type is selected
+* Date is selected
+* Time slot is selected
+
+Expected benefits:
+
+* Prevents incomplete submissions
+* Improves workflow guidance
+* Reduces user errors
+
+==== Conclusion
+
+The appointment scheduling interface provides a clean and organized workflow that supports usability and ease of navigation. The separation of scheduling steps and visible selection states help users understand the scheduling process efficiently.
+
+Most usability concerns identified are minor and mainly related to confirmation feedback. These issues can be improved through future UI refinements.
