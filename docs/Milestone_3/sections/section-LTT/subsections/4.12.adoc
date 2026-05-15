@@ -100,3 +100,119 @@ Expected benefits:
 The appointment scheduling interface provides a clean and organized workflow that supports usability and ease of navigation. The separation of scheduling steps and visible selection states help users understand the scheduling process efficiently.
 
 Most usability concerns identified are minor and mainly related to confirmation feedback. These issues can be improved through future UI refinements.
+---
+=== Prototype-Based Usability Validation of the Patient Scheduling Interface
+:author: Tasnim Said Khader
+
+==== Introduction
+Usability is considered the absence of frustration in using a product, where a user can perform what they want in the way they expect without hindrance. Usability Testing falls under validation, which uses external sources of reference to ensure that the internal design is valid and that it meets user's expectations. 
+
+==== Task 1 - Appointment Scheduling
+Scenario: patient 1 attempts to locate an available appointment and complete the booking process. 
+
+[cols="1,3,3,3", options="header"]
+|===
+| Evaluation Type | Findings | Observed Points | Assessment
+
+| *Learnability* 
+a| Users can generally understand the booking flow because it follows a recognizable sequence: 
+
+    Clinic/Doctor selection -> weekly schedule -> select time -> booking confirmation.
+
+The weekly availability grid provides a visual indication of open slots (in green), which helps users quickly identify availability. 
+a| - Users may initially hesitate when deciding where to click after selecting a clinic, because the transition from doctor selection to weekly availability is not visually emphasized.
+- Some users may be unsure whether green blocks are clickable appointment slots or simply indicators of availability.
+| A first-time user could likely complete the task, but some guidance or trial-and-error may be required. 
+
+| *Efficiency*
+a| Once users understand the interface, appointment selection becomes relatively fast due to: 
+
+* weekly visual schedule
+* clinic information visibility
+* structured filtering options
+
+However, efficiency may decrease because:
+
+* the filter bar icons are small and minimally labeled.
+* users must mentally interpret schedule availability rather than seeing explicitly "available" labels.
+| 
+| Users familiar with the interface would likely complete booking quickly, but first-time users may require extra navigation time. 
+
+| *Error Evaluation*
+a| *Potential Navigation Errors*
+
+1. Filter Confusion: Users may not understand whether they must select: Location, Specialty, Doctor, Medical Plan, before continuing.
+2. Appointment Slot Interpretation: Green time blocks do not explicitly indicate "Click to book"
+3. Unavailable Slot Workflow: The unavailable slot screen provides a cancellation notification option, but it is unclear: what happens after clicking YES and whether the patient joins a waitlist.
+|
+| Most errors would stem from interface ambiguity rather than system complexity.
+|===
+
+==== Task 2 - Appointment Management/Rescheduling
+Scenario: patient 2 attempts to review appointment details and reschedule. 
+
+[cols="1,3,3,3", options="header"]
+|===
+| Evaluation Type | Findings | Observed Points | Assessment
+
+| *Learnability* 
+| The confirmation screen clearly communicates booking details, which improves confidence. However no obvious “Reschedule” option is visible in the mockups. Users may struggle to identify how to modify an existing appointment.
+|
+| Viewing appointment details is easy, but rescheduling workflow is unclear.
+
+| *Satisfaction*
+a| *Positive Aspects*
+
+* Clean, organized layout
+* Minimal clutter
+* Large schedule visualization
+*Appointment confirmation provides reassurance
+
+*Negative Aspects*
+
+* Interface feels visually dense in some areas.
+* Low visual emphasis on important actions.
+* Limited feedback on selected actions.
+| 
+| Users would likely feel capable of booking appointments, but some uncertainty may remain.
+
+| *Accessibility*
+| Some strengths we concluded include: large calendar and time-slot spacing, high contrast between available/unavailable areas, organized information hierarchy.
+a| There have been some concerns regarding: 
+
+1. Elderly users; where filter dropdowns may feel small, text size in appointment cards could be difficult to read and clickable areas are not visually obvious.
+2. Visual Accessibility; where green-only availability indicators may create problems for colorblind users and lack of accessibility cues besides color (icons/text labels missing).
+| Needs improvement for elderly & accessibility support.
+|===
+
+==== Usability Deficiency Report
+1. Low Discoverability of Appointment Selection
+
+- *Issue*: Available slots do not clearly signal interaction.
+- *Reason*: Users may hesitate or miss booking actions.
+
+2. Waitlist Workflow Is Unclear
+
+- *Issue*: Unavailable slot screen does not explain what happens after opting for notification.
+- *Reason*: Reduced user confidence.
+
+3. Rescheduling Process Is Missing
+- *Issue*: No visible pathway for appointment management.
+- *Reason*: Users may struggle to modify bookings.
+
+4. Accessibility Limitations
+- *Issue*: Small text and color-only availability indicators.
+- *Reason*: Elderly and visually impaired users may struggle.
+
+==== Design Change Suggestions
+1. Make Appointment Slots Clearly Clickable
+- Add labels or hover indicators such as: “Available — Click to Book”.
+
+2. Improve Waitlist Communication
+- Replace current text with clearer messaging: “Join waitlist and receive notification if a slot becomes available.”
+
+3. Add a Visible Reschedule Button
+- Include: View Appointment → Reschedule → Choose New Slot.
+
+4. Improve Accessibility
+Add: Larger text option, bigger dropdown menus, icons + labels (not only color), accessibility mode for elderly users.
