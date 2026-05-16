@@ -4,7 +4,9 @@
 
 The lecture defines *exploratory testing* as unscripted testing where an experienced tester explores the system without a pre-scripted plan [1]. Applied to the Authentication and Role Permission Boundaries module, exploratory testing surfaces behaviors that scripted cases cannot reach: boundary conditions and unexpected interactions that only emerge when a tester reasons actively about what could go wrong. The lecture also defines *session-based testing* as keeping a log during exploration to avoid unnecessary repetition [1]; this session follows that structure with a charter, three targeted risk areas, and a formal defect report.
 
-The implementation lives in `backend/tests/exploratory/`: `test_scripted_baseline.py` for the scripted baseline and `test_exploratory_session.py` for the session charter, risk area probes, and findings. Both are executable via `pytest tests/exploratory/ -v -s`.
+This session was conducted in Milestone 3 because exploratory testing requires a working middleware stack to probe real boundaries. Earlier milestones lacked JWT verification, `requires_role`, and the registration sync flow in their final integrated form.
+
+The implementation lives in `backend/tests/exploratory/`: `test_scripted_baseline.py` for the scripted baseline and `test_exploratory_session.py` for the session charter, risk area probes, and findings. Both are executable via `pytest tests/exploratory/ -v -s`. The fix to `VALID_ROLES` is in `app/routes/auth.py`.
 
 ===== Scripted Baseline
 
@@ -78,7 +80,7 @@ Registration endpoint is reachable. No prior session.
 
 *Steps:*
 
-- POST `/api/auth/register` with `first_name`, `last_name`, `username`, `role="patient"` -- `user_id` omitted.
+- POST `/api/auth/register` with `first_name`, `last_name`, `username`, `role="patient"`, `user_id` omitted.
 - Observe HTTP response and body.
 
 *Expected Result:* +
@@ -178,11 +180,11 @@ Defect confirmed. HTTP 201 returned. Admin role accepted without authentication.
 `GET /api/admin/users` with no Authorization header.
 
 *Finding:* +
-Confirmed correct. `extract_token()` returns `None` for a missing header; `requires_auth` returns HTTP 401 immediately.
+Confirmed secure. `extract_token()` returns `None` for a missing header; `requires_auth` returns HTTP 401 immediately.
 
 ===== Defect Report
 
-The lecture defines *defect report elements* as: summary, preconditions, steps to reproduce, expected result, actual result, severity, and status [1]. The report below uses that structure.
+The lecture defines *defect report elements* as: summary, preconditions, steps to reproduce, expected result, actual result, severity, and status [1].
 
 ====== DEFECT-128-01: Unauthenticated Caller Can Self-Assign Admin Role
 

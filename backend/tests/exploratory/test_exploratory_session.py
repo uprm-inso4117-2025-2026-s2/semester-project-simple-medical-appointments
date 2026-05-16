@@ -14,12 +14,12 @@ Time box: One focused session targeting three risk areas.
 
 RISK AREAS
 ----------
-RISK-A: No-role user hitting a protected route -- get_role_for_user returns
-        None; None not in required_roles should fire 403.
-RISK-B: Self-registration with role="admin" -- registration endpoint has no
+RISK-A: No-role user hitting a protected route. get_role_for_user returns
+        None; None not in required_roles fires 403.
+RISK-B: Self-registration with role="admin". Registration endpoint has no
         auth gate; "admin" was in VALID_ROLES before this session.
         Defect found and fixed: "admin" removed from VALID_ROLES in auth.py.
-RISK-C: Missing Authorization header -- requires_auth must return 401 before
+RISK-C: Missing Authorization header. requires_auth must return 401 before
         requires_role is ever evaluated.
 
 Run: cd backend && pytest tests/exploratory/test_exploratory_session.py -v -s

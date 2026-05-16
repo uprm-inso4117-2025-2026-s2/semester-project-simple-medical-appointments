@@ -8,9 +8,9 @@ session begins. Each case uses SCRIPT format (preconditions, input, expected res
 Supabase I/O is stubbed where needed; Case 2 needs no stub because validation
 fires before any DB call.
 
-  CASE 1 -- valid registration accepted (201)
-  CASE 2 -- missing required field rejected in-process (400)
-  CASE 3 -- patient token blocked from admin route by requires_role (403)
+  CASE 1: valid registration accepted (201)
+  CASE 2: missing required field rejected in-process (400)
+  CASE 3: patient token blocked from admin route by requires_role (403)
 
 Run: cd backend && pytest tests/exploratory/test_scripted_baseline.py -v -s
 """
@@ -57,7 +57,7 @@ def test_missing_required_field_returns_400(client):
     PRECONDITIONS: Registration endpoint is reachable. No prior session.
     INPUT:         POST /api/auth/register with user_id omitted.
     EXPECTED:      HTTP 400, error body identifying the missing field.
-                   No Supabase call is made -- validation fires in-process.
+                   No Supabase call is made; validation fires in-process.
     """
     payload = {
         "first_name": "Naiomi",
