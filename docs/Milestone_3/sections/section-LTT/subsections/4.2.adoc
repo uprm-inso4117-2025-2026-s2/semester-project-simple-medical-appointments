@@ -1599,3 +1599,120 @@ The test suite must also demonstrate effectiveness through mutation testing and 
 * Schütz-Schmuck, M. (2022). Mutation Testing. 
 * Schütz-Schmuck, M. (2022). Performance Testing. 
 * Schütz-Schmuck, M. (2022). Usability Testing. 
+
+= Retesting vs Regression Testing in the Appointment Workflow
+:author: Omar Cordero
+
+== Overview
+
+The objective of this guide is explaining the difference between retesting and regression testing in the Simple Medical Appointments system.
+
+Both testing approaches are important after updates are made to the appointment scheduling features. Retesting verifies that a specific defect has been fixed, while regression testing ensures that the fix did not unintentionally break other parts of the system. 
+
+== Retesting
+
+Retesting focuses on verifying that a previously reported defect has been corrected successfully.
+
+After developers implement a fix, testers execute the original failing scenarios again to confirm the issue no longer occurs.
+
+=== Example defect
+
+A patient was able to create overlapping appointments with the same doctor during the same time slot.
+
+=== Retesting Objective
+
+Verify that the scheduling system now correctly prevents overlapping appointments.
+
+=== Retesting Examples
+
+[cols="1,3", options="header"]
+|===
+| Test Scenario | Expected Result
+
+| Attempt to create overlapping appointments
+| System rejects the booking and displays a conflict message
+
+| Attempt to reschedule an appointment into an occupied slot
+| System prevents the reschedule operation
+|===
+
+== Regression Testing
+
+Regression testing verifies that updates or fixes do not negatively affect functionality that previously worked correctly.
+
+Even if a defect is fixed successfully, related workflows may break unintentionally because of changes to shared scheduling logic.
+
+=== Regression Testing Objectives
+
+Ensure that appointment-related workflows continue functioning correctly after scheduling updates are introduced.
+
+=== Regression Testing Examples
+
+[cols="1,3", options="header"]
+|===
+| Workflow | Expected Result
+
+| Booking an available appointment
+| Appointment is created successfully
+
+| Canceling an appointment
+| Appointment is removed and the slot becomes available again
+
+| Rescheduling an appointment
+| Appointment is moved correctly without affecting unrelated bookings
+
+| Viewing doctor availability
+| Available time slots display correctly after updates
+
+| Sending appointment confirmations
+| Confirmation notifications are still generated successfully
+|===
+
+== Key Differences
+
+[cols="1,3", options="header"]
+|===
+| Retesting | Regression Testing
+
+| Verifies a specific defect fix
+| Verifies existing functionality still works after changes
+
+| Focuses on failed test cases
+| Focuses on related and affected areas of the system
+
+| Confirms the original issue is resolved
+| Detects unintended side effects caused by updates
+|===
+
+== When Retesting Should Occur
+
+Retesting should be performed:
+
+* after fixing a reported defect
+* after modifying appointment validation logic
+* before closing a defect report
+
+== When Regression Testing Should Occur
+
+Regression testing should be performed:
+
+* after updates to scheduling functionality
+* after changes to booking or cancellation logic
+* before merging appointment-related updates into the main branch
+* before releasing major scheduling updates
+
+== Importance of Regression Testing
+
+Fixing one issue can unintentionally introduce problems in other parts of the system.
+
+For example:
+
+* updating booking conflict logic could affect appointment rescheduling
+* changing availability calculations could impact cancellation workflows
+* modifying scheduling validation could affect notification generation
+
+Regression testing helps ensure the system remains stable after updates are introduced.
+
+== References
+
+*Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
