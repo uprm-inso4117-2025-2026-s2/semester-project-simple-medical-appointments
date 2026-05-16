@@ -62,7 +62,7 @@ function InfoField({ label, value, wide }) {
 }
 
 // ── Editable field ────────────────────────────────────────────────────────────
-function EditField({ label, fieldKey, editValues, onChange, wide, multiline }) {
+function EditField({ label, fieldKey, editValues, onChange, wide, multiline, maxLength }) {
   return (
     <div className={`dp-field dp-field--editing${wide ? ' dp-field--wide' : ''}`}>
       <p className="dp-field-label">{label}</p>
@@ -72,11 +72,13 @@ function EditField({ label, fieldKey, editValues, onChange, wide, multiline }) {
             value={editValues[fieldKey] ?? ''}
             onChange={e => onChange(fieldKey, e.target.value)}
             rows={3}
+            maxLength={maxLength}
           />
         : <input
             className="dp-field-input"
             value={editValues[fieldKey] ?? ''}
             onChange={e => onChange(fieldKey, e.target.value)}
+            maxLength={maxLength}
           />
       }
     </div>
@@ -332,8 +334,8 @@ function DoctorProfile() {
           <InfoField label="FIRST NAME" value={profile?.first_name} />
           <InfoField label="LAST NAME"  value={profile?.last_name} />
           {isEditing
-            ? <EditField label="PHONE NUMBER" fieldKey="phone_number" editValues={editValues} onChange={handlePhoneChange} />
-            : <InfoField label="PHONE NUMBER" value={profile?.phone_number} />
+            ? <EditField label="PHONE NUMBER" fieldKey="phone_number" editValues={editValues} onChange={handlePhoneChange} maxLength={30} />
+            : <InfoField label="PHONE NUMBER" value={profile?.phone_number ? formatPhone(profile.phone_number) : null} />
           }
         </div>
 
@@ -343,13 +345,13 @@ function DoctorProfile() {
         <div className="dp-fields-grid">
           <InfoField label="PROFESSION TITLE" value={profile?.profession_title} />
           {isEditing
-            ? <EditField label="SPECIALTY" fieldKey="specialty" editValues={editValues} onChange={handleChange} />
+            ? <EditField label="SPECIALTY" fieldKey="specialty" editValues={editValues} onChange={handleChange} maxLength={100} />
             : <InfoField label="SPECIALTY" value={profile?.specialty} />
           }
           <InfoField label="LICENSE NUMBER" value={profile?.license_number} />
           <InfoField label="LICENSE STATE"  value={profile?.license_state} />
           {isEditing
-            ? <EditField label="BIO" fieldKey="bio" editValues={editValues} onChange={handleChange} wide multiline />
+            ? <EditField label="BIO" fieldKey="bio" editValues={editValues} onChange={handleChange} wide multiline maxLength={1000} />
             : <InfoField label="BIO" value={profile?.bio} wide />
           }
         </div>
