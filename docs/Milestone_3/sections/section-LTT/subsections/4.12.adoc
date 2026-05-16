@@ -1,13 +1,13 @@
 === *Usability Testing*
-
-=== *Appointment Scheduling UI Usability Review*
+---
+==== *Appointment Scheduling UI Usability Review*
 :author: Ariana Rodriguez
 
-==== Overview
+===== Overview
 
 Identify strengths, possible usability concerns, and improvement opportunities within the scheduling workflow. Document how users interact with the interface while booking an appointment and whether the process is intuitive, efficient, and easy to understand.
 
-==== Patient Experience Scheduling Workflow
+===== Patient Experience Scheduling Workflow
 
 The current scheduling process follows these steps:
 
@@ -216,3 +216,73 @@ a| There have been some concerns regarding:
 
 4. Improve Accessibility
 Add: Larger text option, bigger dropdown menus, icons + labels (not only color), accessibility mode for elderly users.
+---
+=== *Usability review for colorblind themes with UI*
+:author: Sebastian Suarez
+
+==== Overview
+
+This review evaluates the usability of the colorblind themes implemented by the Patient Experience Team. The goal is to identify strengths, potential usability concerns, and opportunities for improvement in how the application supports users with color vision deficiencies. The review focuses on theme switching, color palette effectiveness, and the consistency of the colorblind experience across all pages.
+
+==== Colorblind Theme Workflow
+
+The current workflow for colorblind accessibility includes the following steps:
+
+. User navigates to Account Settings
+. User selects a colorblind theme (Normal, Protanopia, Deuteranopia, Tritanopia)
+. The selected theme is applied immediately and persists across all pages and browser refreshes
+. User continues to interact with the application using the chosen theme
+
+==== Usability Strengths
+
+===== S1 - Accessible Theme Switching
+
+Theme selection is clearly presented in the Account Settings page, allowing users to easily toggle between normal and colorblind modes. The interface provides radio buttons for each theme, making the selection process straightforward.
+
+===== S2 - Distinct Color Palettes
+
+Each colorblind mode uses a carefully chosen palette that avoids problematic color combinations (e.g., red/green for protanopia). This helps ensure that key interface elements remain distinguishable for users with different types of color vision deficiencies.
+
+===== S3 - Persistent and Consistent Experience
+
+Once a colorblind theme is selected, it remains active across all pages and after browser refresh, providing a seamless and consistent experience for the user.
+
+==== Usability Observations
+
+===== U1 - Reliance on Color Alone for Status
+
+Some status indicators (such as appointment status or calendar slots) rely solely on color to convey meaning. This may cause confusion or slow down navigation for users who cannot distinguish certain colors, especially in colorblind modes.
+
+===== U2 - Feedback and Selection States
+
+While most feedback and selection states are clear, there are instances where additional icons or text labels would help users who have difficulty perceiving color differences.
+
+===== U3 - Theme Preview
+
+Currently, users must select a theme to see its effect. Providing a preview of each colorblind theme before applying it could improve user confidence and satisfaction.
+
+==== Recommendations
+
+===== R1 - Supplement Color with Icons or Labels
+
+Add icons or text labels to all status indicators (e.g., confirmed, pending, cancelled) so that meaning is not conveyed by color alone. This will improve clarity for all users, especially those with color vision deficiencies.
+
+===== R2 - Enhance Visual Distinction of Interactive Elements
+
+Review all interactive elements (buttons, toggles, slots) to ensure they are visually distinct in all colorblind themes, using both color and shape or border.
+
+===== R3 - Provide Theme Previews
+
+Allow users to preview each colorblind theme in the settings page before applying it, helping them make informed choices.
+
+===== R4 - Continue User Testing
+
+Conduct further usability testing with individuals who have color vision deficiencies to identify any remaining pain points and validate improvements.
+
+===== R5 - Document Color Palette Choices
+
+Maintain documentation of all color palette choices and the rationale behind them to support future accessibility reviews and updates.
+
+==== Conclusion
+The implementation of colorblind themes in the web application demonstrates a strong commitment to accessibility. The clear theme switching, distinct color palettes, and consistent experience are significant strengths. However, there are opportunities to enhance usability by supplementing color with additional indicators, providing theme previews, and ensuring all interactive elements are easily distinguishable. Ongoing user testing and documentation will be essential to maintaining and improving the accessibility of the application for all users.
+
