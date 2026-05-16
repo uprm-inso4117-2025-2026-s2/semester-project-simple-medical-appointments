@@ -1,0 +1,241 @@
+==== Exploratory Testing: Authentication & Role Permission Boundaries
+
+:author: Carlos Pepin Delgado
+
+The lecture defines *exploratory testing* as unscripted testing where an experienced tester explores the system without a pre-scripted plan [1]. Applied to the Authentication and Role Permission Boundaries module, exploratory testing surfaces behaviors that scripted cases cannot reach: boundary conditions and unexpected interactions that only emerge when a tester reasons actively about what could go wrong. The lecture also defines *session-based testing* as keeping a log during exploration to avoid unnecessary repetition [1]; this session follows that structure with a charter, three targeted risk areas, and a formal defect report.
+
+The implementation lives in `backend/tests/exploratory/`: `test_scripted_baseline.py` for the scripted baseline and `test_exploratory_session.py` for the session charter, risk area probes, and findings. Both are executable via `pytest tests/exploratory/ -v -s`.
+
+===== Scripted Baseline
+
+The lecture defines the *SCRIPT* format as a test case structure of preconditions, inputs, and expected results [1]: the minimum required to make a test case repeatable and reviewable. Three cases establish the known-correct behaviors of the registration endpoint and the `requires_role` permission gate before the exploratory session begins.
+
+====== ET-SC-01: Valid Registration Accepted
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-01
+
+| Title
+| Valid registration payload with all required fields and role=patient returns 201
+
+| Testing Type
+| Functional
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Common -- all required fields present, valid role
+|===
+
+*Preconditions:* +
+Registration endpoint is reachable. DB sync is mocked to isolate route-level validation from Supabase I/O.
+
+*Steps:*
+
+- POST `/api/auth/register` with `user_id`, `first_name="Naiomi"`, `last_name="Ruiz"`, `username`, `role="patient"`.
+- Observe HTTP response and body.
+
+*Expected Result:* +
+HTTP 201. Body contains a success message. No error key present.
+
+*Failure Condition:* Any status other than 201, or an error key present in the response.
+
+====== ET-SC-02: Missing Required Field Rejected Before DB Call
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-02
+
+| Title
+| Registration with user_id omitted returns 400 without reaching Supabase
+
+| Testing Type
+| Functional
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Invalid -- required field absent
+|===
+
+*Preconditions:* +
+Registration endpoint is reachable. No prior session.
+
+*Steps:*
+
+- POST `/api/auth/register` with `first_name`, `last_name`, `username`, `role="patient"` -- `user_id` omitted.
+- Observe HTTP response and body.
+
+*Expected Result:* +
+HTTP 400. Error message identifies `user_id` as missing. No Supabase call is made; validation fires in-process.
+
+*Failure Condition:* HTTP 201, or error message absent or not field-specific.
+
+====== ET-SC-03: Patient Token Blocked From Admin Route
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-03
+
+| Title
+| Patient-role JWT calling GET /api/admin/users returns 403
+
+| Testing Type
+| Security
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner -- valid token, invalid role for target route
+|===
+
+*Preconditions:* +
+A valid JWT exists for a patient-role user. `GET /api/admin/users` requires the admin role via `requires_role({"admin"})`.
+
+*Steps:*
+
+- Send `GET /api/admin/users` with a patient Bearer token in the Authorization header.
+- Observe HTTP response.
+
+*Expected Result:* +
+HTTP 403. No user data returned in the body.
+
+*Failure Condition:* HTTP 200 with data, or HTTP 404 indicating the route is unregistered.
+
+===== Session Charter
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Mission
+| Probe the boundary between role assignment at registration and the requires_role permission gates to surface behaviors the scripted baseline does not reach.
+
+| Scope
+| POST /api/auth/register (role field validation), requires_role decorator (None role path), requires_auth (missing Authorization header path).
+
+| Time Box
+| One focused session targeting three risk areas.
+
+| Out of Scope
+| Login flow, logout, session expiry, password reset, frontend routing.
+|===
+
+===== Session Log
+
+Session-based testing, as the lecture defines it, requires keeping a log to avoid unnecessary repetition of tests [1]. Each entry below documents the rationale for targeting that risk area, the probe executed, and the finding.
+
+====== RISK-A: No-Role User Hitting a Protected Route
+
+*Rationale:* +
+`get_role_for_user` returns `None` for users with no row in the `user_roles` table. `None not in {"admin"}` is `True`, so the 403 branch in `requires_role` fires without an explicit `None` check. If this path is broken, every role-gated route is reachable by any authenticated user without a role assignment.
+
+*Probe:* +
+`GET /api/admin/users` with a valid JWT for a user whose `get_role_for_user` is mocked to return `None`.
+
+*Finding:* +
+Confirmed correct. HTTP 403 returned. The implicit check holds.
+
+====== RISK-B: Self-Registration With role="admin"
+
+*Rationale:* +
+`VALID_ROLES` in `app/routes/auth.py` included `"admin"` before this session. The registration endpoint has no authentication gate. Any unauthenticated caller could POST with `role="admin"` and receive admin privileges without approval from an existing admin.
+
+*Probe:* +
+`POST /api/auth/register` with `role="admin"` and all required fields.
+
+*Finding:* +
+Defect confirmed. HTTP 201 returned. Admin role accepted without authentication. See DEFECT-128-01.
+
+====== RISK-C: Missing Authorization Header
+
+*Rationale:* +
+`requires_auth` must reject unauthenticated requests before `requires_role` is evaluated. If this path fails, the entire permission layer has no stable foundation: a role check cannot fire if the caller is not identified first.
+
+*Probe:* +
+`GET /api/admin/users` with no Authorization header.
+
+*Finding:* +
+Confirmed correct. `extract_token()` returns `None` for a missing header; `requires_auth` returns HTTP 401 immediately.
+
+===== Defect Report
+
+The lecture defines *defect report elements* as: summary, preconditions, steps to reproduce, expected result, actual result, severity, and status [1]. The report below uses that structure.
+
+====== DEFECT-128-01: Unauthenticated Caller Can Self-Assign Admin Role
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| ID
+| DEFECT-128-01
+
+| Summary
+| POST /api/auth/register accepts role="admin" from any unauthenticated caller, assigning admin privileges without approval.
+
+| Preconditions
+| POST /api/auth/register is reachable without authentication. "admin" is present in VALID_ROLES in app/routes/auth.py.
+
+| Steps to Reproduce
+| POST /api/auth/register with a valid payload and role="admin".
+
+| Expected Result
+| HTTP 400. Admin role rejected at registration; admins are assigned by existing admins via PUT /api/admin/users/:id/role.
+
+| Actual Result
+| HTTP 201. Admin role accepted and stored without authentication or approval.
+
+| Severity
+| Critical -- any unauthenticated user can escalate to admin, gaining access to all admin-only endpoints.
+
+| Status
+| Fixed. "admin" removed from VALID_ROLES in app/routes/auth.py.
+|===
+
+===== Session Outcome
+
+The *defect lifecycle*, as the lecture defines it, runs from discovery through fix and verification [1]. DEFECT-128-01 completed that cycle within this session: discovered during the RISK-B probe, fixed by removing `"admin"` from `VALID_ROLES`, and verified by ET-SC-01 (valid roles still accepted) and the RISK-B probe post-fix (role="admin" now returns 400).
+
+[cols="1,2,2", options="header"]
+|===
+| Area | Status | Evidence
+
+| No-role user access (RISK-A)
+| Confirmed secure
+| HTTP 403 returned by requires_role when get_role_for_user is None
+
+| Admin self-registration (RISK-B)
+| Defect found and fixed
+| DEFECT-128-01; "admin" removed from VALID_ROLES in app/routes/auth.py
+
+| Unauthenticated access (RISK-C)
+| Confirmed secure
+| HTTP 401 returned by requires_auth when Authorization header is absent
+|===
+
+===== References
+
+[1] B. Vélez, "Test Case Execution and Defect Management," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019.

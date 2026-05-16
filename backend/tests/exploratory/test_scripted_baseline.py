@@ -3,25 +3,14 @@ Exploratory Testing: Scripted Baseline -- Authentication & Role Permission Bound
 Author: Carlos Pepin Delgado
 Lecture applied: Exploratory Testing
 
-The lecture defines a scripted baseline as the set of test cases that establish
-what is already known and verified BEFORE an exploratory session begins. Each
-case is written in SCRIPT format -- preconditions, input, expected result --
-so the session can focus on what scripted tests cannot cover: the unknown
-and unexpected behaviors at boundary conditions.
+Scripted baseline: three known-correct behaviors verified before the exploratory
+session begins. Each case uses SCRIPT format (preconditions, input, expected result).
+Supabase I/O is stubbed where needed; Case 2 needs no stub because validation
+fires before any DB call.
 
-SCRIPT CASES
-------------
-Three cases cover the known-correct behaviors of the registration endpoint
-and the role permission gate:
-
-  CASE 1 -- valid registration: all required fields + role=patient accepted (201)
-  CASE 2 -- missing required field: endpoint rejects before any DB call (400)
-  CASE 3 -- patient token on admin route: requires_role blocks before data access (403)
-
-The middleware stack under test in Case 3 -- requires_auth sets g.user_id,
-then requires_role resolves the role and gates the route -- is exercised fully.
-Supabase I/O is stubbed in Cases 1 and 3; Case 2 needs no stub because
-validation is purely in-process.
+  CASE 1 -- valid registration accepted (201)
+  CASE 2 -- missing required field rejected in-process (400)
+  CASE 3 -- patient token blocked from admin route by requires_role (403)
 
 Run: cd backend && pytest tests/exploratory/test_scripted_baseline.py -v -s
 """
@@ -50,9 +39,9 @@ def test_valid_registration_returns_201(client):
     """
     payload = {
         "user_id": "new-user-uuid-001",
-        "first_name": "Jane",
-        "last_name": "Doe",
-        "username": "janedoe",
+        "first_name": "Naiomi",
+        "last_name": "Ruiz",
+        "username": "naiomiruiz",
         "role": "patient",
     }
     with patch("app.routes.auth.sync_user_after_registration", return_value={"success": True}):
@@ -71,9 +60,9 @@ def test_missing_required_field_returns_400(client):
                    No Supabase call is made -- validation fires in-process.
     """
     payload = {
-        "first_name": "Jane",
-        "last_name": "Doe",
-        "username": "janedoe",
+        "first_name": "Naiomi",
+        "last_name": "Ruiz",
+        "username": "naiomiruiz",
         "role": "patient",
     }
     response = client.post("/api/auth/register", json=payload)
