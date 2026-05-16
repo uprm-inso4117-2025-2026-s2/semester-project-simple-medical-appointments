@@ -1,28 +1,38 @@
 """
+Behavior Driven Development: Admin User Management Flows
+Author: Carlos Pepin Delgado
+
 BDD step definitions and fixtures -- Admin User Management acceptance tests.
-Lecture applied: Behavior Driven Development (Marko Schütz-Schmuck, UPRM)
+Lecture applied: Behavior Driven Development
 
 BDD PROCESS
 -----------
-Discovery   -- Admin user story: "as a clinic admin I need to manage user
-               accounts so access control stays accurate."
-               Triad perspectives shaped the acceptance criteria:
-                 customer  -- list users, assign roles, deactivate
-                 developer -- routes secured with JWT + requires_role
-                 test      -- non-admin blocked (403), self-deactivation
-                              blocked (400), invalid role rejected (400),
-                              banned user visible as inactive (status field)
+The lecture defines BDD as generating automated acceptance tests from user
+stories -- not just tests, but a shared understanding of requirements --
+organized around three stages and the triad.
 
-Formulation -- Criteria expressed as Gherkin across two .feature files.
-               admin_operations.feature: 6 scenarios covering happy paths
-                 and guards within the admin role boundary.
-               access_control.feature: 3 scenarios covering the 403 boundary.
-               Given/When/Then structure keeps each scenario readable without
-               code knowledge, per the lecture's specification-by-example goal.
+Discovery   -- The lecture defines this stage as discovering acceptance
+               criteria from user stories with the entire team contributing.
+               From the admin user story ("as a clinic admin I need to manage
+               user accounts so access control stays accurate"), the triad
+               surfaced the criteria: customer -- list users, assign roles,
+               deactivate; developer -- JWT authentication and requires_role
+               enforcement; test -- the boundary cases the other two
+               perspectives miss: non-admin blocked (403), self-deactivation
+               denied (400), invalid role rejected (400), banned user
+               visible as inactive.
 
-Automation  -- Step definitions call live Flask routes via app.test_client().
-               Only Supabase I/O is stubbed so tests exercise the full
-               middleware stack (JWT verification, requires_role, route logic).
+Formulation -- Criteria evolved into specific, unambiguous Gherkin scenarios
+               -- the lecture's exact language for this stage. Two .feature
+               files separate operation scenarios (admin_operations.feature,
+               6 scenarios) from access control boundary scenarios
+               (access_control.feature, 3 scenarios). Given/When/Then keeps
+               each scenario readable without code -- specification-by-example.
+
+Automation  -- Step definitions call live Flask routes via app.test_client()
+               so evidenced behavior remains runnable -- the lecture's
+               automation goal. Only Supabase I/O is stubbed; JWT
+               verification, requires_role, and route logic all execute.
 
 GAP FOUND AND FIXED
 -------------------
@@ -36,8 +46,7 @@ Fix: app.register_blueprint(admin_bp, url_prefix='/api/admin')
 SCENARIO FINDINGS
 -----------------
 1. list users         -- active/inactive derived from banned_until at query
-                         time; not a stored boolean. Endpoint joins user_roles
-                         + Auth Admin API in two Supabase calls.
+                         time; not a stored boolean.
 2. role assignment    -- three-step Supabase flow: resolve role_id, delete old
                          row, insert new row with granted_by=g.user_id.
 3. invalid role       -- 400 fires before any Supabase call; validation is
@@ -45,8 +54,7 @@ SCENARIO FINDINGS
 4. deactivation       -- ban_duration="876600h" (~100 yr) is the mechanism via
                          Auth Admin API; no DB flag is written.
 5. inactive status    -- a user with banned_until in the future appears as
-                         status="inactive" in the list response; confirmed the
-                         banned_until derivation logic is correct.
+                         status="inactive" in the list response.
 6. self-deactivation  -- 400 returned by a route-level guard before Supabase
                          is called; not enforced by middleware.
 7-9. access control   -- requires_role returns 403 for all three admin routes
