@@ -34,7 +34,7 @@ The lecture defines the *SCRIPT* format as a test case structure of precondition
 | Functionality, Input Space
 
 | Input Partition
-| Common -- all required fields present, valid role
+| Common: all required fields present, valid role
 |===
 
 *Preconditions:* +
@@ -72,7 +72,7 @@ HTTP 201. Body contains a success message. No error key present.
 | Functionality, Input Space
 
 | Input Partition
-| Invalid -- required field absent
+| Invalid: required field absent
 |===
 
 *Preconditions:* +
@@ -110,7 +110,7 @@ HTTP 400. Error message identifies `user_id` as missing. No Supabase call is mad
 | Functionality, Input Space
 
 | Input Partition
-| Corner -- valid token, invalid role for target route
+| Corner: valid token, invalid role for target route
 |===
 
 *Preconditions:* +
@@ -127,6 +127,8 @@ HTTP 403. No user data returned in the body.
 *Failure Condition:* HTTP 200 with data, or HTTP 404 indicating the route is unregistered.
 
 ===== Session Charter
+
+The lecture defines a session charter as a mission statement, scope, and time box that bound a focused exploratory session [1].
 
 [cols="1,3", options="header"]
 |===
@@ -147,7 +149,7 @@ HTTP 403. No user data returned in the body.
 
 ===== Session Log
 
-Session-based testing, as the lecture defines it, requires keeping a log to avoid unnecessary repetition of tests [1]. Each entry below documents the rationale for targeting that risk area, the probe executed, and the finding.
+Session-based testing, as the lecture defines it, requires keeping a log to avoid unnecessary repetition of tests [1].
 
 ====== RISK-A: No-Role User Hitting a Protected Route
 
@@ -211,7 +213,7 @@ The lecture defines *defect report elements* as: summary, preconditions, steps t
 | HTTP 201. Admin role accepted and stored without authentication or approval.
 
 | Severity
-| Critical -- any unauthenticated user can escalate to admin, gaining access to all admin-only endpoints.
+| Critical: any unauthenticated user can escalate to admin, gaining access to all admin-only endpoints.
 
 | Status
 | Fixed. "admin" removed from VALID_ROLES in app/routes/auth.py.
