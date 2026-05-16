@@ -39,7 +39,14 @@ async function request(path, options = {}) {
 
   if (!response.ok) {
     // Throw an error with the HTTP status so callers can handle it
-    throw new Error(`API error: ${response.status} ${response.statusText}`)
+    let message = `API error: ${response.status} ${response.statusText}`
+    try {
+      const body = await response.json()
+      if (body.error) message = body.error
+    } catch (_) { /* ignore */ }
+    const err = new Error(message)
+    err.status = response.status
+    throw err
   }
 
   return response.json()
@@ -87,6 +94,30 @@ export function updateProfile(userId, updates) {
   return request(`/profile/${userId}`, {
     method: 'PUT',
     body: JSON.stringify(updates),
+  })
+}
+
+// Fetch all appointments 
+export function getAppointments(status = '') {
+  const qs = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request(`/appointments${qs}`)
+}
+
+// Fetch a single appointment by id 
+export function getAppointment(id) {
+  return request(`/appointments/${id}`)
+}
+
+/**
+ * Cancel an appointment.
+ * @param {number} id - Appointment ID
+ * @param {string} reason - Optional cancellation reason
+ * @param {number|null} cancelledById - ID of the admin performing the action
+ */
+export function cancelAppointment(id, reason = '', cancelledById = null) {
+  return request(`/appointments/${id}/cancel`, {
+    method: 'PUT',
+    body: JSON.stringify({ reason, cancelled_by_id: cancelledById }),
   })
 }
 
