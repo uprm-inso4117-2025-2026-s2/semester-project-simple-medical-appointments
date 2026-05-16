@@ -1,1 +1,58 @@
-=== *Unit/Integration Test Automation*
+---
+==== Automating Appointment Scheduling Tests with Unit and Integration Testing
+:author: Axel A. Burgos
+
+Unit and integration test automation are important software testing practices used to verify that application components behave correctly. Automated testing helps developers detect problems early, improve software reliability, and reduce the amount of manual testing required after updates.
+
+In the Simple Medical Appointments system, automated tests are especially useful because appointment scheduling involves multiple interacting components, including frontend forms, backend APIs, databases, and scheduling validation logic.
+
+===== Unit Test Automation
+
+Unit tests focus on verifying individual functions or isolated pieces of logic. These tests are designed to confirm that small components behave correctly without depending on external systems.
+
+For example, a unit test may validate that the scheduling system correctly rejects overlapping appointments for the same doctor and timeslot.
+
+[discrete]
+===== Example Unit Tests
+
+* Verifying appointment conflict validation
+* Confirming appointment cancellation updates availability
+* Checking doctor availability filtering logic
+* Validating patient input fields
+
+===== Integration Test Automation
+
+Integration tests verify that multiple system components work correctly together. Unlike unit tests, integration tests evaluate interactions between services, APIs, and databases.
+
+In the medical appointment system, integration testing is important because scheduling workflows depend on communication between several backend and frontend components.
+
+[discrete]
+===== Example Integration Tests
+
+* Creating appointments through the frontend and storing them in the database
+* Updating doctor availability and verifying frontend scheduling updates
+* Sending appointment confirmations after successful bookings
+* Verifying appointment cancellations synchronize correctly across the system
+
+===== Benefits of Automated Testing
+
+Automated testing provides several important advantages:
+
+* Faster bug detection
+* Reduced manual testing effort
+* Improved deployment reliability
+* Better code maintainability
+* Increased confidence after software changes
+
+Automated tests are especially useful when developers frequently modify scheduling features or backend validation logic.
+
+===== Challenges of Test Automation
+
+Although automated testing improves software reliability, it also introduces challenges. Integration tests may require databases, APIs, or external services to be configured correctly before execution. Automated tests may also fail if the testing environment becomes inconsistent.
+
+Maintaining automated tests over time may become difficult as application workflows and scheduling requirements evolve.
+
+===== Conclusion
+
+Unit and integration test automation help developers maintain reliable scheduling functionality within the Simple Medical Appointments system. Unit tests validate isolated logic, while integration tests verify communication between system components. Together, these testing strategies improve software quality, reduce hidden defects, and support safer application updates.
+---
