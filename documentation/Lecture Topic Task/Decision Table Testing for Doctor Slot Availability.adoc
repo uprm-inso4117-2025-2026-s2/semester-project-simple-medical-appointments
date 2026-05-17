@@ -1,0 +1,59 @@
+= Decision Table Testing for Doctor Slot Availability
+
+:author: Simple Medical Appointments — Scheduling
+:doctype: article
+
+== Lecture tie-in
+
+* *Lecture 3 — Test Case Execution* (Fit): test cases mapped in decision tables; one table per behavior with inputs → expected outputs; each row executed automatically (same idea as our parametrized pytest rows).
+* *Lecture 2 — Test Planning*: the test plan unfolds along axes including *Input Space* (common, corner, extreme, invalid cases). The scheduling API `date` parameter and calendar rules are decomposed along those axes before rows are written.
+
+== Goal
+
+Apply decision table testing to scheduling rules in Simple Medical Appointments so interacting conditions (day of week, request shape, lunch break) are covered systematically instead of ad hoc examples.
+
+== Conditions (scheduling domain)
+
+[cols="2,3,3", options="header"]
+|===
+| Condition | Values | Scheduling effect
+| Day of week | Mon–Sat / Sunday | Sunday → clinic closed (no slots)
+| `date` query parameter | missing / invalid / valid ISO | missing or invalid → HTTP 400
+| Lunch break (12:00–13:00) | configured / absent | configured → no slots during break
+|===
+
+== Decision table — API (`GET /api/doctors/<id>/available-slots`)
+
+[cols="1,2,2,2,3", options="header"]
+|===
+| Rule ID | Input: `date` param | Input: calendar day | Expected result
+| DT-API-01 | missing | — | 400; error references `date` (invalid input)
+| DT-API-02 | garbage text | — | 400; invalid input
+| DT-API-03 | valid ISO | weekday | 200; 14 slots; 09:00 & 16:30 present; 12:00 & 12:30 absent (corner: break boundary)
+| DT-API-04 | valid ISO | Sunday | 200; `[]` (common: closed day)
+|===
+
+== Decision table — slot generation (unit level)
+
+[cols="1,3,2", options="header"]
+|===
+| Rule ID | Conditions | Expected slot count
+| DT-SVC-01 | Sunday stub availability | 0
+| DT-SVC-02 | Weekday + lunch block | 14; no 12:00 / 12:30
+| DT-SVC-03 | Weekday, no lunch block | 16; includes 12:00 (extreme: full continuous window)
+|===
+
+== Implementation
+
+* Documentation: this file.
+* Automated tests: `backend/tests/test_scheduling_decision_table.py` — each rule ID is a `@pytest.mark.parametrize` row (Fit-style one test per table row).
+* Code under test: `generate_available_slots()` and the available-slots route in `app/routes/main.py`.
+
+== Why this matters for scheduling
+
+Patients only see bookable times after several rules combine. Decision tables make those combinations explicit and traceable, which supports regression testing when availability or capacity rules change.
+
+== References
+
+* B. Vélez, INSO 4117 *Lecture 2 Test Planning* (input space, test plan axes).
+* B. Vélez, INSO 4117 *Lecture 3 test Preparation* (Fit decision tables, SCRIP test cases).

@@ -98,8 +98,7 @@ function AccountSettings() {
   const [name, setName] = useState('')
 
   // Danger modals
-  const [showDeactivate, setShowDeactivate] = useState(false)
-  const [showDelete,     setShowDelete]     = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
 
   // ── Load ────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -190,12 +189,6 @@ function AccountSettings() {
   }
 
   // ── Danger actions ──────────────────────────────────────────────────────────
-  const handleDeactivate = async () => {
-    setShowDeactivate(false)
-    try { await updateProfile(userId, { is_active: false }) } catch {}
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
   const handleDelete = async () => {
     setShowDelete(false)
     await supabase.auth.signOut()
@@ -535,14 +528,6 @@ function AccountSettings() {
 
           <div className="as-danger-row">
             <div className="as-danger-info">
-              <span className="as-danger-item-title">Deactivate Account</span>
-              <span className="as-danger-item-desc">Temporarily disable your account. You can reactivate it anytime.</span>
-            </div>
-            <button className="as-btn-danger-outline" onClick={() => setShowDeactivate(true)}>Deactivate</button>
-          </div>
-
-          <div className="as-danger-row">
-            <div className="as-danger-info">
               <span className="as-danger-item-title">Delete Account</span>
               <span className="as-danger-item-desc">Permanently delete your account and all data. This cannot be undone.</span>
             </div>
@@ -565,25 +550,6 @@ function AccountSettings() {
             <div className="as-modal-footer">
               <button className="as-modal-cancel" onClick={() => setShowLogout(false)}>Cancel</button>
               <button className="as-btn-danger-fill" style={{ flex: 1, height: 44 }} onClick={handleLogout}>Log Out</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Deactivate Modal ── */}
-      {showDeactivate && (
-        <div className="as-modal-overlay" onClick={() => setShowDeactivate(false)}>
-          <div className="as-modal" onClick={e => e.stopPropagation()}>
-            <div className="as-modal-header">
-              <h2>Deactivate Account</h2>
-              <p>This will sign you out and disable your account.</p>
-            </div>
-            <div className="as-modal-body">
-              <p>Are you sure? You will be signed out immediately. Contact support to reactivate.</p>
-            </div>
-            <div className="as-modal-footer">
-              <button className="as-modal-cancel" onClick={() => setShowDeactivate(false)}>Cancel</button>
-              <button className="as-btn-danger-fill" style={{ flex: 1, height: 44 }} onClick={handleDeactivate}>Deactivate</button>
             </div>
           </div>
         </div>

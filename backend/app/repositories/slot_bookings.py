@@ -62,6 +62,25 @@ def try_reserve_slot(
     return None
 
 
+def decrement_booking(doctor_id: str, slot_start: datetime) -> int:
+    """Release one seat (e.g. appointment cancelled). Returns the new count."""
+    with _lock:
+        k = _key(doctor_id, slot_start)
+        current = _counts.get(k, 0)
+        if current <= 0:
+            return 0
+        _counts[k] = current - 1
+        if _counts[k] == 0:
+            del _counts[k]
+        return _counts.get(k, 0)
+
+
+def reset_booking_counts() -> None:
+    """Clear all counts — used between tests."""
+    with _lock:
+        _counts.clear()
+
+
 def _slot_starts_with_room(doctor_id: str, day: date) -> list[datetime]:
     rules = get_availability_for_doctor_date(doctor_id, day)
     cap = rules.max_appointments_per_slot
