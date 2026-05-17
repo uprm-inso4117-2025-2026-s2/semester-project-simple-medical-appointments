@@ -8,8 +8,12 @@ from datetime import date, time
 
 import pytest
 
-from app.repositories.slot_bookings import decrement_booking, get_booking_count
-from app.services.slot_capacity import slot_time_strings_for_doctor_day, try_reserve_slot
+from app.repositories.slot_bookings import (
+    decrement_booking,
+    get_booking_count,
+    slot_time_strings_for_doctor_day,
+    try_reserve_slot,
+)
 
 DOCTOR = "dr-1"
 DAY = date(2026, 3, 9)

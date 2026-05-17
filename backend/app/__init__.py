@@ -13,12 +13,19 @@ def create_app(testing: bool = False):
     """
     app = Flask(__name__)
 
+    # Load configuration from the Config class (reads from .env via config.py)
     app.config.from_object(Config)
     if testing:
         app.config["TESTING"] = True
 
+    # Enable CORS so the React frontend (on a different port) can call this API.
+    # In production, restrict origins to your actual domain instead of allowing all.
     CORS(app)
+
+    # Initialize Supabase client and attach it as app.supabase
     init_supabase(app)
+
+    # Register all route blueprints (see app/routes/__init__.py)
     register_routes(app)
 
     return app

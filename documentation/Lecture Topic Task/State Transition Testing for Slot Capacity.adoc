@@ -38,9 +38,8 @@ Model and verify state transitions when a clinic allows multiple appointments pe
 
 == Implementation
 
-* `app/repositories/slot_bookings.py` — count storage, `increment_booking`, `decrement_booking`.
-* `app/services/slot_capacity.py` — `try_reserve_slot`, `slot_time_strings_for_doctor_day`.
-* Tests: `backend/tests/test_slot_capacity_state_transitions.py` (12 scheduling tests total with decision-table suite).
+* `app/repositories/slot_bookings.py` — count storage, `increment_booking`, `decrement_booking`, `try_reserve_slot`, and capacity-aware `slot_time_strings_for_doctor_day`.
+* Tests: `backend/tests/test_slot_capacity_state_transitions.py` (with the decision-table suite in `test_scheduling_decision_table.py`).
 
 == Relation to the product
 

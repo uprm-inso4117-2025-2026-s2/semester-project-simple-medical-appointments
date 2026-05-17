@@ -74,7 +74,7 @@ def _stub_availability_in_tests(monkeypatch):
         _stub_availability_for_doctor_date,
     )
     monkeypatch.setattr(
-        "app.services.slot_capacity.get_availability_for_doctor_date",
+        "app.repositories.slot_bookings.get_availability_for_doctor_date",
         _stub_availability_for_doctor_date,
     )
     yield
