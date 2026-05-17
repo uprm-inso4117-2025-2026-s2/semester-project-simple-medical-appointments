@@ -108,6 +108,7 @@ def _resolve_slot_minutes(doctor_id: str) -> int:
 
 def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> DailyAvailability:
     day_of_week = target_date.weekday()
+    max_appointments_per_slot = 2
 
     ranges = _fetch_day_rules(doctor_id, day_of_week)
 
@@ -123,6 +124,7 @@ def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> Daily
             working_hours=working_hours,
             blocked_periods=[],
             slot_minutes=_resolve_slot_minutes(doctor_id),
+            max_appointments_per_slot=max_appointments_per_slot,
         )
 
     # First start -> last end
@@ -153,4 +155,5 @@ def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> Daily
         working_hours=working_hours,
         blocked_periods=blocked_periods,
         slot_minutes=slot_minutes,
+        max_appointments_per_slot=max_appointments_per_slot,
     )
