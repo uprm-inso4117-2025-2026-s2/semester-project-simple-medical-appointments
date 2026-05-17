@@ -3,7 +3,7 @@
 
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { registerUser } from '../services/authService'
+import { signUpOnly } from '../services/authService'
 import medicalIcon from '../assets/medicalPng.png'
 import '../styles/auth.css'
 
@@ -87,14 +87,17 @@ function Register() {
 
     setLoading(true)
     try {
-      const result = await registerUser(fields.email, fields.password)
+      const result = await signUpOnly(fields.email, fields.password)
 
-      if (result.emailConfirmationRequired) {
-        setEmailConfirmationRequired(true)
-      } else {
-        setSuccess(true)
-        setTimeout(() => navigate('/'), 1200)
-      }
+      navigate('/role-selection', {
+        state: {
+          userId:                    result.user.id,
+          firstName:                 fields.firstName,
+          lastName:                  fields.lastName,
+          username:                  fields.email.split('@')[0],
+          emailConfirmationRequired: result.emailConfirmationRequired,
+        },
+      })
     } catch (err) {
       setError(err.message)
     } finally {

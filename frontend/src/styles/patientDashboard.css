@@ -1,0 +1,385 @@
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
+
+.pdb-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+
+.pdb-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  background: #0a2530;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 0 2rem;
+}
+
+/* Profile block */
+
+.pdb-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.4rem;
+}
+
+.pdb-avatar {
+  width: clamp(80px, 10.42vw, 150px);
+  height: clamp(80px, 10.42vw, 150px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.pdb-avatar svg {
+  width: 50%;
+  height: 50%;
+  stroke: rgba(255, 255, 255, 0.5);
+}
+
+.pdb-profile-name {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  text-align: center;
+}
+
+.pdb-profile-name:hover {
+  color: #248daa;
+  text-decoration: underline;
+}
+
+.pdb-profile-role {
+  font-size: 14px;
+  font-weight: 200;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Nav */
+
+.pdb-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.5rem;
+  flex: 1;
+}
+
+.pdb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.85rem 0 0.85rem 28px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.6);
+  transition: background 0.15s, color 0.15s;
+}
+
+.pdb-nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: #fff;
+  color: #fff;
+}
+
+.pdb-nav-item:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.pdb-nav-logout {
+  margin-top: auto;
+}
+
+.pdb-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.pdb-nav-item.active .pdb-nav-icon,
+.pdb-nav-item:hover .pdb-nav-icon {
+  opacity: 1;
+}
+
+/* Inline SVG icons (Dashboard, Back, User) */
+.pdb-nav-item.active .pdb-nav-icon-svg,
+.pdb-nav-item:hover .pdb-nav-icon-svg {
+  color: #fff;
+}
+
+.pdb-nav-icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.pdb-nav-icon-svg svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.pdb-nav-label {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* ── MAIN CONTENT ────────────────────────────────────────────────────────── */
+
+.pdb-main {
+  flex: 1;
+  background: #fff;
+  padding: clamp(1.5rem, 4.86vw, 70px) clamp(1.5rem, 5.14vw, 74px);
+  overflow-y: auto;
+}
+
+/* Back button */
+
+.pdb-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 1px solid rgba(17, 60, 81, 0.25);
+  border-radius: 70px;
+  color: #113c51;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  padding: 0.35rem 1rem 0.35rem 0.6rem;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+  transition: background 0.15s;
+}
+
+.pdb-back-btn:hover {
+  background: rgba(17, 60, 81, 0.06);
+}
+
+.pdb-back-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: #113c51;
+}
+
+/* Welcome */
+
+.pdb-welcome {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1.75rem, 2.78vw, 2.5rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.5rem;
+}
+
+.pdb-subtitle {
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 300;
+  color: #666;
+  margin: 0 0 2rem;
+}
+
+/* Stats card */
+
+.pdb-stats-card {
+  background: #f4f8fa;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  max-width: 380px;
+}
+
+.pdb-stats-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+}
+
+.pdb-stats-count {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 2.5vw, 2.25rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.25rem;
+}
+
+.pdb-stats-next {
+  font-size: 13px;
+  color: #248daa;
+  margin: 0;
+}
+
+/* Section heading */
+
+.pdb-section-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 1rem;
+}
+
+/* Appointment list */
+
+.pdb-apt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.pdb-apt-card {
+  background: #f4f8fa;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 80px;
+}
+
+.pdb-apt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.pdb-apt-info {
+  flex: 1;
+}
+
+.pdb-apt-doctor {
+  font-size: 16px;
+  font-weight: 500;
+  color: #0c0f28;
+  margin: 0 0 0.25rem;
+}
+
+.pdb-apt-date {
+  font-size: 14px;
+  font-weight: 300;
+  color: #888;
+  margin: 0;
+}
+
+.pdb-apt-badge {
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 30px;
+  padding: 0.25rem 0.85rem;
+  white-space: nowrap;
+}
+
+.pdb-apt-badge.confirmed {
+  background: #e1f5ee;
+  color: #0f6e56;
+}
+
+.pdb-apt-badge.pending {
+  background: #e3edf8;
+  color: #185fa5;
+}
+
+.pdb-apt-badge.completed {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.pdb-apt-badge.cancelled {
+  background: #faeeda;
+  color: #854f0b;
+}
+
+/* Book button */
+
+.pdb-book-btn {
+  background: #113c51;
+  color: #fff;
+  border: 1px solid rgba(168, 155, 155, 0.97);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.11vw, 1rem);
+  font-weight: 500;
+  padding: 1rem 2.5rem;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .pdb-sidebar {
+    width: 100%;
+    padding: 1.5rem 0 0;
+  }
+
+  .pdb-layout {
+    flex-direction: column;
+  }
+
+  .pdb-profile {
+    padding-bottom: 1rem;
+  }
+
+  .pdb-nav {
+    flex-direction: row;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .pdb-nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.6rem 1rem;
+    flex-shrink: 0;
+    gap: 0;
+    flex-direction: column;
+  }
+
+  .pdb-nav-item.active {
+    border-left-color: transparent;
+    border-bottom-color: #fff;
+  }
+
+  .pdb-nav-label {
+    display: none;
+  }
+
+  .pdb-nav-logout {
+    margin-top: 0;
+    margin-left: auto;
+  }
+
+  .pdb-main {
+    padding: 1.5rem;
+  }
+}

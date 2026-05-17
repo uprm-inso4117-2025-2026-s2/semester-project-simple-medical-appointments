@@ -42,16 +42,38 @@ function formatAuthError(message) {
 // ─────────────────────────────────────────────
 
 /**
- * Register a new user with email and password.
- *
- * Flow:
- *   1. Calls supabase.auth.signUp to create the auth record.
- *   2. On success, calls the backend /api/auth/register to sync the user to the DB.
+ * Step 1 of registration: create the Supabase Auth record only.
+ * Does NOT sync to the app DB — that is deferred until all registration
+ * steps are complete and a role (and any other required info) has been collected.
  *
  * Returns: { user, session, emailConfirmationRequired }
  * Throws:  Error with a user-friendly message on failure.
  */
-export async function registerUser(email, password) {
+export async function signUpOnly(email, password) {
+  const { data, error } = await supabase.auth.signUp({ email, password })
+
+  if (error) {
+    throw new Error(formatAuthError(error.message))
+  }
+
+  const { user, session } = data
+
+  return {
+    user,
+    session,
+    emailConfirmationRequired: !!user && !session,
+  }
+}
+
+/**
+ * @deprecated Use signUpOnly() for the multi-step registration flow.
+ * DB sync is now deferred until all registration steps are complete.
+ *
+ * Register a new user with email and password.
+ * Returns: { user, session, emailConfirmationRequired }
+ * Throws:  Error with a user-friendly message on failure.
+ */
+export async function registerUser(email, password, firstName, lastName) {
   const { data, error } = await supabase.auth.signUp({ email, password })
 
   if (error) {
@@ -62,7 +84,13 @@ export async function registerUser(email, password) {
 
   if (user) {
     try {
-      await syncRegistration({ supabase_uid: user.id, email: user.email })
+      await syncRegistration({
+        user_id:    user.id,
+        first_name: firstName,
+        last_name:  lastName,
+        username:   email.split('@')[0],
+        role:       'patient',
+      })
     } catch (syncError) {
       console.error('DB sync failed after registration:', syncError.message)
     }

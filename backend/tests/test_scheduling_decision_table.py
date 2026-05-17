@@ -8,7 +8,6 @@ from datetime import date, time
 
 import pytest
 
-from app.repositories.availability import get_availability_for_doctor_date
 from app.services.scheduling import DailyAvailability, TimeRange, generate_available_slots
 
 DOCTOR = "dr-1"
@@ -52,7 +51,7 @@ SCHEDULING_DECISION_TABLE = [
 
 class TestAvailableSlotsDecisionTable:
     @pytest.mark.parametrize("row", SCHEDULING_DECISION_TABLE, ids=lambda r: r["id"])
-    def test_api_row(self, client, row):
+    def test_api_row(self, client, auth_headers, row):
         query = {}
         if row["date_param"] is not None:
             query["date"] = row["date_param"]
@@ -60,6 +59,7 @@ class TestAvailableSlotsDecisionTable:
         response = client.get(
             f"/api/doctors/{DOCTOR}/available-slots",
             query_string=query,
+            headers=auth_headers,
         )
         assert response.status_code == row["expected_status"]
 
@@ -79,17 +79,37 @@ class TestAvailableSlotsDecisionTable:
             assert slot not in slots
 
 
+def _weekday_with_lunch_availability() -> DailyAvailability:
+    return DailyAvailability(
+        date=WEEKDAY,
+        working_hours=TimeRange(time(9, 0), time(17, 0)),
+        blocked_periods=[TimeRange(time(12, 0), time(13, 0))],
+        slot_minutes=30,
+        max_appointments_per_slot=2,
+    )
+
+
+def _sunday_closed_availability() -> DailyAvailability:
+    return DailyAvailability(
+        date=SUNDAY,
+        working_hours=TimeRange(time(9, 0), time(9, 0)),
+        blocked_periods=[],
+        slot_minutes=30,
+        max_appointments_per_slot=2,
+    )
+
+
 SERVICE_DECISION_TABLE = [
     {
         "id": "DT-SVC-01",
         "label": "closed_day",
-        "availability": lambda: get_availability_for_doctor_date(DOCTOR, SUNDAY),
+        "availability": _sunday_closed_availability,
         "expect_count": 0,
     },
     {
         "id": "DT-SVC-02",
         "label": "weekday_with_lunch_break",
-        "availability": lambda: get_availability_for_doctor_date(DOCTOR, WEEKDAY),
+        "availability": _weekday_with_lunch_availability,
         "expect_count": WEEKDAY_SLOT_COUNT,
         "forbid_times": [time(12, 0), time(12, 30)],
     },
