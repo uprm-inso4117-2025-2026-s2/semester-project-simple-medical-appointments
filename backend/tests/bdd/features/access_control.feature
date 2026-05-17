@@ -1,5 +1,5 @@
 # Lecture: Behavior Driven Development (Schütz-Schmuck, UPRM)
-# BDD stage: Formulation -- test-centric triad perspective: edge cases and
+# BDD stage: Formulation; test-centric triad perspective: edge cases and
 #   boundary conditions (non-admin attempting privileged operations).
 # These scenarios exposed the missing admin_bp registration (gap, now fixed).
 

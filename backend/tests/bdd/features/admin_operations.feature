@@ -1,5 +1,5 @@
 # Lecture: Behavior Driven Development (Schütz-Schmuck, UPRM)
-# BDD stage: Formulation -- acceptance criteria from discovery expressed as
+# BDD stage: Formulation; acceptance criteria from discovery expressed as
 #   executable Given/When/Then scenarios readable without code knowledge.
 # Triad perspectives: customer (happy paths) + test (boundary/guard cases)
 
