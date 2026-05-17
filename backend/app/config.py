@@ -7,29 +7,22 @@ load_dotenv()
 
 
 class Config:
-    """Base configuration. Values are read from environment variables.
-    Add new config values here as the app grows (e.g. database URL, JWT
-secret).
-    """
+    """Base configuration. Values are read from environment variables."""
 
-    # Used to sign session cookies and tokens — must be set to a strong
-random
-    # value in production. See backend/.env.example.
-    SECRET_KEY = os.getenv('SECRET_KEY',
-'dev-secret-key-change-in-production')
+    # Used to sign session cookies and tokens — set a strong value in production.
+    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
     # Flask debug mode — True in development, False in production
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
 
     # Supabase — used for user management DB operations.
-    # Use the service role key on the backend (bypasses RLS for trusted
-server ops).
     SUPABASE_URL = os.getenv('SUPABASE_URL')
     SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 
+    TESTING = False
+
     # SQLAlchemy — used by the scheduling module.
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',
-'sqlite:///clinic.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///clinic.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
