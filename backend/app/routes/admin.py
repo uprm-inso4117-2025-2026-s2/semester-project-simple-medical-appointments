@@ -309,7 +309,7 @@ def delete_user(user_id):
         return jsonify({"error": "Admins cannot delete their own account."}), 400
 
     def _delete(table, col, value):
-        """Run a DELETE and return (ok, error_response)."""
+        """Run a DELETE and return (ok, error_response, status)."""
         s, _, e = _supabase_request(
             "DELETE",
             f"/rest/v1/{table}",
@@ -318,7 +318,7 @@ def delete_user(user_id):
         )
         if e or s not in (200, 204, 404):
             return False, jsonify({"error": f"Failed to delete from {table}."}), 500
-        return True, None
+        return True, None, None
 
     # Step 1: Resolve doctor record (doctors table uses its own UUID, not auth user_id)
     doc_status, doc_data, _ = _supabase_request(
@@ -335,21 +335,21 @@ def delete_user(user_id):
                 ("availability_rules", "doctor_id"),
                 ("waitlist", "doctor_id"),
             ]:
-                ok, err_resp = _delete(table, col, doctor_id)
+                ok, err_resp, err_status = _delete(table, col, doctor_id)
                 if not ok:
-                    return err_resp
-            ok, err_resp = _delete("doctors", "id", doctor_id)
+                    return err_resp, err_status
+            ok, err_resp, err_status = _delete("doctors", "id", doctor_id)
             if not ok:
-                return err_resp
+                return err_resp, err_status
 
     # Step 2: Patient-linked rows (patient_id == auth user UUID)
     for table, col in [
         ("appointments", "patient_id"),
         ("waitlist", "patient_id"),
     ]:
-        ok, err_resp = _delete(table, col, user_id)
+        ok, err_resp, err_status = _delete(table, col, user_id)
         if not ok:
-            return err_resp
+            return err_resp, err_status
 
     # Step 3: Settings and role tables
     for table, col in [
@@ -358,9 +358,9 @@ def delete_user(user_id):
         ("user_roles", "user_id"),
         ("profile_settings", "user_id"),
     ]:
-        ok, err_resp = _delete(table, col, user_id)
+        ok, err_resp, err_status = _delete(table, col, user_id)
         if not ok:
-            return err_resp
+            return err_resp, err_status
 
     # Step 4: Profile-linked tables (patients, providers reference profiles.user_id)
     for table, col in [
@@ -368,9 +368,9 @@ def delete_user(user_id):
         ("providers", "user_id"),
         ("profiles", "user_id"),
     ]:
-        ok, err_resp = _delete(table, col, user_id)
+        ok, err_resp, err_status = _delete(table, col, user_id)
         if not ok:
-            return err_resp
+            return err_resp, err_status
 
     # Step 5: Delete the auth user
     auth_status, _, err = _supabase_request(
