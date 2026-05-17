@@ -3,6 +3,7 @@ from .appointmenthistory import appointment_bp
 from .profile import profile_bp
 from .account_settings import settings_bp
 from .admin import admin_bp
+from .daily_slots import slots_bp
 
 
 def register_routes(app):
@@ -12,3 +13,4 @@ def register_routes(app):
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(slots_bp)
