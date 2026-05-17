@@ -1716,3 +1716,124 @@ Regression testing helps ensure the system remains stable after updates are intr
 == References
 
 *Framework:* Schütz-Schmuck, M. (2024). _Test Plans_. Department of Mathematical Sciences, University of Puerto Rico at Mayagüez.
+
+= Property-Based Testing Plan for Availability Rules
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how property-based testing will be used to validate doctor availability rules in the appointment scheduling system.
+
+The focus is on preventing invalid scheduling configurations such as overlapping intervals, invalid time ranges, and blocked periods outside working hours.
+
+Instead of testing only fixed examples, property-based testing verifies general system rules using many automatically generated inputs. 
+
+== Scope
+
+This testing plan covers:
+
+* working days
+* working hours
+* blocked times
+* closed days
+* API validation behavior
+* database consistency
+
+The plan focuses on validation logic and scheduling correctness.
+
+== Property-Based Testing Strategy
+
+Property-based testing defines properties that must always remain true in the system.
+
+Randomized schedule data is generated and validated against these properties automatically. :contentReference[oaicite:1]{index=1}
+
+The testing approach helps detect unexpected edge cases and invalid scheduling combinations.
+
+== Core Properties
+
+=== Valid Time Ranges
+
+All working intervals must satisfy:
+
+* start time < end time
+
+Invalid time ranges must be rejected.
+
+Examples:
+
+* Valid: 09:00–17:00
+* Invalid: 17:00–09:00
+
+=== Blocked Times Within Working Hours
+
+Blocked periods must exist completely inside working hours.
+
+Examples:
+
+* Valid:
+** Working: 09:00–17:00
+** Blocked: 12:00–13:00
+
+* Invalid:
+** Working: 09:00–17:00
+** Blocked: 18:00–19:00
+
+=== No Overlapping Intervals
+
+The system must reject:
+
+* overlapping working intervals
+* overlapping blocked intervals
+
+=== Closed Day Validation
+
+Closed days cannot contain:
+
+* working hours
+* blocked times
+
+== API Testing
+
+The API must correctly:
+
+* accept valid availability rules
+* reject invalid availability rules
+* retrieve stored schedules accurately
+
+== Database Testing
+
+The database must:
+
+* store valid schedules correctly
+* reject invalid schedules
+* preserve schedule consistency after retrieval
+
+== Edge Cases
+
+The test plan should include generated inputs for:
+
+* overlapping times
+* empty schedules
+* duplicate days
+* boundary times
+* full-day schedules
+* invalid formats
+
+== Failure Reduction
+
+Property-based testing should shrink failing inputs into smaller reproducible examples to simplify debugging. 
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* invalid schedules are consistently rejected
+* valid schedules are accepted and stored correctly
+* scheduling conflicts are prevented
+* API and database behavior remain consistent
+
+The plan must provide strong coverage of scheduling validation logic using randomized generated inputs.
+
+== References
+
+* Schütz-Schmuck, M. (2023). Property-Based Testing.
