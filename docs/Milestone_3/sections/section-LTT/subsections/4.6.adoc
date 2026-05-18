@@ -294,7 +294,7 @@ Taken together, the precondition set defined in the Hoare triple is sufficient t
 ------------------------------------------------------------------------------------------------------------------------------
 
 ==== Verification of Appointment Cancellation Consistency Using Preconditions, Post conditions & Proof Rules
-:author: Victoria Miranda Osuna
+:author: Victoria M Miranda Osuna
 
 ===== GOAL
 
