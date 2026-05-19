@@ -1,10 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AppointmentHistory from './AppointmentHistory'
-import { getAppointmentHistory } from '../services/api'
+import { getAllAppointmentHistory } from '../services/api'
 
 vi.mock('../services/api', () => ({
-  getAppointmentHistory: vi.fn(),
+  getAllAppointmentHistory: vi.fn(),
 }))
 
 describe('AppointmentHistory', () => {
@@ -12,123 +12,96 @@ describe('AppointmentHistory', () => {
     vi.clearAllMocks()
   })
 
-  // Test the loading state
   it('shows a loading message while appointment history is being fetched', () => {
-    getAppointmentHistory.mockReturnValue(new Promise(() => {}))
+    getAllAppointmentHistory.mockReturnValue(new Promise(() => {}))
 
     render(<AppointmentHistory />)
 
     expect(screen.getByText(/loading appointment history/i)).toBeInTheDocument()
-    expect(getAppointmentHistory).toHaveBeenCalledWith(1)
+    expect(getAllAppointmentHistory).toHaveBeenCalledTimes(1)
   })
 
-  // Test what happens when the appointment history is unsuccessfully fetched
   it('shows an error message when the appointment history request fails', async () => {
-    getAppointmentHistory.mockRejectedValue(new Error('Network failed'))
-
-    render(<AppointmentHistory />)
-    // wait for the error message to appear
-    expect(await screen.findByText(/error: network failed/i)).toBeInTheDocument()
-  })
-
-  // Test no past nor upcoming appointments by moking an empty array response from the API
-  it('shows empty-state messages when the patient has no appointments', async () => {
-    getAppointmentHistory.mockResolvedValue([])
+    getAllAppointmentHistory.mockRejectedValue(new Error('Network failed'))
 
     render(<AppointmentHistory />)
 
-    expect(await screen.findByText(/no upcoming appointments\./i)).toBeInTheDocument()
-    expect(screen.getByText(/no appointment history found\./i)).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: /unable to load appointment history/i })
+    ).toBeInTheDocument()
+    expect(screen.getByText(/network failed/i)).toBeInTheDocument()
   })
 
-  // Test that appointments are correctly separated into upcoming and past sections
-  it('separates upcoming and past appointments into the correct sections', async () => {
-    // id 1 is an upcoming appointment, id 2 is a past appointment
-    getAppointmentHistory.mockResolvedValue([
+  it('shows an empty state when no appointments are returned', async () => {
+    getAllAppointmentHistory.mockResolvedValue([])
+
+    render(<AppointmentHistory />)
+
+    expect(await screen.findByText(/no appointments found/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/once appointments are booked, they will appear here/i)
+    ).toBeInTheDocument()
+  })
+
+  it('renders the appointment summary and table data when appointments are returned', async () => {
+    getAllAppointmentHistory.mockResolvedValue([
       {
         id: 1,
+        patient_id: 42,
         doctor_name: 'Dr. Future',
-        specialty: 'Cardiology',
-        appointment_date: '2099-06-15',
-        appointment_time: '09:30',
         clinic_name: 'Future Clinic',
-        status: 'Upcoming',
+        appointment_datetime: '2099-06-15T09:30:00-04:00',
+        status: 'confirmed',
       },
       {
         id: 2,
+        patient_id: 42,
         doctor_name: 'Dr. Past',
-        specialty: 'Dermatology',
-        appointment_date: '2020-01-10',
-        appointment_time: '14:00',
         clinic_name: 'Past Clinic',
-        status: 'Completed',
+        appointment_datetime: '2020-01-10T14:00:00-04:00',
+        status: 'completed',
       },
     ])
 
     render(<AppointmentHistory />)
 
-    // find upcoming and history sections by their headings
-    const upcomingSection = (await screen.findByRole('heading', {
-      name: /upcoming appointments/i,
-    })).closest('section')
-    const historySection = screen
-      .getByRole('heading', { name: /^appointment history$/i, level: 2 })
-      .closest('section')
+    expect(await screen.findByText('Dr. Future')).toBeInTheDocument()
+    expect(screen.getByText('Dr. Past')).toBeInTheDocument()
+    expect(screen.getByText('Future Clinic')).toBeInTheDocument()
+    expect(screen.getByText('Past Clinic')).toBeInTheDocument()
 
-    expect(upcomingSection).not.toBeNull()
-    expect(historySection).not.toBeNull()
+    const summarySection = screen.getByLabelText(/appointment summary/i)
+    const totalCard = within(summarySection).getByText(/total appointments/i).closest('article')
+    const confirmedCard = within(summarySection).getByText(/^confirmed$/i).closest('article')
+    const completedCard = within(summarySection).getByText(/^completed$/i).closest('article')
 
-    // check that the upcoming section contains the upcoming appointment and not the past one
-    expect(within(upcomingSection).getByText('Dr. Future')).toBeInTheDocument()
-    expect(within(upcomingSection).queryByText('Dr. Past')).not.toBeInTheDocument()
+    expect(totalCard).not.toBeNull()
+    expect(confirmedCard).not.toBeNull()
+    expect(completedCard).not.toBeNull()
 
-    // check that the history section contains the past appointment and not the upcoming one
-    expect(within(historySection).getByText('Dr. Past')).toBeInTheDocument()
-    expect(within(historySection).queryByText('Dr. Future')).not.toBeInTheDocument()
+    expect(within(totalCard).getByText('2')).toBeInTheDocument()
+    expect(within(confirmedCard).getByText('1')).toBeInTheDocument()
+    expect(within(completedCard).getByText('1')).toBeInTheDocument()
   })
 
-  // Test that clicking the details button shows an alert with the correct appointment details
-  it('shows appointment details in an alert when the details button is clicked', async () => {
-    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
-    // mock an appointment response from the API
-    getAppointmentHistory.mockResolvedValue([
+  it('renders fallback values for missing appointment fields', async () => {
+    getAllAppointmentHistory.mockResolvedValue([
       {
-        id: 1,
-        doctor_name: 'Dr. Rivera',
-        specialty: 'Pediatrics',
-        appointment_date: '2099-08-21',
-        appointment_time: '11:15',
-        clinic_name: 'San Juan Clinic',
-        status: 'Upcoming',
+        id: 7,
+        patient_id: null,
+        doctor_name: null,
+        clinic_name: null,
+        appointment_datetime: null,
+        status: null,
       },
     ])
 
     render(<AppointmentHistory />)
 
-    const detailsButton = await screen.findByRole('button', {
-      name: /appointment details/i,
-    })
-
-    fireEvent.click(detailsButton)
-
-    // check that the alert was called with a string containing all the relevant appointment details
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Doctor: Dr. Rivera')
-    )
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Specialty: Pediatrics')
-    )
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Date: 2099-08-21')
-    )
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Time: 11:15')
-    )
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Clinic: San Juan Clinic')
-    )
-    expect(alertSpy).toHaveBeenCalledWith(
-      expect.stringContaining('Status: Upcoming')
-    )
+    expect(await screen.findByText('N/A')).toBeInTheDocument()
+    expect(screen.getByText('Unassigned')).toBeInTheDocument()
+    expect(screen.getByText('Unknown clinic')).toBeInTheDocument()
+    expect(screen.getByText('Not scheduled')).toBeInTheDocument()
+    expect(screen.getByText('Unknown')).toBeInTheDocument()
   })
 })
