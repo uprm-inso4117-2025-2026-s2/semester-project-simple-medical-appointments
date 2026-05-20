@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { getProfile, updateProfile } from '../services/api'
+import { useTheme } from '../context/ThemeContext'
 import '../styles/adminDashboard.css'
 import '../styles/accountSettings.css'
 
@@ -47,6 +48,7 @@ const IconEyeOff = () => (
 
 function AccountSettings() {
   const navigate = useNavigate()
+  const { highContrast, setHighContrast } = useTheme()
 
   // refs for scroll-to
   const refEmail    = useRef(null)
@@ -81,8 +83,7 @@ function AccountSettings() {
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
 
-  //Accessibility
-  const [highContrast,   setHighContrast]   = useState(false)
+  // Accessibility (high contrast lives in ThemeContext; other prefs are local for now)
   const [fontSize,       setFontSize]       = useState('small')
   const [colorBlindMode, setColorBlindMode] = useState('normal')
 
