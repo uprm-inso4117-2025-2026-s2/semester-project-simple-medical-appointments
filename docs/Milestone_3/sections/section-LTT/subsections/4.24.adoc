@@ -1,0 +1,342 @@
+= Assignment Proof Rules for Medical Appointment State Updates 
+:Author: Juan Ortiz
+
+== 1. Introduction
+The goal of this task is to formally verify correctness of assignment statements that modify critical system state such as appointment scheduling data, user registration details, and authorization roles.
+Using the Assignment Rule (A1), each proof derives a required precondition from a specified postcondition through substitution. This allows reasoning about whether each assignment preserves intended system properties and avoids invalid states.
+The analyzed operations are extracted from real implementation code and represent core functionality such as booking appointments, resolving user roles, and constructing registration data.
+
+== 2. Proof Analysis 1 — Appointment End Time Calculation
+Source: booking.py
+
+=== Line of Code
+- proposed_end = proposed_start + timedelta(minutes=slot_minutes)
+
+=== Abstracted Program Statement
+- proposed_end ← proposed_start + slot_minutes
+
+=== Desired Postcondition
+After execution, the appointment end time should equal the appointment start time plus the selected duration.
+
+==== Postcondition
+- Q ≡ proposed_end = proposed_start + slot_minutes
+
+=== Assignment Rule (A1)
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P} 
+
+==== where
+- x=proposed_end
+- E=proposed_start+slot_minutes.
+
+=== Substitution
+Substitute the assignment expression into the postcondition.
+
+==== Original postcondition
+- proposed_end=proposed_start+slot_minutes
+
+==== Substitution
+- (proposed_end=proposed_start+slot_minutes)[(proposed_start+slot_minutes)/proposed_end]
+
+==== Result
+- proposed_start+slot_minutes=proposed_start+slot_minutes
+
+===== Which simplifies to 
+- True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ true
+
+No additional assumptions are required beyond valid execution semantics.
+
+=== Completed Hoare Triple
+- {true} proposed_end←proposed_start+slot_minutes {proposed_end=proposed_start+slot_minutes}
+
+=== Correctness Interpretation
+This proof verifies correctness of the application's appointment duration calculation. 
+Whenever the assignment executes, the computed end time is guaranteed to equal the appointment start time plus the selected appointment duration.
+Within the application, this ensures: 
+
+- Appointment intervals are internally consistent,
+- Scheduling calculations use the correct duration,
+- Downstream conflict detection receives correct time boundaries.
+
+
+== 3. Proof Analysis 2 — Slot Duration Resolution
+Source: availability.py
+
+=== Line of Code
+- slot_minutes = _resolve_slot_minutes(doctor_id)
+
+=== Abstracted Program Statement
+- slot_minutes ← resolved_duration
+
+=== Desired Postcondition
+After execution, the appointment slot duration should always be a positive value.
+
+==== Postcondition
+- Q ≡ slot_minutes > 0
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x=slot_minutes
+- E=resolved_duration
+
+=== Substitution
+Substitute the assignment expression into the postcondition.
+
+==== Original postcondition
+- slot_minutes > 0
+
+==== Substitution
+- (slot_minutes > 0)[resolved_duration/slot_minutes]
+
+==== Result
+- resolved_duration > 0
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ resolved_duration > 0
+
+The resolved appointment duration must be strictly greater than zero before the assignment executes.
+
+=== Completed Hoare Triple
+
+- {resolved_duration > 0} slot_minutes←resolved_duration {slot_minutes > 0}
+
+=== Correctness Interpretation
+This proof verifies correctness of the application's slot duration assignment. Whenever the assignment executes, the resulting slot duration is guaranteed to remain positive.
+
+Within the application, this ensures:
+
+- Appointment slots always have a valid duration,
+- Zero-length or negative-length appointments are prevented,
+- Scheduling logic can safely generate appointment availability.
+
+This analysis represents a failure-prevention scenario because invalid slot durations could break scheduling computations and availability generation.
+
+
+== 4. Proof Analysis 3 — Display Name Construction
+Source: registration.py
+
+=== Line of Code
+- display_name = f"{first_name} {last_name}"
+
+=== Abstracted Program Statement
+- display_name ← first_name + " " + last_name
+
+=== Desired Postcondition
+After execution, the display name should correctly combine the user's first and last name.
+
+==== Postcondition
+- Q ≡ display_name = first_name + " " + last_name
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x=display_name
+- E=first_name+" "+last_name
+
+=== Substitution
+Substitute the assignment expression into the postcondition.
+
+==== Original postcondition
+- display_name=first_name+" "+last_name
+
+==== Substitution
+- (display_name=first_name+" "+last_name)[(first_name+" "+last_name)/display_name]
+
+==== Result
+- first_name+" "+last_name=first_name+" "+last_name
+
+===== Which simplifies to
+- True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ true
+
+No additional assumptions are required beyond valid execution semantics.
+
+=== Completed Hoare Triple
+
+- {true} display_name←first_name+" "+last_name {display_name=first_name+" "+last_name}
+
+=== Correctness Interpretation
+This proof verifies correctness of the application's display name construction during user registration. Whenever the assignment executes, the resulting display name is guaranteed to contain the user's first name followed by a space and the user's last name.
+
+Within the application, this ensures:
+
+- User profiles display consistent naming information,
+- Automatically generated names follow the expected format,
+- Registration data remains internally consistent across profile records.
+
+
+== 5. Proof Analysis 4 — Role Resolution (Admin Precedence)
+Source: user_roles.py
+
+=== Line of Code
+- return "admin" if "admin" in role_names else role_names[0]
+
+=== Abstracted Program Statement
+- resolved_role ← "admin" (if admin ∈ role_names) else role_names[0]
+
+=== Desired Postcondition
+After execution, if the user has the admin role, it must be returned; otherwise the first available role is returned.
+
+==== Postcondition
+- Q ≡ (admin ∈ role_names → resolved_role = "admin") ∧ (admin ∉ role_names → resolved_role = role_names[0])
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x=resolved_role
+- E=conditional expression over role_names
+
+=== Substitution
+We analyze the two possible outcomes of the conditional assignment.
+
+==== Case 1: admin ∈ role_names
+- resolved_role = "admin"
+
+Substitution:
+- (resolved_role = "admin")[ "admin" / resolved_role ]
+
+Result:
+- admin = admin → True
+
+==== Case 2: admin ∉ role_names
+- resolved_role = role_names[0]
+
+Substitution:
+- (resolved_role = role_names[0])[ role_names[0] / resolved_role ]
+
+Result:
+- role_names[0] = role_names[0] → True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ role_names ≠ ∅
+
+The list of roles must be non-empty to guarantee safe indexing of role_names[0].
+
+=== Completed Hoare Triple
+
+- {role_names ≠ ∅}
+resolved_role←(admin if admin∈role_names else role_names[0])
+{
+(admin ∈ role_names → resolved_role = "admin") ∧
+(admin ∉ role_names → resolved_role = role_names[0])
+}
+
+=== Correctness Interpretation
+This proof verifies correctness of role resolution logic used in authentication and authorization.
+
+Whenever the assignment executes, the system guarantees that:
+
+- Admin users always receive highest-priority role assignment,
+- Non-admin users are assigned a valid fallback role,
+- Role selection is deterministic and safe from empty-list errors.
+
+Within the application, this ensures:
+
+- Proper access control decisions,
+- Consistent role-based behavior across the system,
+- Prevention of invalid role lookups when multiple roles exist.
+
+== 6. Proof Analysis 5 — Appointment Booking Metadata Assignment
+Source: booking.py
+
+=== Line of Code
+- normalized["start"] = proposed_start.isoformat()
+- normalized["end"] = proposed_end.isoformat()
+
+=== Abstracted Program Statement
+- normalized.start ← proposed_start
+- normalized.end ← proposed_end
+
+=== Desired Postcondition
+After execution, the normalized appointment data must correctly store the scheduled start and end times in ISO format.
+
+==== Postcondition
+- Q ≡ (normalized.start = proposed_start) ∧ (normalized.end = proposed_end)
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x1=normalized.start, E1=proposed_start.isoformat()
+- x2=normalized.end, E2=proposed_end.isoformat()
+
+=== Substitution
+
+==== Original postcondition
+- (normalized.start = proposed_start) ∧ (normalized.end = proposed_end)
+
+==== Substitution for start
+- normalized.start = proposed_start
+  [(proposed_start.isoformat())/normalized.start]
+
+Result:
+- proposed_start.isoformat() = proposed_start.isoformat() → True
+
+==== Substitution for end
+- normalized.end = proposed_end
+  [(proposed_end.isoformat())/normalized.end]
+
+Result:
+- proposed_end.isoformat() = proposed_end.isoformat() → True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ true
+
+No additional assumptions are required beyond valid datetime objects for serialization.
+
+=== Completed Hoare Triple
+
+- {true}
+normalized.start←proposed_start.isoformat();
+normalized.end←proposed_end.isoformat()
+{
+(normalized.start = proposed_start) ∧
+(normalized.end = proposed_end)
+}
+
+=== Correctness Interpretation
+This proof verifies correctness of the final booking metadata assignment.
+
+Whenever the assignment executes, the system guarantees that:
+
+- Appointment start and end times are correctly stored in normalized format,
+- The stored values reflect the computed scheduling interval,
+- The booking record remains consistent for persistence in the database layer.
+
+Within the Medical Appointment Application, this ensures:
+
+- Reliable storage of appointment data,
+- Consistency between scheduling logic and persisted records,
+- Correct downstream usage for retrieval, display, and conflict checking.
+
+== 7. Conclusion
+Here, we demonstrated how Hoare Logic Assignment Proof Rules can be used to formally verify correctness of assignment operations in a real-world medical appointment system.
+Across five analyzed cases, we derived preconditions and postconditions for key state updates including appointment scheduling, user registration, role resolution, and booking persistence. The analysis confirmed that most assignments preserve correctness under minimal or trivial preconditions, while also highlighting cases where safety constraints are necessary to prevent invalid system states.
+Overall, the application of Assignment Proof Rules provides a structured way to reason about program correctness at the state level and ensures that critical operations maintain consistent and valid behavior.
