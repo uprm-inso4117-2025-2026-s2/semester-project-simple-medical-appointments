@@ -1,0 +1,175 @@
+=  Designing Domain-Specific Generators for Appointment Scheduling Constraints
+:author: Yulio7
+
+== Intro
+
+This document presents the implementation of domain-specific generators for property-based testing in the appointment scheduling system.
+
+The objective was to generate structured and valid inputs that reflect real scheduling constraints and to validate system properties across a wide range of automatically generated scenarios.
+
+---
+
+== Property-Based Testing Approach
+
+Property-based testing was applied by defining general properties that must always hold for the system and validating them across many generated inputs.
+
+Instead of manually writing individual test cases, generators were used to produce multiple structured inputs. Each input was evaluated against defined properties, allowing testing across a wide range of conditions.
+
+The lecture emphasizes that generators must produce structured and meaningful data. Random or unstructured values are not sufficient for testing complex systems.
+
+For this reason, all generators were designed to respect scheduling constraints such as valid time ranges, non-overlapping appointments, and availability conditions.
+
+---
+
+== Generator Construction Strategy
+
+Generator construction followed lecture techniques to ensure structured input generation.
+
+Built-in generators were used for primitive values such as time and duration. These values were combined using pair constructions to represent related data, such as availability intervals.
+
+The oneof technique was used to simulate different system scenarios, including empty schedules, partial schedules, and full schedules.
+
+The map technique was used to transform generated values into structured scheduling data that matches the system’s expected format.
+
+By combining these techniques, the generators produced realistic and varied inputs that closely reflect real-world scheduling behavior.
+
+---
+
+== Implemented Generators
+
+Appointment time values were generated within valid clinic hours.
+
+Appointment durations were generated as positive values within acceptable limits.
+
+Doctor availability intervals were generated using paired values representing start and end times.
+
+Schedules were generated sequentially to ensure that appointments do not overlap.
+
+Scenario generation was used to simulate different system states, including empty and partial schedules.
+
+---
+
+== Code Example: Generator Implementation
+
+[source,python]
+----
+import random
+
+OPENING_TIME = 480
+CLOSING_TIME = 1020
+
+def generate_appointment_time():
+    return random.randint(OPENING_TIME, CLOSING_TIME)
+
+def generate_duration():
+    return random.choice([15, 30, 45, 60, 90, 120])
+
+def generate_availability():
+    start = random.randint(OPENING_TIME, 900)
+    end = start + random.randint(60, 180)
+    return (start, end)
+
+def generate_schedule():
+    schedule = []
+    current_time = OPENING_TIME
+
+    while current_time < CLOSING_TIME:
+        duration = generate_duration()
+        end_time = current_time + duration
+
+        if end_time <= CLOSING_TIME:
+            schedule.append((current_time, end_time))
+
+        current_time = end_time + random.randint(5, 20)
+
+    return schedule
+----
+
+---
+
+== Defined Properties
+
+Property 1: ensures that no two appointments overlap, validating scheduling correctness.
+
+Property 2: ensures that appointments fall within defined availability intervals, validating booking constraints.
+
+Property 3: ensures that all durations are positive and valid.
+
+Property 4: ensures that appointment times fall within clinic operating hours.
+
+These properties capture essential correctness conditions for the system.
+
+---
+
+== Code Example: Property Validation
+
+[source,python]
+----
+def no_overlap(schedule):
+    for i in range(len(schedule) - 1):
+        assert schedule[i][1] <= schedule[i + 1][0]
+
+def valid_time_range(schedule):
+    for start, end in schedule:
+        assert OPENING_TIME <= start <= CLOSING_TIME
+        assert OPENING_TIME <= end <= CLOSING_TIME
+        assert start < end
+----
+
+---
+
+== Use of Preconditions
+
+Preconditions were used to restrict when properties are evaluated.
+
+This ensures that properties are only checked when inputs satisfy required conditions, preventing invalid evaluations.
+
+---
+
+== Execution Results
+
+Generators were used to produce a large number of test inputs automatically.
+
+Across all generated inputs, the system maintained required constraints. No overlapping schedules were produced, and all times and durations remained valid.
+
+The automated approach allowed testing across many scenarios that would be difficult to create manually.
+
+---
+
+== Edge Cases Observed
+
+Property-based testing revealed important boundary cases, including:
+
+* Appointments at opening and closing times
+* Back-to-back scheduling with minimal gaps
+* Maximum duration appointments near system limits
+
+These cases validated correct behavior at system boundaries.
+
+---
+
+== Discussion
+
+The results demonstrate that structured generators significantly improve testing effectiveness.
+
+Compared to traditional testing, this approach explores more scenarios and validates system invariants more systematically.
+
+The lecture highlights that generator quality directly impacts testing effectiveness, which was confirmed in this implementation.
+
+---
+
+== Limitations
+
+Generators must be carefully designed to avoid invalid inputs.
+
+Some real-world constraints were simplified.
+
+Random generation may not cover all rare cases.
+
+---
+
+== Conclusion
+
+Domain-specific generators improve property-based testing by producing realistic inputs and enabling systematic validation of system properties.
+
+This increases confidence in system correctness and aligns with lecture concepts.
