@@ -1,0 +1,54 @@
+=== Distinguishing Performance Metrics in Healthcare System Operations
+:author: Alejandro E. López Rodríguez
+
+Healthcare systems support many different operations that place varying demands on system performance. Appointment scheduling, patient record access, and prescription management each require different levels of responsiveness, reliability, and operational efficiency. Because these activities involve different workflows and priorities, a single performance measurement is not sufficient to evaluate overall system behavior. Distinguishing performance metrics helps identify how well the system supports healthcare operations under different operational conditions.
+
+Within the Simple Medical domain, some operations prioritize immediate responsiveness while others prioritize consistency and reliability. Appointment scheduling operations require quick response times so patients can reserve available time slots without unnecessary delays. Medical record operations prioritize consistency and accuracy because incorrect or incomplete information may directly affect patient care. Prescription management operations require both responsiveness and reliability to ensure that medication information remains available and correct during medical consultations.
+
+==== Response Time Metrics
+
+One important performance metric is response time. Response time measures how long the system takes to complete a request after receiving it.
+
+[source]
+responseTime :
+MedicalOperation -> TimeDuration
+
+Appointment scheduling operations depend heavily on low response times. Patients searching for available appointment slots expect immediate feedback when selecting physicians or confirming reservations. If response times become excessively slow during scheduling operations, users may attempt repeated requests or abandon the scheduling process entirely. Medical record retrieval operations also depend on acceptable response times. Physicians accessing patient histories during consultations require fast retrieval of medical information in order to avoid delays during treatment or diagnosis activities.
+
+==== Reliability Metrics
+
+Reliability measures the ability of the system to consistently perform operations without failure.
+
+[source]
+operationReliability :
+MedicalOperation -> SuccessRate
+
+Prescription update operations rely strongly on reliability metrics because medication information must remain accurate and consistently available. A failed prescription update may leave medication records incomplete or inconsistent, potentially affecting patient treatment decisions. Appointment scheduling operations also depend on reliability. Failed scheduling requests may incorrectly reserve appointment slots or prevent patients from successfully booking available appointments. Reliability metrics help identify whether operations continue functioning correctly during periods of increased activity.
+
+==== Throughput Metrics
+
+Throughput measures the number of operations the system can process within a given time period.
+
+[source]
+systemThroughput :
+MedicalOperation -> RequestsPerMinute
+
+Healthcare systems may experience periods of heavy operational demand involving many simultaneous appointment requests or medical record accesses. Throughput metrics help evaluate whether the system can continue processing large volumes of requests without significant degradation of service. Scheduling operations often require higher throughput capacity because many patients may attempt to access scheduling services concurrently during peak hours. In contrast, prescription update operations may involve fewer requests but place greater emphasis on correctness and consistency.
+
+==== Availability Metrics
+
+Availability measures the percentage of time the healthcare system remains operational and accessible.
+
+[source]
+systemAvailability :
+System -> AvailabilityPercentage
+
+Healthcare environments frequently require continuous access to medical information and scheduling services. If the system becomes unavailable, physicians and patients may temporarily lose access to appointments, prescriptions, or medical histories. Availability metrics help evaluate whether the system can maintain acceptable operational uptime during both normal and high-demand conditions.
+
+==== Operational Differences Between Healthcare Activities
+
+Different healthcare operations rely on different combinations of performance metrics. Appointment scheduling prioritizes responsiveness and throughput because many users may access scheduling services simultaneously. Medical record management prioritizes reliability and consistency because medical information must remain accurate across all operations. Prescription management depends on both reliability and availability to ensure medication information remains correct and continuously accessible. These differences demonstrate why healthcare systems cannot rely on a single measurement when evaluating system performance. Each operation introduces different operational expectations and risks that require separate performance considerations.
+
+==== Conclusion
+
+Distinguishing performance metrics allows healthcare systems to be evaluated according to the specific operational demands of different medical activities. Response time, reliability, throughput, and availability each provide insight into different aspects of system behavior. By identifying how healthcare workflows depend on different performance measurements, the development team can better evaluate system behavior while preserving operational efficiency, consistency, and reliability across medical operations.
