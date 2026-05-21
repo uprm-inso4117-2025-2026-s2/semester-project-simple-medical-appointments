@@ -289,3 +289,110 @@ Taken together, the precondition set defined in the Hoare triple is sufficient t
 [1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
 
 [2] K. R. M. Leino, "Dafny: An Automatic Program Verifier for Functional Correctness," in _Proc. 16th Int. Conf. Logic for Programming, Artificial Intelligence, and Reasoning (LPAR-16)_, 2010, pp. 348–370.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+==== Verification of Appointment Cancellation Consistency Using Preconditions, Post conditions & Proof Rules
+:author: Victoria Miranda Osuna
+
+===== GOAL
+
+Verify that the appointment cancellation workflow of the medical scheduling
+application preserves system consistency and correctly restores doctor
+availability without introducing invalid scheduling states.
+
+
+===== PROPOSED SOLUTION
+
+1. Defining formal preconditions required before an appointment can be canceled.
+
+Identify:
+
+    - That the appointment exists in the system as appointmentID.
+    - Appointment belongs to the patient requesting the cancellation.
+    - Appointment has not already been canceled.
+    - Appointment status is eligible for cancellation.
+    - Associated doctor slot exists in the scheduling system.
+    - Cancellation request data is valid and authenticated.
+
+    {
+        appointmentExists(appointmentID)
+        ^ belongsToPatient(appointmentID, patientID)
+        ^ cancelable(appointmentID)
+        ^ slotExists(slotID)
+        ^ requestIsValid(patientID, appointmentID)
+    }
+
+    cancel_appointment(patientID, appointmentID)
+
+    { Q }
+
+
+2. Defining post conditions that must hold after successful cancellation.
+
+    - Appointment record must no longer exist as an active booking after
+      cancel_appointment() executes successfully.
+    - Associated doctor slot must be restored to an available state.
+    - Cancellation process must only modify the targeted appointment and
+      its corresponding slot.
+    - All unrelated appointments and scheduling records must remain unchanged.
+
+    { P }
+
+    cancel_appointment(patientID, appointmentID)
+
+    {
+        !appointmentActive(appointmentID)
+        ^ slotAvailable(slotID)
+        ^ !booked(doctorID, slotID)
+        ^ unrelatedAppointmentsUnchanged
+    }
+
+
+3. Using proof rules and logical assertions to demonstrate that the operation
+   preserves scheduling consistency.
+
+    - Proof rules and logical assertions are applied throughout the
+      cancellation workflow to verify scheduling consistency.
+    - Logical assertions help ensure that invalid operations are rejected
+      before any scheduling data is changed.
+    - After verifying appointment ownership, the system can assert that
+      the requesting patient is authorized to perform the cancellation.
+
+    // @Assert: appointmentExists(appointmentID)
+    // @Assert: patientAuthorized(patientID, appointmentID)
+    // @Assert: appointmentCancelable(appointmentID)
+
+
+4. Verifying that cancellation correctly restores slot availability while
+   preventing accidental modification of unrelated appointments.
+
+    - Cancellation workflow must restore doctor slot availability after
+      an appointment is removed.
+    - After the cancellation succeeds, the previously occupied slot
+      transitions back to an available state.
+    - Restoring slot availability allows future patients to schedule
+      the same time slot again.
+    - The workflow ensures that slot status is updated consistently after
+      successful cancellation.
+
+    { slotOccupied(slotID) }
+
+    cancel_appointment(patientID, appointmentID)
+
+    { slotAvailable(slotID) }
+
+
+===== SUCCESS CRITERIA
+
+    - Formal preconditions and post conditions are clearly defined.
+    - Logical proof rules are applied to validate operation is correct.
+    - The analysis demonstrates that failed operations preserve the
+      original system state.
+    - The verification shows that successful cancellation transitions
+      the system into a valid scheduling state.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+[2] Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.

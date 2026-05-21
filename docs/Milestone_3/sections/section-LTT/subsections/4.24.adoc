@@ -1,154 +1,342 @@
-=  Designing Domain-Specific Generators for Appointment Scheduling Constraints
-:author: Yulio7
+= Assignment Proof Rules for Medical Appointment State Updates 
+:Author: Juan Ortiz
 
-== Intro
+== 1. Introduction
+The goal of this task is to formally verify correctness of assignment statements that modify critical system state such as appointment scheduling data, user registration details, and authorization roles.
+Using the Assignment Rule (A1), each proof derives a required precondition from a specified postcondition through substitution. This allows reasoning about whether each assignment preserves intended system properties and avoids invalid states.
+The analyzed operations are extracted from real implementation code and represent core functionality such as booking appointments, resolving user roles, and constructing registration data.
 
-This document presents the implementation of domain-specific generators for property-based testing in the appointment scheduling system.
+== 2. Proof Analysis 1 — Appointment End Time Calculation
+Source: booking.py
 
-The objective was to generate structured and valid inputs that reflect real scheduling constraints and to validate system properties across a wide range of automatically generated scenarios.
+=== Line of Code
+- proposed_end = proposed_start + timedelta(minutes=slot_minutes)
 
----
+=== Abstracted Program Statement
+- proposed_end ← proposed_start + slot_minutes
 
-== Property-Based Testing Approach
+=== Desired Postcondition
+After execution, the appointment end time should equal the appointment start time plus the selected duration.
 
-Property-based testing was applied by defining general properties that must always hold for the system and validating them across many generated inputs.
+==== Postcondition
+- Q ≡ proposed_end = proposed_start + slot_minutes
 
-Instead of manually writing individual test cases, generators were used to produce multiple structured inputs. Each input was evaluated against defined properties, allowing testing across a wide range of conditions.
+=== Assignment Rule (A1)
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P} 
 
-The lecture emphasizes that generators must produce structured and meaningful data. Random or unstructured values are not sufficient for testing complex systems.
+==== where
+- x=proposed_end
+- E=proposed_start+slot_minutes.
 
-For this reason, all generators were designed to respect scheduling constraints such as valid time ranges, non-overlapping appointments, and availability conditions.
+=== Substitution
+Substitute the assignment expression into the postcondition.
 
----
+==== Original postcondition
+- proposed_end=proposed_start+slot_minutes
 
-== Generator Construction Strategy
+==== Substitution
+- (proposed_end=proposed_start+slot_minutes)[(proposed_start+slot_minutes)/proposed_end]
 
-Generator construction followed lecture techniques to ensure structured input generation.
+==== Result
+- proposed_start+slot_minutes=proposed_start+slot_minutes
 
-Built-in generators were used for primitive values such as time and duration. These values were combined using pair constructions to represent related data, such as availability intervals.
+===== Which simplifies to 
+- True
 
-The oneof technique was used to simulate different system scenarios, including empty schedules, partial schedules, and full schedules.
+=== Derived Precondition
+The required precondition is:
 
-The map technique was used to transform generated values into structured scheduling data that matches the system’s expected format.
+- P ≡ true
 
-By combining these techniques, the generators produced realistic and varied inputs that closely reflect real-world scheduling behavior.
+No additional assumptions are required beyond valid execution semantics.
 
----
+=== Completed Hoare Triple
+- {true} proposed_end←proposed_start+slot_minutes {proposed_end=proposed_start+slot_minutes}
 
-== Implemented Generators
+=== Correctness Interpretation
+This proof verifies correctness of the application's appointment duration calculation. 
+Whenever the assignment executes, the computed end time is guaranteed to equal the appointment start time plus the selected appointment duration.
+Within the application, this ensures: 
 
-Appointment time values were generated within valid clinic hours.
+- Appointment intervals are internally consistent,
+- Scheduling calculations use the correct duration,
+- Downstream conflict detection receives correct time boundaries.
 
-Appointment durations were generated as positive values within acceptable limits.
 
-Doctor availability intervals were generated using paired values representing start and end times.
+== 3. Proof Analysis 2 — Slot Duration Resolution
+Source: availability.py
 
-Schedules were generated sequentially to ensure that appointments do not overlap.
+=== Line of Code
+- slot_minutes = _resolve_slot_minutes(doctor_id)
 
-Scenario generation was used to simulate different system states, including empty and partial schedules.
+=== Abstracted Program Statement
+- slot_minutes ← resolved_duration
 
----
-== Code Example: Generator Implementation
+=== Desired Postcondition
+After execution, the appointment slot duration should always be a positive value.
 
-[source,python]
-----
-import random
+==== Postcondition
+- Q ≡ slot_minutes > 0
 
-OPENING_TIME = 480
-CLOSING_TIME = 1020
+=== Assignment Rule (A1)
 
-def generate_appointment_time():
-    return random.randint(OPENING_TIME, CLOSING_TIME)
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
 
-def generate_duration():
-    return random.choice([15, 30, 45, 60, 90, 120])
+==== where
+- x=slot_minutes
+- E=resolved_duration
 
-def generate_availability():
-    start = random.randint(OPENING_TIME, 900)
-    end = random.randint(start + 60, CLOSING_TIME)
-    return (start, end)
+=== Substitution
+Substitute the assignment expression into the postcondition.
 
-def generate_schedule():
-    schedule = []
-    current_time = OPENING_TIME
+==== Original postcondition
+- slot_minutes > 0
 
-    while current_time < CLOSING_TIME:
-        duration = generate_duration()
-        end_time = current_time + duration
+==== Substitution
+- (slot_minutes > 0)[resolved_duration/slot_minutes]
 
-        if end_time <= CLOSING_TIME:
-            schedule.append((current_time, end_time))
+==== Result
+- resolved_duration > 0
 
-        current_time = end_time + random.randint(5, 20)
+=== Derived Precondition
+The required precondition is:
 
-    return schedule
-----
-== Defined Properties
+- P ≡ resolved_duration > 0
 
-Property 1 ensures that no two appointments overlap, validating scheduling correctness.
+The resolved appointment duration must be strictly greater than zero before the assignment executes.
 
-Property 2 ensures that appointments fall within defined availability intervals, validating booking constraints.
+=== Completed Hoare Triple
 
-Property 3 ensures that all durations are positive and valid.
+- {resolved_duration > 0} slot_minutes←resolved_duration {slot_minutes > 0}
 
-Property 4 ensures that appointment times fall within clinic operating hours.
+=== Correctness Interpretation
+This proof verifies correctness of the application's slot duration assignment. Whenever the assignment executes, the resulting slot duration is guaranteed to remain positive.
 
-These properties capture essential correctness conditions for the system.
+Within the application, this ensures:
 
----
+- Appointment slots always have a valid duration,
+- Zero-length or negative-length appointments are prevented,
+- Scheduling logic can safely generate appointment availability.
 
-== Use of Preconditions
+This analysis represents a failure-prevention scenario because invalid slot durations could break scheduling computations and availability generation.
 
-Preconditions were used to restrict when properties are evaluated.
 
-This ensures that properties are only checked when inputs satisfy required conditions, preventing invalid evaluations.
+== 4. Proof Analysis 3 — Display Name Construction
+Source: registration.py
 
----
+=== Line of Code
+- display_name = f"{first_name} {last_name}"
 
-== Execution Results
+=== Abstracted Program Statement
+- display_name ← first_name + " " + last_name
 
-Generators were used to produce a large number of test inputs automatically.
+=== Desired Postcondition
+After execution, the display name should correctly combine the user's first and last name.
 
-Across all generated inputs, the system maintained required constraints. No overlapping schedules were produced, and all times and durations remained valid.
+==== Postcondition
+- Q ≡ display_name = first_name + " " + last_name
 
-The automated approach allowed testing across many scenarios that would be difficult to create manually.
+=== Assignment Rule (A1)
 
----
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
 
-== Edge Cases Observed
+==== where
+- x=display_name
+- E=first_name+" "+last_name
 
-Property-based testing revealed important boundary cases, including:
+=== Substitution
+Substitute the assignment expression into the postcondition.
 
-* Appointments at opening and closing times
-* Back-to-back scheduling with minimal gaps
-* Maximum duration appointments near system limits
+==== Original postcondition
+- display_name=first_name+" "+last_name
 
-These cases validated correct behavior at system boundaries.
+==== Substitution
+- (display_name=first_name+" "+last_name)[(first_name+" "+last_name)/display_name]
 
----
+==== Result
+- first_name+" "+last_name=first_name+" "+last_name
 
-== Discussion
+===== Which simplifies to
+- True
 
-The results demonstrate that structured generators significantly improve testing effectiveness.
+=== Derived Precondition
+The required precondition is:
 
-Compared to traditional testing, this approach explores more scenarios and validates system invariants more systematically.
+- P ≡ true
 
-The lecture highlights that generator quality directly impacts testing effectiveness, which was confirmed in this implementation.
+No additional assumptions are required beyond valid execution semantics.
 
----
+=== Completed Hoare Triple
 
-== Limitations
+- {true} display_name←first_name+" "+last_name {display_name=first_name+" "+last_name}
 
-Generators must be carefully designed to avoid invalid inputs.
+=== Correctness Interpretation
+This proof verifies correctness of the application's display name construction during user registration. Whenever the assignment executes, the resulting display name is guaranteed to contain the user's first name followed by a space and the user's last name.
 
-Some real-world constraints were simplified.
+Within the application, this ensures:
 
-Random generation may not cover all rare cases.
+- User profiles display consistent naming information,
+- Automatically generated names follow the expected format,
+- Registration data remains internally consistent across profile records.
 
----
 
-== Conclusion
+== 5. Proof Analysis 4 — Role Resolution (Admin Precedence)
+Source: user_roles.py
 
-Domain-specific generators improve property-based testing by producing realistic inputs and enabling systematic validation of system properties.
+=== Line of Code
+- return "admin" if "admin" in role_names else role_names[0]
 
-This increases confidence in system correctness and aligns with lecture concepts.
+=== Abstracted Program Statement
+- resolved_role ← "admin" (if admin ∈ role_names) else role_names[0]
+
+=== Desired Postcondition
+After execution, if the user has the admin role, it must be returned; otherwise the first available role is returned.
+
+==== Postcondition
+- Q ≡ (admin ∈ role_names → resolved_role = "admin") ∧ (admin ∉ role_names → resolved_role = role_names[0])
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x=resolved_role
+- E=conditional expression over role_names
+
+=== Substitution
+We analyze the two possible outcomes of the conditional assignment.
+
+==== Case 1: admin ∈ role_names
+- resolved_role = "admin"
+
+Substitution:
+- (resolved_role = "admin")[ "admin" / resolved_role ]
+
+Result:
+- admin = admin → True
+
+==== Case 2: admin ∉ role_names
+- resolved_role = role_names[0]
+
+Substitution:
+- (resolved_role = role_names[0])[ role_names[0] / resolved_role ]
+
+Result:
+- role_names[0] = role_names[0] → True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ role_names ≠ ∅
+
+The list of roles must be non-empty to guarantee safe indexing of role_names[0].
+
+=== Completed Hoare Triple
+
+- {role_names ≠ ∅}
+resolved_role←(admin if admin∈role_names else role_names[0])
+{
+(admin ∈ role_names → resolved_role = "admin") ∧
+(admin ∉ role_names → resolved_role = role_names[0])
+}
+
+=== Correctness Interpretation
+This proof verifies correctness of role resolution logic used in authentication and authorization.
+
+Whenever the assignment executes, the system guarantees that:
+
+- Admin users always receive highest-priority role assignment,
+- Non-admin users are assigned a valid fallback role,
+- Role selection is deterministic and safe from empty-list errors.
+
+Within the application, this ensures:
+
+- Proper access control decisions,
+- Consistent role-based behavior across the system,
+- Prevention of invalid role lookups when multiple roles exist.
+
+== 6. Proof Analysis 5 — Appointment Booking Metadata Assignment
+Source: booking.py
+
+=== Line of Code
+- normalized["start"] = proposed_start.isoformat()
+- normalized["end"] = proposed_end.isoformat()
+
+=== Abstracted Program Statement
+- normalized.start ← proposed_start
+- normalized.end ← proposed_end
+
+=== Desired Postcondition
+After execution, the normalized appointment data must correctly store the scheduled start and end times in ISO format.
+
+==== Postcondition
+- Q ≡ (normalized.start = proposed_start) ∧ (normalized.end = proposed_end)
+
+=== Assignment Rule (A1)
+
+==== Using the Hoare Logic Assignment Rule
+- {P[E/x]} x←E {P}
+
+==== where
+- x1=normalized.start, E1=proposed_start.isoformat()
+- x2=normalized.end, E2=proposed_end.isoformat()
+
+=== Substitution
+
+==== Original postcondition
+- (normalized.start = proposed_start) ∧ (normalized.end = proposed_end)
+
+==== Substitution for start
+- normalized.start = proposed_start
+  [(proposed_start.isoformat())/normalized.start]
+
+Result:
+- proposed_start.isoformat() = proposed_start.isoformat() → True
+
+==== Substitution for end
+- normalized.end = proposed_end
+  [(proposed_end.isoformat())/normalized.end]
+
+Result:
+- proposed_end.isoformat() = proposed_end.isoformat() → True
+
+=== Derived Precondition
+The required precondition is:
+
+- P ≡ true
+
+No additional assumptions are required beyond valid datetime objects for serialization.
+
+=== Completed Hoare Triple
+
+- {true}
+normalized.start←proposed_start.isoformat();
+normalized.end←proposed_end.isoformat()
+{
+(normalized.start = proposed_start) ∧
+(normalized.end = proposed_end)
+}
+
+=== Correctness Interpretation
+This proof verifies correctness of the final booking metadata assignment.
+
+Whenever the assignment executes, the system guarantees that:
+
+- Appointment start and end times are correctly stored in normalized format,
+- The stored values reflect the computed scheduling interval,
+- The booking record remains consistent for persistence in the database layer.
+
+Within the Medical Appointment Application, this ensures:
+
+- Reliable storage of appointment data,
+- Consistency between scheduling logic and persisted records,
+- Correct downstream usage for retrieval, display, and conflict checking.
+
+== 7. Conclusion
+Here, we demonstrated how Hoare Logic Assignment Proof Rules can be used to formally verify correctness of assignment operations in a real-world medical appointment system.
+Across five analyzed cases, we derived preconditions and postconditions for key state updates including appointment scheduling, user registration, role resolution, and booking persistence. The analysis confirmed that most assignments preserve correctness under minimal or trivial preconditions, while also highlighting cases where safety constraints are necessary to prevent invalid system states.
+Overall, the application of Assignment Proof Rules provides a structured way to reason about program correctness at the state level and ensures that critical operations maintain consistent and valid behavior.

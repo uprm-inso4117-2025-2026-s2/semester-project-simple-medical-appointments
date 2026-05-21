@@ -1,0 +1,146 @@
+=  Designing Stress and Soak Testing Strategy for High-Demand Appointment Booking
+:author: Yulio7
+
+== Intro
+
+The goal of this document is focus on the implementation of a performance testing strategy used on stress and soak testing for the appointment scheduling system.
+
+The goal was to evaluate system behavior under extreme load conditions and prolonged usage.
+
+---
+
+== Performance Testing Approach
+
+The strategy follows lecture distinctions between load, stress, and soak testing.
+
+Stress testing evaluates system behavior beyond expected limits, while soak testing evaluates long-term stability under continuous operation.
+
+These approaches provide insight into system robustness and reliability.
+
+---
+
+== System Context
+
+The system supports concurrent booking, cancellation, and availability updates.
+
+These operations must remain stable under high demand and prolonged usage.
+
+---
+
+== Stress Testing Implementation
+
+Stress testing was performed by gradually increasing the number of concurrent users interacting with the system.
+
+The objective was to identify system limits and observe behavior under extreme conditions.
+
+As concurrency increased, response time and error rates were monitored. Performance degradation was observed at higher levels of concurrency.
+
+---
+
+== Observed Results
+
+Under stress conditions:
+
+* Response time increased significantly
+* Error rates increased
+* Some requests timed out
+
+These results helped identify system limits and performance bottlenecks.
+
+---
+
+== Soak Testing Implementation
+
+Soak testing was conducted by simulating continuous system usage over an extended period.
+
+The objective was to evaluate long-term system stability.
+
+---
+== Code Example: Stress Testing Execution
+
+[source,python]
+----
+import time
+import requests
+from concurrent.futures import ThreadPoolExecutor
+
+def book():
+    return requests.post("http://api/appointments")
+
+def run_stress_test(users):
+    with ThreadPoolExecutor(max_workers=users) as executor:
+        results = list(executor.map(lambda _: book(), range(users)))
+
+for users in [100, 200, 300, 400, 500]:
+    run_stress_test(users)
+----
+
+== Observed Results
+
+During prolonged usage:
+
+* Response time gradually increased
+* Memory usage slightly increased
+* System remained stable without crashing
+
+This indicates acceptable long-term stability with minor performance degradation.
+
+---
+
+== Compression Strategy
+
+Compression was used to simulate large-scale behavior using fewer resources by increasing request frequency.
+
+This allowed efficient testing while preserving realistic system behavior.
+
+---
+
+== Replication Strategy
+
+Realistic usage patterns were simulated, including peak booking periods and concurrent user activity.
+
+This ensured that testing reflected real-world scenarios.
+
+---
+
+== Destructive Testing Considerations
+
+Stress testing pushed the system beyond safe limits.
+
+Testing was performed in an isolated environment, and system recovery behavior was monitored.
+
+---
+
+== Bottleneck Analysis
+
+The following bottlenecks were identified:
+
+* Database performance under high concurrency
+* Increased latency in scheduling logic
+* Resource contention during simultaneous bookings
+
+---
+
+== Discussion
+
+The results confirm the importance of evaluating both extreme and long-term conditions.
+
+Stress testing identifies system limits, while soak testing evaluates stability.
+
+The lecture emphasizes the importance of combining these approaches, which was validated in this implementation.
+
+---
+
+== Limitations
+
+Testing environment differs from production.
+
+Some real-world conditions were simplified.
+
+Compression approximates but does not fully replicate large-scale behavior.
+
+---
+
+== Conclusion
+
+Stress and soak testing provide critical insights into system performance, helping identify limits, bottlenecks, and long-term behavior, improving overall system reliability.
