@@ -16,6 +16,9 @@ def create_app(testing: bool = False):
     # Load configuration from the Config class (reads from .env via config.py)
     app.config.from_object(Config)
 
+    #IMPORTANT: Enables test mode (pytest)
+    app.config["TESTING"] = testing
+
     # Enable CORS so the React frontend (on a different port) can call this API.
     # In production, restrict origins to your actual domain instead of allowing all.
     CORS(app)
