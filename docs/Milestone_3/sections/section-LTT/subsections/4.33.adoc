@@ -1,5 +1,5 @@
 === *Pre- and Postconditions — User Management Operations*
-:author: Pierre Ramos
+:author: pierreg-vales
 
 This section applies the *pre- and postconditions* lecture to the User
 Management module of the Simple Medical Appointments backend by formally
