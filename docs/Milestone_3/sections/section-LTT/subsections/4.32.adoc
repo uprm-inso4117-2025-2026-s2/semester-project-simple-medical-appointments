@@ -1,5 +1,5 @@
 === *Performance Testing — User Management Authentication Flow*
-:author: Pierre Ramos
+:author: pierreg-vales
 
 This section applies the *performance testing* lecture to the User Management
 feature of the Simple Medical Appointments backend. Load tests were designed
