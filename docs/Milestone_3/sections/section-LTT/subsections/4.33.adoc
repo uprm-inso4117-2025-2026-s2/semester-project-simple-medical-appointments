@@ -1,0 +1,212 @@
+=== *Pre- and Postconditions — User Management Operations*
+:author: Pierre Ramos
+
+This section applies the *pre- and postconditions* lecture to the User
+Management module of the Simple Medical Appointments backend by formally
+specifying *Hoare triples* for four core user operations, classifying each
+as partially or totally correct, and mapping each triple to a test case that
+verifies the postcondition.
+
+==== *Lecture Concepts*
+
+A *Hoare triple* has the form `{ P } S { Q }` where:
+
+* *P* (precondition) — what must be true in the program state before `S` runs.
+* *S* (operation) — the program statement or procedure under specification.
+* *Q* (postcondition) — what the operation guarantees upon termination.
+
+*Partial correctness*: if `S` terminates, then `Q` holds. Termination itself
+is not guaranteed.
+
+*Total correctness*: `S` always terminates *and* `Q` holds upon termination.
+
+A *complete precondition* is the weakest condition P such that `{ P } S { Q }`
+is valid — it captures exactly the set of initial states from which `S`
+establishes `Q`.
+
+==== *Triple 1 — User Registration*
+
+*Operation* `S`: `POST /api/auth/register` calls
+`sync_user_after_registration(user_id, data)`, which inserts rows into
+`profiles`, `profile_settings`, and either `patients` or `providers`, then
+assigns the role in `user_roles`.
+
+*Precondition* `P`:
+
+* Request body is valid JSON containing `user_id`, `first_name`, `last_name`,
+  `username`, and `role`.
+* `role` ∈ `{patient, doctor, admin}`.
+* No `profiles` row already exists for `user_id`.
+* The Supabase project is reachable and the service role key is valid.
+
+*Postcondition* `Q`:
+
+* A `profiles` row exists for `user_id` with the supplied name fields.
+* A `profile_settings` row exists for `user_id` with default values.
+* A `patients` or `providers` row exists for `user_id` (depending on role).
+* A `user_roles` row exists linking `user_id` to the requested role.
+* The response status is 201.
+
+*Correctness classification*: *Partial correctness.* If Supabase is
+unreachable or the DB write fails, the operation raises a `RuntimeError` and
+returns 500 without establishing `Q`. Termination under network failure is
+not guaranteed in finite time due to the 20-second socket timeout in
+`_supabase_request`.
+
+*Complete precondition*: P as stated above is the complete precondition.
+Weakening any single condition (e.g., allowing a missing `role` field) makes
+`Q` unachievable because the route returns 400 before `S` executes.
+
+*Test mapping*:
+`test_register_missing_fields` (existing) verifies that violating P causes a
+400 response, confirming the precondition enforcement boundary. A complementary
+test `test_register_success_creates_profile` that posts valid data and asserts
+a 201 response with profile rows in Supabase directly verifies `Q`.
+
+==== *Triple 2 — JWT Verification*
+
+*Operation* `S`: `requires_auth` decorator in
+`backend/app/middleware/auth_middleware.py` calls `verify_jwt(token)`, which
+fetches the Supabase JWKS endpoint, validates the token signature (ES256),
+checks expiry, and either sets `g.user_id` / `g.user` or returns 401.
+
+*Precondition* `P`:
+
+* The HTTP request includes an `Authorization` header with value
+  `Bearer <token>` where `<token>` is a non-empty string.
+* The Supabase JWKS endpoint is reachable (or the cached signing key is
+  available from a prior request).
+
+*Postcondition* `Q`:
+
+* If the token is structurally valid, signed with the correct key, and not
+  expired: `g.user_id` equals the `sub` claim of the token and the protected
+  route handler is invoked.
+* If the token is missing, malformed, expired, or has an invalid signature:
+  the response is 401 and the route handler is never invoked.
+
+*Correctness classification*: *Total correctness.* `verify_jwt` always returns
+(either a payload dict or `None`) within the socket timeout window. Both
+branches of `requires_auth` terminate: valid tokens proceed to the handler,
+invalid tokens return 401 immediately. `Q` holds in every reachable exit path.
+
+*Complete precondition*: The precondition is complete — if the
+`Authorization` header is absent, the code path `if not token: return 401`
+fires before `verify_jwt` is called, which is also captured by Q (401
+returned). No weaker P yields a different Q.
+
+*Test mapping*:
+The `auth_headers` fixture in `backend/tests/conftest.py` mints a valid
+HS256 token using `SUPABASE_JWT_SECRET` and the patched `verify_jwt`. Tests
+that use `auth_headers` and assert 200 verify the valid-token branch of `Q`.
+Tests asserting 401 on requests without the header verify the invalid-token
+branch.
+
+==== *Triple 3 — Role Assignment*
+
+*Operation* `S`: During registration, `sync_user_after_registration` inserts
+a row into the `user_roles` table linking `user_id` to the requested role via
+the Supabase REST API.
+
+*Precondition* `P`:
+
+* `user_id` is a valid UUID that exists in Supabase Auth.
+* `role` ∈ `{patient, doctor, admin}`.
+* No `user_roles` row already exists for `user_id` (first-time registration).
+* The Supabase `user_roles` and `roles` tables are accessible with the
+  service role key.
+
+*Postcondition* `Q`:
+
+* The `user_roles` table contains exactly one row where
+  `user_roles.user_id = user_id` and the linked `roles.name` equals the
+  requested role string.
+* Subsequent queries to `GET /rest/v1/user_roles?user_id=eq.<user_id>&select=roles(name)`
+  return the assigned role.
+
+*Correctness classification*: *Partial correctness.* The operation depends on
+a Supabase write succeeding. If the insert fails (network error, unique
+constraint violation on a duplicate row), `Q` is not established. Termination
+under failure is bounded by the request timeout, not guaranteed to produce `Q`.
+
+*Complete precondition*: P is complete. If `user_id` already has a role row,
+the insert violates the unique constraint and `Q` (exactly one row) cannot be
+established by this operation alone.
+
+*Test mapping*:
+`test_register_success_creates_profile` implicitly verifies role assignment
+as part of the full registration flow by asserting the 201 response. A
+dedicated test querying `user_roles` directly after registration would verify
+`Q` precisely. No existing test currently queries the `user_roles` table in
+isolation — this is a postcondition coverage gap identified by the triple.
+
+==== *Triple 4 — Account Deactivation*
+
+*Operation* `S`: `PUT /api/profile/<user_id>` sets `is_active = false` in
+the `profiles` table for the target user via a Supabase REST PATCH call.
+
+*Precondition* `P`:
+
+* Request carries a valid Bearer token (JWT verification passes, as per
+  Triple 2).
+* The authenticated requester is either the target `user_id` or holds the
+  `admin` role.
+* A `profiles` row exists for `user_id`.
+
+*Postcondition* `Q`:
+
+* The `profiles` row for `user_id` has `is_active = false`.
+* *(Intended but not implemented)* The user cannot authenticate via Supabase
+  Auth — the Supabase Admin API has been called to ban the user.
+
+*Correctness classification*: *Partial correctness — with a known
+postcondition gap.* The DB write (`profiles.is_active = false`) terminates and
+establishes the first part of `Q`. However, the second part is explicitly
+documented as unimplemented in `backend/app/routes/auth.py`:
+
+[source,python]
+----
+# TODO: Implement account deactivation endpoint (backend task)
+# The frontend sets is_active=false in the profiles table via
+# PUT /api/profile/<user_id>, but Supabase Auth still allows the
+# user to sign in because it has no knowledge of that field.
+# A proper implementation requires calling the Supabase Admin API:
+#   PUT /auth/v1/admin/users/<user_id> with body { "ban_duration": "876000h" }
+----
+
+The Hoare triple is therefore only *partially satisfied*: the operation
+terminates and establishes part of `Q`, but the full postcondition (user
+cannot authenticate) is not guaranteed by the current implementation.
+
+*Complete precondition*: P is complete for the DB write. For the full intended
+`Q` (auth ban + DB flag), P would additionally require that the Supabase
+Admin API ban call succeeds — which it currently does not make.
+
+*Test mapping*:
+No existing test verifies that a deactivated user (`is_active = false`) is
+subsequently rejected by the JWT verification flow. This is the most
+significant postcondition coverage gap found by the triple analysis. A test
+that (1) sets `is_active = false` via the profile endpoint, (2) attempts a
+request with the same user's token, and (3) asserts 401, would verify the
+full `Q` — and would currently fail because Supabase Auth does not enforce
+the profiles flag.
+
+==== *What Formalizing the Triples Revealed*
+
+Specifying Hoare triples for these four operations surfaced two concrete gaps:
+
+. *Role assignment has no isolated postcondition test.* The `user_roles`
+  insert is verified only indirectly through the 201 registration response.
+  A test querying the table directly is needed to confirm `Q` independently.
+
+. *Account deactivation has an incomplete postcondition.* The operation
+  establishes `profiles.is_active = false` but does not prevent the user
+  from obtaining a valid JWT. The triple reveals that the operation as
+  currently implemented satisfies only a weaker `Q` than intended, and the
+  TODO comment in the source code confirms this. Until the Supabase Admin
+  API ban is implemented, the deactivation contract is only partially fulfilled.
+
+The two fully satisfied triples — JWT Verification (Triple 2) and the DB
+write portions of Triples 1 and 3 — are *totally or partially correct* within
+their stated preconditions, confirming those operations already satisfy their
+contracts under normal conditions.
