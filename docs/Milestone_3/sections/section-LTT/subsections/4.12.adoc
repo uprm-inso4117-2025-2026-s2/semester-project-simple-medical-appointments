@@ -286,3 +286,132 @@ Maintain documentation of all color palette choices and the rationale behind the
 ==== Conclusion
 The implementation of colorblind themes in the web application demonstrates a strong commitment to accessibility. The clear theme switching, distinct color palettes, and consistent experience are significant strengths. However, there are opportunities to enhance usability by supplementing color with additional indicators, providing theme previews, and ensuring all interactive elements are easily distinguishable. Ongoing user testing and documentation will be essential to maintaining and improving the accessibility of the application for all users.
 
+---
+=== *Usability Testing — Patient and Doctor Registration Flow*
+:author: pierreg-vales
+
+==== Overview
+
+This section applies the *usability testing* lecture to the User Management module by conducting a structured evaluation of the patient and doctor registration flow. The evaluation used the *think-aloud protocol* and *Nielsen's usability heuristics* to measure how efficiently and correctly new users can complete registration. The session was conducted with a peer as the participant using the running application.
+
+==== Task Scenario Design
+
+Five *task scenarios* were designed to cover the full registration journey:
+
+[cols="1,4", options="header"]
+|===
+| Task | Scenario
+
+| T1
+| Complete registration as a patient by filling in all required fields (name, email, password, date of birth) and submitting the form successfully.
+
+| T2
+| Attempt registration with missing required fields (leave email blank) and observe whether the system provides clear error feedback.
+
+| T3
+| Attempt registration with an invalid email format and observe the validation response.
+
+| T4
+| Select the doctor role during registration and observe which additional fields appear compared to the patient flow.
+
+| T5
+| After reaching the registration page, navigate back to the login page using the available UI controls.
+|===
+
+==== Usability Session
+
+A think-aloud session was conducted with one peer participant. The participant was asked to verbalize their thoughts while interacting with the registration interface. The evaluator observed without intervening, recording task completion, errors encountered, hesitations, and points of confusion.
+
+The session covered all five task scenarios sequentially using the running development instance of the application.
+
+==== Metrics
+
+*Task completion rate*, *error rate*, and *time on task* were recorded for each scenario.
+
+[cols="1,3,1,1,1", options="header"]
+|===
+| Task | Description | Completion Rate | Errors Observed | Approx. Time on Task
+
+| T1
+| Complete patient registration
+| 100%
+| 0
+| ~55 s
+
+| T2
+| Submit with missing email field
+| 100%
+| 1 (attempted submission before noticing required field indicator)
+| ~30 s
+
+| T3
+| Submit with invalid email format
+| 100%
+| 1 (participant unsure if form would accept input before submitting)
+| ~25 s
+
+| T4
+| Select doctor role and observe additional fields
+| 100%
+| 0
+| ~20 s
+
+| T5
+| Navigate back to login from registration
+| 100%
+| 0
+| ~10 s
+|===
+
+All five tasks were completed successfully. Minor errors occurred in T2 and T3, both stemming from ambiguous inline validation feedback rather than fundamental flow confusion.
+
+==== Nielsen's Heuristics Evaluation
+
+The registration form was evaluated against five of Nielsen's 10 usability heuristics.
+
+[cols="1,3,2,2", options="header"]
+|===
+| Heuristic | Description | Finding | Verdict
+
+| #1 Visibility of System Status
+| The system should keep users informed about what is going on through appropriate feedback in reasonable time.
+| After form submission, a brief loading state appears before redirecting. The participant momentarily questioned whether the action had registered.
+| Minor violation — a more explicit loading indicator or progress message would improve confidence.
+
+| #3 User Control and Freedom
+| Users often choose system functions by mistake and need a clearly marked emergency exit.
+| A "Back to Login" link is visible on the registration page, allowing easy exit. The participant located it immediately in T5.
+| Meets heuristic.
+
+| #5 Error Prevention
+| Even better than good error messages is a careful design that prevents problems from occurring in the first place.
+| Required fields are not visually distinguished from optional ones prior to submission. The participant submitted the form with a blank email field without anticipating the error.
+| Violation — marking required fields before submission (e.g., asterisk + legend) would prevent this class of error.
+
+| #6 Recognition Rather Than Recall
+| Minimize the user's memory load by making objects, actions, and options visible.
+| The doctor role selection reveals additional fields dynamically. The participant recognized the new fields without needing guidance.
+| Meets heuristic.
+
+| #9 Help Users Recognize, Diagnose, and Recover from Errors
+| Error messages should be expressed in plain language, indicate the problem precisely, and constructively suggest a solution.
+| The error message for an invalid email reads generically. The participant in T3 was unsure which field caused the error until visually scanning the form.
+| Minor violation — inline field-level error messages would reduce diagnosis time.
+|===
+
+==== Think-Aloud Findings
+
+Key observations recorded during the think-aloud session:
+
+* The participant verbalized confusion about whether the email field was required before attempting submission in T2, confirming the heuristic #5 violation.
+* During T3, the participant said "I'm not sure where the problem is" after the generic error appeared, supporting the heuristic #9 finding.
+* The role selection toggle (patient vs. doctor) was described as "clear and immediate" — no hesitation was observed.
+* The "Back to Login" link was found without hesitation, confirming strong user control and freedom for this flow.
+* Overall, the participant described the registration interface as "straightforward" after completing all tasks.
+
+==== Conclusion
+
+The usability session confirmed that the registration flow is generally learnable and efficient. All five task scenarios were completed with a 100% *task completion rate*. The *error rate* was low, with two minor errors both attributable to the same root cause: insufficient pre-submission feedback on required fields and field-level error attribution.
+
+Two usability issues were identified against Nielsen's heuristics — required field visibility (heuristic #5) and inline error messages (heuristic #9) — and represent actionable improvements. The remaining three heuristics evaluated were met without violations, indicating that the core registration flow supports user control, recognition-based interaction, and role-based field disclosure effectively.
+
