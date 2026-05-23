@@ -1,1 +1,195 @@
 === *Property-based Testing*
+
+==== Appointment Cancellation and Rescheduling - Property-Based Test Specification
+:author: Keishlyany Sanabria (@keisanabria)
+
+===== **Overview**
+
+This section defines a comprehensive set of properties (invariants) for the appointment cancellation and rescheduling workflows.
+
+The specification follows the property-based testing methodology, including:
+
+- Property definitions using implication (==>) syntax (Slide 7)
+
+- Scenario classification for coverage (Slides 31-34)
+
+- Counterexample shrinking strategies (Slide 38)
+
+This section is intended to be directly actionable by developers implementing property-based tests.
+
+===== **Domain Context**
+
+The system manages medical appointments with the following relevant business rules:
+
+- Appointments can be in states such as: `confirmed`, `pending`, `cancelled`, `completed`, `past`
+
+- Cancellation may require a minimum notice period (for example: 24 hours before appointment time)
+
+- Rescheduling depends on slot availability and may involve:
+
+  * Same doctor
+
+  * Different doctor (same specialty)
+
+  * Different specialty
+
+- Waitlists may be triggered when slots become available
+
+- Notifications must be sent on state changes
+
+===== **Data Generators Description**
+
+====== **Core Entities**
+
+The following randomized inputs must be generated:
+
+*Appointment*
+
+- `id`
+
+- `status` ∈ {confirmed, pending, cancelled, completed, past}
+
+- `time` (future or past timestamp)
+
+- `doctorId`
+
+- `specialty`
+
+- `patientId`
+
+*User*
+
+- `type` ∈ {patient, clinic_staff}
+
+*Time Context*
+
+- `currentTime`
+
+- Time differences relative to appointment (for example: <24h, ≥24h)
+
+*Reschedule Target Slot*
+
+- `newSlot.time`
+
+- `newSlot.doctorId`
+
+- `newSlot.specialty`
+
+- `newSlot.isAvailable`
+
+====== **Scenario Classification (Slides 31-34)**
+
+To ensure coverage, generated scenarios must be classified into categories:
+
+*Cancellation Scenarios*
+
+- Cancel ≥24h before appointment
+
+- Cancel <24h before appointment
+
+- Cancel past appointment
+
+- Cancel already cancelled appointment
+
+*Rescheduling Scenarios*
+
+- Reschedule to same doctor
+
+- Reschedule to different doctor (same specialty)
+
+- Reschedule across specialties
+
+- Reschedule to unavailable slot
+
+- Reschedule past appointment
+
+*User Context*
+
+- Action performed by patient
+
+- Action performed by clinic staff
+
+These classifications must be tracked to ensure all categories are exercised during testing.
+
+===== **Properties to Verify (Slide 7)**
+
+All properties are expressed using implication syntax (==>).
+
+====== **Property 1: Valid Cancellation Window**
+
+(appointment.status == "confirmed" && currentTime < appointment.time - 24h)
+==> cancel(appointment) == "success"
+
+====== **Property 2: Late Cancellation Rejection or Penalty**
+
+(appointment.status == "confirmed" && currentTime >= appointment.time - 24h)
+==> cancel(appointment) ∈ {"rejected", "penalty_applied"}
+
+====== **Property 3: Cancellation Frees Slot**
+
+(cancel(appointment) == "success")
+==> appointment.slot.isAvailable == true
+
+====== **Property 4: Reschedule Requires Availability**
+
+(reschedule(appointment, newSlot) == "success")
+==> newSlot.isAvailable == true
+
+====== **Property 5: Reschedule Updates Original Slot**
+
+(reschedule(appointment, newSlot) == "success")
+==> originalSlot.isAvailable == true
+
+====== **Property 6: Cross-Doctor Reschedule Effects**
+
+(reschedule(appointment, newSlot) && newSlot.doctorId != appointment.doctorId)
+==> patientReceivesTransferConfirmation() && originalSlot.isAvailable == true
+
+====== **Property 7: No-Op on Invalid State**
+
+(appointment.status ∈ {"cancelled", "completed", "past"})
+==> cancel(appointment) == "no-op"
+
+====== **Property 8: Round-Trip Integrity**
+
+(reschedule(appointment, slotA) followed by reschedule(appointment, originalSlot))
+==> appointment.time == originalSlot.time
+
+====== **Property 9: Notification Trigger**
+
+(cancel(appointment) == "success" || reschedule(appointment, newSlot) == "success")
+==> notificationSentToPatient() == true
+
+===== **Shrinking Strategy (Slide 38)**
+
+When a property fails, the system must reduce the failing input to a minimal counterexample.
+
+====== **General Approach**
+
+- Reduce number of appointments in the system
+- Minimize time differences (for example: bring times closer to boundary conditions like exactly 24h)
+- Simplify relationships (for example: same doctor -> different doctor -> same doctor)
+- Remove unrelated entities
+
+====== **Example: Reschedule Conflict**
+
+If failure occurs due to a scheduling conflict:
+
+1. Reduce number of existing appointments to the minimum that still reproduces the conflict
+2. Shrink time intervals to the smallest overlap
+3. Normalize scenario:
+   - Single patient
+   - Two appointments max
+   - Minimal time overlap
+
+====== **Example: Cancellation Edge Case**
+
+If failure occurs near the 24-hour boundary:
+
+1. Shrink time difference toward exactly 24 hours
+2. Remove unrelated appointments
+3. Keep only one user and one appointment
+
+Goal: isolate the smallest input that still violates the property.
+
+---

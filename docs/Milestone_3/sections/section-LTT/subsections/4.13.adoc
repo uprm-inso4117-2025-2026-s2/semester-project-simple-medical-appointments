@@ -1,0 +1,332 @@
+=== *Property-based Testing*
+---
+
+==== Apply Property-Based Testing to Validate Appointment Scheduling Logic
+:author: Axel A. Burgos
+
+===== Overview
+
+Property-based testing is a testing approach where the system is tested against general rules or properties instead of only testing a few specific examples.
+
+Instead of checking only one or two manually created test cases, property-based testing automatically generates many random inputs to verify that important rules always remain true.
+
+For the Simple Medical Appointments project, this testing approach is useful because appointment scheduling involves many conditions, restrictions, and edge cases that may be difficult to detect with only traditional tests.
+
+Property-based testing can help ensure that appointment booking, cancellation, rescheduling, and history retrieval always behave correctly regardless of the input values.
+
+===== Purpose of Property-Based Testing
+
+The main purpose of property-based testing is to verify that the system always follows certain rules.
+
+Traditional testing usually checks a small number of specific examples. For example, a test may verify that booking an appointment at 10:00 AM works correctly.
+
+However, property-based testing instead verifies a broader rule such as:
+
+* An appointment should never be booked outside clinic hours
+* A doctor should never have two appointments at the same time
+* A canceled appointment should not remain marked as active
+* Appointment history should always match the stored appointment data
+
+This allows the testing process to cover many more situations automatically.
+
+===== Important Scheduling Properties
+
+Several important properties should always remain true in the Medical Appointments project.
+
+===== No Double Booking
+
+A doctor should never have two appointments scheduled for the same date and time.
+
+If the system attempts to create a second appointment for the same doctor during an already occupied time slot, the appointment should be rejected.
+
+===== Valid Appointment Times
+
+Appointments should only be scheduled during valid clinic hours.
+
+For example, if the clinic operates between 8:00 AM and 5:00 PM, the system should reject appointments outside that range.
+
+Appointments should also not be scheduled in the past.
+
+===== Rescheduling Must Preserve Constraints
+
+If an appointment is rescheduled, the new appointment time must still follow all scheduling rules.
+
+The new time should:
+
+* Be inside clinic operating hours
+* Not overlap with another appointment
+* Not be in the past
+* Remain assigned to a valid doctor and clinic
+
+===== Cancellation Must Update Appointment State
+
+When an appointment is canceled, the system should always update the appointment status correctly.
+
+For example, canceled appointments should no longer appear as active appointments in future scheduling views.
+
+===== Retrieved Appointment History Must Match Stored Data
+
+Whenever a patient retrieves their appointment history, the returned data should always match the appointments stored in the database.
+
+The system should not return missing, duplicated, or incorrect appointment records.
+
+===== Automatically Generated Inputs
+
+One of the main advantages of property-based testing is that test inputs are generated automatically.
+
+Instead of manually writing every possible appointment scenario, the testing tool can generate:
+
+* Random appointment dates
+* Random appointment times
+* Random doctor IDs
+* Random patient IDs
+* Random clinic IDs
+* Random cancellation and rescheduling scenarios
+
+This helps uncover edge cases that developers may not think about during manual testing.
+
+For example, the system may discover issues such as:
+
+* Two appointments being created at the same second
+* Appointments being scheduled at midnight
+* Appointments being created with invalid doctor IDs
+* Rescheduled appointments overlapping existing appointments
+* Empty appointment history responses causing unexpected errors
+
+===== Property-Based Testing vs Traditional Testing
+
+Traditional testing uses manually selected examples.
+
+For example:
+
+* Schedule an appointment at 9:00 AM
+* Cancel an appointment
+* Reschedule an appointment to 2:00 PM
+
+These tests are useful, but they only cover a small number of cases.
+
+Property-based testing is different because it automatically generates hundreds or thousands of different inputs to verify that the core rules always remain true.
+
+This gives broader test coverage and increases the chance of finding hidden bugs.
+
+===== Suggested Tools
+
+Several tools can be used to implement property-based testing in this project.
+
+For the Python/Flask backend:
+
+* Hypothesis
+* Pytest
+
+For the React/Vite frontend:
+
+* fast-check
+* Jest
+* Vitest
+
+Hypothesis can automatically generate random backend inputs such as appointment dates, doctor IDs, and scheduling times.
+
+fast-check can generate random frontend form inputs to verify that validation and error handling work correctly.
+
+===== Example Backend Property Test
+
+[source,python]
+----
+from hypothesis import given, strategies as st
+
+@given(
+    doctor_id=st.integers(min_value=1, max_value=50),
+    hour=st.integers(min_value=0, max_value=23)
+)
+def test_appointment_within_clinic_hours(doctor_id, hour):
+    clinic_open = 8
+    clinic_close = 17
+
+    if hour < clinic_open or hour > clinic_close:
+        assert appointment_is_valid(doctor_id, hour) == False
+----
+
+The purpose of this test is to automatically generate many appointment hours and verify that appointments outside clinic hours are rejected.
+
+===== Benefits of Property-Based Testing
+
+Property-based testing provides several advantages:
+
+* Covers more scenarios automatically
+* Detects hidden edge cases
+* Improves appointment scheduling reliability
+* Reduces the need for manually writing many test cases
+* Helps identify unexpected input combinations
+* Improves confidence in backend and frontend behavior
+
+This type of testing is especially useful for systems with many rules and conditions, such as appointment scheduling platforms.
+
+===== Conclusion
+
+Property-based testing can improve the reliability of the Simple Medical Appointments system by ensuring that important scheduling rules always remain true.
+
+By automatically generating large numbers of test inputs, the system can detect bugs that may not appear in traditional example-based testing.
+
+As the project becomes more complex, property-based testing can help maintain stable scheduling behavior and reduce the risk of invalid appointment data entering the system.
+
+===== References
+
+[1] D. MacIver, "Hypothesis Documentation," Available: https://hypothesis.readthedocs.io
+
+[2] fast-check, "Property Based Testing for JavaScript," Available: https://fast-check.dev
+
+[3] M. Claessen and J. Hughes, "QuickCheck: A Lightweight Tool for Random Testing of Haskell Programs," Proceedings of the ACM SIGPLAN International Conference on Functional Programming, 2000.
+
+---
+
+==== Property-Based Testing Framework Evaluation Report
+:author: Keishlyany Sanabria (@keisanabria)
+
+===== Overview
+
+This document presents a comparative evaluation of property-based testing frameworks suitable for the medical application stack (React Native frontend and Node.js backend).
+
+The goal is to recommend a framework based on:
+
+* Generator expressiveness
+* Shrinking quality
+* Classification and statistics support
+* Integration and learning curve
+
+===== Candidate Frameworks
+
+The following frameworks were selected based on relevance to the project’s technology stack:
+
+* *fast-check* (TypeScript / JavaScript)
+* *Hypothesis* (Python)
+* *FsCheck* (.NET / C# / F#)
+
+===== Evaluation Criteria
+
+====== Generator Capabilities
+
+Property-based testing relies on generators to explore the input space. As discussed in the lecture, generators must:
+
+* Produce structured and constrained data
+* Support composition (for example: lists, pairs, trees)
+* Allow custom generators (for example: arb_tree example from slides 22-24)
+
+====== Shrinking Quality
+
+Shrinkers minimize failing test cases to simpler counterexamples. Effective shrinking helps developers quickly identify root causes (slides 37-40).
+
+====== Classification & Statistics
+
+Classification ensures that generated values adequately cover the input space. This aligns with the principle:
+
+> “Ensure the value space is adequately sampled”
+
+====== Integration & Learning Curve
+
+Ease of integration with existing tools (for example: Jest, Mocha) and community support are critical for adoption.
+
+===== Comparative Analysis
+
+[cols="1,1,1,1", options="header"]
+|===
+| Criteria | fast-check (TypeScript) | Hypothesis (Python) | FsCheck (.NET)
+
+| Generator Capabilities
+| Strong support for composable generators (arrays, objects, tuples). Custom generators easy via combinators.
+| Very expressive. Strategies allow complex, domain-specific generators with minimal effort.
+| Strong functional-style generators. Excellent for recursive and algebraic data types.
+
+| Built-in Data Types
+| Includes dates, strings, unicode. Supports locale customization (can adapt to Spanish).
+| Rich built-ins including dates, text, and advanced constraints.
+| Standard primitives available; less focus on locale-specific generators.
+
+| Shrinking Quality
+| Automatic shrinking with good defaults. Produces minimal counterexamples in most cases.
+| Industry-leading shrinking. Often finds the simplest failing case efficiently.
+| Good shrinking, but may require manual tuning for complex types.
+
+| Shrinking Example
+| Failing array shrinks from large input to minimal failing subset.
+| Known for reducing complex failures to smallest reproducible case.
+| Shrinks recursively but less aggressively than Hypothesis.
+
+| Classification & Statistics
+| Supports classification via `fc.statistics()` and labeling.
+| Built-in `@example`, `@given`, and statistics reporting.
+| Supports classification via labels and distribution tracking.
+
+| Integration
+| Seamless with Jest, Mocha, and React Native testing environments.
+| Integrates well with pytest.
+| Best with .NET testing frameworks (xUnit, NUnit).
+
+| Learning Curve
+| Moderate. Familiar to JS developers.
+| Slightly steeper due to advanced abstractions.
+| Moderate to high, especially for non-functional programmers.
+
+| Community & Maintenance
+| Active and widely used in JavaScript ecosystem.
+| Very active and mature project.
+| Stable but smaller community.
+
+|===
+
+===== Conceptual Shrinking Example
+
+Consider a failing property:
+
+----
+Reverse three times should equal original list
+----
+
+A generator produces:
+
+----
+[2387656796, -1933289941, 2127570389]
+----
+
+With shrinking:
+
+* fast-check → `[1, 0]`
+* Hypothesis → `[0]` (often minimal)
+* FsCheck → `[0, 1]`
+
+This demonstrates how shrinking reduces debugging complexity by minimizing counterexamples.
+
+===== Recommendation
+
+*fast-check* is recommended as the primary property-based testing framework for the app.
+
+====== Justification
+
+1. *Technology Alignment*
+
+The application uses React Native and Node.js, making fast-check the most natural fit due to its native JavaScript/TypeScript support.
+
+2. *Generator Expressiveness*
+
+fast-check supports composable generators similar to those described in the lecture (for example: lists, pairs, and custom structures), enabling complex domain modeling.
+
+3. *Adequate Sampling of Value Space*
+
+fast-check provides classification and statistics tools that help ensure:
+
+> the value space is adequately sampled
+
+This is critical for testing medical workflows where edge cases (for example: appointment times, patient data) must be thoroughly explored.
+
+4. *Integration Ease*
+
+fast-check integrates seamlessly with Jest, which is commonly used in React Native projects, minimizing adoption overhead.
+
+5. *Shrinking Effectiveness*
+
+While Hypothesis has slightly stronger shrinking, fast-check provides sufficiently effective shrinking for JavaScript environments without requiring additional infrastructure.
+
+====== Final Decision
+
+Adopt *fast-check* for both frontend and backend testing.
+
+---

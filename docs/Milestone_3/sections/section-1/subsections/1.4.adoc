@@ -1,0 +1,59 @@
+=== *Other Activities than Just Developing Source Code*
+
+==== Domain Engineering
+
+Domain engineering activities focus on identifying, analyzing, and formalizing
+the core concepts, constraints, and interactions present in medical appointment
+scheduling. This includes examining stakeholder perspectives, operational
+practices, and domain tensions in order to construct a consistent domain model.
+These activities are carried out through domain descriptions, concept
+identification, and interaction modeling, ensuring that the system-to-be
+represents real-world behavior rather than assumptions.
+
+==== Requirements Engineering
+
+Requirements engineering is necessary to translate domain observations into
+precise and verifiable system requirements. This involves identifying domain
+properties, defining constraints, and documenting requirements in a structured
+manner that supports traceability. The process includes organizing requirements
+into coherent categories, refining them iteratively, and ensuring alignment with
+the domain model so that implementation decisions are grounded in clearly defined
+behavior.
+
+==== System Design and Architecture
+
+System design and architecture activities define how domain concepts and
+requirements are structured within the system. This includes the organization of
+components, the definition of interfaces, and the representation of scheduling
+logic and data relationships. Architectural decisions are guided by the need to
+maintain modularity, scalability, and consistency with the domain, enabling the
+system to evolve without violating its underlying structure.
+
+==== Verification and Validation
+
+Verification and validation activities ensure that the system behaves according
+to its specified requirements and accurately reflects the domain. This includes
+the use of Test-Driven Development and Behavior-Driven Development 
+to guide implementation, as well as load testing, mutation testing, and formal
+verification techniques such as Hoare logic to evaluate correctness. Additional
+validation is performed through consistency checks, traceability verification,
+and scenario-based walkthroughs derived from domain interactions.
+
+==== Documentation and Knowledge Management
+
+Documentation activities support the development process by maintaining a clear
+record of domain descriptions, requirements, design decisions, and validation
+results. This includes structured documentation, version control practices, and
+continuous updates to ensure that all project artifacts remain consistent and
+accessible. These activities enable coordination among team members and provide
+a basis for evaluating design and implementation choices.
+
+==== User Experience and Accessibility Considerations
+
+User experience and accessibility considerations address the need to ensure that
+interactions with the system are understandable and usable across different
+stakeholder groups. These activities involve analyzing how patients,
+administrative staff, and providers interact with scheduling processes, and
+ensuring that representations of these interactions remain clear and consistent.
+Accessibility considerations are incorporated to account for variations in user
+capabilities and levels of digital literacy within the domain context.

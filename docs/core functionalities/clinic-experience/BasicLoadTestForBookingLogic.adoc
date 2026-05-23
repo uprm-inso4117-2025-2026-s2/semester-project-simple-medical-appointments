@@ -1,0 +1,156 @@
+= Basic Load Test for Booking Logic
+:toc:
+:sectnums:
+
+== Baseline System Validation
+
+=== Objective
+Verify that the booking endpoint functions correctly under normal (single-user) conditions before applying load.
+
+=== Test Setup
+* Endpoint: `POST /api/appointments/submit`
+* Date tested: `2026-05-22`
+* Time tested: `09:30`
+* Doctor ID: `1`
+* Local Flask development server
+* Python `3.13.7`
+
+=== Test Procedure
+A single booking request was sent using `curl` with valid appointment data.
+
+=== Result
+* HTTP Status: `201 Created`
+* Response contained:
+** `"success": true`
+** `"Appointment form submitted successfully."`
+* No backend errors or crashes occurred.
+* Booking was successfully persisted.
+
+=== Conclusion
+The system is functionally stable under single-request conditions and ready for load testing.
+
+== Capacity Enforcement Validation
+
+=== Objective
+Verify that the system enforces the maximum number of appointments per time slot.
+
+=== Configuration
+* `max_appointments_per_slot = 2`
+* Date tested: `2026-05-22`
+* Time tested: `09:30`
+* Doctor ID: `1`
+
+=== Test Procedure
+. A baseline booking was created (`201 Created`).
+. A second booking for the same time slot was created successfully (`201 Created`).
+. A third booking attempt was made for the same slot.
+
+=== Results
+* First booking -> `201 Created`
+* Second booking -> `201 Created`
+* Third booking -> `409 Conflict`
+* Fourth booking -> `409 Conflict`
+
+Error response:
+
+[source,json]
+----
+{
+  "error": "This time slot is full",
+  "max_appointments_per_slot": 2
+}
+----
+
+=== Observations
+* The system correctly prevented overbooking.
+* HTTP `409 Conflict` was used appropriately.
+* No server crash occurred.
+* No `500`-level errors were observed.
+
+=== Conclusion
+The booking logic correctly enforces slot capacity limits under sequential requests.
+
+== Concurrent Load Test - Slot Capacity Under Parallel Requests
+
+=== Objective
+Verify that the system prevents race conditions and enforces slot capacity under concurrent booking attempts.
+
+=== Test Configuration
+* `max_appointments_per_slot = 2`
+* Doctor ID: `1`
+* Appointment Date: `2026-05-23`
+* Appointment Time: `10:00`
+* Total concurrent requests simulated: `20`
+
+=== Test Method
+A bash loop was used to simulate 20 parallel `POST` requests to:
+
+`POST /api/appointment/submit`
+
+Each request attempted to reserve the same doctor, date, and time slot.
+
+=== Results
+[cols="2,1",options="header"]
+|===
+|HTTP Status |Count
+|201 Created |2
+|409 Conflict |18
+|500 Errors |0
+|===
+
+=== Observations
+* Only 2 bookings were accepted.
+* Remaining 18 requests were correctly rejected with `409 Conflict`.
+* Error returned: `"This time slot is full"`.
+* No server crash occurred.
+* No inconsistent state observed.
+* No overbooking detected.
+
+=== Conclusion
+The booking logic correctly enforces slot capacity under concurrent load.
+
+The system demonstrates stability and correct conflict handling when multiple parallel requests target the same time slot.
+
+== Performance Metrics - Sequential Load Test
+
+=== Objective
+Measure response time and throughput under sequential load.
+
+=== Test Configuration
+* Total requests: `50`
+* Endpoint tested: `/api/appointments/submit`
+* Doctor ID: `1`
+* Date: `2026-05-25`
+* Time: `11:00`
+
+=== Execution Time
+Total execution time: `0.278 sec`
+
+=== Throughput Calculation
+Throughput = `50 / 0.278`
+
+Throughput ~= `180 requests per second`
+
+=== Observations
+* No server crashes occurred.
+* No `500`-level errors were observed.
+* Performance remained stable.
+* The system handled rapid sequential requests efficiently.
+
+=== Conclusion
+The booking endpoint demonstrates stable and efficient performance under moderate sequential load.
+
+The system meets expected performance requirements for the simulated workload.
+
+== Final Assessment
+The booking logic was tested under functional, concurrent, and performance load scenarios.
+
+The system:
+
+* Correctly enforces slot capacity
+* Prevents race conditions
+* Returns appropriate HTTP status codes
+* Remains stable under concurrent requests
+* Handles approximately `180 requests per second` in a local environment
+
+No critical bottlenecks were identified during testing.

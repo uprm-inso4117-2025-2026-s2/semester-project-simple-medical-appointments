@@ -1,0 +1,202 @@
+=== *Validation and Verification*
+
+This section documents structured Validation and Verification (V&V) activities to ensure:
+
+- Domain concepts reflect real-world clinical scheduling practices.
+- Requirements are consistent, precise, and traceable to domain concepts.
+- Documentation quality satisfies Milestone 1 standards.
+
+Validation answers: Are we modeling the right problem?  
+Verification answers: Is the documentation logically sound, consistent, and complete?
+
+==== *Validation Strategy*
+
+Validation ensures that domain abstractions and derived requirements correspond to observed clinical scheduling behavior.
+
+===== *Scenario-Based Stakeholder Validation*
+
+**Scenario 1: Patient Requests Specialist Appointment**
+
+**Actors:**  
+- Patient: Ana Rivera, 35-year-old with new referral from primary care physician.  
+- Provider: Dr. Luis Santiago, cardiologist at Central Health Clinic.  
+- Staff: Administrative assistant Maria Torres managing appointment books.  
+
+**Context:** Ana needs a cardiology appointment. Clinic rules require:  
+1. Referral from primary care.  
+2. Insurance pre-authorization for cardiology consultation.  
+3. Available time slot within 14 days.  
+
+**Walkthrough:**  
+
+1. Ana contacts the clinic via phone; Maria checks `TimeSlotCatalog` for Dr. Santiago’s openings.  
+2. Maria identifies a potential slot on April 12 at 10:30 AM.  
+3. Ana provides referral; Maria verifies insurance coverage using `ClinicSystem`.  
+4. Ana is offered the slot, but the insurance approval is pending.  
+5. Ana asks to be placed on a waitlist for an earlier cancellation; Maria records this in `BehaviorTrace`.  
+6. Two days later, another patient cancels. Ana is automatically notified and confirmed for April 10 at 11:00 AM.  
+
+**Stakeholder Feedback:**  
+- Ana emphasized that automatic waitlist assignment reduced frustration.  
+- Maria noted that insurance verification often delays slot confirmation.  
+- Dr. Santiago requested clarity on how pending approvals interact with waitlist logic.  
+
+**Refinements Made:**  
+- Introduced `PendingApproval` status for appointments awaiting insurance verification.  
+- Clarified that `Waitlist` auto-confirmation applies only when `PendingApproval` is cleared.  
+- Updated domain concept “Time Slot” to include occupancy status, waitlist queue, and referral dependencies.  
+
+*Validation Points:*
+
+[cols="1,3,2,2", options="header"]
+|===
+| Step | Requirements | Expected Outcome | Validation Check
+
+| Request appointment with referral
+a|
+- <<REQ-APPT-F-01>>
+- <<REQ-APPT-F-03>>
+| Appointment enters PendingApproval | Verify that referral and insurance status are recorded; slot reserved conditionally
+
+| Join waitlist
+a|
+- <<REQ-APPT-F-05>>
+| Patient added to waitlist | Confirm waitlist queue updated, notification triggers
+
+| Automatic slot assignment
+a|
+- <<REQ-APPT-F-05>>
+| Appointment confirmed upon cancellation | Verify system transitions from PendingApproval → Confirmed and sends notification
+|===
+
+*Insights and Actions:*  
+- Clarified interaction between PendingApproval and Waitlist features.  
+- Introduced explicit handling of referral and insurance preconditions.  
+- Documented notification triggers and audit trail in `BehaviorTrace`.
+
+===== *Terminology Validation*
+
+All domain terms were reviewed for consistency:  
+
+- **Patient**, **Provider** (instead of generic “Doctor”)  
+- **Time Slot**, **Referral**, **Insurance Authorization**, **AppointmentBook**, **BehaviorTrace**, **Waitlist**  
+
+**Identified Issues:**  
+
+1. Requirements used "Doctor" instead of defined "Provider".  
+2. `Specialty`, `ClinicSystem`, `AppointmentBook`, `TimeSlotCatalog` appeared in functions but were undefined in terminology.  
+3. Conflicting logic:  
+   - "Capacity handling per time slot" vs "single patient per slot" invariant.  
+   - Waitlist auto-assignment vs pending approval → potential race condition.  
+
+**Actions Taken:**  
+- Standardized all mentions of "Doctor" → "Provider".  
+- Added missing definitions to terminology for all system objects.  
+- Introduced conditional rules: Waitlist assignment only after PendingApproval is cleared.  
+
+===== *Verification Strategy*
+
+Verification ensures requirements are consistent, complete, and traceable to domain concepts.
+
+**Consistency Review:**  
+
+- Checked that each requirement references defined terminology.  
+- Identified and resolved contradictions:  
+  1. Feature “Patients can automatically receive canceled slots” conflicted with “PendingApproval” → introduced explicit condition.  
+  2. Feature “Appointments may enter PendingApproval for staff review” clarified in context of waitlist and auto-confirmation.  
+
+**Traceability Verification:**  
+
+For each requirement, verified:  
+
+1. Originating domain concept.  
+2. Stakeholder need it addresses.  
+3. Structural tension it mitigates.  
+
+*Example:*  
+
+Domain Concept: Limited Provider Availability  
+Requirement: “System must manage discrete Time Slots and enforce capacity constraints.”  
+Traceability: Provider Availability → Time Slot → Capacity Constraint → Requirement.  
+
+===== *Requirements Precision Check*
+
+- Replaced vague terms (efficient, improved) with measurable criteria:  
+  - “Prevent double-booking of Time Slots.”  
+  - “Notify waitlist patients within 1 hour of slot availability.”  
+- Ensured all requirements can be tested against system simulation or audit logs.
+
+===== *Walkthrough-Based Verification*
+
+**Peer Review & Inspection:**  
+
+- Scenarios:  
+  1. Cancellation after insurance approval.  
+  2. Referral expiration before booking.  
+  3. Simultaneous waitlist slot assignment attempts.  
+  4. Overbooking edge cases.  
+
+**Findings & Alternatives Considered:**  
+
+[cols="1,2,2", options="header"]
+|===
+| Issue | Alternatives Considered | Chosen Solution
+
+| Missing terminology
+a| Ignore, redefine, or standardize
+a| Standardized “Doctor” → “Provider”; added missing definitions
+
+| Conflicting slot assignment rules
+a| Keep auto-confirmation, disable waitlist, conditional rules
+a| Conditional waitlist assignment post-PendingApproval
+
+| Ambiguous requirement language
+a| Vague → measurable
+a| Reformulated for verifiability
+
+| Overlap in approval and waitlist
+a| Locking, notifications, or status flags
+a| Introduced `PendingApproval` status and notification workflow
+|===
+
+Walkthroughs confirmed logical gaps were resolved, with clearly defined alternative solutions and rationale.
+
+===== *Scenario-Based Verification Summary*
+
+[cols="1,3,2,2", options="header"]
+|===
+| Step | Requirement(s) | Expected Outcome | Verification Action
+
+| Request appointment with referral
+a|
+- <<REQ-APPT-F-01>>
+- <<REQ-APPT-F-03>>
+| PendingApproval status recorded | Submit appointment request; check status and audit log
+
+| Join waitlist
+a|
+- <<REQ-APPT-F-05>>
+| Patient queued; notified if slot opens | Add patient to waitlist; simulate cancellation; check notification sent
+
+| Slot auto-assignment
+a|
+- <<REQ-APPT-F-05>>
+| Appointment confirmed if pending cleared | Trigger cancellation; verify PendingApproval → Confirmed transition
+
+| Capacity enforcement
+a|
+- <<REQ-APPT-F-07>>
+| Only one patient per slot | Attempt double-booking; system rejects second request
+
+| Terminology consistency
+a|
+- <<REQ-APPT-F-01>>
+| All terms match definitions | Inspect documentation and function signatures
+|===
+
+*Insights and Actions:*  
+
+- Domain concepts, requirements, and scenarios are now consistent, traceable, and verifiable.  
+- Conditional workflows for PendingApproval and Waitlist resolved previous conflicts.  
+- Terminology now fully aligned with requirements and function signatures.  
+- Edge cases identified during walkthroughs were explicitly addressed and documented.

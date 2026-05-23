@@ -1,0 +1,80 @@
+=== Modeling Stress Conditions in Appointment Scheduling Operations
+:author: Alejandro E. López Rodríguez
+
+Healthcare scheduling systems continuously process appointment creation, cancellation, and modification requests. Under normal operational conditions, these activities occur at manageable volumes. However, certain situations may generate unusually high scheduling activity that places stress on system behavior. Examples include:
+
+* Seasonal illness outbreaks generating large numbers of appointment requests.
+* Clinic opening hours where many patients attempt to schedule appointments simultaneously.
+* Rapid rescheduling activity after cancellations.
+* Administrative schedule adjustments affecting multiple appointments.
+
+These situations may affect scheduling consistency and appointment availability behavior.
+
+==== Simultaneous Appointment Creation
+
+One common stress condition occurs when multiple patients attempt to reserve the same appointment slot simultaneously.
+
+[source]
+bookAppointment :
+Patient >< AppointmentSlot >< AppointmentSchedule
+-> AppointmentSchedule >< Option Appointment
+
+If concurrent booking requests target the same appointment slot, the scheduling system must preserve valid appointment behavior by ensuring that only one confirmed appointment occupies the slot. Without proper consistency controls, simultaneous requests may create duplicate reservations or invalid scheduling states.
+
+==== Concurrent Cancellation and Rescheduling
+
+Stress conditions may also occur when cancellation and scheduling requests happen at nearly the same time.
+
+[source]
+cancelAppointment :
+Appointment >< AppointmentSchedule
+-> AppointmentSchedule >< Option Appointment
+
+[source]
+rescheduleAppointment :
+Appointment >< AppointmentSlot >< AppointmentSchedule
+-> AppointmentSchedule >< Option Appointment
+
+If one operation releases a slot while another operation simultaneously attempts to reserve it, inconsistent slot availability information may appear temporarily. These situations may result in invalid reservations or failed scheduling operations if consistency is not preserved.
+
+==== High-Frequency Schedule Modifications
+
+Another stress condition involves large numbers of schedule modifications occurring simultaneously. Examples include:
+
+* Blocking provider availability during emergencies.
+* Adjusting clinic operating hours.
+* Rescheduling appointments after provider absence.
+* Updating appointment durations across many appointments.
+
+[source]
+modifySchedule :
+ProviderSchedule >< AppointmentSchedule
+-> AppointmentSchedule >< Option ProviderSchedule
+
+These operations may affect many appointment records simultaneously and may temporarily introduce conflicting scheduling states if updates are not handled consistently.
+
+==== Effects of Stress Conditions
+
+Stress conditions may affect scheduling operations in several ways:
+
+* Appointment conflicts may occur during concurrent scheduling activity.
+* Slot availability information may become temporarily inconsistent.
+* Scheduling responsiveness may decrease during periods of heavy request activity.
+* Simultaneous modifications may create temporary invalid appointment states.
+
+Modeling these situations helps identify where additional scheduling safeguards may be necessary.
+
+==== Preservation of Valid Scheduling States
+
+Even under heavy operational pressure, scheduling operations must continue preserving valid appointment behavior. Important scheduling constraints include:
+
+* A single appointment slot cannot belong to multiple confirmed appointments.
+* Cancelled appointments must correctly restore slot availability.
+* Appointment modifications must preserve scheduling consistency.
+* Provider availability updates must correctly affect related appointments.
+
+These constraints help ensure that appointment scheduling remains valid during periods of unusually high activity.
+
+==== Conclusion
+
+Modeling stress conditions in appointment scheduling operations helps analyze how healthcare systems behave during periods of heavy scheduling activity. Simultaneous booking, cancellation, and modification requests may affect scheduling consistency if operations are not carefully controlled. By identifying these stress conditions, the domain model can better represent realistic scheduling behavior while preserving valid appointment states during high operational demand.

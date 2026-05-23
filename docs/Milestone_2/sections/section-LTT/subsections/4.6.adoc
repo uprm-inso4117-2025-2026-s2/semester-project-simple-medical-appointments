@@ -1,0 +1,291 @@
+=== *Hoare Logic and Design by Contract*
+
+==== Apply Hoare Logic Pre/Post-Conditions to the Appointment Booking Function
+:author: Julian Vivas
+
+===== Overview
+
+As part of the Milestone 2 lecture topic requirements, Hoare Logic is applied to a meaningful backend operation from the system: `book_appointment()`.
+This function is central to the scheduling workflow because it is responsible for creating appointments between patients and doctors while respecting availability constraints.
+
+Applying Hoare Logic allows us to formally describe the conditions that must be true before the function executes and the guarantees that must hold after execution. This helps clarify the intended correctness of the scheduling process and ensures that important properties such as preventing double booking are maintained.
+
+===== Hoare Triple Specification
+
+The booking operation can be modeled using the Hoare Logic triple:
+
+----
+{P} book_appointment(patient_id, doctor_id, slot_id) {Q}
+----
+
+Where:
+
+*P* represents the preconditions required before execution.
+
+*Q* represents the postconditions that must hold after successful execution.
+
+===== Preconditions
+
+The following conditions must be true before a booking can occur:
+
+* The patient identified by `patient_id` exists in the system.
+* The doctor identified by `doctor_id` exists in the system.
+* The requested `slot_id` exists.
+* The time slot belongs to the specified doctor.
+* The time slot is currently marked as available.
+* There is no existing appointment already occupying the same doctor and slot.
+* The request data provided to the system is valid.
+
+===== Postconditions
+
+After successful execution of `book_appointment()` the following must hold:
+
+* A new appointment record exists linking the patient, doctor, and slot.
+* The created appointment is associated with exactly one patient and one doctor.
+* The selected time slot is no longer marked as available.
+* No second appointment exists for the same doctor and slot.
+* No unrelated appointments or scheduling data are modified.
+
+===== Formal Specification
+
+The behavior of the booking operation can be expressed more formally as:
+
+----
+{ patientExists(patient_id)
+∧ doctorExists(doctor_id)
+∧ slotExists(slot_id)
+∧ slotBelongsToDoctor(slot_id, doctor_id)
+∧ slotAvailable(slot_id)
+∧ ¬booked(doctor_id, slot_id) }
+
+book_appointment(patient_id, doctor_id, slot_id)
+
+{ ∃a • appointment(a)
+∧ hasPatient(a, patient_id)
+∧ hasDoctor(a, doctor_id)
+∧ hasSlot(a, slot_id)
+∧ ¬slotAvailable(slot_id)
+∧ booked(doctor_id, slot_id) }
+----
+
+If any precondition is not satisfied, the booking request must be rejected and the system state must remain unchanged. No new appointment should be created in that case.
+
+===== Safety Properties
+
+From the Hoare specification we can derive important safety properties for the system:
+
+* No double booking for the same doctor and time slot.
+* An appointment can only be created if the slot is available.
+* A successful booking updates the slot state to unavailable.
+* Existing appointments unrelated to the booking remain unchanged.
+
+These properties ensure the reliability of the scheduling process and support the main objective of the system: providing an efficient and organized platform for booking medical appointments.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+
+==== Verify Booking Safety Properties for Appointment Scheduling with Hoare Logic
+:author: Julian Vivas
+
+===== Overview
+
+This section extends the Hoare Logic specification established in the previous subsection by formally analyzing the safety properties that `book_appointment()` must preserve. While the prior section defined the preconditions and postconditions of the operation, this section focuses on verifying that those conditions are sufficient to guarantee correctness, identifying the invariants that hold throughout execution, documenting the edge cases where the function must reject a request, and providing an annotated pseudocode model that serves as a verification artifact.
+
+The goal is to demonstrate not only that the booking function has well-defined behavior under valid inputs, but also that it provably rejects all invalid states without corrupting the system.
+
+===== Core Safety Properties
+
+The following safety properties are derived directly from the Hoare triple defined in the previous subsection. Each property is expressed as a logical invariant or postcondition that must hold for every execution of `book_appointment()`.
+
+*SP-1 — No Double Booking*
+
+At no point in time may two appointments share the same doctor and the same time slot. This property is a system-wide invariant that must hold before and after every call to `book_appointment()`.
+
+----
+∀ a1, a2 ∈ Appointments •
+  hasDoctor(a1, d) ∧ hasDoctor(a2, d) ∧ hasSlot(a1, s) ∧ hasSlot(a2, s)
+  → a1 = a2
+----
+
+This invariant is preserved by the precondition `¬booked(doctor_id, slot_id)`, which guarantees that no existing appointment occupies the slot before the function runs, and by the postcondition `booked(doctor_id, slot_id)`, which ensures the slot is atomically claimed upon success.
+
+*SP-2 — Slot Availability Is Required for Booking*
+
+An appointment may only be created for a slot that was marked as available at the time of the request. The function must never create an appointment for an unavailable slot, even if the slot exists in the system.
+
+----
+{ slotAvailable(slot_id) }
+book_appointment(patient_id, doctor_id, slot_id)
+{ appointment(a) ∧ hasSlot(a, slot_id) }
+----
+
+If `slotAvailable(slot_id)` is false at the time of the call, the function must reject the request and return an error. The system state must remain unchanged.
+
+*SP-3 — Successful Booking Marks the Slot as Unavailable*
+
+After a successful call, the slot transitions from available to unavailable. This transition is deterministic and must not be applied to any other slot.
+
+----
+{ slotAvailable(slot_id) }
+book_appointment(patient_id, doctor_id, slot_id)
+{ ¬slotAvailable(slot_id) }
+----
+
+This postcondition ensures that the same slot cannot be double-booked in a subsequent call, because the precondition `slotAvailable(slot_id)` would fail for any future request targeting the same slot.
+
+*SP-4 — Frame Property: Unrelated State Is Not Modified*
+
+The operation must not alter any appointments, slots, or records not directly involved in the booking. This is the frame condition of the Hoare triple.
+
+----
+∀ s' ≠ slot_id • slotAvailable(s') ↔ slotAvailable'(s')
+∀ a ∈ Appointments_pre • appointment(a) ↔ appointment'(a)
+----
+
+Only the targeted slot and the newly created appointment record are permitted to change state. All other scheduling data must be identical before and after the call.
+
+===== Connection to Hoare Logic Reasoning
+
+Each safety property above maps directly to a component of the Hoare triple `{P} book_appointment() {Q}`:
+
+* *SP-1* is enforced by both a precondition (`¬booked(doctor_id, slot_id)`) and a postcondition (`booked(doctor_id, slot_id)`). Together they form a two-sided guarantee: the slot is not taken before the call, and it is exclusively taken after.
+* *SP-2* is enforced entirely by the precondition `slotAvailable(slot_id)`. Hoare Logic reasoning states that if the precondition is false, the function must not execute its body and must instead return without modifying state.
+* *SP-3* follows from the postcondition `¬slotAvailable(slot_id)`. Because the precondition establishes availability and the postcondition denies it, the transition is guaranteed to occur exactly once per successful booking.
+* *SP-4* is the implicit frame condition. In formal verification tools such as Dafny or Frama-C, this must be made explicit using `modifies` or `assigns` clauses. In a Hoare Logic proof, it is captured by showing that no other state variable is mentioned in the postcondition.
+
+These four properties together ensure that the scheduling process is both safe (no invalid state is reached) and correct (the intended state is always produced).
+
+===== Annotated Pseudocode Model
+
+The following pseudocode models `book_appointment()` with inline Hoare Logic annotations. Preconditions are written as `@pre`, postconditions as `@post`, and intermediate assertions as `@assert`. This serves as the verification artifact for this section.
+
+[source,text]
+----
+// @pre: patientExists(patient_id)
+// @pre: doctorExists(doctor_id)
+// @pre: slotExists(slot_id)
+// @pre: slotBelongsToDoctor(slot_id, doctor_id)
+// @pre: slotAvailable(slot_id)
+// @pre: ¬booked(doctor_id, slot_id)
+// @pre: requestIsValid(patient_id, doctor_id, slot_id)
+
+function book_appointment(patient_id, doctor_id, slot_id):
+
+    patient = PatientRepository.findById(patient_id)
+    if patient is null:
+        return Error(404, "Patient not found")
+    // @assert: patientExists(patient_id)
+
+    doctor = DoctorRepository.findById(doctor_id)
+    if doctor is null:
+        return Error(404, "Doctor not found")
+    // @assert: doctorExists(doctor_id)
+
+    slot = SlotRepository.findById(slot_id)
+    if slot is null:
+        return Error(404, "Slot not found")
+    // @assert: slotExists(slot_id)
+
+    if slot.doctor_id ≠ doctor_id:
+        return Error(422, "Slot does not belong to the specified doctor")
+    // @assert: slotBelongsToDoctor(slot_id, doctor_id)
+
+    if not slot.available:
+        return Error(409, "Slot is not available")
+    // @assert: slotAvailable(slot_id)
+
+    existing = AppointmentRepository.findByDoctorAndSlot(doctor_id, slot_id)
+    if existing is not null:
+        return Error(409, "Slot is already booked")
+    // @assert: ¬booked(doctor_id, slot_id)
+
+    // --- atomic transaction begins ---
+    appointment = Appointment.create(
+        patient_id = patient_id,
+        doctor_id  = doctor_id,
+        slot_id    = slot_id
+    )
+    slot.available = false
+    SlotRepository.save(slot)
+    AppointmentRepository.save(appointment)
+    // --- atomic transaction ends ---
+
+    // @post: ∃a • appointment(a) ∧ hasPatient(a, patient_id)
+    //                             ∧ hasDoctor(a, doctor_id)
+    //                             ∧ hasSlot(a, slot_id)
+    // @post: ¬slotAvailable(slot_id)
+    // @post: booked(doctor_id, slot_id)
+    // @post: ∀ s' ≠ slot_id • slotAvailable(s') unchanged
+    // @post: ∀ a' ∈ Appointments_pre • appointment(a') unchanged
+
+    return Success(appointment)
+----
+
+The atomic transaction block is critical. Both the appointment creation and the slot status update must occur together or not at all. If either operation fails, the entire transaction must be rolled back to preserve SP-1 and SP-3.
+
+===== Edge Cases and Rejected States
+
+The following table documents the edge cases where `book_appointment()` must reject the request. In every rejected case, the system state must remain exactly as it was before the call.
+
+[cols="1,2,2,1", options="header"]
+|===
+| Edge Case
+| Violated Precondition
+| System Behavior
+| HTTP Status
+
+| Patient does not exist
+| `patientExists(patient_id)` is false
+| Return error; no appointment created; no slot modified
+| 404
+
+| Doctor does not exist
+| `doctorExists(doctor_id)` is false
+| Return error; no appointment created; no slot modified
+| 404
+
+| Slot does not exist
+| `slotExists(slot_id)` is false
+| Return error; no appointment created
+| 404
+
+| Slot belongs to a different doctor
+| `slotBelongsToDoctor(slot_id, doctor_id)` is false
+| Return error; reject mismatched combination
+| 422
+
+| Slot is already marked unavailable
+| `slotAvailable(slot_id)` is false
+| Return error; no appointment created
+| 409
+
+| Concurrent booking race condition
+| `¬booked(doctor_id, slot_id)` becomes false between check and write
+| Database transaction rolls back; second request receives conflict error
+| 409
+
+| Malformed or missing request fields
+| `requestIsValid(...)` is false
+| Return validation error before any repository call
+| 400
+
+| Patient attempts to book a slot for another patient
+| Implicit authorization precondition violated
+| Return authorization error; no state change
+| 403
+|===
+
+The race condition case (row 6) is of particular importance. Two concurrent requests targeting the same slot may both pass the `slotAvailable` check before either writes to the database. The atomic transaction and a database-level uniqueness constraint on `(doctor_id, slot_id)` together ensure that only one can succeed. The other must receive a conflict error and leave the system in a consistent state. This is the primary mechanism by which SP-1 is enforced under concurrent load.
+
+===== Summary
+
+This section has formally documented four safety properties of the appointment booking process, shown how each one connects to a specific component of the Hoare triple, provided an annotated pseudocode model as a verification artifact, and identified eight edge cases that the function must reject.
+
+Taken together, the precondition set defined in the Hoare triple is sufficient to guarantee all four safety properties. If every precondition holds before the call, the postconditions are provably satisfied after it. If any precondition fails, the function terminates without modifying state, preserving system integrity in all cases.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+
+[2] K. R. M. Leino, "Dafny: An Automatic Program Verifier for Functional Correctness," in _Proc. 16th Int. Conf. Logic for Programming, Artificial Intelligence, and Reasoning (LPAR-16)_, 2010, pp. 348–370.

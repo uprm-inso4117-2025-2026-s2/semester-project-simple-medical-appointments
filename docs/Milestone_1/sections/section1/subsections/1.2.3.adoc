@@ -1,9 +1,11 @@
-==== *Ideas*
+==== Ideas
 
 ===== Real-Time Agenda
- * Live availability display
- * Synchronization of schedule updates between patients and clinics
- * Management of time blocks and appointment durations
+The system displays up-to-date appointment availability to both patients and clinic staff. 
+When a clinic or doctor modifies their schedule, the change is reflected in the 
+system immediately, keeping all parties informed without allowing patients to unilaterally 
+alter clinic-controlled time slots. Patients may request changes, but clinic staff retain 
+control over confirming or rejecting schedule modifications.
 
 ===== Waitlist Feature
 If a doctor's schedule is full, patients can join a waitlist and automatically receive a slot when cancellations occur.
@@ -21,16 +23,11 @@ Appointments may enter a pending state for staff approval before being finalized
 Limit the number of active appointments per specialist (e.g., one at a time) to prevent unnecessary reservation of multiple slots.
 
 ===== Clinic Constraints Configuration
-* Allow institutes to define rules such as:
-* No appointments on specific days
-* No appointments after certain hours
-* Custom availability restrictions
+Beyond standard opening hours, clinics may define scheduling rules specific to 
+their operational context — such as blocking certain days for administrative tasks or 
+restricting appointment types during specific periods. This complements, rather than 
+duplicates, the appointment type configuration.
 
-===== Accessibility Features
-* Clear interface design
-* Larger text options
-* Simplified navigation
-* Accessibility-friendly layout for elderly users
 
 ===== Advanced Filtering Options
 * Filter by specialty
@@ -39,17 +36,23 @@ Limit the number of active appointments per specialist (e.g., one at a time) to 
 * Filter by doctor availability
 * Filter by services offered
 
-===== Clear Calendar Separation
-Display schedules per doctor and per location without overlapping all calendars simultaneously.
+===== Calendar Separation by Context
+Clinic staff can view schedules organized per doctor or per location 
+independently, rather than seeing all calendars merged into one view. This is useful for 
+front-desk staff managing multiple providers or rooms, reducing scheduling errors when 
+coordinating across several resources simultaneously.
 
-===== Data Privacy and Protection Measures
-* Secure document storage
-*Controlled access permissions
-* Patient history visibility limited to authorized roles
-* Change history tracking
+===== Role-Based Access Control
+Patient history, appointment records, and availability data are only visible 
+to roles authorized to access them (for example: the treating physician, authorized clinic staff). 
+This is distinct from HIPAA compliance requirements and addresses the operational need to 
+scope data visibility appropriately within the platform's own role hierarchy.
 
-===== HIPAA Compliance Considerations
-Availability data must be handled in a way that does not expose confidential patient information.
+===== HIPAA Compliance Framing
+The platform operates as a scheduling tool and does not store or transmit 
+clinical records. Any handling of personally identifiable scheduling data will conform to 
+applicable HIPAA requirements. Features that would otherwise duplicate HIPAA-mandated 
+protections are not separately specified here.
 
 ===== Secure Authentication and Role Management
 Distinct roles (patient, doctor, location, admin) with clearly defined permissions.

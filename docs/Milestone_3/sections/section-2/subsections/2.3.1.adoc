@@ -1,0 +1,217 @@
+=== *Implementation*
+==== *Selected Fragments of the Implementation*
+
+The following fragments illustrate how key architectural decisions are
+reflected in the implementation. Rather than presenting raw code for its own
+sake, each fragment is accompanied by an explanation of the reasoning behind it
+and how it supports the system's design goals.
+
+===== Application Initialization and Structure
+
+The backend is initialized using an application factory pattern, implemented in `backend/app/__init__.py`.
+
+
+[source,python]
+----
+def create_app(testing: bool = False):
+    app = Flask(__name__)
+
+    app.config.from_object(Config)
+    if testing:
+        app.config["TESTING"] = True
+
+    CORS(app)
+    init_supabase(app)
+    register_routes(app)
+
+    return app
+----
+
+ This pattern allows the application to be created in a controlled and flexible way. Instead of relying on global initialization, the system builds the application step by step. Configuration is loaded first, followed by external service initialization and route registration.
+
+This separation is important because it allows different environments to be handled cleanly. For example, when running tests, the application can disable external integrations such as Supabase. It also makes the system easier to maintain, since each responsibility is clearly defined and isolated.
+
+===== Route Organization
+
+The API is structured using blueprints, defined in `backend/app/routes/__init__.py`.
+
+
+[source,python]
+----
+def register_routes(app):
+    app.register_blueprint(main_bp, url_prefix='/api')
+    app.register_blueprint(appointment_bp, url_prefix='/api')
+    app.register_blueprint(profile_bp, url_prefix='/api/profile')
+    app.register_blueprint(settings_bp, url_prefix='/api/settings')
+----
+
+This approach reflects a modular design where each functional area of the system is handled independently. For example, profile-related operations are separated from appointment-related operations.
+
+This modularity reduces coupling between components and makes it easier to extend the system. New features can be added as new blueprints without modifying existing ones, which reduces the risk of introducing bugs in unrelated parts of the application.
+
+===== Supabase Integration
+
+The system integrates with Supabase for authentication and data storage. This integration is centralized in `backend/app/supabase.py`.
+
+
+[source,python]
+----
+def init_supabase(app):
+    global supabase
+
+    if app.config.get("TESTING"):
+        supabase = None
+        app.supabase = None
+        return None
+
+    url = app.config.get('SUPABASE_URL')
+    key = app.config.get('SUPABASE_KEY')
+
+    if not url or not key:
+        raise RuntimeError('Supabase environment variables are missing.')
+
+    supabase = create_client(url, key)
+    app.supabase = supabase
+    return supabase
+----
+
+By initializing the client once and attaching it to the application, the system avoids duplicating configuration logic across different components.
+
+An important detail is the conditional behavior during testing. When the application runs in testing mode, the Supabase client is disabled. This prevents external dependencies from affecting test execution and ensures that tests remain fast and reliable.
+
+===== Backend Communication with Supabase
+
+To maintain consistency, all communication with Supabase is handled through a wrapper function defined in `backend/app/routes/profile.py`.
+
+
+[source,python]
+----
+def _supabase_request(...):
+    headers = {
+        'apikey': service_key,
+        'Authorization': f"Bearer {user_token or service_key}",
+    }
+----
+    
+This abstraction centralizes how requests are constructed and executed. Instead of writing HTTP logic in every endpoint, the system delegates this responsibility to a single function.
+
+This design improves maintainability. If the way requests are handled needs to change, it can be updated in one place without affecting the rest of the codebase. It also ensures consistent error handling and response parsing across all interactions with Supabase.
+
+===== Authentication and Authorization
+
+Authentication and authorization are handled as separate steps, both implemented in `backend/app/routes/profile.py`.
+
+
+[source,python]
+----
+status, user_response, _ = _supabase_request('GET', '/auth/v1/user', user_token=token)
+
+role_status, role_response, _ = _supabase_request(
+    'GET',
+    '/rest/v1/user_roles',
+    query={'user_id': f'eq.{user_id}', 'select': 'roles(name)'},
+)
+----
+
+The system first verifies the identity of the user using a token. Once the user is authenticated, a second query retrieves the user’s role.
+
+This separation is intentional. Authentication answers the question “who is the user?”, while authorization answers “what is the user allowed to do?”. Keeping these concerns independent makes the system more flexible and easier to evolve as role definitions change.
+
+===== Access Control in Profile Endpoints
+
+Access control is enforced directly within the endpoints, which are defined in `backend/app/routes/profile.py`.
+
+
+[source,python]
+----
+if not _can_access_target(request_user_id, request_role, user_id):
+    return jsonify({'error': 'Forbidden'}), 403
+----
+
+This check ensures that users can only access or modify their own data unless additional permissions are granted.
+
+Although simple, this explicit check is critical for system security. By placing it early in the request flow, the system prevents unauthorized access before any sensitive operations are performed.
+
+===== Frontend API Communication
+
+On the frontend, API communication is centralized in `frontend/src/services/api.js`.
+
+
+[source,javascript]
+----
+const response = await fetch(`${BASE_URL}${path}`, {
+  headers: { 'Content-Type': 'application/json', ...authHeaders },
+  ...restOptions,
+})
+----
+
+Before sending a request, the system retrieves the current session and attaches the authentication token automatically.
+
+This design removes the need for individual components to handle authentication manually. As a result, the code becomes more consistent and less error-prone, since all requests follow the same pattern.
+
+==== Role-Based UI Behavior
+
+The frontend adapts its behavior based on the user’s role, implemented in `frontend/src/pages/Home.jsx`.
+
+
+[source,javascript]
+----
+const { data: roleRows } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', data.user.id)
+----
+
+Once the role is retrieved, it is used to control what the user sees in the interface. This creates a direct connection between backend authorization and frontend behavior. The system not only enforces permissions internally but also reflects them in the user interface, improving both usability and security.
+
+===== Appointment Creation and Scheduling Logic
+
+One of the core operations of the system is the creation of appointments. This process involves multiple steps, including authentication, validation, conflict detection, and persistence. The API endpoint responsible for this operation is implemented in `backend/app/routes/scheduling_appointments.py`.
+
+
+[source,python]
+----
+@scheduling_appointments_bp.route("/", methods=["POST"])  
+@requires_auth
+def create_appointment():
+    data = _validate_json_request()
+    supabase = _get_supabase_client()
+    response = supabase.table("appointments").insert(data).execute()
+    return jsonify({"success": True, "data": response.data}), 201
+----
+
+
+Before reaching the endpoint, the request is processed by authentication middleware defined in `backend/app/middleware/auth_middleware.py`.
+
+
+[source,python]
+----
+def requires_auth(f):
+    token = extract_token()
+    payload = verify_jwt(token)
+    g.user_id = payload.get("sub")
+    return f()
+----
+
+This ensures that only authenticated users can create appointments, while keeping authentication logic separate from business logic.
+
+Beyond the API layer, the system includes a dedicated module for handling scheduling rules, implemented in `backend/src/booking.py`.
+
+
+[source,python]
+----
+if has_conflict(proposed_start, proposed_end, existing_appointments):
+    return False, None, ["time_slot_conflict"]
+----
+
+This logic ensures that appointments do not overlap with existing ones. It represents the core business rule of the scheduling system. Additional constraints are enforced through availability and closure checks. Availability is retrieved from `backend/app/repositories/availability.py`, while closures are handled in `backend/app/services/closure_service.py`. These components ensure that appointments are only scheduled within valid time ranges and do not conflict with blocked periods such as holidays or doctor unavailability.
+
+This flow demonstrates how different layers of the system interact. Authentication secures access, validation ensures correct input, and scheduling logic enforces consistency. Together, they implement the core behavior of the application in a structured way.
+
+===== [.added]#Domain Typing Strategy for Scheduling#
+
+[.added]#The scheduling implementation benefits from explicit domain types because appointment booking combines several values that are easy to confuse when represented only as strings or dictionaries. The intended typing strategy introduces `PatientID`, `Doctor`, `TimeSlot`, and `Appointment` as named concepts for the booking workflow. `PatientID` and similar identifiers can be represented with `NewType`, while richer concepts such as `Doctor` and `TimeSlot` can be represented with frozen dataclasses. Appointment records can be represented with a `TypedDict` or dataclass that names the patient, doctor, slot, and status fields.#
+
+[.added]#A non-trivial booking function should therefore accept values such as `patient_id: PatientID`, `doctor: Doctor`, `requested_slot: TimeSlot`, and `existing_appointments: Sequence[Appointment]` instead of raw primitive values. This makes the function signature communicate the domain rule being enforced: a patient books a particular doctor's time slot, and the implementation checks that the slot belongs to that doctor and does not overlap an active appointment. The type checker cannot replace all scheduling tests, but it can catch category mistakes earlier and make the code easier to review.#
+
+[.added]#Side-effecting action functions use `None` as Python's equivalent of `Unit` when their purpose is to change state rather than produce a new value. For example, a cancellation action may return `None` after persisting the transition to `cancelled`; failure should be represented through an exception or an explicit result type. This matches the conceptual `Result Unit Error` signatures used in the design model and clarifies why action functions differ from query functions that return domain data.#

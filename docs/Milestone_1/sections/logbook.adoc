@@ -1,7 +1,67 @@
 
-=== Logbook 
+=== Logbook
 
-[%header]
+[cols="3,^2,5",options="header"]
 |===
+| Name | Section | Added/Modified
+
+| Jean P. I. Sánchez
+| 3.3, 3.3.1, 3.3.2
+| Added section 3.3 (Test Scenario Design) including 3.3.1 (Scenario Coverage Overview) and 3.3.2 (BDD Scenario Design) with Given–When–Then examples and traceability table linking scenarios to functional requirements.
+
+| 2026-04-07
+| 2.3.1 Implementation
+| Replaced pseudocode with actual source code from the repository (scheduling.py, registration.py, appointments.py). Explained design decisions behind each fragment.
+| M2 feedback fix
+
+| 2026-04-07
+| 3.2 Validation & Verification
+| Added specific scenario reviewed with a named stakeholder (Ana Rivera, cardiology clinic administrator). Documented specific feedback, model changes resulting from feedback. Added terminology consistency check results. Added walkthrough finding (Held state for concurrent booking).
+| M2 feedback fix
+
+| 2026-04-07
+| Section 4 (new)
+| Added load testing section (4.21) with Locust setup, usage scenarios, and results.
+| M2 new content
+
+| 2026-04-07
+| Section 4 (new)
+| Added Hoare logic verification section (4.22) with Dafny verification of TimeRange.split.
+| M2 new content
+
+| 2026-04-07
+| Section 4 (new)
+| Added mutation testing section (4.23) with mutmut results and remediation for scheduling.py.
+| M2 new content
+
+| 2026-04-07
+| Section 4 (new)
+| Added TDD walkthrough section (4.24) for generate_available_slots with 5 iterations, explicit red/green/refactor cycles, traceability table to user stories and domain requirements.
+| M2 new content
+
+| 2026-04-07
+| 4.4 BDD Examples
+| Rewrote BDD scenarios section with aligned Gherkin feature block (Background + 3 scenarios), explanations for each scenario, traceability table to user stories and domain requirements.
+| M2 content improvement
+
+| 2026-04-07
+| Section 4 (new)
+| Added BDD tool integration section (4.25) with pytest-bdd setup, feature file, step definitions, execution output, and traceability.
+| M2 new content
+
+| 2026-04-07
+| Section 4 (new)
+| Added debugger usage section (4.26) with two sessions: pdb session finding route handler defect; Chrome DevTools session exposing 303ms non-atomic reschedule vulnerability.
+| M2 new content
+
+| 2026-04-07
+| 2.2.4 Interface Requirements
+| Fixed broken user story references (US.AVAIL.01→US.PROV.01, US.AUTH.01→US.ADMIN.01, US.PROF.01→US.ADMIN.01, US.NOTIF.01→US.BOOK.01). All linked IDs now resolve to defined user stories in 2.2.1.
+| M2 feedback fix
+
+| 2026-04-07
+| backend/tests/bdd/
+| Created actual BDD feature file and step definitions in repository (appointment_booking.feature, test_appointment_booking.py) matching the scenarios documented in sections 4.4 and 4.25.
+| M2 new content
 
 |===

@@ -25,8 +25,8 @@ These mechanisms support:
 | The system allows authorized users to create Provider records.
 A Provider must be associated with at least one Clinic.
 Provider identity attributes must be immutable after creation.
-Only authenticated users with appropriate roles (US.AUTH.01, F1.4) may perform this action.
-| US.AUTH.01, F1.4
+Only authenticated users with appropriate roles (E5, F5.1) may perform this action.
+| E5, F5.1
 |
 
 | IR-DI-03
@@ -50,7 +50,7 @@ Each Time Slot has:
 
 A Time Slot must be initialized with status = Available.
 Overlapping time ranges should be rejected (F2.3, REQ-AVAIL-F-01).
-| US.AVAIL.01
+| US.PROV.01
 | F2.3, REQ-AVAIL-F-01
 
 | IR-DI-05
@@ -58,7 +58,7 @@ Overlapping time ranges should be rejected (F2.3, REQ-AVAIL-F-01).
 Required fields must be validated prior to persistence.
 Patient contact information must be editable (US.PROF.01).
 Accessibility considerations support José’s simplified interaction needs.
-| US.AUTH.01, US.PROF.01
+| US.ADMIN.01
 |
 
 | IR-DI-06
@@ -93,7 +93,7 @@ Upon validation, the system:
 * Set associated Time Slot status = Reserved
 
 A confirmation notification must be triggered (F4.1).
-| US.BOOK.01, US.NOTIF.01
+| US.BOOK.01
 | F4.1
 
 | IR-ES-03
@@ -157,7 +157,7 @@ Completed and No-Show appointments must be immutable except for administrative a
 a|
 Mutable Data:
 
-* Patient contact information (US.PROF.01)
+* Patient contact information (US.ADMIN.01)
 * Appointment notes
 * Referral status prior to confirmation
 
@@ -168,7 +168,7 @@ Immutable Data:
 * Provider identity after confirmation
 
 Unauthorized modification attempts return an error response, supporting Ricardo’s security and integrity goals.
-| US.PROF.01
+| US.ADMIN.01
 |
 
 | IR-UI-01
@@ -185,14 +185,14 @@ Appointment Transparency:
 
 Notification Feedback:
 
-* The UI must confirm successful booking, cancellation, or rescheduling (US.NOTIF.01).
+* The UI must confirm successful booking, cancellation, or rescheduling (US.BOOK.01).
 * Error messages should be specific and validation-driven.
 
 Role-Based Access:
 
-* UI actions must be restricted according to authenticated role (US.AUTH.01, F1.4).
+* UI actions must be restricted according to authenticated role (US.ADMIN.01, F1.4).
 * Administrative views support Marta’s oversight needs.
-| US.NOTIF.01, US.AUTH.01, F1.4
+| US.BOOK.01, US.ADMIN.01, F1.4
 |
 
 | IR-API-01
@@ -224,16 +224,16 @@ PUT /appointments/{id}/cancel (US.BOOK.02)
 
 | IR-API-04
 a|
-GET /timeslots?provider={id} (US.AVAIL.01)
+GET /timeslots?provider={id} (US.PROV.01)
 
 * Returns only Available Time Slots
 
 All endpoints:
 
-* Enforce authentication via JWT (US.AUTH.01)
+* Enforce authentication via JWT (US.ADMIN.01)
 * Validate input schema
 * Return structured error responses (400, 401, 422, 409)
-| US.AVAIL.01, US.AUTH.01
+| US.PROV.01, US.ADMIN.01
 |
 
 | IR-CC-01

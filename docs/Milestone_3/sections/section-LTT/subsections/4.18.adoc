@@ -1,0 +1,213 @@
+=== *Continuous Integration and Delivery*
+---
+
+==== Research Continuous Integration Workflow for Automated Testing
+:author: Axel A. Burgos
+
+===== Overview
+
+Continuous Integration (CI) is a development practice where code changes are automatically tested whenever they are pushed to the repository. Instead of waiting until later stages of development to discover problems, CI allows the team to detect issues immediately after new code is added.
+
+For the Simple Medical Appointments project, Continuous Integration can help ensure that updates to appointment booking, cancellation, rescheduling, and history retrieval do not accidentally break existing functionality.
+
+CI is especially useful in collaborative projects because multiple developers may be working on different parts of the system at the same time. Automated testing helps ensure that new changes integrate safely with the rest of the application.
+
+===== Purpose of Continuous Integration
+
+The main goal of Continuous Integration is to improve software quality by running automated checks before code is merged into the main branch.
+
+Instead of relying entirely on manual testing, the system automatically validates whether:
+
+* Backend tests still pass
+* Frontend tests still pass
+* The application still builds successfully
+* Existing features still work correctly
+* New changes introduce errors or regressions
+
+This makes development faster and more reliable because developers receive immediate feedback whenever something fails.
+
+===== Importance of Automated Testing in CI
+
+Automated testing is a critical part of any CI pipeline because it verifies whether the application behaves correctly after new changes are introduced.
+
+Without automated testing, broken code could be merged into the project without anyone noticing until later.
+
+For the Medical Appointments project, automated tests can verify functionality such as:
+
+* Appointment booking
+* Appointment cancellation
+* Appointment rescheduling
+* Appointment history retrieval
+* Form validation
+* Authentication and login
+* Role-based access restrictions
+
+By automatically testing these features whenever code is pushed, the team can catch issues earlier and reduce the risk of breaking the system.
+
+===== Proposed CI Workflow
+
+The recommended CI workflow for this project can be implemented using GitHub Actions.
+
+The workflow should run whenever:
+
+* Code is pushed to the main branch
+* Code is pushed to the development branch
+* A pull request is opened
+* A pull request is updated
+
+The proposed CI process is:
+
+. A developer pushes code to GitHub
+. GitHub Actions automatically starts the workflow
+. The workflow installs backend dependencies
+. The workflow installs frontend dependencies
+. Backend automated tests are executed
+. Frontend automated tests are executed
+. The frontend application is built to ensure there are no build errors
+. Results are displayed to the developer
+. If any test fails, the merge should be blocked until the issue is fixed
+
+===== Backend Testing Workflow
+
+For the Python/Flask backend, the CI pipeline should:
+
+* Install Python
+* Install required packages from `requirements.txt`
+* Run automated backend tests using `pytest`
+* Verify that appointment-related endpoints behave correctly
+* Ensure that database-related functionality works properly
+
+Possible backend test areas include:
+
+* Booking appointments
+* Canceling appointments
+* Rescheduling appointments
+* Retrieving appointment history
+* Input validation
+* Role-based access checks
+
+===== Frontend Testing Workflow
+
+For the React/Vite frontend, the CI pipeline should:
+
+* Install Node.js
+* Install frontend dependencies with `npm install`
+* Run automated frontend tests
+* Build the React application using `npm run build`
+* Verify that components render correctly and that there are no compilation errors
+
+Possible frontend test areas include:
+
+* Appointment booking forms
+* Appointment cancellation buttons
+* Appointment history displays
+* Navigation between pages
+* Error message rendering
+* Form validation feedback
+
+===== Example GitHub Actions Workflow
+
+[source,yaml]
+----
+name: Automated Testing Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Run backend tests
+        run: |
+          cd backend
+          pytest
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test
+
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+----
+
+===== Benefits of Continuous Integration
+
+Using Continuous Integration provides several important benefits:
+
+* Detects bugs earlier in development
+* Prevents broken code from being merged
+* Gives developers fast feedback on failures
+* Improves overall software quality
+* Reduces the amount of manual testing required
+* Makes the system more reliable over time
+* Helps maintain stable releases
+
+CI also improves teamwork because developers can see whether their changes are safe before merging them into the main project branch.
+
+===== Integration into Current Development Workflow
+
+The CI pipeline should be integrated directly into the current GitHub workflow used by the Medical Appointments project.
+
+Whenever a developer opens a pull request, GitHub Actions should automatically run all required tests.
+
+If the tests pass, the pull request can continue to review and merge.
+
+If the tests fail, the developer must fix the issue before the code can be merged.
+
+This ensures that only tested and stable code reaches the main branch.
+
+===== Conclusion
+
+Continuous Integration is an important practice for maintaining software quality in the Simple Medical Appointments project.
+
+By automatically running backend and frontend tests whenever code changes are made, the team can reduce bugs, improve reliability, and prevent regressions from reaching production.
+
+As the project grows, CI will become even more important because it helps ensure that multiple developers can safely contribute to the system without introducing breaking changes.
+
+===== References
+
+[1] P. M. Duvall, S. Matyas, and A. Glover, _Continuous Integration: Improving Software Quality and Reducing Risk_. Boston, MA: Addison-Wesley, 2007.
+
+[2] GitHub, "GitHub Actions Documentation," Available: https://docs.github.com/en/actions
+
+---

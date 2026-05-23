@@ -1,0 +1,102 @@
+
+==== *Personas*
+
+The personas below represent our core user segments and ground the scope of this product. For each persona we outline goals, pains, typical behaviors, and accessibility needs, and we link them to the stories, epics, and features defined in 2.2.1. 
+
+We will reference these personas by name during sprint planning and reviews (e.g., “Would this work for Carmen?”) to ensure decisions remain user-centered and concrete.
+
+.Carmen “Busy Mom” Rodríguez – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|Carmen is the kind of person who manages three WhatsApp groups before 8 a.m., prepares breakfast while reviewing homework, and still remembers her mother’s blood pressure medication schedule by heart.
+|Background|38-year-old elementary school teacher and mother of two children (ages 6 and 10). Lives in a mid-sized city and helps coordinate medical appointments not only for her children but also for her elderly mother who lives nearby.
+|Daily Life Context|Her day is tightly scheduled between teaching, commuting, helping with homework, and managing household responsibilities. Most personal tasks are deferred to late evenings when everything is quieter.
+|Wishes & Goals|Wants to book pediatric and general checkups quickly without making phone calls during school hours. She hopes for a simple system that lets her see available times, book in seconds, and receive reminders so she does not forget appointments.
+|Fears & Pains|Frustrated by long waiting times on the phone and unclear availability. She has previously shown up to a clinic only to discover the appointment was misrecorded. She fears double-booking appointments across family members.
+|Motivations|Driven by responsibility toward her family and a desire to stay organized despite constant interruptions.
+|Decision Tendencies|Chooses convenience and clarity. If a system looks confusing or requires too many steps, she postpones the task. She values clear confirmation messages and calendar synchronization.
+|Healthcare Habits|Books most appointments in the evening after putting her children to bed. Keeps a handwritten planner but relies increasingly on digital reminders.
+|Tech & Environment|Uses her smartphone as her primary device. Often books appointments late at night from the living room couch with moderate Wi-Fi reliability.
+|Visual Cue|Carmen at the kitchen table with a planner open, phone in hand, comparing school schedules with doctor availability.
+|Domain Role|Represents the *Primary Patient / Family Coordinator* who needs fast booking, clear confirmations, and reliable reminders.
+|===
+
+.Dr. Rafael “Overbooked Specialist” Morales – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|Dr. Morales moves briskly between consultation rooms, dictating notes while adjusting his glasses, always aware that the waiting room is filling up.
+|Background|45-year-old cardiologist working in both a private clinic and a public hospital. Balances patient consultations, administrative paperwork, and occasional university lectures.
+|Daily Life Context|His schedule is fragmented across locations, often running behind due to emergencies or complex cases. Administrative tasks compete with patient care for his time.
+|Wishes & Goals|Wants a structured way to define his weekly availability and prevent overlapping appointments. Hopes to reduce no-shows and last-minute confusion.
+|Fears & Pains|Frustrated by double bookings caused by manual scheduling. Dislikes administrative interruptions during consultations. Worries about wasted time due to missed appointments.
+|Motivations|Seeks efficiency to focus more on patient care rather than administrative overhead.
+|Decision Tendencies|Values efficiency and predictability. Prefers systems that automate routine scheduling logic and reduce manual intervention.
+|Healthcare Habits|Plans his availability weekly, adjusting based on surgeries, conferences, or hospital duties.
+|Tech & Environment|Uses a desktop computer at the clinic and a tablet between appointments. Expects systems to be fast and intuitive due to limited time.
+|Visual Cue|Dr. Morales reviewing his digital calendar between patients, quickly approving available slots before the next consultation begins.
+|Domain Role|Embodies the *Doctor* who needs availability control, conflict prevention, and structured scheduling tools.
+|===
+
+.Marta “Clinic Administrator” López – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|Marta sits at the clinic’s front desk with a headset on, answering calls while checking patient files and reminding the next person in line to fill out a form.
+|Background|52-year-old clinic administrator with over 20 years of experience. Responsible for managing appointment records, assisting patients, and coordinating between doctors.
+|Daily Life Context|Her workday is fast-paced and interruption-heavy, with constant switching between phone calls, in-person requests, and administrative updates.
+|Wishes & Goals|Wants a centralized dashboard where she can view all appointments, quickly identify conflicts, and assist patients who call for help.
+|Fears & Pains|Overwhelmed when multiple patients call at once to reschedule. Fears data inconsistencies and lost records.
+|Motivations|Pride in keeping the clinic organized and ensuring patients are attended to efficiently.
+|Decision Tendencies|Relies on structured lists and clear filters. Prefers systems that show everything at a glance and allow quick corrections.
+|Healthcare Habits|Confirms next-day appointments manually by phone when possible, especially for elderly patients.
+|Tech & Environment|Works on a desktop computer with multiple windows open; occasionally checks updates on her phone.
+|Visual Cue|Marta leaning toward her monitor, scanning a full-day schedule while highlighting names on a printed backup list.
+|Domain Role|Represents the *Administrative Staff* who needs oversight, filtering, and reliable appointment records.
+|===
+
+.José “Elderly Patient” Hernández – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|José carries a small notebook in his jacket pocket with handwritten appointment dates and medication notes written in careful script.
+|Background|67-year-old retired mechanic living with his wife. Suffers from hypertension and requires regular follow-ups with his general practitioner.
+|Daily Life Context|His routines are stable and predictable, centered around home life, errands, and medical care. He values independence but occasionally relies on family support.
+|Wishes & Goals|Wants to easily see when his next appointment is and receive reminders without navigating complicated interfaces.
+|Fears & Pains|Feels uncomfortable with complex technology. Afraid of pressing the wrong button and losing information.
+|Motivations|Wants to remain independent and not rely entirely on his daughter for scheduling.
+|Decision Tendencies|Trusts systems that look simple and readable. Prefers large text and clear confirmation messages.
+|Healthcare Habits|Relies on his daughter to help him with online tasks but wants to maintain independence where possible.
+|Tech & Environment|Uses a basic Android phone with enlarged font settings.
+|Visual Cue|José sitting in a quiet armchair, carefully reading a reminder notification before marking the date in his notebook.
+|Domain Role|Embodies the *Accessibility-Sensitive Patient* who needs simplicity, clarity, and reassurance.
+|===
+
+.Lucía “University Student” Vega – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|Lucía studies late into the night with headphones on, switching between lecture slides and messaging friends about upcoming exams.
+|Background|21-year-old university student living in a shared apartment. Frequently postpones medical appointments due to busy academic schedules.
+|Daily Life Context|Her schedule is irregular, driven by classes, assignments, and social activities. She often multitasks and prioritizes urgent academic deadlines.
+|Wishes & Goals|Wants to book appointments outside class hours and receive reminders synced with her digital calendar.
+|Fears & Pains|Often forgets appointments when overwhelmed by exams. Frustrated by limited appointment visibility.
+|Motivations|Values flexibility and autonomy in managing her time.
+|Decision Tendencies|Books quickly if the system shows real-time availability. Cancels or reschedules if conflicts arise.
+|Healthcare Habits|Prefers online systems over phone calls and avoids administrative interactions unless necessary.
+|Tech & Environment|Primarily uses her smartphone; expects fast loading and intuitive navigation.
+|Visual Cue|Lucía booking an appointment from her dorm bed while checking her exam schedule on another app.
+|Domain Role|Represents the *Digitally-Native Patient* who values speed, flexibility, and mobile-first design.
+|===
+
+.Ricardo “System Administrator” Castillo – Narrative Persona
+[cols="1,3"]
+|===
+|Snapshot|Ricardo reviews dashboards with a cup of strong coffee, watching system logs scroll across his screen.
+|Background|34-year-old IT administrator responsible for maintaining clinic software systems, data integrity, and backups.
+|Daily Life Context|Balances reactive problem-solving (incidents, bugs) with proactive maintenance and monitoring. Often works outside normal hours to avoid disruptions.
+|Wishes & Goals|Wants system stability, secure user authentication, and accurate appointment logs.
+|Fears & Pains|Concerned about data breaches, system downtime, and inconsistent records.
+|Motivations|Driven by reliability and professional responsibility to keep systems running smoothly.
+|Decision Tendencies|Prefers structured data, audit trails, and role-based access control.
+|Healthcare Habits|Monitors system activity during peak hours and performs maintenance at night.
+|Tech & Environment|Works on high-performance desktop systems with multiple monitoring tools open.
+|Visual Cue|Ricardo analyzing system metrics late in the evening to ensure smooth performance the next day.
+|Domain Role|Embodies the *Technical Administrator* ensuring security, reliability, and compliance.
+|===
