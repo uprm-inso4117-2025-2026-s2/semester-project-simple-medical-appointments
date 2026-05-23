@@ -184,3 +184,108 @@ Together, these three tools give developers precise control over when and where 
 
 ---
 
+==== Debugging Session on the Authentication and Role-Check Flow
+:author: Viviana Ramos
+
+===== Overview
+
+This section walks through a debugging session on the User Management authentication and role-check flow. The two decorators that guard every protected endpoint are `@requires_auth` (in `auth_middleware.py`) and `@requires_role` (in `custom_decorators.py`). Auth failures return 401 or 403 with no detail, so a session with breakpoints, conditional breakpoints, and watchpoints was used to inspect live state at each stage of the chain.
+
+===== Breakpoints
+
+Five breakpoints were placed at the entry and exit boundaries of each processing stage:
+
+* *BP1* — entry of `requires_auth`, before `extract_token()`. Captures the raw `Authorization` header.
+* *BP2* — entry of `verify_jwt(token)`, before signature verification. Captures the raw token string and its structure.
+* *BP3* — after `verify_jwt` succeeds, before `g.user_id` is set. Captures the decoded JWT payload.
+* *BP4* — entry of `requires_role`, after `@requires_auth` passes. Captures `g.user_id` and the required roles.
+* *BP5* — after `get_role_for_user()` returns, before the role comparison. Captures `resolved_role`.
+
+===== Conditional Breakpoints
+
+Two conditional breakpoints were added to limit noise:
+
+*BP2-COND* — fires only when `token.count('.') != 2`. A valid JWT has exactly two dots. If the count is wrong the token is not a JWT at all, and this condition isolates that case without halting on valid tokens.
+
+*BP5-COND* — fires only when `role not in required_roles`. This makes the breakpoint trigger only on access denials, not on every passing role check.
+
+===== Watchpoint
+
+A watchpoint tracked how the auth state transformed across the two decorators:
+
+[source,text]
+----
+auth_state: token → jwt_payload → user_id → resolved_role
+----
+
+The two decorators share state through Flask's `g` object. The watchpoint automatically recorded each assignment across both decorators without needing four individual breakpoints.
+
+===== Session Results
+
+Five scenarios were run. The table shows which breakpoints fired and the HTTP result.
+
+[cols="1,2,2,1",options="header"]
+|===
+| Scenario | Breakpoints Hit | Conditional BPs Triggered | Status
+
+| A — Valid admin token
+| BP1, BP2, BP3, BP4, BP5
+| None
+| 200
+
+| B — No token
+| BP1
+| None
+| 401
+
+| C — Malformed token (zero dots)
+| BP1, BP2
+| BP2-COND
+| 401
+
+| D — Expired token
+| BP1, BP2
+| None
+| 401
+
+| E — Patient on admin endpoint
+| BP1, BP2, BP3, BP4, BP5
+| BP5-COND
+| 403
+|===
+
+Total: 17 breakpoints hit, 2 conditional breakpoints triggered.
+
+===== Watchpoint Observations
+
+For Scenario A (valid admin) the watchpoint recorded four transitions:
+
+. `token` — three-segment JWT string
+. `jwt_payload` — `{'sub': 'ADMIN_ID', 'exp': <future>, 'role': 'admin'}`
+. `user_id` — `"00000000-0000-0000-0000-000000000001"`
+. `resolved_role` — `"admin"`
+
+For Scenario E the watchpoint showed `resolved_role = "patient"` at the last stage, which is what triggered BP5-COND and returned 403.
+
+===== Defect Found
+
+Inspecting the role-check path surfaced a security defect in the registration handler.
+
+[cols="1,3",options="header"]
+|===
+| Field | Detail
+
+| ID | DEF-UM-001
+| Title | Admin role self-assignable at registration
+| Severity | Critical
+| Location | `backend/app/routes/auth.py`
+| Root Cause | `VALID_ROLES = {'patient', 'doctor', 'admin'}` lets any caller register as admin through the public `POST /api/auth/register` endpoint
+| Fix | Remove `'admin'` from `VALID_ROLES`; admin role should only be assigned through an authenticated admin-only endpoint
+| Status | Open
+|===
+
+===== Conclusion
+
+Breakpoints at layer boundaries confirmed that state passed correctly between `@requires_auth` and `@requires_role` in the normal path. Conditional breakpoints made Scenarios C and E easy to isolate without halting on every unrelated call. The watchpoint tracked the four-step state transformation across both decorators in one place, which is what pointed to DEF-UM-001: the resolved role always matched what the user had self-reported at registration, which led directly to the registration handler as the source of the problem.
+
+---
