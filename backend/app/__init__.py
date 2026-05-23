@@ -16,6 +16,10 @@ def create_app(testing: bool = False):
     # Load configuration from the Config class (reads from .env via config.py)
     app.config.from_object(Config)
 
+    # Propagate the testing flag so fixtures and middleware can detect test mode.
+    if testing:
+        app.config['TESTING'] = True
+
     # Enable CORS so the React frontend (on a different port) can call this API.
     # In production, restrict origins to your actual domain instead of allowing all.
     CORS(app)

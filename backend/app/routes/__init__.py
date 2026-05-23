@@ -5,6 +5,7 @@ from .account_settings import settings_bp
 from .auth import auth_bp
 from .appointments import appointments_bp
 from .admin import admin_bp
+from .auth import auth_bp
 from .daily_slots import slots_bp
 
 
@@ -17,4 +18,5 @@ def register_routes(app):
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(slots_bp)
