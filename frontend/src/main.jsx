@@ -6,12 +6,18 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css' // Global styles
 
+import { AuthProvider } from './context/AuthContext'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // StrictMode highlights potential issues in development (double-renders, deprecated APIs, etc.)
-  <React.StrictMode>
-    {/* BrowserRouter enables client-side routing using the browser's URL bar */}
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </React.StrictMode>
+
+  // AuthProvider wraps the entire app to provide authentication context
+  <AuthProvider>
+    {/* StrictMode highlights potential issues in development (double-renders, deprecated APIs, etc.) */}
+    <React.StrictMode>
+      {/* BrowserRouter enables client-side routing using the browser's URL bar */}
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </React.StrictMode>
+  </AuthProvider>
 )

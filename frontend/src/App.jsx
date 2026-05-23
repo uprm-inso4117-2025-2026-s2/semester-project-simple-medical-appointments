@@ -24,6 +24,7 @@ import DoctorProfile from './pages/DoctorProfile'
 import AdminProfile from './pages/AdminProfile'
 import AdminUsers from './pages/AdminUsers'
 import AccountSettings from './pages/AccountSettings'
+import AdminAppointments from './pages/AdminAppointments'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
       {/* Each <Route> maps a URL path to a page component */}
       <Route path="/" element={<Home />} />
       <Route path="/admin/closures" element={<ClosuresAdmin />} />
+      <Route path="/admin/appointments" element={<AdminAppointments />} />  
       <Route path="/appointmenthistory" element={<AppointmentHistory />} />
       <Route path="/appointment-scheduling" element={<AppointmentSchedule />} />
       <Route path="/appointment-success" element={<AppointmentSuccess />} />
