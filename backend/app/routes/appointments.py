@@ -8,6 +8,7 @@ from datetime import date, time, datetime
 from flask import Blueprint, request, jsonify
 from app.middleware.auth_middleware import requires_auth
 from app.repositories.slot_bookings import try_reserve_slot
+from app.repositories.slot_bookings import book_admin_appointment
 
 from app.models import db, Appointment, AppointmentStatus, SlotStatus
 
@@ -202,3 +203,49 @@ def cancel_appointment(appointment_id):
             "appointment": appt.to_dict(),
         }
     ), 200
+
+@appointments_bp.route('/admin/book', methods=['POST'])
+@requires_auth
+def admin_book_appointment():
+    if not request.is_json:
+        return jsonify({'error': 'Request body must be JSON'}), 415
+
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({'error': 'Invalid or empty JSON body'}), 415
+
+    required = ['patient_id', 'doctor_id', 'appointment_date', 'appointment_time']
+    missing = [field for field in required if not data.get(field)]
+
+    if missing:
+        return jsonify({'error': 'Missing required fields', 'fields': missing}), 400
+
+    try:
+        appt_date = date.fromisoformat(str(data['appointment_date']).strip())
+    except ValueError:
+        return jsonify({'error': 'Invalid appointment_date; use YYYY-MM-DD'}), 400
+
+    try:
+        appt_time = time.fromisoformat(str(data['appointment_time']).strip())
+    except ValueError:
+        return jsonify({'error': 'Invalid appointment_time; use HH:MM'}), 400
+
+    result, err = book_admin_appointment(
+        patient_id=str(data['patient_id']).strip(),
+        doctor_id=str(data['doctor_id']).strip(),
+        appointment_date=appt_date,
+        appointment_time=appt_time,
+        notes=data.get('notes'),
+        accept_waitlist=bool(data.get('accept_waitlist', False)),
+        allow_override=bool(data.get('allow_override', False)),
+    )
+
+    if err is not None:
+        body, status = err
+        return jsonify(body), status
+
+    return jsonify({
+        'success': True,
+        'message': 'Appointment booked successfully.',
+        'data': result,
+    }), 201
