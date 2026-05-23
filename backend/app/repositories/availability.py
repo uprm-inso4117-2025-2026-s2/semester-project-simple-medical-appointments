@@ -12,7 +12,7 @@ from ..services.scheduling import DailyAvailability, TimeRange
 from ..services.working_hours import ensure_non_overlapping_ranges, parse_time_value
 
 
-def _supabase_request(method, path, *, query=None):
+def _supabase_request(method, path, *, query=None, json_body=None):
     base_url = (current_app.config.get("SUPABASE_URL") or "").rstrip("/")
     service_key = current_app.config.get("SUPABASE_SERVICE_ROLE_KEY")
 
@@ -28,7 +28,13 @@ def _supabase_request(method, path, *, query=None):
         "Authorization": f"Bearer {service_key}",
     }
 
-    req = Request(url=url, headers=headers, method=method)
+    body = None
+    if json_body is not None:
+        body = json.dumps(json_body).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+        headers["Prefer"] = "return=representation"
+
+    req = Request(url=url, headers=headers, method=method, data=body)
 
     try:
         with urlopen(req, timeout=20) as resp:
