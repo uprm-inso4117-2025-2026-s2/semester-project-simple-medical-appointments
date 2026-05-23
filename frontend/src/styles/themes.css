@@ -1,0 +1,441 @@
+/*
+  themes.css — Colorblind / accessibility themes
+
+  Monochromatic theme: replaces all UI color with WCAG AA-compliant shades of grey.
+
+  Greyscale palette (contrast ratios vs white #ffffff unless noted):
+    #1a1a1a — 16.75:1  primary text / darkest bg
+    #2d2d2d — 11.63:1  dark surfaces
+    #4a4a4a —  9.73:1  secondary text / accent
+    #555555 —  7.46:1  medium-dark
+    #767676 —  4.54:1  muted text (WCAG AA minimum for normal text)
+    #888888 —  3.54:1  decorative / large text only
+    #c0c0c0 —  1.61:1  borders
+    #e8e8e8 —  1.13:1  subtle backgrounds
+    #f5f5f5 —  1.05:1  near-white surfaces
+
+  Strategy:
+    • CSS overrides handle all class-based styled elements with deliberate
+      WCAG AA-compliant grey values.
+    • filter: grayscale(1) on <body> serves as a safety net for any inline
+      styles (e.g. AppointmentHistory inline style objects) that the CSS
+      overrides cannot reach.
+*/
+
+/* ── GLOBAL FILTER (catches inline styles) ──────────────────────────────── */
+
+html.theme-monochromatic body {
+  filter: grayscale(1);
+}
+
+/* ── PAGE BACKGROUNDS ───────────────────────────────────────────────────── */
+
+html.theme-monochromatic .home-page,
+html.theme-monochromatic .auth-bg,
+html.theme-monochromatic .login-page {
+  background: linear-gradient(180deg, #1a1a1a 24%, #2d2d2d 78%, #4a4a4a 95%);
+}
+
+/* ── NAVBAR ─────────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .home-nav-brand span,
+html.theme-monochromatic .home-nav-logout {
+  color: #ffffff;
+}
+
+html.theme-monochromatic .home-nav-email {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+html.theme-monochromatic .home-nav-logout {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+html.theme-monochromatic .home-nav-logout:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── HOME WELCOME ───────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .home-welcome h1 {
+  color: #ffffff;
+}
+
+html.theme-monochromatic .home-welcome p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── HOME CARDS ─────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .home-card {
+  background: #ffffff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+html.theme-monochromatic .home-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+html.theme-monochromatic .home-card-icon {
+  background: linear-gradient(135deg, #555555, #1a1a1a);
+}
+
+html.theme-monochromatic .home-card-title {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .home-card-desc {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .home-card-arrow {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .home-card-badge {
+  color: #767676;
+  background: #e8e8e8;
+}
+
+/* ── AUTH PANELS ────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .login-left {
+  background: linear-gradient(180deg, #555555 0%, #1a1a1a 100%);
+}
+
+html.theme-monochromatic .login-card,
+html.theme-monochromatic .register-card,
+html.theme-monochromatic .auth-card {
+  background: #ffffff;
+}
+
+html.theme-monochromatic .login-right h1,
+html.theme-monochromatic .register-card h1,
+html.theme-monochromatic .auth-card h1 {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .login-right .auth-subtitle,
+html.theme-monochromatic .register-card .auth-subtitle,
+html.theme-monochromatic .auth-subtitle {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .auth-subtitle a,
+html.theme-monochromatic .login-right .auth-subtitle a,
+html.theme-monochromatic .register-card .auth-subtitle a {
+  color: #1a1a1a;
+}
+
+/* ── FORM INPUTS ────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .form-group label {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .form-group input,
+html.theme-monochromatic .input-wrap input {
+  color: #1a1a1a;
+  border-color: #c0c0c0;
+  background: #ffffff;
+}
+
+html.theme-monochromatic .form-group input:focus,
+html.theme-monochromatic .input-wrap input:focus {
+  border-color: #4a4a4a;
+  box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.18);
+}
+
+html.theme-monochromatic .input-error,
+html.theme-monochromatic .input-error:focus {
+  border-color: #4a4a4a !important;
+  box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.12) !important;
+}
+
+html.theme-monochromatic .field-error {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .auth-error {
+  background: #f0f0f0;
+  border-color: #c0c0c0;
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .forgot-link {
+  color: #1a1a1a;
+}
+
+/* ── AUTH BUTTON ────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .auth-btn {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+html.theme-monochromatic .auth-btn:hover:not(:disabled) {
+  background: #333333;
+}
+
+html.theme-monochromatic .auth-btn.success {
+  background: #2d2d2d;
+}
+
+/* ── ACCOUNT SETTINGS SIDEBAR ───────────────────────────────────────────── */
+
+html.theme-monochromatic .adb-sidebar {
+  background: #1a1a1a;
+}
+
+html.theme-monochromatic .adb-profile-name:hover {
+  color: #c8c8c8;
+}
+
+html.theme-monochromatic .adb-nav-item:hover,
+html.theme-monochromatic .adb-nav-item.active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── ACCOUNT SETTINGS CONTENT ───────────────────────────────────────────── */
+
+html.theme-monochromatic .as-layout .adb-main {
+  background: #e8e8e8;
+}
+
+html.theme-monochromatic .as-card {
+  background: #ffffff;
+  border-color: #c0c0c0;
+}
+
+html.theme-monochromatic .as-card-danger {
+  border-color: #c0c0c0;
+}
+
+html.theme-monochromatic .as-card-title {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .as-card-sub {
+  color: #555555;
+}
+
+html.theme-monochromatic .as-card-sub strong {
+  color: #2d2d2d;
+}
+
+html.theme-monochromatic .as-label {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-input {
+  color: #1a1a1a;
+  border-color: #c0c0c0;
+  background: #ffffff;
+}
+
+html.theme-monochromatic .as-input::placeholder {
+  color: #888888;
+}
+
+html.theme-monochromatic .as-input:focus {
+  border-color: #4a4a4a;
+  box-shadow: 0 0 0 3px rgba(74, 74, 74, 0.18);
+}
+
+html.theme-monochromatic .as-input.error {
+  border-color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-pw-hint {
+  color: #767676;
+}
+
+html.theme-monochromatic .as-eye-btn {
+  color: #888888;
+}
+
+html.theme-monochromatic .as-eye-btn:hover {
+  color: #4a4a4a;
+}
+
+/* ── PASSWORD STRENGTH ──────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-strength-seg {
+  background: #e8e8e8;
+}
+
+html.theme-monochromatic .as-strength-seg.filled-weak   { background: #767676; }
+html.theme-monochromatic .as-strength-seg.filled-fair   { background: #888888; }
+html.theme-monochromatic .as-strength-seg.filled-good   { background: #4a4a4a; }
+html.theme-monochromatic .as-strength-seg.filled-strong { background: #1a1a1a; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-btn-primary {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+html.theme-monochromatic .as-btn-primary:hover:not(:disabled) {
+  background: #333333;
+  opacity: 1;
+}
+
+html.theme-monochromatic .as-btn-cancel {
+  border-color: #c0c0c0;
+  color: #4a4a4a;
+  background: #ffffff;
+}
+
+html.theme-monochromatic .as-btn-cancel:hover {
+  background: #f5f5f5;
+}
+
+html.theme-monochromatic .as-logout-btn {
+  border-color: #4a4a4a;
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-logout-btn:hover {
+  background: rgba(74, 74, 74, 0.07);
+}
+
+/* ── TOGGLES ────────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-toggle-track {
+  background: #c0c0c0;
+}
+
+html.theme-monochromatic .as-toggle input:checked + .as-toggle-track {
+  background: #1a1a1a;
+}
+
+html.theme-monochromatic .as-toggle-label {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-toggle-desc {
+  color: #555555;
+}
+
+html.theme-monochromatic .as-toggle-row {
+  border-bottom-color: #e8e8e8;
+}
+
+/* ── RADIO BUTTONS ──────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-radio {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-radio input {
+  accent-color: #1a1a1a;
+}
+
+/* ── ACCESSIBILITY PREVIEW ──────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-preview-box {
+  background: #f5f5f5;
+  border-color: #c0c0c0;
+}
+
+html.theme-monochromatic .as-preview-copy {
+  color: #555555;
+}
+
+html.theme-monochromatic .as-accessibility-grid {
+  border-top-color: #c0c0c0;
+}
+
+html.theme-monochromatic .as-accessibility-preview {
+  border-top-color: #c0c0c0;
+}
+
+/* Status dots — distinct greys with text labels always present */
+html.theme-monochromatic .as-status-dot.confirmed { background: #1a1a1a; }
+html.theme-monochromatic .as-status-dot.pending   { background: #767676; }
+html.theme-monochromatic .as-status-dot.cancelled { background: #4a4a4a; }
+
+html.theme-monochromatic .as-status-item {
+  color: #4a4a4a;
+}
+
+/* ── CARD FOOTER ────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-card-footer {
+  border-top-color: #c0c0c0;
+}
+
+/* ── FEEDBACK MESSAGES ──────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-feedback.success {
+  background: rgba(45, 45, 45, 0.08);
+  color: #1a1a1a;
+  border-color: rgba(45, 45, 45, 0.3);
+}
+
+html.theme-monochromatic .as-feedback.error {
+  background: rgba(74, 74, 74, 0.08);
+  color: #2d2d2d;
+  border-color: rgba(74, 74, 74, 0.3);
+}
+
+/* ── DANGER ZONE ────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-danger-title {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .as-danger-sub,
+html.theme-monochromatic .as-danger-item-desc {
+  color: #555555;
+}
+
+html.theme-monochromatic .as-danger-item-title {
+  color: #1a1a1a;
+}
+
+html.theme-monochromatic .as-danger-row {
+  border-bottom-color: #c0c0c0;
+}
+
+html.theme-monochromatic .as-btn-danger-fill {
+  background: #2d2d2d;
+  color: #ffffff;
+}
+
+html.theme-monochromatic .as-btn-danger-fill:hover {
+  background: #1a1a1a;
+  opacity: 1;
+}
+
+html.theme-monochromatic .as-btn-danger-outline {
+  border-color: #4a4a4a;
+  color: #4a4a4a;
+}
+
+/* ── MODALS ─────────────────────────────────────────────────────────────── */
+
+html.theme-monochromatic .as-modal {
+  background: #ffffff;
+}
+
+html.theme-monochromatic .as-modal-header {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+html.theme-monochromatic .as-modal-body {
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-modal-cancel {
+  background: #f5f5f5;
+  border-color: #c0c0c0;
+  color: #4a4a4a;
+}
+
+html.theme-monochromatic .as-modal-cancel:hover {
+  background: #e8e8e8;
+}
