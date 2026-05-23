@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { getProfile, updateProfile } from '../services/api'
+import { useTheme } from '../context/ThemeContext'
 import '../styles/adminDashboard.css'
 import '../styles/accountSettings.css'
 
@@ -47,6 +48,7 @@ const IconEyeOff = () => (
 
 function AccountSettings() {
   const navigate = useNavigate()
+  const { colorBlindMode, setColorBlindMode } = useTheme()
 
   // refs for scroll-to
   const refEmail    = useRef(null)
@@ -81,10 +83,9 @@ function AccountSettings() {
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
 
-  //Accessibility
-  const [highContrast,   setHighContrast]   = useState(false)
-  const [fontSize,       setFontSize]       = useState('small')
-  const [colorBlindMode, setColorBlindMode] = useState('normal')
+  // Accessibility (non-theme settings remain local)
+  const [highContrast, setHighContrast] = useState(false)
+  const [fontSize,     setFontSize]     = useState('small')
 
   // Notifications
   const [notifEmail,    setNotifEmail]    = useState(true)
@@ -404,8 +405,13 @@ function AccountSettings() {
               <label className="as-label">Colorblind Theme</label>
               <div className="as-radio-group">
                 <label className="as-radio">
-                  <input type="radio" name="colorblindTheme"value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <input type="radio" name="colorblindTheme" value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
                   <span>Normal</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="monochromatic" checked={colorBlindMode === 'monochromatic'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Monochromatic (Greyscale)</span>
                 </label>
 
                 <label className="as-radio">
