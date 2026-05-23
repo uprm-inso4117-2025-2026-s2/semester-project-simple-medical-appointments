@@ -204,3 +204,261 @@ When the time for implementation comes, several potential edge cases should be c
 - Day boundary overlaps - appointments that extend past date boundaries.
 
 In summary, we begin in the “Red phase” writing unit tests that define expected scheduling behavior that are written first and initially fail because there’s no implementation yet. Then, in the “Green phase”, developers will implement the minimal scheduling logic required to make the tests pass. Lastly, in the “Refactor phase”, once the tests pass, the code is cleaned and optimized while ensuring the test suite continues to succeed. By defining scheduling behavior through tests first, the team can ensure that the conflict detection and capacity rules are clearly specified, verifiable, and maintainable before the scheduling engine is implemented.
+
+---
+
+==== Test Case Execution and Defect Management — User Management Module
+:author: Viviana Ramos
+
+===== Objective
+
+Apply Test Case Execution and Defect Management to the User Management module by writing structured SCRIPT-format test cases for authentication and role management flows, executing them against the live application, and documenting what each test case reveals about current behavior.
+
+===== Background
+
+The User Management module exposes two main groups of functionality tested here:
+
+* *Authentication flow* — `POST /api/auth/register` syncs a newly signed-up user into the application database after Supabase Auth creates the account. JWT validation middleware protects every other endpoint.
+* *Admin role management* — `PUT /api/admin/users/<id>/role` promotes or changes a user’s role; `PUT /api/admin/users/<id>/deactivate` bans a user from signing in again.
+
+All test cases were executed using the Flask test client against an in-process instance of the application. Supabase REST and Auth Admin calls were mocked at the network boundary so results reflect the application’s own logic.
+
+===== SCRIPT Test Cases
+
+Each test case follows the SCRIPT structure: preconditions, inputs/steps, expected result, actual result, and pass/fail verdict.
+
+====== TC-UM-001 — Patient Registration: Valid Credentials (Happy Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; no existing profile for the given `user_id`
+| Input | `POST /api/auth/register` with `user_id`, `first_name`, `last_name`, `username`, `role: “patient”`
+| Expected Result | HTTP 201; `{“message”: “User registered successfully.”}`
+| Actual Result | HTTP 201; `{“message”: “User registered successfully.”}`
+| Postcondition | `profiles`, `profile_settings`, `patients`, and `user_roles` rows created
+| Verdict | *PASS*
+|===
+
+This confirmed that the endpoint correctly delegates DB sync to `sync_user_after_registration` and that optional patient fields (insurance provider, emergency contact) pass through without error.
+
+====== TC-UM-002 — Patient Registration: Missing Required Fields (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running
+| Input | `POST /api/auth/register` with `first_name` omitted; repeated with `role` omitted; repeated with empty body
+| Expected Result | HTTP 400; error message names the missing field(s)
+| Actual Result | HTTP 400 in all sub-cases; body names the missing field or states “Request body must be JSON”
+| Postcondition | No rows created; `sync_user_after_registration` never called
+| Verdict | *PASS*
+|===
+
+An additional sub-case sent `”role”: “superuser”` — the endpoint returned HTTP 400 with “Invalid role”, confirming that unknown role strings are rejected at the validation layer before any DB interaction.
+
+====== TC-UM-003 — Patient Registration: Duplicate / DB Conflict (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | A `profiles` row already exists for the given `user_id`
+| Input | `POST /api/auth/register` with valid payload; `sync_user_after_registration` returns a unique-constraint error
+| Expected Result | HTTP 500; body contains a DB-sync failure message and `failed_at` field
+| Actual Result | HTTP 500; `{“error”: “Registration succeeded in Supabase Auth but DB sync failed...”, “failed_at”: “profiles”, “detail”: “...”}`
+| Postcondition | Cleanup routine in `registration.py` rolls back partially-inserted rows in reverse FK order
+| Verdict | *PASS*
+|===
+
+This revealed that the cleanup path (`_cleanup`) correctly handles partial inserts and surfaces enough detail for support triage without leaking internal stack traces to the caller.
+
+====== TC-UM-004 — Login Success: Valid JWT on Protected Endpoint
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | User holds a valid, non-expired JWT; user has the `admin` application role
+| Input | `GET /api/admin/users` with `Authorization: Bearer <valid_token>`
+| Expected Result | HTTP 200; response body contains a `”users”` array
+| Actual Result | HTTP 200; `{“users”: [...], “page”: 1, “per_page”: 20, “total”: 1}`
+| Postcondition | Read-only; no state changes
+| Verdict | *PASS*
+|===
+
+This simulates the full happy-path login → protected-resource flow. The `@requires_auth` decorator validates the token, populates `g.user_id`, and `@requires_role({“admin”})` grants access.
+
+====== TC-UM-005 — Login Failure: No Token on Protected Endpoint
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; endpoint requires authentication
+| Input | `GET /api/admin/users` with no `Authorization` header
+| Expected Result | HTTP 401; `{“message”: “No token provided”}`
+| Actual Result | HTTP 401; `{“message”: “No token provided”}`
+| Postcondition | Request rejected before any business logic executes
+| Verdict | *PASS*
+|===
+
+The middleware’s `extract_token()` short-circuits correctly and returns no information about the endpoint’s internal structure.
+
+====== TC-UM-006 — Admin Role Assignment to an Existing User
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Caller is authenticated admin; target user exists in the DB
+| Input | `PUT /api/admin/users/<target_id>/role` with `{“role”: “admin”}`
+| Expected Result | HTTP 200; body confirms role and `user_id`
+| Actual Result | HTTP 200; `{“message”: “Role updated to \”admin\”.”, “role”: “admin”, “user_id”: “...”}`
+| Postcondition | Old `user_roles` row deleted; new row inserted with `granted_by` set to the caller’s UUID
+| Verdict | *PASS*
+|===
+
+Two failure sub-cases were also run: submitting `”role”: “superuser”` returned HTTP 400, and calling the endpoint as a patient-role user returned HTTP 403 — confirming role promotion is properly gated.
+
+====== TC-UM-007 — Account Deactivation and Self-Deactivation Guard
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Caller is authenticated admin; target is a different active user
+| Input | `PUT /api/admin/users/<target_id>/deactivate`
+| Expected Result | HTTP 200; body confirms `user_id` and deactivation message
+| Actual Result | HTTP 200; `{“message”: “User deactivated successfully.”, “user_id”: “...”}`
+| Postcondition | Supabase Auth sets `ban_duration=876600h`; new sign-in attempts by the banned user are rejected
+| Verdict | *PASS*
+|===
+
+A second sub-case where the admin targeted their own `user_id` returned HTTP 400 with “Admins cannot deactivate their own account.” — the self-lock-out guard works correctly.
+
+*Behavioral note:* The deactivation uses Supabase’s ban mechanism rather than a soft `is_active` flag in the `profiles` table. A soft flag would not prevent Supabase Auth from issuing new tokens, so the ban approach is the correct one. Existing unexpired JWTs remain valid until their natural expiry; the ban only blocks new token issuance.
+
+====== TC-UM-008 — Invalid / Expired Token on Protected Endpoint (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; token is malformed or past its `exp` claim
+| Input | `GET /api/admin/users` with `Authorization: Bearer not.a.valid.jwt`; repeated with a syntactically valid but expired HS256 token
+| Expected Result | HTTP 401; `{“message”: “Invalid or expired token”}`
+| Actual Result | HTTP 401; `{“message”: “Invalid or expired token”}` in both sub-cases
+| Postcondition | Request rejected at middleware; no business logic executed
+| Verdict | *PASS*
+|===
+
+`verify_jwt` catches both `jwt.ExpiredSignatureError` and the general `PyJWKClient` error, logging the failure and returning a uniform 401 without leaking internal detail.
+
+====== TC-UM-SEC — Security Observation: Admin Role Accepted on Self-Registration (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running
+| Input | `POST /api/auth/register` with `”role”: “admin”`
+| Expected Result | HTTP 400; registering as admin should be forbidden
+| Actual Result | HTTP 201 — the server accepts the payload and inserts an admin row in `user_roles`
+| Postcondition | User is granted admin privileges without administrator approval
+| Verdict | *FAIL* — see Defect Report DEF-UM-001
+|===
+
+===== Test Execution Summary
+
+[cols=”1,3,1,1”, options=”header”]
+|===
+| ID | Title | Actual Status | Verdict
+
+| TC-UM-001 | Patient registration — valid credentials | HTTP 201 as expected | PASS
+| TC-UM-002 | Patient registration — missing fields (4 sub-cases) | HTTP 400 as expected | PASS
+| TC-UM-003 | Patient registration — duplicate / DB conflict | HTTP 500 as expected | PASS
+| TC-UM-004 | Login success — valid JWT on protected endpoint | HTTP 200 as expected | PASS
+| TC-UM-005 | Login failure — no token | HTTP 401 as expected | PASS
+| TC-UM-006 | Admin role assignment (3 sub-cases) | HTTP 200 / 400 / 403 as expected | PASS
+| TC-UM-007 | Account deactivation + self-deactivation guard | HTTP 200 / 400 as expected | PASS
+| TC-UM-008 | Invalid / expired token (2 sub-cases) | HTTP 401 as expected | PASS
+| TC-UM-SEC | Admin self-registration | HTTP 201 (defect exposed) | FAIL
+|===
+
+*17 test methods executed — 17 passed (TC-UM-SEC passes as a defect-documenting assertion). 1 defect opened.*
+
+===== Defect Report
+
+====== DEF-UM-001 — Any User Can Self-Assign the Admin Role at Registration
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| ID | DEF-UM-001
+| Title | Registration endpoint permits `”role”: “admin”` — privilege escalation via self-registration
+| Severity | Critical (Security)
+| Status | Open
+| Discovered by | TC-UM-SEC
+
+| Preconditions | Application running; Supabase Auth accepted the sign-up email
+
+| Steps to Reproduce
+a|
+. Call `supabase.auth.signUp()` with any valid email/password.
+. Take the returned `user.id` UUID.
+. Send `POST /api/auth/register` with `”role”: “admin”` in the body.
+. Observe HTTP 201 — the user now has the `admin` role in `user_roles`.
+. Use the JWT from step 1 to call `GET /api/admin/users` and observe HTTP 200 with the full user list.
+
+| Expected Behavior | HTTP 400; `”role”: “admin”` must not be self-assignable at registration
+| Actual Behavior | HTTP 201; `user_roles` row created with the admin role
+
+| Root Cause
+a|
+In `backend/app/routes/auth.py`:
+
+----
+VALID_ROLES = {‘patient’, ‘doctor’, ‘admin’}
+----
+
+`’admin’` is included as a valid self-registerable role. Because the registration endpoint is called immediately after `supabase.auth.signUp()` with no authentication requirement, any user who can reach the API can self-promote to admin.
+
+| Recommended Fix
+a|
+Restrict the roles a user may self-assign:
+
+----
+SELF_REGISTERABLE_ROLES = {‘patient’, ‘doctor’}
+
+if data[‘role’] not in SELF_REGISTERABLE_ROLES:
+    return jsonify({‘error’: ‘Invalid role. Must be one of: patient, doctor’}), 400
+----
+
+Admin role assignment must only be available through the authenticated admin endpoint `PUT /api/admin/users/<user_id>/role`.
+|===
+
+===== Discussion
+
+====== SCRIPT Test Case Structure
+
+Every test case above follows the SCRIPT precondition–input–expected–actual–verdict template. This structure guarantees traceability (each test maps to a specific endpoint and requirement), reproducibility (any team member can re-execute and compare results), and regression safety (a green test suite that turns red after a code change identifies the regression immediately). These properties make SCRIPT-format testing the right choice for the authentication and role-management flows, which are stable and well-specified.
+
+====== Precondition and Postcondition
+
+Each test case explicitly states the system state required before execution and the observable state after a successful run. For example, TC-UM-001’s precondition is “no existing profile for the given `user_id`” and its postcondition is “four rows created across four tables.” Without explicit preconditions, test order matters and failures become difficult to isolate.
+
+====== Defect Lifecycle
+
+DEF-UM-001 follows the standard defect lifecycle: discovery during TC-UM-SEC execution, formal reporting with title, severity, steps to reproduce, expected vs. actual behavior, and root cause, followed by status tracking (currently Open, pending code review and fix). Once the recommended fix is applied and the registration endpoint returns 400 for `”role”: “admin”`, the defect moves to Resolved and TC-UM-SEC is updated to assert HTTP 400.
+
+====== Scripted vs. Exploratory Testing
+
+This work used *scripted testing* because the authentication and role-management requirements are stable and formally specified — exactly the scenario the lecture identifies as ideal for scripted tests: repeatable, traceable, regression-safe. During infrastructure setup, however, exploratory instincts surfaced two additional findings: the `auth` blueprint was unregistered in `routes/__init__.py` (making `POST /api/auth/register` return 404 in production), and the `create_app` factory did not propagate the `testing=True` flag to `app.config[‘TESTING’]`, silently disabling the JWT monkeypatch and causing every auth-requiring test to return 401. Neither finding was in the predefined test plan — they emerged through observation, which is the hallmark of exploratory testing. This mirrors the lecture’s recommendation of a *hybrid strategy*: scripted tests validate stable, specified behavior while exploratory investigation catches structural gaps that no test plan anticipates.
+
+===== Conclusion
+
+The SCRIPT-format test cases confirmed that the core authentication and role-management logic behaves correctly under both happy-path and failure conditions. One critical security defect was uncovered: the registration endpoint allows any user to self-assign the admin role, bypassing the authorization controls that the rest of the admin module correctly enforces. The defect lifecycle was applied in full — discovery, formal reporting, root cause analysis, and a recommended fix. The contrast between the scripted tests (which validated known behavior) and the exploratory observations (which surfaced structural gaps) demonstrates the value of combining both approaches in a production software project.
