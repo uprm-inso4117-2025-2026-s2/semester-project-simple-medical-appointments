@@ -2118,3 +2118,219 @@ The strategy is successful when:
 
 == Conclusion
 By implementing these design and testing strategies, the appointment scheduling system can be made more accessible to users with color vision deficiencies, ensuring that all users can effectively interact with the system and access the information they need to manage their appointments.
+
+= Usability Testing Strategy for Availability
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how usability testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring users can easily create and manage schedules, blocked periods, and closed days without confusion or unnecessary complexity.
+
+== Scope
+
+This testing plan covers:
+
+* creating working schedules
+* adding blocked times
+* configuring closed days
+* editing existing availability rules
+* understanding validation messages
+* navigating the scheduling workflow
+
+The plan focuses on user interaction, clarity, and ease of use.
+
+== Usability Testing Strategy
+
+Usability testing will be used to observe how users interact with the availability rules system while performing common scheduling tasks.
+
+The testing strategy evaluates:
+
+* ease of learning
+* navigation clarity
+* error prevention
+* efficiency when completing tasks
+* understanding of validation feedback
+
+The goal is to identify areas where users experience confusion, hesitation, or repeated mistakes.
+
+== Test Scenarios
+
+=== Creating Availability Rules
+
+Users should be able to:
+
+* select working days
+* define working hours
+* save schedules successfully
+
+=== Adding Blocked Times
+
+Users should be able to:
+
+* create blocked periods inside working hours
+* understand blocked time restrictions
+* recognize invalid inputs clearly
+
+=== Managing Closed Days
+
+Users should be able to:
+
+* mark days as closed
+* understand that closed days cannot contain schedules
+* edit closed days easily
+
+=== Validation Feedback
+
+The system should provide clear validation messages when:
+
+* time ranges are invalid
+* intervals overlap
+* blocked periods fall outside working hours
+
+Users should understand how to correct errors quickly.
+
+== Test Tasks
+
+Participants may be asked to:
+
+* create a weekly availability schedule
+* add lunch break blocked times
+* mark a day as unavailable
+* edit an existing schedule
+* correct an overlapping time interval
+
+== Observation Areas
+
+The testing process should observe:
+
+* user confusion
+* repeated mistakes
+* navigation difficulties
+* time required to complete tasks
+* understanding of validation messages
+
+== Expected Results
+
+Usability testing should verify that:
+
+* users can complete scheduling tasks without assistance
+* scheduling workflows are understandable
+* validation feedback is clear
+* the interface reduces user errors
+* users can manage availability efficiently
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* users complete tasks successfully
+* confusion and repeated errors are minimized
+* scheduling actions are easy to understand
+* validation messages clearly explain problems
+* the availability workflow feels intuitive and efficient
+
+== References
+
+* Schütz-Schmuck, M. (2022). Usability Testing.
+
+= Analyze Scalability Risks for Availability Rules System using Perfomance Testing
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how performance testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring the system remains stable, responsive, and reliable while handling scheduling operations and multiple simultaneous requests.
+
+== Scope
+
+This testing plan covers:
+
+* creating availability rules
+* updating schedules
+* retrieving availability data
+* validation processing
+* database interactions
+* concurrent scheduling requests
+
+The plan focuses on system responsiveness and stability under load.
+
+== Performance Testing Strategy
+
+Performance testing will be used to evaluate how the availability rules system behaves during normal and high usage conditions.
+
+The testing strategy focuses on:
+
+* API response times
+* database performance
+* validation speed
+* concurrent user activity
+* system stability under load
+
+The goal is to identify bottlenecks, slow operations, and scalability concerns before deployment.
+
+== Test Scenarios
+
+=== Concurrent Schedule Creation
+
+The system should handle multiple users creating availability rules simultaneously without failures or inconsistent data.
+
+=== Availability Retrieval Under Load
+
+The system should maintain acceptable response times when many users request scheduling data repeatedly.
+
+=== Validation Performance
+
+The validation logic should remain responsive when processing:
+
+* large schedules
+* many blocked intervals
+* repeated validation requests
+
+=== Concurrent Updates
+
+The system should correctly process simultaneous updates to availability data without corruption or instability.
+
+== Metrics to Monitor
+
+The testing plan should measure:
+
+* average response time
+* request throughput
+* database query performance
+* system stability
+* error rates during heavy usage
+
+== Load Conditions
+
+Performance testing should evaluate:
+
+* normal expected usage
+* high request volume
+* repeated scheduling operations
+* stress conditions with concurrent requests
+
+== Expected Results
+
+Performance testing should verify that:
+
+* the system remains responsive during high activity
+* validation logic performs efficiently
+* database operations remain stable
+* concurrent requests do not create failures or inconsistencies
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* scheduling operations remain responsive under load
+* API response times stay acceptable
+* the system remains stable during concurrent activity
+* no major performance bottlenecks are identified
+* scheduling data remains consistent during stress conditions
+
+== References
+
+* Schütz-Schmuck, M. (2022). Performance Testing.
