@@ -7,6 +7,10 @@ export function ThemeProvider({ children }) {
     () => localStorage.getItem('highContrast') === 'true'
   )
 
+  const [colorBlindMode, setColorBlindMode] = useState(
+    () => localStorage.getItem('colorBlindMode') ?? 'normal'
+  )
+
   useEffect(() => {
     if (highContrast) {
       document.documentElement.classList.add('theme-high-contrast')
@@ -16,8 +20,16 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('highContrast', highContrast)
   }, [highContrast])
 
+  useEffect(() => {
+    document.documentElement.classList.remove('theme-monochromatic')
+    if (colorBlindMode === 'monochromatic') {
+      document.documentElement.classList.add('theme-monochromatic')
+    }
+    localStorage.setItem('colorBlindMode', colorBlindMode)
+  }, [colorBlindMode])
+
   return (
-    <ThemeContext.Provider value={{ highContrast, setHighContrast }}>
+    <ThemeContext.Provider value={{ highContrast, setHighContrast, colorBlindMode, setColorBlindMode }}>
       {children}
     </ThemeContext.Provider>
   )

@@ -48,7 +48,7 @@ const IconEyeOff = () => (
 
 function AccountSettings() {
   const navigate = useNavigate()
-  const { highContrast, setHighContrast } = useTheme()
+  const { highContrast, setHighContrast, colorBlindMode, setColorBlindMode } = useTheme()
 
   // refs for scroll-to
   const refEmail    = useRef(null)
@@ -83,9 +83,7 @@ function AccountSettings() {
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
 
-  // Accessibility (high contrast lives in ThemeContext; other prefs are local for now)
-  const [fontSize,       setFontSize]       = useState('small')
-  const [colorBlindMode, setColorBlindMode] = useState('normal')
+  const [fontSize, setFontSize] = useState('small')
 
   // Notifications
   const [notifEmail,    setNotifEmail]    = useState(true)
@@ -405,8 +403,13 @@ function AccountSettings() {
               <label className="as-label">Colorblind Theme</label>
               <div className="as-radio-group">
                 <label className="as-radio">
-                  <input type="radio" name="colorblindTheme"value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <input type="radio" name="colorblindTheme" value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
                   <span>Normal</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="monochromatic" checked={colorBlindMode === 'monochromatic'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Monochromatic (Greyscale)</span>
                 </label>
 
                 <label className="as-radio">
