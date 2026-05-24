@@ -415,3 +415,62 @@ The usability session confirmed that the registration flow is generally learnabl
 
 Two usability issues were identified against Nielsen's heuristics — required field visibility (heuristic #5) and inline error messages (heuristic #9) — and represent actionable improvements. The remaining three heuristics evaluated were met without violations, indicating that the core registration flow supports user control, recognition-based interaction, and role-based field disclosure effectively.
 
+---
+
+=== *Patient Experience Questionnaire for Colorblindness Accessibility*
+:author: Sebastian Suarez
+
+
+
+==== Overview
+This section presents a comprehensive patient experience questionnaire designed to evaluate the accessibility and usability of the colorblind themes implemented in the web application. The primary goal is to gather actionable feedback from users with color vision deficiencies, understand their real-world experiences, and identify both strengths and areas for improvement in the current colorblind theme implementation. By collecting both quantitative and qualitative data, the questionnaire aims to:
+
+* Assess how easily users with color vision deficiencies can discover, activate, and use colorblind themes.
+* Evaluate the visual clarity and effectiveness of interface elements (such as buttons, icons, and status indicators) under different colorblind modes.
+* Identify any barriers, confusion, or frustrations encountered during use.
+* Collect user-driven suggestions for future enhancements.
+
+The insights from this questionnaire will directly inform future design iterations, ensuring the application remains inclusive and accessible to all users, regardless of their color vision capabilities.
+
+
+==== Questionnaire Design
+The questionnaire consists of a mix of quantitative (rating scale), qualitative (open-ended), demographic, and scenario-based questions to capture both measurable data and detailed user insights. The questions are structured to assess various aspects of the colorblind themes, including ease of use, discoverability, visual clarity, satisfaction, and accessibility. Additional demographic and scenario-based questions are included to provide context for interpreting the results and to ensure the feedback is representative of different user groups.
+
+
+[cols="1,4", options="header"]
+|===
+| Question Type | Question
+| Demographic
+| What type of color vision deficiency do you have? (e.g., Protanopia, Deuteranopia, Tritanopia, Unsure)
+| Demographic
+| How often do you use web applications that offer accessibility features such as colorblind modes?
+| Quantitative
+| On a scale of 1 to 5, how easy was it to find and switch to a colorblind theme in the settings?
+| Quantitative
+| On a scale of 1 to 5, how visually clear were the interface elements (buttons, icons, status indicators) in the colorblind theme you selected?
+| Quantitative
+| On a scale of 1 to 5, how satisfied are you with the colorblind theme options available in the application?
+| Quantitative
+| On a scale of 1 to 5, how well do you feel the colorblind theme supports your ability to complete tasks (e.g., booking appointments, navigating pages)?
+| Scenario-based
+| Did you encounter any difficulties or confusion when interpreting status indicators (such as appointment status or calendar slots) while using a colorblind theme? Please describe.
+| Scenario-based
+| Was there any situation where you felt unsure about the meaning of a button, icon, or notification due to color usage? Please provide details.
+| Qualitative
+| What specific challenges, if any, did you encounter while using the colorblind theme?
+| Qualitative
+| Do you have any suggestions for improving the colorblind themes or making them more accessible?
+| Qualitative
+| Are there any additional accessibility features you would like to see in the application (e.g., larger text, more icons, audio cues)?
+|===    
+
+
+==== Conclusion
+This expanded questionnaire is designed to gather valuable, actionable feedback from users with color vision deficiencies regarding the usability and accessibility of the colorblind themes in the web application. By including demographic, scenario-based, and open-ended questions, the survey aims to capture a holistic view of the user experience. The insights collected will be carefully analyzed to:
+
+* Identify common pain points and barriers to accessibility
+* Prioritize improvements to the colorblind themes and related UI elements
+* Guide the development of new features that further enhance accessibility (such as theme previews, icons, or alternative cues)
+* Ensure that future updates are informed by the lived experiences of users with color vision deficiencies
+
+Ultimately, this process will help ensure that the application is inclusive, user-friendly, and provides a positive experience for all users, regardless of their color vision capabilities. Ongoing feedback and user testing will remain a core part of the accessibility improvement process.
