@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css' // Global styles
-import './styles/themes.css' // Accessibility themes (monochromatic, etc.)
+import './styles/themes.css' // Accessibility themes (high-contrast, colorblind, etc.)
 
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'

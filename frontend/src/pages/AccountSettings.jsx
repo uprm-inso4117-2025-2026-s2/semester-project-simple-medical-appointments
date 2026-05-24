@@ -48,7 +48,7 @@ const IconEyeOff = () => (
 
 function AccountSettings() {
   const navigate = useNavigate()
-  const { colorBlindMode, setColorBlindMode } = useTheme()
+  const { highContrast, setHighContrast, colorBlindMode, setColorBlindMode } = useTheme()
 
   // refs for scroll-to
   const refEmail    = useRef(null)
@@ -83,9 +83,7 @@ function AccountSettings() {
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
 
-  // Accessibility (non-theme settings remain local)
-  const [highContrast, setHighContrast] = useState(false)
-  const [fontSize,     setFontSize]     = useState('small')
+  const [fontSize, setFontSize] = useState('small')
 
   // Notifications
   const [notifEmail,    setNotifEmail]    = useState(true)
