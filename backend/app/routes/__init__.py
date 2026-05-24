@@ -7,6 +7,7 @@ from .appointments import appointments_bp
 from .admin import admin_bp
 from .auth import auth_bp
 from .daily_slots import slots_bp
+from .auth import auth_bp
 
 
 def register_routes(app):
