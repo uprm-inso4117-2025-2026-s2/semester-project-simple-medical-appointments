@@ -2083,3 +2083,236 @@ The plan must provide strong coverage of scheduling validation logic using rando
 == References
 
 * Schütz-Schmuck, M. (2023). Property-Based Testing.
+
+---
+
+==== Risk-Based Test Plan: Account Settings
+:author: Viviana Ramos
+
+===== Scope
+
+*In scope*
+
+* `GET /api/settings/<user_id>` — retrieve current user's profile and preferences
+* `PUT /api/settings/<user_id>` — update one or more preference fields
+* `AccountSettings.jsx` — frontend page (Change Email, Change Password, Accessibility, Notifications, Danger Zone sections)
+
+*Out of scope*
+
+* Login, registration, and session expiry flows
+* The profile endpoint (`/api/profile/<user_id>`) except where it overlaps with settings behavior
+* Performance and load testing
+* Email delivery infrastructure
+
+===== Risk Model
+
+The expected defect cost formula used throughout this plan is:
+
+____
+D = P(D occurs) × Cost(D occurs)
+____
+
+*What raises probability:* complex logic, heavy user interaction through a GUI, fields with many valid and invalid values. +
+*What raises cost:* a user accessing or modifying another user's data (privacy breach), functionality that blocks all other settings use (sine qua non), and security-visible failures that damage trust.
+
+*Probability scale:* 1 (Very Low) – 5 (Very High) +
+*Cost scale:* 1 (Negligible) – 5 (Critical)
+
+===== Risk Analysis
+
+[cols="1,3,1,1,1,3",options="header"]
+|===
+| Risk ID | Behavior | P | Cost | D | Rationale
+
+| R-AS-01
+| User reads another user's settings via `GET /api/settings/<other_user_id>`
+| 4
+| 5
+| *20*
+| `current_user_id != user_id` check in the route is the only guard. If broken, any authenticated user can read any other user's preferences and profile data — a direct privacy breach.
+
+| R-AS-02
+| User updates another user's preferences via `PUT /api/settings/<other_user_id>`
+| 4
+| 5
+| *20*
+| Same ownership check guards the write path. A bypass allows arbitrary preference modification on any account.
+
+| R-AS-03
+| Unauthenticated request reaches `GET` or `PUT`
+| 3
+| 5
+| *15*
+| Both routes apply `@require_auth`. If the decorator fails or is missing, unauthenticated callers can read or write any user's settings.
+
+| R-AS-04
+| `GET /api/settings/<user_id>` returns only settings, omitting the profile block
+| 4
+| 3
+| *12*
+| The service function `get_user_settings()` fetches from `profiles` but the return dict only includes `'settings'` — the profile data is silently dropped. The route docstring documents `profile` as part of the response. Callers relying on the documented shape receive incomplete data.
+
+| R-AS-05
+| `PUT` with only unknown field names returns 200 instead of 400
+| 3
+| 3
+| *9*
+| `update_user_preferences` filters to `UPDATABLE_PREFERENCE_FIELDS` and raises `ValueError` if `clean` is empty. If the filter is removed or the error is swallowed, a request with only unknown fields silently succeeds without modifying any data.
+
+| R-AS-06
+| Frontend password change skips strength check and accepts a weak password
+| 3
+| 3
+| *9*
+| `handleUpdatePassword` checks `strength < 2` before calling Supabase. If the condition is flipped or removed, the weak-password path submits to Supabase without frontend validation.
+
+| R-AS-07
+| Accessibility preferences lost on page reload
+| 4
+| 2
+| *8*
+| High contrast, font size, and colorblind theme are local React state only. The settings API has `accessibility_mode` as an updatable field but the frontend never calls it for these controls. Users who adjust accessibility settings lose them on refresh.
+
+| R-AS-08
+| Notification preferences saved via profile endpoint instead of settings endpoint
+| 3
+| 2
+| *6*
+| `handleSaveNotifications` calls `updateProfile()` (the profile endpoint) rather than the settings endpoint. A change to the profile endpoint's allowed fields could silently break notification saves.
+|===
+
+===== Test Tree
+
+The tree decomposes the feature along three axes: *testing level*, *testing type*, and *input space*.
+
+[source,text]
+----
+Account Settings
+├── Testing Level
+│   ├── Unit
+│   │   ├── update_user_preferences() filters unknown fields correctly
+│   │   ├── update_user_preferences() raises ValueError when clean dict is empty
+│   │   └── getStrength() returns correct score for each password tier
+│   ├── Integration
+│   │   ├── GET /api/settings/<user_id> — own settings returned (200)
+│   │   ├── GET /api/settings/<user_id> — cross-user blocked (403)
+│   │   ├── GET /api/settings/<user_id> — unauthenticated (401)
+│   │   ├── PUT /api/settings/<user_id> — valid preference update (200)
+│   │   ├── PUT /api/settings/<user_id> — cross-user blocked (403)
+│   │   ├── PUT /api/settings/<user_id> — no valid fields (400)
+│   │   ├── PUT /api/settings/<user_id> — missing body (400)
+│   │   └── PUT /api/settings/<user_id> — unauthenticated (401)
+│   ├── System
+│   │   ├── Full settings page loads and displays current preferences
+│   │   ├── Notification toggles save and reflect correctly on reload
+│   │   └── Password change with weak password rejected in UI before API call
+│   └── Acceptance
+│       └── User can change notification preferences and see them persist after reload
+│
+├── Testing Type
+│   ├── Functional
+│   │   ├── GET returns documented profile + settings shape
+│   │   ├── PUT updates only the supplied fields, not others
+│   │   └── Notification save calls correct endpoint with correct payload
+│   ├── Security
+│   │   ├── Cross-user GET blocked at route level (403)
+│   │   ├── Cross-user PUT blocked at route level (403)
+│   │   └── No token → 401 before any data is read
+│   └── Usability
+│       └── Weak password feedback visible before submit button is pressed
+│
+└── Input Space
+    ├── Valid inputs
+    │   ├── PUT with preferred_language = "es"
+    │   ├── PUT with notify_appointment_reminders = false
+    │   └── PUT with theme = "dark"
+    ├── Boundary values
+    │   ├── PUT with exactly one valid field
+    │   └── PUT with all seven updatable fields at once
+    └── Invalid inputs
+        ├── PUT with only unknown field names
+        ├── PUT with empty JSON body {}
+        ├── PUT with no body at all
+        └── GET with a different user's ID in the URL path
+----
+
+===== Test Budget
+
+The full tree contains 25 scenarios. A realistic one-person budget for this feature covers 10–12 test cases. Pruning decisions are based on D scores and existing coverage.
+
+*Kept:*
+
+[cols="1,3,1,2",options="header"]
+|===
+| ID | Scenario | Linked Risk | Level
+
+| TC-AS-01
+| GET own settings — 200, both profile and settings blocks present in response
+| R-AS-04 (D=12)
+| Integration
+
+| TC-AS-02
+| GET cross-user — 403
+| R-AS-01 (D=20)
+| Integration
+
+| TC-AS-03
+| GET unauthenticated — 401
+| R-AS-03 (D=15)
+| Integration
+
+| TC-AS-04
+| PUT valid preference update — 200, updated_preferences in response
+| baseline
+| Integration
+
+| TC-AS-05
+| PUT cross-user — 403
+| R-AS-02 (D=20)
+| Integration
+
+| TC-AS-06
+| PUT with only unknown fields — 400, allowed_fields in response
+| R-AS-05 (D=9)
+| Integration
+
+| TC-AS-07
+| PUT with no body — 400
+| boundary
+| Integration
+
+| TC-AS-08
+| PUT unauthenticated — 401
+| R-AS-03 (D=15)
+| Integration
+
+| TC-AS-09
+| Frontend: weak password (strength < 2) blocked before API call
+| R-AS-06 (D=9)
+| System
+
+| TC-AS-10
+| Frontend: password mismatch — error shown, API not called
+| functional
+| System
+|===
+
+*Cut and why:*
+
+* *Acceptance test (notification preferences persist after reload)* — cut because it requires a live Supabase instance and end-to-end tooling not yet in CI. TC-AS-04 covers the API contract; persistence depends on Supabase, already tested by the existing `TestSettingsUpdate` class.
+* *Usability test (weak password feedback visible before submit)* — folded into TC-AS-09. The strength scoring logic is covered at the unit level by `getStrength()` tests; layout verification would require a separate manual session.
+* *PUT with all seven fields at once* — cut. The service applies the same filter regardless of how many fields are sent; the single-field case in TC-AS-04 exercises the same code path.
+
+===== What Test Planning Revealed
+
+Planning the test tree against the actual implementation surfaced two gaps not visible from the issue description or route comments alone.
+
+*Gap 1 — GET response is missing the profile block.* The `GET /api/settings/<user_id>` docstring documents a response with both a `"profile"` key and a `"settings"` key. The service function `get_user_settings()` fetches from the `profiles` table but the return dict contains only `'settings'`. TC-AS-01 is written to catch this by asserting the presence of the `profile` key — it will fail against the current implementation. The fix is a one-line change to the return statement in `account_setting_services.py`.
+
+*Gap 2 — Accessibility preferences are not persisted.* Risk R-AS-07 was identified during input space analysis. The frontend exposes high contrast, font size, and colorblind theme controls, and `UPDATABLE_PREFERENCE_FIELDS` includes `accessibility_mode`, but the two are never connected. Users lose their accessibility settings on every reload. This was not caught by the existing integration tests because those tests only exercise the API layer. The gap is documented here rather than tested because resolving it requires a frontend change outside the scope of this plan.
+
+The risk analysis also confirmed that the access control path (R-AS-01 and R-AS-02, D=20 each) is partially covered by the existing `test_settings_update_forbidden_for_different_user` test. TC-AS-02 is still included to confirm the GET path carries the same guard, since the existing suite only tests PUT.
+
+===== References
+
+* Vélez, B. (2019). _Test Planning_. INSO 4117 Software Reliability Testing, University of Puerto Rico.
