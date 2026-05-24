@@ -18,7 +18,14 @@ function getStrength(pw) {
 }
 const STRENGTH_LABELS  = ['', 'Weak', 'Fair', 'Good', 'Strong']
 const STRENGTH_CLASSES = ['', 'filled-weak', 'filled-fair', 'filled-good', 'filled-strong']
-const STRENGTH_COLORS  = ['', '#ef4444', '#f59e0b', '#248daa', '#20963c']
+
+function getStrengthColors(colorBlindMode) {
+  // Conditions subject to change based on the other implementations.
+  if (colorBlindMode === 'deuteranopia') {
+    return ['', '#b84a00', '#7a5800', '#1a6fb5', '#004e9a']
+  }
+  return ['', '#ef4444', '#f59e0b', '#248daa', '#20963c']
+}
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 const IconBack = () => (
@@ -48,7 +55,7 @@ const IconEyeOff = () => (
 
 function AccountSettings() {
   const navigate = useNavigate()
-  const { highContrast, setHighContrast } = useTheme()
+  const { highContrast, setHighContrast, colorBlindMode, setColorBlindMode } = useTheme()
 
   // refs for scroll-to
   const refEmail    = useRef(null)
@@ -82,10 +89,10 @@ function AccountSettings() {
   const [pwMsg,     setPwMsg]     = useState(null)
   const [pwSaving,  setPwSaving]  = useState(false)
   const strength = getStrength(newPw)
+  const STRENGTH_COLORS = getStrengthColors(colorBlindMode)
 
-  // Accessibility (high contrast lives in ThemeContext; other prefs are local for now)
-  const [fontSize,       setFontSize]       = useState('small')
-  const [colorBlindMode, setColorBlindMode] = useState('normal')
+  // Accessibility — fontSize is local UI state; colorBlindMode lives in ThemeContext
+  const [fontSize, setFontSize] = useState('small')
 
   // Notifications
   const [notifEmail,    setNotifEmail]    = useState(true)

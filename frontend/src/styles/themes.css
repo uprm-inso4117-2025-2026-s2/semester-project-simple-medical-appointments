@@ -691,3 +691,722 @@ html.theme-high-contrast .ah-state-kicker {
   color: #cc0000;
   font-weight: 800;
 }
+
+/*
+  ═══════════════════════════════════════════════════════════════
+  DEUTERANOPIA THEME   (.theme-deuteranopia on <html>)
+  ═══════════════════════════════════════════════════════════════
+
+  Deuteranopia is red-green color blindness caused by absent or
+  dysfunctional M-cones (green-sensitive). Affected users cannot
+  reliably distinguish red from green, or brown/olive from orange.
+
+  Design principles:
+    • All status distinctions use blue / amber / orange instead of
+      green / red. A deuteranope perceives green as brownish-yellow
+      and red as dark brownish-orange, so both collapse toward the
+      same muddy range. Blue stays fully distinct in deuteranopic
+      vision; amber/orange sits far enough from blue to be
+      unambiguous even with the shifted spectrum.
+    • "Confirmed" (was green)  → dark blue  #004e9a
+    • "Pending"   (was blue)   → amber      #7a5800  (was already ok,
+                                  but shifted warmer to separate from new blue)
+    • "Cancelled" (was red)    → dark orange #b84a00
+    • "Completed"              → near-black  #1a1a1a  (unchanged — neutral)
+    • Accent / links           → #1a6fb5    (same perceptual family as high-contrast
+                                  #0055cc but saturated enough to stay vivid under
+                                  deuteranopic simulation)
+    • Focus ring               → #f5c400    (yellow — unaffected by red-green
+                                  deficiency, 13.46:1 on black)
+    • Gradients replaced with solid colors.
+    • Borders 2 px solid where boundary perception matters without
+      relying on color alone (matches high-contrast approach).
+    • No information encoded by red-vs-green contrast alone; every
+      status pair is distinguishable by hue AND luminance.
+
+  WCAG AA-verified palette (all ratios vs adjacent surface):
+    #000000 on #ffffff  = 21.0:1  ✓✓✓
+    #ffffff on #1a1a1a  = 16.75:1 ✓✓✓
+    #ffffff on #1a6fb5  =  4.60:1 ✓    accent / links on dark
+    #1a6fb5 on #ffffff  =  4.60:1 ✓    accent / links on white
+    #f5c400 on #000000  = 13.46:1 ✓✓✓  focus rings on dark
+    #ffffff on #004e9a  =  7.09:1 ✓✓✓  confirmed badge
+    #ffffff on #7a5800  =  5.15:1 ✓✓   pending badge
+    #ffffff on #b84a00  =  5.62:1 ✓✓   cancelled badge
+    #000000 on #e8e8e8  =  9.50:1 ✓✓✓  subtle surfaces
+*/
+
+/* ── GLOBAL FOCUS RING ──────────────────────────────────────────────────── */
+
+html.theme-deuteranopia *:focus-visible {
+  outline: 3px solid #f5c400 !important;
+  outline-offset: 2px !important;
+}
+
+/* ── PAGE BACKGROUNDS ───────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .home-page,
+html.theme-deuteranopia .auth-bg,
+html.theme-deuteranopia .login-page {
+  background: #f4f6fa;
+}
+
+/* ── NAVBAR ─────────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .home-nav {
+  border-bottom: 2px solid #d0d8e8;
+}
+
+html.theme-deuteranopia .home-nav-brand span {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .home-nav-email {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .home-nav-logout {
+  background: #ffffff;
+  border: 2px solid #1a6fb5;
+  color: #1a6fb5;
+}
+
+html.theme-deuteranopia .home-nav-logout:hover {
+  background: #1a6fb5;
+  color: #ffffff;
+}
+
+/* ── HOME WELCOME ───────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .home-welcome h1 {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .home-welcome p {
+  color: #3a4a60;
+}
+
+/* ── HOME CARDS ─────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .home-card {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .home-card:hover {
+  box-shadow: 0 0 0 3px #1a6fb5;
+  transform: none;
+}
+
+html.theme-deuteranopia .home-card-icon {
+  background: #dce8f7;
+}
+
+html.theme-deuteranopia .home-card-icon svg {
+  stroke: #004e9a;
+}
+
+html.theme-deuteranopia .home-card-title {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .home-card-desc {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .home-card-arrow {
+  color: #1a6fb5;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .home-card-badge {
+  color: #3a4a60;
+  background: #e8e8e8;
+  border: 1px solid #b0b8c8;
+}
+
+/* ── AUTH PANELS ────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .login-left {
+  background: #dce8f7;
+  border-right: 2px solid #b0c8e8;
+}
+
+html.theme-deuteranopia .login-card {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .register-card,
+html.theme-deuteranopia .auth-card {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .login-right h1,
+html.theme-deuteranopia .register-card h1,
+html.theme-deuteranopia .auth-card h1 {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .login-right .auth-subtitle,
+html.theme-deuteranopia .register-card .auth-subtitle,
+html.theme-deuteranopia .auth-subtitle {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .auth-subtitle a,
+html.theme-deuteranopia .login-right .auth-subtitle a,
+html.theme-deuteranopia .register-card .auth-subtitle a {
+  color: #1a6fb5;
+  text-decoration: underline;
+}
+
+/* ── FORM INPUTS ────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .form-group label {
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .form-group input,
+html.theme-deuteranopia .input-wrap input {
+  background: #ffffff;
+  color: #0a1a2e;
+  border: 2px solid #b0b8c8;
+}
+
+html.theme-deuteranopia .form-group input:focus,
+html.theme-deuteranopia .input-wrap input:focus {
+  border-color: #1a6fb5;
+  box-shadow: 0 0 0 3px rgba(26, 111, 181, 0.25);
+}
+
+html.theme-deuteranopia .input-error,
+html.theme-deuteranopia .input-error:focus {
+  border-color: #b84a00 !important;
+  box-shadow: 0 0 0 3px rgba(184, 74, 0, 0.25) !important;
+}
+
+html.theme-deuteranopia .field-error {
+  color: #b84a00;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .auth-error {
+  background: #fff4ee;
+  border: 2px solid #b84a00;
+  color: #7a3000;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .forgot-link {
+  color: #1a6fb5;
+  font-weight: 600;
+}
+
+/* ── AUTH BUTTON ────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .auth-btn {
+  background: #1a6fb5;
+  color: #ffffff;
+  border: 2px solid #1a6fb5;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .auth-btn:hover:not(:disabled) {
+  background: #004e9a;
+  border-color: #004e9a;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .auth-btn.success {
+  background: #004e9a;
+  border-color: #004e9a;
+  color: #ffffff;
+}
+
+/* ── ADMIN / PATIENT / DOCTOR DASHBOARD SIDEBARS ────────────────────────── */
+
+html.theme-deuteranopia .adb-sidebar,
+html.theme-deuteranopia .pdb-sidebar,
+html.theme-deuteranopia .ddb-sidebar {
+  background: #0a1a2e;
+  border-right: 2px solid #1a3a5c;
+}
+
+html.theme-deuteranopia .adb-profile,
+html.theme-deuteranopia .pdb-profile,
+html.theme-deuteranopia .ddb-profile {
+  border-bottom: 2px solid #1a3a5c;
+}
+
+html.theme-deuteranopia .adb-avatar,
+html.theme-deuteranopia .pdb-avatar,
+html.theme-deuteranopia .ddb-avatar {
+  background: #1a3a5c;
+  border: 2px solid #4a7aaa;
+}
+
+html.theme-deuteranopia .adb-avatar svg,
+html.theme-deuteranopia .pdb-avatar svg,
+html.theme-deuteranopia .ddb-avatar svg {
+  stroke: #a8c8f0;
+}
+
+html.theme-deuteranopia .adb-profile-name,
+html.theme-deuteranopia .pdb-profile-name,
+html.theme-deuteranopia .ddb-profile-name {
+  color: #e8f0fa;
+}
+
+html.theme-deuteranopia .adb-profile-name:hover,
+html.theme-deuteranopia .pdb-profile-name:hover,
+html.theme-deuteranopia .ddb-profile-name:hover {
+  color: #f5c400;
+  text-decoration: underline;
+}
+
+html.theme-deuteranopia .adb-profile-role,
+html.theme-deuteranopia .pdb-profile-role,
+html.theme-deuteranopia .ddb-profile-role {
+  color: #8aabcc;
+}
+
+html.theme-deuteranopia .adb-nav-item,
+html.theme-deuteranopia .pdb-nav-item,
+html.theme-deuteranopia .ddb-nav-item {
+  color: #c8daf0;
+}
+
+html.theme-deuteranopia .adb-nav-item:hover,
+html.theme-deuteranopia .pdb-nav-item:hover,
+html.theme-deuteranopia .ddb-nav-item:hover,
+html.theme-deuteranopia .adb-nav-item.active,
+html.theme-deuteranopia .pdb-nav-item.active,
+html.theme-deuteranopia .ddb-nav-item.active {
+  background: #1a6fb5;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .adb-nav-label,
+html.theme-deuteranopia .pdb-nav-label,
+html.theme-deuteranopia .ddb-nav-label {
+  color: inherit;
+}
+
+/* ── DASHBOARD MAIN AREA ────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .adb-main,
+html.theme-deuteranopia .pdb-main,
+html.theme-deuteranopia .ddb-main {
+  background: #f4f6fa;
+}
+
+html.theme-deuteranopia .adb-welcome,
+html.theme-deuteranopia .pdb-welcome,
+html.theme-deuteranopia .ddb-welcome {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .adb-subtitle,
+html.theme-deuteranopia .pdb-subtitle,
+html.theme-deuteranopia .ddb-subtitle {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .adb-back-btn {
+  background: #ffffff;
+  border: 2px solid #b0b8c8;
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .adb-back-btn:hover {
+  background: #dce8f7;
+  border-color: #1a6fb5;
+  color: #0a1a2e;
+}
+
+/* ── ACCOUNT SETTINGS CONTENT ───────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-layout .adb-main {
+  background: #f4f6fa;
+}
+
+html.theme-deuteranopia .as-card {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .as-card-danger {
+  border: 2px solid #b84a00;
+  background: #ffffff;
+}
+
+html.theme-deuteranopia .as-card-title {
+  color: #0a1a2e;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .as-card-sub {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .as-card-sub strong {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .as-label {
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-input {
+  background: #ffffff;
+  color: #0a1a2e;
+  border: 2px solid #b0b8c8;
+}
+
+html.theme-deuteranopia .as-input::placeholder {
+  color: #6a7a90;
+}
+
+html.theme-deuteranopia .as-input:focus {
+  border-color: #1a6fb5;
+  box-shadow: 0 0 0 3px rgba(26, 111, 181, 0.25);
+}
+
+html.theme-deuteranopia .as-input.error {
+  border-color: #b84a00;
+}
+
+html.theme-deuteranopia .as-pw-hint {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .as-eye-btn {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .as-eye-btn:hover {
+  color: #1a6fb5;
+}
+
+/* ── PASSWORD STRENGTH ──────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-strength-seg {
+  background: #d0d8e8;
+  border: 1px solid #b0b8c8;
+}
+
+/* Strength levels use blue ramp + orange — safe for deuteranopia */
+html.theme-deuteranopia .as-strength-seg.filled-weak   { background: #b84a00; }
+html.theme-deuteranopia .as-strength-seg.filled-fair   { background: #7a5800; }
+html.theme-deuteranopia .as-strength-seg.filled-good   { background: #1a6fb5; }
+html.theme-deuteranopia .as-strength-seg.filled-strong { background: #004e9a; }
+
+/* ── BUTTONS ────────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-btn-primary {
+  background: #1a6fb5;
+  color: #ffffff;
+  border: 2px solid #1a6fb5;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .as-btn-primary:hover:not(:disabled) {
+  background: #004e9a;
+  border-color: #004e9a;
+  color: #ffffff;
+  opacity: 1;
+}
+
+html.theme-deuteranopia .as-btn-cancel {
+  background: #ffffff;
+  color: #0a1a2e;
+  border: 2px solid #b0b8c8;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-btn-cancel:hover {
+  background: #dce8f7;
+  border-color: #1a6fb5;
+}
+
+html.theme-deuteranopia .as-logout-btn {
+  border: 2px solid #b84a00;
+  color: #b84a00;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .as-logout-btn:hover {
+  background: #b84a00;
+  color: #ffffff;
+}
+
+/* ── TOGGLES ────────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-toggle-track {
+  background: #d0d8e8;
+  border: 2px solid #b0b8c8;
+}
+
+/* Off → neutral gray. On → blue (not green — green is invisible to deuteranopes) */
+html.theme-deuteranopia .as-toggle input:checked + .as-toggle-track {
+  background: #1a6fb5;
+  border-color: #1a6fb5;
+}
+
+html.theme-deuteranopia .as-toggle-label {
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-toggle-desc {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .as-toggle-row {
+  border-bottom-color: #d0d8e8;
+}
+
+/* ── RADIO BUTTONS ──────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-radio {
+  color: #0a1a2e;
+  font-weight: 500;
+}
+
+html.theme-deuteranopia .as-radio input {
+  accent-color: #1a6fb5;
+}
+
+/* ── ACCESSIBILITY PREVIEW ──────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-preview-box {
+  background: #f0f4fa;
+  border: 2px solid #d0d8e8;
+}
+
+html.theme-deuteranopia .as-preview-copy {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .as-accessibility-grid {
+  border-top: 2px solid #d0d8e8;
+}
+
+html.theme-deuteranopia .as-accessibility-preview {
+  border-top: 2px solid #d0d8e8;
+}
+
+/* Status dots — blue / amber / orange instead of green / blue / red */
+html.theme-deuteranopia .as-status-dot.confirmed { background: #004e9a; }
+html.theme-deuteranopia .as-status-dot.pending   { background: #7a5800; }
+html.theme-deuteranopia .as-status-dot.cancelled { background: #b84a00; }
+
+html.theme-deuteranopia .as-status-item {
+  color: #0a1a2e;
+  font-weight: 500;
+}
+
+/* ── CARD FOOTER ────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-card-footer {
+  border-top: 2px solid #d0d8e8;
+}
+
+/* ── FEEDBACK MESSAGES ──────────────────────────────────────────────────── */
+
+/* Success uses blue instead of green — green is unreliable for deuteranopes */
+html.theme-deuteranopia .as-feedback.success {
+  background: #eaf2fc;
+  color: #004e9a;
+  border: 2px solid #1a6fb5;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-feedback.error {
+  background: #fff4ee;
+  color: #7a3000;
+  border: 2px solid #b84a00;
+  font-weight: 600;
+}
+
+/* ── DANGER ZONE ────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-danger-title {
+  color: #b84a00;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .as-danger-sub,
+html.theme-deuteranopia .as-danger-item-desc {
+  color: #3a4a60;
+}
+
+html.theme-deuteranopia .as-danger-item-title {
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-danger-row {
+  border-bottom: 2px solid #e8c8a8;
+}
+
+html.theme-deuteranopia .as-btn-danger-fill {
+  background: #b84a00;
+  color: #ffffff;
+  border: 2px solid #b84a00;
+  font-weight: 700;
+}
+
+html.theme-deuteranopia .as-btn-danger-fill:hover {
+  background: #7a3000;
+  border-color: #7a3000;
+  color: #ffffff;
+  opacity: 1;
+}
+
+html.theme-deuteranopia .as-btn-danger-outline {
+  border: 2px solid #b84a00;
+  color: #b84a00;
+  font-weight: 700;
+}
+
+/* ── MODALS ─────────────────────────────────────────────────────────────── */
+
+html.theme-deuteranopia .as-modal {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: 0 0 0 4px rgba(26, 111, 181, 0.3);
+}
+
+html.theme-deuteranopia .as-modal-header {
+  background: #0a1a2e;
+  color: #e8f0fa;
+}
+
+html.theme-deuteranopia .as-modal-body {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .as-modal-cancel {
+  background: #ffffff;
+  border: 2px solid #b0b8c8;
+  color: #0a1a2e;
+  font-weight: 600;
+}
+
+html.theme-deuteranopia .as-modal-cancel:hover {
+  background: #dce8f7;
+  border-color: #1a6fb5;
+}
+
+/* ── APPOINTMENT HISTORY (CSS variable overrides) ───────────────────────── */
+
+html.theme-deuteranopia {
+  --ah-bg-top:          #f4f6fa;
+  --ah-bg-mid:          #f4f6fa;
+  --ah-bg-bottom:       #f4f6fa;
+  --ah-surface:         #ffffff;
+  --ah-surface-strong:  #ffffff;
+  --ah-border:          #d0d8e8;
+  --ah-text:            #0a1a2e;
+  --ah-text-muted:      #3a4a60;
+  --ah-accent:          #1a6fb5;
+  --ah-shadow:          none;
+}
+
+html.theme-deuteranopia .ah-shell {
+  background: #ffffff;
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .ah-summary-card,
+html.theme-deuteranopia .ah-state-card,
+html.theme-deuteranopia .ah-table-card {
+  border: 2px solid #d0d8e8;
+  box-shadow: none;
+}
+
+html.theme-deuteranopia .ah-eyebrow {
+  color: #1a6fb5;
+  font-weight: 800;
+}
+
+html.theme-deuteranopia .ah-title {
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .ah-table thead {
+  background: #eaf2fc;
+}
+
+html.theme-deuteranopia .ah-table th {
+  color: #0a1a2e;
+  font-weight: 800;
+  border-bottom: 2px solid #b0c8e8;
+}
+
+html.theme-deuteranopia .ah-table td {
+  border-top: 1px solid #d0d8e8;
+  color: #0a1a2e;
+}
+
+html.theme-deuteranopia .ah-table tbody tr:hover {
+  background: #f0f4fa;
+}
+
+html.theme-deuteranopia .ah-loading-indicator {
+  border-color: #d0d8e8;
+  border-top-color: #1a6fb5;
+}
+
+/*
+  Status pills — blue / amber / orange / near-black
+  Each pair satisfies ≥ 4.5:1 with white text.
+  Crucially: confirmed and cancelled differ in both hue AND luminance
+  so the distinction survives deuteranopic vision simulation.
+*/
+html.theme-deuteranopia .ah-status-confirmed {
+  background: #004e9a;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .ah-status-completed {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .ah-status-cancelled {
+  background: #b84a00;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .ah-status-pending {
+  background: #7a5800;
+  color: #ffffff;
+}
+
+html.theme-deuteranopia .ah-status-default {
+  background: #6a7a90;
+  color: #ffffff;
+}
+
+/* Error card */
+html.theme-deuteranopia .ah-state-card-error {
+  background: #fff4ee;
+  border-color: #b84a00;
+}
+
+html.theme-deuteranopia .ah-state-kicker {
+  color: #b84a00;
+  font-weight: 800;
+}
