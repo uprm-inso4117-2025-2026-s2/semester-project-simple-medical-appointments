@@ -2316,3 +2316,251 @@ The risk analysis also confirmed that the access control path (R-AS-01 and R-AS-
 ===== References
 
 * Vélez, B. (2019). _Test Planning_. INSO 4117 Software Reliability Testing, University of Puerto Rico.
+=== Accessibility Strategy Design for Colorblind-Friendly Interfaces
+:author: Sebastian Suarez
+
+== Overview
+The purpose of this strategy is to ensure that the user interface of the appointment scheduling system is accessible to users with color vision deficiencies (color blindness). This involves designing interfaces that do not rely solely on color to convey information and ensuring that all users can effectively interact with the system.
+
+== Accessibility Principles
+1. **Perceivable**: Information and user interface components must be presentable to users in ways they can perceive. This includes using text labels, patterns, and shapes in addition to color.
+2. **Operable**: User interface components and navigation must be operable by all users, including those with color vision deficiencies.
+3. **Understandable**: Information and the operation of the user interface must be understandable to all users.
+4. **Robust**: Content must be robust enough to be interpreted reliably by a wide variety of user agents, including assistive technologies.
+
+== Design Strategies
+1. **Use Text Labels**: Ensure that all color-coded information is also accompanied by text labels that describe the meaning of the colors. For example, if a red color indicates a conflict in scheduling, include a text label that says "Conflict" next to the red indicator.
+2. **Use Patterns and Shapes**: In addition to color, use patterns (e.g., stripes, dots) or shapes (e.g., circles, squares) to differentiate between different types of information. For example, use a striped pattern for blocked times and a solid color for available times.
+3. **High Contrast**: Ensure that there is sufficient contrast between text and background colors to make text readable for users with color vision deficiencies. Use tools to check color contrast ratios and ensure they meet accessibility standards.
+4. **Colorblind-Friendly Palettes**: Use color palettes that are designed to be distinguishable by users with common types of color blindness (e.g., red-green color blindness). Avoid using red and green together as the only means of conveying information.
+5. **Testing with Simulators**: Use color blindness simulators to test the interface and ensure that it remains usable and understandable for users with different types of color vision deficiencies.
+
+== Testing Strategies
+1. **Automated Accessibility Testing**: Use automated tools to check for color contrast issues and ensure that color is not the sole means of conveying information.
+2. **Manual Testing**: Conduct manual testing with color blindness simulators to verify that the interface is usable and that all information is accessible to users with color vision deficiencies.
+3. **User Testing**: If possible, involve users with color vision deficiencies in usability testing to gather feedback on the interface and identify any areas for improvement.
+
+== Success Criteria
+The strategy is successful when:
+1. All color-coded information is also conveyed through text labels, patterns, or shapes.
+2. The interface has sufficient contrast to be readable for users with color vision deficiencies.
+3. The interface is tested and verified to be usable for users with different types of color blindness.
+
+== Conclusion
+By implementing these design and testing strategies, the appointment scheduling system can be made more accessible to users with color vision deficiencies, ensuring that all users can effectively interact with the system and access the information they need to manage their appointments.
+
+= Usability Testing Strategy for Availability
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how usability testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring users can easily create and manage schedules, blocked periods, and closed days without confusion or unnecessary complexity.
+
+== Scope
+
+This testing plan covers:
+
+* creating working schedules
+* adding blocked times
+* configuring closed days
+* editing existing availability rules
+* understanding validation messages
+* navigating the scheduling workflow
+
+The plan focuses on user interaction, clarity, and ease of use.
+
+== Usability Testing Strategy
+
+Usability testing will be used to observe how users interact with the availability rules system while performing common scheduling tasks.
+
+The testing strategy evaluates:
+
+* ease of learning
+* navigation clarity
+* error prevention
+* efficiency when completing tasks
+* understanding of validation feedback
+
+The goal is to identify areas where users experience confusion, hesitation, or repeated mistakes.
+
+== Test Scenarios
+
+=== Creating Availability Rules
+
+Users should be able to:
+
+* select working days
+* define working hours
+* save schedules successfully
+
+=== Adding Blocked Times
+
+Users should be able to:
+
+* create blocked periods inside working hours
+* understand blocked time restrictions
+* recognize invalid inputs clearly
+
+=== Managing Closed Days
+
+Users should be able to:
+
+* mark days as closed
+* understand that closed days cannot contain schedules
+* edit closed days easily
+
+=== Validation Feedback
+
+The system should provide clear validation messages when:
+
+* time ranges are invalid
+* intervals overlap
+* blocked periods fall outside working hours
+
+Users should understand how to correct errors quickly.
+
+== Test Tasks
+
+Participants may be asked to:
+
+* create a weekly availability schedule
+* add lunch break blocked times
+* mark a day as unavailable
+* edit an existing schedule
+* correct an overlapping time interval
+
+== Observation Areas
+
+The testing process should observe:
+
+* user confusion
+* repeated mistakes
+* navigation difficulties
+* time required to complete tasks
+* understanding of validation messages
+
+== Expected Results
+
+Usability testing should verify that:
+
+* users can complete scheduling tasks without assistance
+* scheduling workflows are understandable
+* validation feedback is clear
+* the interface reduces user errors
+* users can manage availability efficiently
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* users complete tasks successfully
+* confusion and repeated errors are minimized
+* scheduling actions are easy to understand
+* validation messages clearly explain problems
+* the availability workflow feels intuitive and efficient
+
+== References
+
+* Schütz-Schmuck, M. (2022). Usability Testing.
+
+= Analyze Scalability Risks for Availability Rules System using Perfomance Testing
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how performance testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring the system remains stable, responsive, and reliable while handling scheduling operations and multiple simultaneous requests.
+
+== Scope
+
+This testing plan covers:
+
+* creating availability rules
+* updating schedules
+* retrieving availability data
+* validation processing
+* database interactions
+* concurrent scheduling requests
+
+The plan focuses on system responsiveness and stability under load.
+
+== Performance Testing Strategy
+
+Performance testing will be used to evaluate how the availability rules system behaves during normal and high usage conditions.
+
+The testing strategy focuses on:
+
+* API response times
+* database performance
+* validation speed
+* concurrent user activity
+* system stability under load
+
+The goal is to identify bottlenecks, slow operations, and scalability concerns before deployment.
+
+== Test Scenarios
+
+=== Concurrent Schedule Creation
+
+The system should handle multiple users creating availability rules simultaneously without failures or inconsistent data.
+
+=== Availability Retrieval Under Load
+
+The system should maintain acceptable response times when many users request scheduling data repeatedly.
+
+=== Validation Performance
+
+The validation logic should remain responsive when processing:
+
+* large schedules
+* many blocked intervals
+* repeated validation requests
+
+=== Concurrent Updates
+
+The system should correctly process simultaneous updates to availability data without corruption or instability.
+
+== Metrics to Monitor
+
+The testing plan should measure:
+
+* average response time
+* request throughput
+* database query performance
+* system stability
+* error rates during heavy usage
+
+== Load Conditions
+
+Performance testing should evaluate:
+
+* normal expected usage
+* high request volume
+* repeated scheduling operations
+* stress conditions with concurrent requests
+
+== Expected Results
+
+Performance testing should verify that:
+
+* the system remains responsive during high activity
+* validation logic performs efficiently
+* database operations remain stable
+* concurrent requests do not create failures or inconsistencies
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* scheduling operations remain responsive under load
+* API response times stay acceptable
+* the system remains stable during concurrent activity
+* no major performance bottlenecks are identified
+* scheduling data remains consistent during stress conditions
+
+== References
+
+* Schütz-Schmuck, M. (2022). Performance Testing.
