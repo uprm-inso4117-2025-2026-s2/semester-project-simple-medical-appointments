@@ -178,3 +178,48 @@ As the project becomes more complex, property-based testing can help maintain st
 [3] M. Claessen and J. Hughes, "QuickCheck: A Lightweight Tool for Random Testing of Haskell Programs," Proceedings of the ACM SIGPLAN International Conference on Functional Programming, 2000.
 
 ---
+
+==== [Lecture Topic Task]: Property Based Verification of Appointment Workflow Transitions
+:author: Victoria Miranda Osuna
+
+===== Goal
+
+Verify that appointment workflow transitions in the medical scheduling application preserve valid system state behavior across multiple operations such as booking, rescheduling, cancellation, and status updates.
+
+===== Proposed Solution
+
+    - Define valid appointment workflow states and allowed transition rules between them.
+
+        * Scheduled → Confirmed
+        * Confirmed → Completed
+        * Scheduled → Rescheduled
+        * Scheduled or Confirmed → Canceled
+
+    - Verify that sequences of operations preserve scheduling consistency and valid lifecycle behavior.
+
+        * Booking reserves an available appointment slot.
+        * Rescheduling releases the previous slot and reserves a new one.
+        * Cancellation restores appointment availability.
+        * Status updates only affect the selected appointment record.
+
+    - Analyze failed transitions to ensure the previous valid system state remains unchanged.
+
+        * Invalid cancellations leave appointment data unchanged.
+        * Failed rescheduling keeps the original appointment active.
+        * Rejected status updates do not modify appointment history.
+        * Incomplete operations do not create duplicate appointments.
+
+    - Use shrinking techniques to isolate minimal failing workflow transition sequences.
+
+        * Booking → Rescheduling → Cancellation
+        * Scheduled → Completed (invalid transition)
+        * Cancellation → Completion attempt
+        * Double booking attempts on the same slot
+
+===== Success Criteria
+* Valid workflow states and transition rules are clearly identified.
+* Operation sequences maintain consistent and valid scheduling states.
+* Invalid transitions are rejected without corrupting appointment data.
+* Shrinking techniques successfully simplify failing transition scenarios.
+
+---
