@@ -2,27 +2,21 @@
 // This file mounts the root <App /> component into the #root div in index.html.
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App'
 import './index.css' // Global styles
-import './styles/themes.css' // Accessibility themes (high-contrast, etc.)
+import './styles/themes.css' // Accessibility themes (high-contrast, colorblind, etc.)
 
-import { AuthProvider } from './context/AuthContext'
-import { ThemeProvider } from './context/ThemeContext'
+const isSlotUsagePreview = window.location.pathname === '/slot-usage-preview'
+const AppShell = React.lazy(() => import('./ShellApp'))
+const SlotUsagePreview = React.lazy(() => import('./pages/SlotUsagePreview'))
+
+function RootApp() {
+  return isSlotUsagePreview ? <SlotUsagePreview /> : <AppShell />
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-
-  // AuthProvider wraps the entire app to provide authentication context
-  <AuthProvider>
-    {/* ThemeProvider reads persisted theme from localStorage and applies it */}
-    <ThemeProvider>
-      {/* StrictMode highlights potential issues in development (double-renders, deprecated APIs, etc.) */}
-      <React.StrictMode>
-        {/* BrowserRouter enables client-side routing using the browser's URL bar */}
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </React.StrictMode>
-    </ThemeProvider>
-  </AuthProvider>
+  <React.StrictMode>
+    <React.Suspense fallback={<main style={{ padding: '2rem' }}>Loading preview...</main>}>
+      <RootApp />
+    </React.Suspense>
+  </React.StrictMode>
 )

@@ -41,6 +41,13 @@ export function ThemeProvider({ children }) {
 
     localStorage.setItem('colorBlindMode', colorBlindMode)
   }, [colorBlindMode])
+    document.documentElement.classList.remove('theme-monochromatic')
+    if (colorBlindMode === 'monochromatic') {
+      document.documentElement.classList.add('theme-monochromatic')
+    }
+    localStorage.setItem('colorBlindMode', colorBlindMode)
+  }, [colorBlindMode])
+
   return (
     <ThemeContext.Provider value={{ highContrast, setHighContrast, colorBlindMode, setColorBlindMode }}>
       {children}

@@ -294,7 +294,7 @@ def delete_user(user_id):
 
     Deletes records in dependency order to satisfy FK constraints:
       1. Doctor-linked rows (appointments, time_slots, availability_rules, waitlist)
-         resolved via doctors.user_id -> doctors.id
+         detected via providers.user_id; doctor_id in those tables equals user_id
       2. Patient-linked rows (appointments, waitlist by patient_id)
       3. Settings tables (patient_settings, provider_settings, profile_settings)
       4. Role table (user_roles)
@@ -320,25 +320,21 @@ def delete_user(user_id):
             return False, jsonify({"error": f"Failed to delete from {table}."}), 500
         return True, None, None
 
-    # Step 1: Resolve doctor record (doctors table uses its own UUID, not auth user_id)
-    doc_status, doc_data, _ = _supabase_request(
+    # Step 1: Doctor-linked rows (providers table stores doctor accounts; doctor_id
+    # in related tables equals the provider's user_id in the current schema)
+    prov_status, prov_data, _ = _supabase_request(
         "GET",
-        "/rest/v1/doctors",
-        query={"user_id": f"eq.{user_id}", "select": "id"},
+        "/rest/v1/providers",
+        query={"user_id": f"eq.{user_id}", "select": "user_id"},
     )
-    if doc_status == 200 and isinstance(doc_data, list) and doc_data:
-        doctor_id = doc_data[0].get("id")
-        if doctor_id:
-            for table, col in [
-                ("appointments", "doctor_id"),
-                ("time_slots", "doctor_id"),
-                ("availability_rules", "doctor_id"),
-                ("waitlist", "doctor_id"),
-            ]:
-                ok, err_resp, err_status = _delete(table, col, doctor_id)
-                if not ok:
-                    return err_resp, err_status
-            ok, err_resp, err_status = _delete("doctors", "id", doctor_id)
+    if prov_status == 200 and isinstance(prov_data, list) and prov_data:
+        for table, col in [
+            ("appointments", "doctor_id"),
+            ("time_slots", "doctor_id"),
+            ("availability_rules", "doctor_id"),
+            ("waitlist", "doctor_id"),
+        ]:
+            ok, err_resp, err_status = _delete(table, col, user_id)
             if not ok:
                 return err_resp, err_status
 

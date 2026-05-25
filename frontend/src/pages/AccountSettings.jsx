@@ -412,8 +412,13 @@ function AccountSettings() {
               <label className="as-label">Colorblind Theme</label>
               <div className="as-radio-group">
                 <label className="as-radio">
-                  <input type="radio" name="colorblindTheme"value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <input type="radio" name="colorblindTheme" value="normal" checked={colorBlindMode === 'normal'} onChange={e => setColorBlindMode(e.target.value)} />
                   <span>Normal</span>
+                </label>
+
+                <label className="as-radio">
+                  <input type="radio" name="colorblindTheme" value="monochromatic" checked={colorBlindMode === 'monochromatic'} onChange={e => setColorBlindMode(e.target.value)} />
+                  <span>Monochromatic (Greyscale)</span>
                 </label>
 
                 <label className="as-radio">

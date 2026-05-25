@@ -9,3 +9,101 @@ body {
   background-color: #f5f5f5;
   color: #333;
 }
+
+.slot-usage-summary {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #d9dee7;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(20, 27, 45, 0.06);
+}
+
+.slot-usage-summary__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.slot-usage-summary__eyebrow {
+  margin-bottom: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6a7280;
+}
+
+.slot-usage-summary__context {
+  margin-top: 0.4rem;
+  color: #5f6673;
+  line-height: 1.5;
+}
+
+.slot-usage-summary__badge {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #2447a8;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.slot-usage-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.9rem;
+}
+
+.slot-usage-summary__card,
+.slot-usage-summary__future {
+  border: 1px solid #e3e7ee;
+  border-radius: 0.9rem;
+  background: #fafbfc;
+}
+
+.slot-usage-summary__card {
+  padding: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.slot-usage-summary__card-title,
+.slot-usage-summary__future h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #202632;
+}
+
+.slot-usage-summary__card-value {
+  font-size: 1.2rem;
+  color: #122033;
+}
+
+.slot-usage-summary__card-note,
+.slot-usage-summary__future-copy,
+.slot-usage-summary__future-list {
+  color: #5f6673;
+  line-height: 1.5;
+}
+
+.slot-usage-summary__future {
+  padding: 1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.slot-usage-summary__future-list {
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+@media (max-width: 640px) {
+  .slot-usage-summary__header {
+    flex-direction: column;
+  }
+}
