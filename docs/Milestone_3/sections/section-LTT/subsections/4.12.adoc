@@ -286,3 +286,42 @@ Maintain documentation of all color palette choices and the rationale behind the
 ==== Conclusion
 The implementation of colorblind themes in the web application demonstrates a strong commitment to accessibility. The clear theme switching, distinct color palettes, and consistent experience are significant strengths. However, there are opportunities to enhance usability by supplementing color with additional indicators, providing theme previews, and ensuring all interactive elements are easily distinguishable. Ongoing user testing and documentation will be essential to maintaining and improving the accessibility of the application for all users.
 
+-----------------------
+
+==== [Lecture Topic Task]: Observation Based Evaluation of User Hesitation During Appointment Scheduling Goal
+:author: Victoria Miranda Osuna
+
+===== Goal
+
+Evaluate how user hesitation and uncertainty affect the appointment scheduling workflow by analyzing observable interaction behaviors during usability testing sessions.
+
+===== Proposed Solution
+
+    - Define observable hesitation indicators during scheduling tasks.
+
+        * Monitor pauses before selections are made.
+        * Observe repeated clicking or changing selections.
+        * Identify moments where users stop to reread interface information.
+
+    - Analyze how users respond when selecting appointment types, dates, and time slots.
+
+        * Evaluate whether users understand elements they can select.
+        * Observe how easily users navigate available dates.
+        * Monitor whether users recognize available versus unavailable slots.
+        * Identify sections that require repeated attempts.
+
+    - Evaluate whether workflow transitions create confusion or interruptions.
+
+        * Analyze whether users maintain confidence throughout scheduling.
+        * Identify opportunities to improve clarity and navigation flow.
+
+    - Use usability observation techniques to identify points where users pause, backtrack, or consult interface guidance based on the previously mentioned points we can infer the cause of these actions.
+
+===== Success Criteria
+
+    * Observable hesitation behaviors are clearly identified.
+    * User interaction patterns are analyzed using usability testing principles.
+    * Workflow interruptions and uncertainty points are documented.
+    * Recommendations improve workflow clarity and reduce user hesitation.
+
+-----------------------
