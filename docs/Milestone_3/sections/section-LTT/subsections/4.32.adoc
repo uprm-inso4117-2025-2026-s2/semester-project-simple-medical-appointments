@@ -1,0 +1,95 @@
+---
+==== Mutation Testing for Scheduling and Appointment Validation
+:author: Cabinetman
+
+Healthcare appointment booking engines must be protected by a strong test suite that exercises critical booking, waitlist, override, and cancellation logic. Mutation testing measures how effective tests are at catching small, realistic faults (mutants) introduced into code. This LTT provides a practical, actionable mutation testing plan for this project.
+
+==== Summary
+
+Run targeted mutation testing on the backend scheduling and booking modules to quantify test effectiveness, discover weak tests, and produce prioritized corrective actions.
+
+==== Goal
+
+Measure and improve the test-suite's ability to detect realistic faults in booking, waitlist, override, and cancellation logic. Use mutation testing results to direct test improvements until surviving mutants are justified or removed.
+
+==== Scope
+
+- Target modules: backend booking and scheduling code under `backend/app/services`, `backend/app/models`, and `backend/app/routes`.
+- Test runner: `pytest` (unit tests are under `tests/unit`).
+- Mutation tooling: `mutmut` (recommended for Python). Alternatives: `mutpy`, `cosmic-ray`.
+- Exclude external adapters and full integration tests from mutation runs to keep execution time reasonable.
+
+==== Operators / Example Mutants
+
+- Relational replacements: `<` ↔ `<=`, `==` ↔ `!=`.
+- Conditional negation: invert boolean guards controlling booking acceptance.
+- Arithmetic changes: off-by-one mutations on capacities and limits.
+- Remove side-effect calls (e.g., not calling availability update after cancellation).
+
+Domain examples:
+
+- `available_slots > 0` → `available_slots >= 0` (off-by-one).
+- Skip `clinic.is_open()` guard so bookings during closed hours are accepted.
+- Increase waitlist acceptance when `waitlist_capacity` is full.
+
+==== Test Mapping
+
+- Create a short mapping file listing source → tests, e.g. `backend/app/services/booking_service.py` → `tests/unit/test_booking_service.py`.
+- Ensure tests assert externally observable behaviour (HTTP responses, DB state changes) rather than internal implementation details.
+
+==== Run Instructions (mutmut example)
+
+1. Install in a virtualenv:
+
+```bash
+python -m pip install mutmut
+```
+
+2. Run mutation testing for targeted packages (example):
+
+```bash
+cd backend
+mutmut run --paths-to-mutate app/services app/models app/routes -j 4
+mutmut results --summary
+```
+
+3. Inspect surviving mutants interactively:
+
+```bash
+mutmut results
+mutmut show <mutant-id>
+```
+
+Tips:
+
+- Narrow `--paths-to-mutate` to a handful of files for quick iterations.
+- Use `-j` to adjust parallel jobs; CI can use `-j 1`.
+
+==== Interpreting Results
+
+- Mutation score = killed / total. Aim to raise score for core booking logic (target ≥ 85%).
+- Triage surviving mutants:
+    - If behaviour is acceptable by design, add a unit test documenting the decision or add an assertion capturing the intended behaviour.
+    - Otherwise, add/strengthen tests to kill the mutant.
+
+==== Execution Results
+
+I ran a local mutation experiment for `app.services.scheduling` using a small, deterministic harness (native `mutmut` requires WSL on Windows, so I used a local runner). The runner applied four targeted mutants and executed the unit tests in `backend/tests/unit/test_scheduling.py`.
+
+- Mutants tested:
+  - `A_more_permissive_end`: changed `if slot_end > end_min` → `if slot_end >= end_min`
+  - `B_allow_zero_slot`: changed `if slot_minutes <= 0` → `if slot_minutes < 0`
+  - `C_off_by_one`: changed `slot_end = cur + slot_minutes` → `slot_end = cur + slot_minutes - 1`
+  - `D_invert_check`: changed `if slot_end > end_min` → `if slot_end < end_min`
+
+- Results summary: 0/4 mutants were killed by the current unit tests (all 4 mutants survived).
+
+The machine-readable run report was temporarily saved under `backend/tmp_mutants/` during the experiment.
+
+==== Conclusion
+
+The current unit tests in `backend/tests/unit/test_scheduling.py` execute cleanly but do not detect several realistic faults introduced into the scheduling logic. Specifically:
+
+- Off-by-one and relational operator changes in the slot-generation logic were not caught by the existing assertions.
+- The check that enforces `slot_minutes` positivity did not produce failing tests under the applied mutation (see mutant `B_allow_zero_slot`), indicating gaps in direct assertion of error conditions for boundary inputs.
+---
