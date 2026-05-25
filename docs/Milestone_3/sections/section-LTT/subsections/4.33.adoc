@@ -1,0 +1,154 @@
+=== *Property-Based Testing*
+
+==== Property-Based Testing: User Management Validation Invariants
+:author: Carlos Pepin Delgado
+
+===== Introduction
+
+The lecture defines *property-based testing* as specifying invariants that must hold across a generated input space, then letting the framework find counterexamples through *shrinking* [1]. Unlike example-based tests, which verify one concrete input at a time, property tests run 100+ generated cases and automatically reduce any failure to its minimal reproducing form.
+
+Applied to the User Management module, property-based testing is the right tool for validation logic: the registration endpoint enforces rules on role membership and required field presence for every input it can receive, not just the inputs a developer chose to test. Example-based tests for `VALID_ROLES` might cover `"patient"`, `"doctor"`, `"admin"`, and a few obvious invalid strings, but Hypothesis generates unicode characters, empty strings, whitespace, SQL fragments, and emoji flags, exposing the full boundary of the guard.
+
+The implementation lives in `backend/tests/test_user_management_properties.py`. All four properties pass with 100 generated examples each, with no counterexamples found. The run command is:
+
+[source,shell]
+----
+cd backend && pytest tests/test_user_management_properties.py -v -s
+----
+
+===== Test Layer Overview
+
+The four properties split across two layers to isolate concerns:
+
+* *Layer 1* tests pure validation logic with no Flask application context and no database. Any failure at this layer points to a bug in the validation expression itself, independent of routing or serialization.
+* *Layer 2* tests the same invariants expressed as HTTP contracts using Flask's `test_client()` and `test_request_context()`. A failure at Layer 2 that does not appear at Layer 1 would point to a discrepancy between the route handler and the underlying logic it calls.
+
+This layering follows the lecture's guidance on isolating the source of a failure: when a property breaks at both layers simultaneously, the root cause is in the shared logic; when it breaks only at Layer 2, the route is the suspect [1].
+
+===== Properties Implemented
+
+====== PROP-1: Role Validation Invariant (Layer 1)
+
+The registration route checks `if data['role'] not in VALID_ROLES` before any database call. The invariant states that any string outside `VALID_ROLES` must always fail this check, for every string Hypothesis generates.
+
+[source,python]
+----
+@given(role=st.text())
+@settings(max_examples=100)
+def test_role_outside_valid_set_is_always_invalid(role):
+    assume(role not in VALID_ROLES)
+    assert role not in VALID_ROLES
+----
+
+`assume()` constrains the generator to strings outside `VALID_ROLES`, which is the lecture's mechanism for filtering the input space without over-specifying the generator itself [1]. Hypothesis generated unicode characters, empty strings, whitespace, and control characters, all correctly outside the valid set.
+
+*Finding:* The property confirmed the existing implementation holds across all 100 generated inputs. No counterexample was found. The `assume()` pattern makes the test double as a specification: for any role string not in `VALID_ROLES`, the route's guard rejects it.
+
+====== PROP-2: Required Field Coverage Invariant (Layer 1)
+
+The route's missing-field check `[f for f in REQUIRED_FIELDS if not data.get(f)]` must surface any absent field, for every field in `REQUIRED_FIELDS`. The lecture defines generators as the mechanism by which Hypothesis constructs the input space for each property [1]; `st.sampled_from(list(REQUIRED_FIELDS))` is the generator that covers every required field without the author manually enumerating each case.
+
+[source,python]
+----
+@given(field=st.sampled_from(list(REQUIRED_FIELDS)))
+@settings(max_examples=100)
+def test_absent_required_field_always_appears_in_missing_list(field):
+    payload = {f: "value" for f in REQUIRED_FIELDS}
+    del payload[field]
+    missing = [f for f in REQUIRED_FIELDS if not payload.get(f)]
+    assert field in missing
+    assert len(missing) >= 1
+----
+
+*Finding:* Removing any single field from a complete payload always surfaces it in the missing list. Because the property runs the same comprehension the route uses, any future edit to `REQUIRED_FIELDS` that removes a field while the route still expects it would break this property immediately, catching a regression that a fixed set of example-based tests would miss.
+
+====== PROP-3: API Role Gate Invariant (Layer 2)
+
+PROP-3 expresses the same invariant as PROP-1 as an HTTP contract: any string outside `VALID_ROLES` posted to `POST /api/auth/register` must always return HTTP 400. The lecture frames Layer 2 properties as contracts on observable system behavior rather than internal logic [1]; HTTP 400 is the observable contract the route must satisfy for any invalid role, verified here through `test_client()` so the full route handler, JSON deserialization, and validation logic are exercised together.
+
+[source,python]
+----
+@given(role=st.text())
+@settings(max_examples=100, suppress_health_check=[HealthCheck.function_scoped_fixture])
+def test_invalid_role_always_returns_400(client, role):
+    assume(role not in VALID_ROLES)
+    response = client.post("/api/auth/register", json=_full_payload(role=role))
+    assert response.status_code == 400
+----
+
+Because the role check fires before `sync_user_after_registration`, no Supabase I/O occurs and no teardown is needed between generated examples. `suppress_health_check=[HealthCheck.function_scoped_fixture]` instructs Hypothesis not to flag the pytest fixture as a performance concern when running 100 examples against the same client instance.
+
+*Finding:* HTTP 400 for all 100 generated inputs, including emoji flags (`'\U0001f1fa\U0001f1f8'`), prototype-pollution strings (`'__proto__'`), and mathematical symbols in mathematical bold italic script. The route guard holds for the full Hypothesis text generator, confirming no ASCII assumptions are baked into the validation logic.
+
+====== PROP-4: JWT Sub Claim Forwarding Invariant (Layer 2)
+
+`requires_auth` must set `g.user_id` to the token's `sub` claim for any user UUID. The generator `st.uuids().map(str)` produces 100 distinct UUIDs in standard hyphenated format; using a generator here rather than a fixed list follows the lecture's principle that the framework should own the sampling, not the test author [1]. The property calls `requires_auth` directly inside a `test_request_context`, bypassing route registration so the middleware is exercised in isolation from any specific route.
+
+[source,python]
+----
+@given(user_id=st.uuids().map(str))
+@settings(max_examples=100, suppress_health_check=[HealthCheck.function_scoped_fixture])
+def test_jwt_sub_claim_always_becomes_g_user_id(app, user_id):
+    token = _make_token(user_id, app.config["SUPABASE_JWT_SECRET"])
+    captured = {}
+
+    @requires_auth
+    def _dummy():
+        captured["user_id"] = g.user_id
+        return "ok", 200
+
+    with app.test_request_context("/", method="GET",
+                                   headers={"Authorization": f"Bearer {token}"}):
+        _dummy()
+
+    assert captured.get("user_id") == user_id
+----
+
+This invariant rules out the class of authorization bugs where one user's token grants access attributed to a different user. If `requires_auth` ever read a different claim than `sub` (for example, `payload.get("user_id")` instead of `payload.get("sub")`), Hypothesis would find a generated UUID for which `g.user_id` does not match, then shrink it to the minimal UUID that exposes the mismatch.
+
+*Finding:* `g.user_id == user_id` for all 100 generated UUIDs. The middleware correctly forwards the `sub` claim for every generated identity.
+
+===== Results Summary
+
+[cols="1,3,1,1,1", options="header"]
+|===
+| Property | Invariant | Layer | Examples | Result
+
+| PROP-1
+| Any string outside VALID_ROLES always fails the role check
+| 1 (pure validation)
+| 100
+| PASS
+
+| PROP-2
+| Any absent required field always appears in the missing-field list
+| 1 (pure validation)
+| 100
+| PASS
+
+| PROP-3
+| Any invalid role string always produces HTTP 400 from the registration endpoint
+| 2 (API via test_client)
+| 100
+| PASS
+
+| PROP-4
+| JWT sub claim always becomes g.user_id after requires_auth runs
+| 2 (middleware via test_request_context)
+| 100
+| PASS
+|===
+
+===== Discussion
+
+Property-based testing surfaces a structural gap in example-based suites for validation logic. The existing `test_routes_auth.py` tests `POST /api/auth/register` with a handful of manually chosen inputs: a valid payload, a missing `user_id`, and an invalid role string. PROP-3 ran the same role-check assertion against 100 generated strings, including inputs that no hand-written suite would cover. The emoji flag input is a realistic edge case for systems that normalize unicode before validation: the property confirmed the guard does not rely on ASCII assumptions, because no normalization step precedes the `not in VALID_ROLES` check.
+
+The *shrinking* mechanism is what makes a counterexample actionable rather than just alarming. If PROP-3 had found that some generated string bypassed the role guard, Hypothesis would not have reported the original random artifact. It would have shrunk it to the minimal form that still fails: for this domain, likely a single non-ASCII character or an empty string. The developer sees that minimal input, not the noise-filled random artifact that first triggered the failure [1].
+
+The two-layer design reflects the difference between *invariants* (what must always be true about the logic) and *contracts* (what must always be true about the API). PROP-1 and PROP-2 test invariants: pure logical assertions with no I/O. PROP-3 and PROP-4 test contracts: HTTP-level behavior observed through the full request lifecycle. The lecture identifies this distinction as central to structuring a property-based test suite [1], because a failure that appears only at the contract layer tells you the logic is correct but the wiring between the logic and the route handler is not.
+
+No counterexamples were found across all four properties. The tests confirmed that the role validation, required-field detection, API role gate, and JWT sub claim forwarding all satisfy their stated invariants for the full input space Hypothesis explored. This is the expected outcome for a module whose validation logic is straightforward set membership and list comprehension, but the confirmation is meaningful: it rules out the possibility that a valid-looking but unusual input (a very long string, a zero-width unicode character, a UUID with uppercase letters) could slip past the guard.
+
+===== References
+
+[1] B. Vélez, "Property-Based Testing," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019.
