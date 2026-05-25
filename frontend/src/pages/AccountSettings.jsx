@@ -55,7 +55,6 @@ function AccountSettings() {
   const refPassword = useRef(null)
   const refAccessibility = useRef(null)
   const refNotifs   = useRef(null)
-  const refDanger   = useRef(null)
 
   const scrollTo = (ref) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -89,7 +88,6 @@ function AccountSettings() {
   const [notifEmail,    setNotifEmail]    = useState(true)
   const [notifSecurity, setNotifSecurity] = useState(true)
   const [notifUpdates,  setNotifUpdates]  = useState(false)
-  const [notifMarketing,setNotifMarketing]= useState(false)
   const [notifMsg,      setNotifMsg]      = useState(null)
   const [notifSaving,   setNotifSaving]   = useState(false)
 
@@ -97,7 +95,6 @@ function AccountSettings() {
   const [name, setName] = useState('')
 
   // Danger modals
-  const [showDelete, setShowDelete] = useState(false)
 
   // ── Load ────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -187,12 +184,6 @@ function AccountSettings() {
     navigate('/login')
   }
 
-  // ── Danger actions ──────────────────────────────────────────────────────────
-  const handleDelete = async () => {
-    setShowDelete(false)
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
 
   if (loading) return null
 
@@ -226,11 +217,6 @@ function AccountSettings() {
             <span className="adb-nav-label">Notifications</span>
           </div>
 
-          {/* ACCOUNT */}
-          <span className="as-nav-group-label">ACCOUNT</span>
-          <div className="adb-nav-item" onClick={() => scrollTo(refDanger)}>
-            <span className="adb-nav-label">Danger Zone</span>
-          </div>
 
         </nav>
       </aside>
@@ -471,7 +457,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Email Notifications</span>
+              <span className="as-toggle-label">Appointment Reminders</span>
               <span className="as-toggle-desc">Receive updates and alerts via email</span>
             </div>
             <label className="as-toggle">
@@ -482,7 +468,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Security Alerts</span>
+              <span className="as-toggle-label">Appointment Updates</span>
               <span className="as-toggle-desc">Get notified about suspicious login attempts</span>
             </div>
             <label className="as-toggle">
@@ -493,7 +479,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Product Updates</span>
+              <span className="as-toggle-label">Messages</span>
               <span className="as-toggle-desc">News about new features and improvements</span>
             </div>
             <label className="as-toggle">
@@ -502,16 +488,6 @@ function AccountSettings() {
             </label>
           </div>
 
-          <div className="as-toggle-row">
-            <div className="as-toggle-info">
-              <span className="as-toggle-label">Marketing Emails</span>
-              <span className="as-toggle-desc">Tips, offers, and promotional content</span>
-            </div>
-            <label className="as-toggle">
-              <input type="checkbox" checked={notifMarketing} onChange={e => setNotifMarketing(e.target.checked)} />
-              <span className="as-toggle-track" />
-            </label>
-          </div>
 
           {notifMsg && <div className={`as-feedback ${notifMsg.type}`}>{notifMsg.text}</div>}
 
@@ -522,22 +498,6 @@ function AccountSettings() {
           </div>
         </div>
 
-        {/* ── Danger Zone ── */}
-        <div className="as-card as-card-danger" ref={refDanger}>
-          <div className="as-danger-title-row">
-            <span style={{ color: '#dc2626', fontSize: 18 }}>⚠</span>
-            <h2 className="as-danger-title">Danger Zone</h2>
-          </div>
-          <p className="as-danger-sub">These actions are irreversible. Please proceed with caution.</p>
-
-          <div className="as-danger-row">
-            <div className="as-danger-info">
-              <span className="as-danger-item-title">Delete Account</span>
-              <span className="as-danger-item-desc">Permanently delete your account and all data. This cannot be undone.</span>
-            </div>
-            <button className="as-btn-danger-fill" onClick={() => setShowDelete(true)}>Delete Account</button>
-          </div>
-        </div>
       </main>
 
       {/* ── Logout Modal ── */}
@@ -559,24 +519,6 @@ function AccountSettings() {
         </div>
       )}
 
-      {/* ── Delete Modal ── */}
-      {showDelete && (
-        <div className="as-modal-overlay" onClick={() => setShowDelete(false)}>
-          <div className="as-modal" onClick={e => e.stopPropagation()}>
-            <div className="as-modal-header">
-              <h2>Delete Account</h2>
-              <p>This action is permanent and cannot be undone.</p>
-            </div>
-            <div className="as-modal-body">
-              <p>All your data, appointments, and history will be permanently deleted.</p>
-            </div>
-            <div className="as-modal-footer">
-              <button className="as-modal-cancel" onClick={() => setShowDelete(false)}>Cancel</button>
-              <button className="as-btn-danger-fill" style={{ flex: 1, height: 44 }} onClick={handleDelete}>Delete Forever</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
