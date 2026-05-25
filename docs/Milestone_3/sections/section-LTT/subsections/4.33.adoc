@@ -1,0 +1,94 @@
+==== Behavior Driven Development for Clinic / Doctor Experience Appointment Scheduling
+:author: Cabinetman
+
+===== Objective
+
+Define a Behavior Driven Development (BDD) strategy for validating the Clinic / Doctor Experience appointment scheduling and booking workflows.
+
+===== BDD Scenario Structure
+
+The BDD strategy should express system behaviour using clear Given-When-Then scenarios that focus on observable outcomes rather than internal implementation details.
+
+[source,gherkin]
+----
+Feature: Clinic Appointment Scheduling
+
+  Background:
+    Given a registered clinic and doctor schedule exist
+    And the doctor has an active availability window
+----
+
+The strategy should target the following behaviours in the Clinic Experience system:
+
+* Doctor schedule configuration
+* Slot generation
+* Main appointment booking
+* Waitlist behavior
+* Override booking
+* Appointment cancellation
+* Clinic closure validation
+
+===== Coverage Plan
+
+[cols="1,2,2",options="header"]
+|===
+| Workflow | Scenario Focus | Expected Result
+| Doctor schedule configuration | Provider publishes working hours and exceptions | Published availability is stored and used by slot generation
+| Slot generation | System creates bookable slots from availability | Generated slots match the configured duration and boundaries
+| Main appointment booking | Patient books an open slot | Appointment is created and the slot becomes unavailable
+| Waitlist behavior | Patient books when no slots remain | Patient is added to the waitlist in order
+| Override booking | Authorized user overrides capacity or restriction | Booking succeeds and the override is recorded
+| Appointment cancellation | Existing appointment is cancelled | Slot is released for future booking
+| Clinic closure validation | Patient books during closed hours | Booking is rejected
+|===
+
+===== Representative Scenarios
+
+====== Scenario 1: Book an Available Slot
+
+[source,gherkin]
+----
+  Scenario: Book an available slot
+    Given the patient "Ivan Morales" has a registered account
+    And the doctor has an available slot on "2026-04-10" at "10:00" for 30 minutes
+    When the patient submits a booking request for that slot
+    Then the appointment is saved with status "Requested"
+    And the slot on "2026-04-10" at "10:00" is marked as unavailable
+----
+
+This scenario validates the happy path of the booking flow. The expected result is a persisted appointment and a slot that cannot be reserved twice.
+
+====== Scenario 2: Join the Waitlist When No Slot Remains
+
+[source,gherkin]
+----
+  Scenario: Join the waitlist when no slot remains
+    Given the patient "Ivan Morales" has a registered account
+    And all slots for the selected time have already been booked
+    When the patient requests an appointment for that time
+    Then the patient is added to the waitlist
+    And the system keeps the slot fully booked
+----
+
+This scenario checks that the system preserves ordering and does not silently overbook a full schedule.
+
+====== Scenario 3: Reject Booking During Clinic Closure
+
+[source,gherkin]
+----
+  Scenario: Reject booking during clinic closure
+    Given the clinic is closed on "2026-04-10"
+    When the patient attempts to book an appointment on that date
+    Then the system rejects the request with status 409
+    And no appointment is created
+----
+
+This scenario confirms that closure rules are enforced before an appointment is written to the schedule.
+
+===== Discussion
+
+BDD scenarios for appointment scheduling should remain small, readable, and traceable to a single business rule. The most important checks are boundary conditions such as slot generation at the edge of working hours, booking collisions, waitlist overflow, cancellation restoring availability, and closure enforcement. By expressing these conditions in Gherkin, the team gets executable documentation that can be reviewed by both technical and non-technical stakeholders.
+
+===== Conclusion
+
+A BDD strategy for the Clinic / Doctor Experience should prioritize booking, waitlist, override, cancellation, and closure scenarios because those flows carry the highest risk of regression. Writing the scenarios in Given-When-Then form gives the team a clear contract for expected behaviour and creates a practical path for automated acceptance coverage.
