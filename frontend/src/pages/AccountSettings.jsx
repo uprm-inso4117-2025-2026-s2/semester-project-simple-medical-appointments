@@ -89,7 +89,6 @@ function AccountSettings() {
   const [notifEmail,    setNotifEmail]    = useState(true)
   const [notifSecurity, setNotifSecurity] = useState(true)
   const [notifUpdates,  setNotifUpdates]  = useState(false)
-  const [notifMarketing,setNotifMarketing]= useState(false)
   const [notifMsg,      setNotifMsg]      = useState(null)
   const [notifSaving,   setNotifSaving]   = useState(false)
 
@@ -502,16 +501,6 @@ function AccountSettings() {
             </label>
           </div>
 
-          <div className="as-toggle-row">
-            <div className="as-toggle-info">
-              <span className="as-toggle-label">Marketing Emails</span>
-              <span className="as-toggle-desc">Tips, offers, and promotional content</span>
-            </div>
-            <label className="as-toggle">
-              <input type="checkbox" checked={notifMarketing} onChange={e => setNotifMarketing(e.target.checked)} />
-              <span className="as-toggle-track" />
-            </label>
-          </div>
 
           {notifMsg && <div className={`as-feedback ${notifMsg.type}`}>{notifMsg.text}</div>}
 
