@@ -1,4 +1,4 @@
-= Verification vs Validation in Medical Scheduling
+= Verification vs Validation Guidelines in Medical Scheduling
 :author: Omar Cordero (omar-cordero)
 
 == Overview
