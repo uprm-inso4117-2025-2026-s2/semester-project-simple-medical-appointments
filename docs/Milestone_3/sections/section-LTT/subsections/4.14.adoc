@@ -101,3 +101,227 @@ For the React/Vite frontend, lightweight property/fuzz tools like *fast-check* (
 Fuzz testing is a low-cost, high-coverage way to harden the appointment scheduling feature of Simple Medical Appointments. By systematically generating invalid, corner, and extreme inputs across the entire scheduling input space — dates, time ranges, durations, doctor/clinic/patient IDs, statuses, and availability rules — fuzzing forces the system to demonstrate that it fails *safely* when faced with unexpected data. Combined with the unit, property-based, and load tests already in place, fuzz testing closes the gap between "the system works for expected inputs" and "the system is resilient against all inputs".
 
 ---
+
+---
+
+==== Fuzzing Strategy Design for Appointment Scheduling Robustness
+:author: Tasnim Said Khader
+
+==== Introduction
+The scheduling module contains some high-risk areas that could fail when exposed to malformed or unexpected data. The following robustness scenarios were identified based on the scheduling core functionality.
+
+==== Conflict Detection and Resolution
+Potential malformed inputs:
+
+* Two appointments overlapping partially for the same doctor.
+* Two appointments overlapping completely.
+* Appointment ending before it starts.
+* Appointment scheduled outside clinic availability.
+* Appointment scheduled during blocked clinic hours.
+* Appointment duration set to negative values.
+
+Expected system behavior:
+
+* Reject overlapping appointments.
+* Reject invalid time ranges.
+* Reject appointments violating clinic scheduling rules.
+
+Example fuzzing input:
+[source,json]
+----
+{
+  "doctor_id": 7,
+  "date": "2026-03-12",
+  "start_time": "2:00 PM",
+  "end_time": "1:00 PM"
+}
+----
+
+Expected result:
+
+*Validation Error:* Appointment end time cannot occur before start time.
+
+==== Capacity Handling
+Potential malformed inputs:
+
+* Negative slot capacity.
+* Capacity values exceeding realistic limits.
+* Appointment booking after capacity is reached.
+* Duplicate bookings for the same slot.
+
+Example fuzzing inputs:
+[source,json]
+----
+{
+  "slot_capacity": -3
+}
+----
+
+[source,json]
+----
+{
+  "slot_capacity": 10000
+}
+----
+
+Expected system behavior:
+
+* Reject invalid capacity values.
+* Prevent overbooking once capacity is reached.
+
+==== Waitlist Logic
+Potential malformed inputs:
+
+* Same patient added multiple times to waitlist
+* Waitlist request for unavailable doctor
+* Automatic reassignment triggered with no waitlist entries
+* Cancellation event attempting to assign a removed patient
+
+Example fuzzing input:
+[source,json]
+----
+{
+  "patient_id": 15,
+  "doctor_id": 4,
+  "waitlist_entries": 3
+}
+----
+
+Expected system behavior:
+
+* Prevent duplicate waitlist entries.
+* Preserve fair ordering of patients.
+
+==== Patient Scheduling from Submission
+Potential malformed inputs:
+
+* Missing doctor selection.
+* Missing clinic selection.
+* Null appointment date.
+* Invalid dates.
+* Extremely long patient notes.
+* Incorrect data types.
+
+Example fuzzing inputs:
+[source,json]
+----
+{
+  "doctor_id": null,
+  "clinic_id": 12,
+  "appointment_date": "2026-02-30"
+}
+----
+
+[source,json]
+----
+{
+  "doctor_id": "Cardiology",
+  "duration": "two hours"
+}
+----
+
+Expected system behavior:
+
+* Reject incomplete or malformed submissions.
+* Return clear validation messages to the patient.
+
+==== Fuzzing Test Matrix
+
+[cols="2,3,3", options="header"]
+|===
+| Scheduling Area
+| Fuzzed Input
+| Expected Result
+
+| Conflict Detection
+| Overlapping appointments
+| Booking rejected
+
+| Time Validation
+| End time before start time
+| Validation error
+
+| Clinic Constraints
+| Appointment on blocked Friday
+| Booking rejected
+
+| Capacity Handling
+| Negative capacity
+| Request rejected
+
+| Capacity Handling
+| Booking beyond slot limit
+| Booking prevented
+
+| Waitlist
+| Same patient added repeatedly
+| Duplicate prevented
+
+| Form Submission
+| Missing doctor ID
+| Required field error
+
+| Form Submission
+| Invalid date format
+| Input rejected
+|===
+
+==== Robustness Risks Identified
+Based on the scheduling workflow, the following risks were identified:
+
+* Incorrect overlap detection may result in double-booking.
+* Capacity failures may lead to overbooking.
+* Invalid dates or times could break scheduling generation logic.
+* Duplicate waitlist entries could create unfair scheduling.
+* Missing patient or doctor data may create incomplete appointments.
+* Simultaneous booking attempts could result in race conditions.
+
+==== Validation Improvements Proposed
+1. *Time Validation Layer*
+
+    Before processing appointments, validate:
+
+    * Start time occurs before end time
+    * Appointment falls within clinic hours
+    * Appointment does not violate blocked schedules
+
+2. *Strict Input Validation*
+
+    Patient scheduling forms should require:
+
+    * Valid clinic ID,
+    * Valid doctor ID,
+    * Correct date formatting,
+    * Required fields completed
+
+    before scheduling requests are processed.
+
+3. *Capacity Protection Rules*
+
+    The system should:
+
+    * Reject negative capacity values
+    * Limit maximum appointments per slot
+    * Prevent duplicate bookings
+
+4. *Waitlist Integrity Checks*
+
+    The system should:
+    
+    * Prevent duplicate waitlist entries
+    * Preserve patient queue order
+    * Trigger reassignment only after confirmed cancellation
+
+==== Future Fuzzing Execution Plan
+
+Once Flask endpoints are implemented, fuzz testing will be executed by:
+
+* Generating semi-random malformed scheduling inputs.
+* Automatically submitting data to scheduling endpoints.
+* Monitoring for:
+    - crashes
+    - unhandled exceptions
+    - incorrect booking behavior
+    - invalid appointment creation
+
+---
