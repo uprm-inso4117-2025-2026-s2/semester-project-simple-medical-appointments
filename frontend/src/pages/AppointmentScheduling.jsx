@@ -26,9 +26,15 @@ export default function AppointmentSchedule() {
   const [rescheduleSelectedSlot, setRescheduleSelectedSlot] = useState(null);
 
   // Normal scheduling state
-  const [selectedTypeId, setSelectedTypeId] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 8, 5));
+  const [selectedTypeId, setSelectedTypeId] = useState(null); //set to null
+  const [selectedDate, setSelectedDate] = useState(null); //set to null
   const [selectedTime, setSelectedTime] = useState(null);
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [missingFields, setMissingFields] = useState({
+    appointmentType: false,
+    date: false,
+    time: false,
+  });
   // Fetch appointments if in reschedule mode
   useEffect(() => {
     if (!rescheduleMode) return;
@@ -241,6 +247,12 @@ export default function AppointmentSchedule() {
     if (!date) return;
     setSelectedDate(date);
     setSelectedTime(null);
+
+    setMissingFields((prev) => ({
+      ...prev, //spread operator meaning it copies all existing values from the previous state
+      date: false,
+      time: false,
+    }));
   };
 
   const handleCancel = () => {
@@ -248,14 +260,40 @@ export default function AppointmentSchedule() {
   };
 
   const handleConfirm = () => {
-  navigate("/appointment-success", {
-    state: {
-      patientName: user.name,
-      appointmentType: selectedType?.title || selectedType?.name,
-      selectedDate,
-      selectedTime,
-    },
-  });
+    const errors = [];
+    const missing = {
+      appointmentType: false,
+      date: false,
+      time: false,
+    };
+    if (!selectedTypeId) {
+      errors.push("Please select an appointment type.");
+      missing.appointmentType = true;
+    }
+    if (!selectedDate) {
+      errors.push("Please select an available date.");
+      missing.date = true;
+    }
+    if (!selectedTime) {
+      errors.push("Please select an available time slot.");
+      missing.time = true;
+    }
+
+    setValidationErrors(errors);
+    setMissingFields(missing);
+
+    if (errors.length > 0) {
+      return;
+    }
+
+    navigate("/appointment-success", {
+      state: {
+        patientName: user.name,
+        appointmentType: selectedType?.title || selectedType?.name,
+        selectedDate,
+        selectedTime,
+      },
+    });
 };
   if (rescheduleMode) {
     // Step 1: Select appointment
@@ -404,18 +442,24 @@ export default function AppointmentSchedule() {
           </div>
         </header>
 
-        <section className="appointment-type-section">
+        <section className={`appointment-type-section ${missingFields.appointmentType ? "validation-highlight" : ""}`}>
           <h2 className="section-title">Choose an appointment:</h2>
 
           <AppointmentTypeSelector
             types={appointmentTypes}
             selectedTypeId={selectedTypeId}
-            onSelect={(type) => setSelectedTypeId(type.id)}
+            onSelect={(type) => {
+              setSelectedTypeId(type.id);
+              setMissingFields((prev) => ({
+                ...prev, //spread operator meaning it copies all existing values from the previous state
+                appointmentType: false,
+              }));
+            }}
           />
         </section>
 
         <section className="date-time-section">
-          <div className="date-column">
+          <div className={`date-column ${missingFields.date ? "validation-highlight" : ""}`}>
             <h2 className="section-title">Available dates:</h2>
             <p className="section-subtitle">Choose a date.</p>
 
@@ -428,7 +472,7 @@ export default function AppointmentSchedule() {
             </div>
           </div>
 
-          <div className="time-column">
+          <div className={`time-column ${missingFields.time ? "validation-highlight" : ""}`}>
             <h2 className="section-title">Available time slots:</h2>
             <p className="section-subtitle">Choose a time.</p>
 
@@ -447,11 +491,37 @@ export default function AppointmentSchedule() {
               <TimeSlotsSelector
                 timeSlots={timeSlots}
                 selectedTime={selectedTime}
-                onSelect={setSelectedTime}
+                onSelect={(time) => {
+                  setSelectedTime(time);
+                  setMissingFields((prev) => ({
+                    ...prev, //spread operator meaning it copies all existing values from the previous state
+                    time: false,
+                  }));
+                }}
               />
             </div>
           </div>
         </section>
+        
+        {validationErrors.length > 0 && (
+          <div className = "validation-popup">
+            <div className = "validation-popup-content">
+              <h3>Missing appointment information</h3>
+              <ul>
+                {validationErrors.map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
+              <button //ok button to close the popup
+                type="button"
+                className="validation-popup-button"
+                onClick={() => setValidationErrors([])}
+                >
+                Ok
+              </button>
+            </div>
+          </div>
+        )}
 
         <section className="confirmation-section">
           <AppointmentConfirmation

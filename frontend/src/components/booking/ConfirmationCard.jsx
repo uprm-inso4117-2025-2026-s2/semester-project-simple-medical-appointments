@@ -17,9 +17,13 @@ export default function AppointmentConfirmation({
     }).format(date);
   };
 
-  const confirmationText = `Book ${appointmentType || "appointment"} appointment ${
-    selectedDate ? formatDate(selectedDate) : ""
-  } at ${selectedTime || ""}?`;
+  const confirmationText = `Book ${ //removed the extra appointment in the confirmation card text
+    appointmentType || "appointment"
+  } ${
+    selectedDate ? `on ${formatDate(selectedDate)}` : ""
+  } ${
+    selectedTime ? `at ${selectedTime}` : ""
+  }?`;
 
   return (
     <div className="appointment-confirmation">

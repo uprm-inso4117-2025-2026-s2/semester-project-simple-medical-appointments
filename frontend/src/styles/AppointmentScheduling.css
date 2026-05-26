@@ -136,6 +136,67 @@
   margin: 0 auto;
 }
 
+.validation-highlight .content-card,
+.validation-highlight .appointment-type-list {
+  border: 2px solid #dc2626;
+  border-radius: 12px;
+}
+
+.validation-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.validation-popup-content {
+  width: 100%;
+  max-width: 460px;
+  background: #fafafa;
+  border-radius: 18px;
+  border: 1px solid #d0d0d0;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+.validation-popup-content h3 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  color: #111;
+}
+
+.validation-popup-content ul {
+  margin: 0 0 20px;
+  padding-left: 22px;
+}
+
+.validation-popup-content li {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.validation-popup-button {
+  width: 100%;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.validation-popup-button:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
 @media (max-width: 900px) {
   .appointment-page {
     padding: 1rem;
