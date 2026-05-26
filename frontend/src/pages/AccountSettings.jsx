@@ -471,7 +471,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Email Notifications</span>
+              <span className="as-toggle-label">Appointment Reminders</span>
               <span className="as-toggle-desc">Receive updates and alerts via email</span>
             </div>
             <label className="as-toggle">
@@ -482,7 +482,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Security Alerts</span>
+              <span className="as-toggle-label">Appointment Updates</span>
               <span className="as-toggle-desc">Get notified about suspicious login attempts</span>
             </div>
             <label className="as-toggle">
@@ -493,7 +493,7 @@ function AccountSettings() {
 
           <div className="as-toggle-row">
             <div className="as-toggle-info">
-              <span className="as-toggle-label">Product Updates</span>
+              <span className="as-toggle-label">Messages</span>
               <span className="as-toggle-desc">News about new features and improvements</span>
             </div>
             <label className="as-toggle">
