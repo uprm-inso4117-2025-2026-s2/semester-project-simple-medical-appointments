@@ -1,0 +1,127 @@
+= Input Space Testing for Appointment Booking 
+:author: Omar Cordero (omar-cordero)
+
+== Overview
+
+This document defines input space testing scenarios for the appointment booking functionality in the Simple Medical Appointments system.
+
+Input space testing evaluates how the scheduling system behaves under different categories of inputs, including normal usage, boundary conditions, unusual workloads, and invalid data.
+
+Because appointment scheduling systems must handle time-sensitive workflows and unpredictable user behavior, testing a wide variety of input conditions is essential for maintaining reliability and preventing scheduling defects.
+
+The purpose of this document is to organize appointment booking test cases into common, edge, extreme, and invalid categories in order to improve test coverage and identify potential weaknesses in scheduling functionality.
+
+== Input Space Testing
+
+Input space testing is a testing technique that organizes test cases into categories based on the types of inputs provided to the system.
+
+The goal is to ensure the application behaves correctly across both normal and unusual scenarios.
+
+=== Common Cases
+
+Common cases represent normal and expected user behavior.
+
+These scenarios reflect how most users are expected to interact with the scheduling system during everyday operation.
+
+=== Edge Cases
+
+Edge cases occur near system boundaries or operational limits.
+
+These scenarios often expose defects related to timing, limits, or transitions between valid states.
+
+=== Extreme Cases
+
+Extreme cases involve unusually large workloads or uncommon operating conditions.
+
+These tests help evaluate how the scheduling system behaves under stress or heavy usage.
+
+=== Invalid Cases
+
+Invalid cases involve incorrect, inconsistent, or prohibited inputs.
+
+These scenarios verify that the system properly rejects invalid operations and prevents incorrect scheduling behavior.
+
+== Common Case Examples
+
+[cols="1,3", options="header"]
+|===
+| Test Scenario | Expected Result
+
+| Book an available appointment during normal clinic hours
+| Appointment is created successfully
+
+| Schedule appointments with different doctors
+| Appointments are assigned to the correct doctors
+
+| Cancel an existing appointment and book another slot
+| Cancellation succeeds and the new appointment is created
+|===
+
+== Edge Case Examples
+
+[cols="1,3", options="header"]
+|===
+| Test Scenario | Expected Result
+
+| Book the first available appointment slot of the day
+| Appointment is scheduled successfully
+
+| Book the final appointment slot before clinic closing
+| Appointment is accepted if the slot is still available
+
+| Book an appointment when clinic capacity is nearly full
+| Remaining availability updates correctly
+|===
+
+== Extreme Case Examples
+
+[cols="1,3", options="header"]
+|===
+| Test Scenario | Expected Result
+
+| Attempt many consecutive appointment bookings
+| System continues processing appointments correctly
+
+| Schedule appointments during high-demand periods
+| Scheduling system remains stable and responsive
+
+| Schedule appointments across a long future time range
+| Appointments are stored and displayed correctly
+|===
+
+== Invalid Case Examples
+
+[cols="1,3", options="header"]
+|===
+| Test Scenario | Expected Result
+
+| Attempt to book an appointment in the past
+| System rejects the booking request
+
+| Attempt to create overlapping appointments
+| System prevents scheduling conflicts
+
+| Enter an invalid patient or doctor identifier
+| System displays an error and rejects the request
+
+| Attempt to book outside clinic operating hours
+| System blocks the appointment creation
+|===
+
+== Importance in Healthcare Applications
+
+Healthcare scheduling systems must remain reliable under both normal and unusual operating conditions because defects can directly impact patient appointments, clinic operations, and staff coordination.
+
+Scheduling systems frequently interact with unpredictable user behavior, time-sensitive workflows, and operational boundaries that may expose defects if only normal scenarios are tested.
+
+Input space testing helps uncover issues involving:
+
+* scheduling limits
+* clinic operating boundaries
+* invalid user input
+* overlapping appointments
+* high-demand scheduling situations
+
+By testing common, edge, extreme, and invalid inputs, developers can better evaluate how the system behaves across a wide range of scheduling conditions.
+
+This improves overall reliability, reduces unexpected failures, and increases confidence in appointment booking functionality.
