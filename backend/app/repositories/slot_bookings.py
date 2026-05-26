@@ -179,6 +179,7 @@ def _insert_appointment(
     clinic_id: str,
     appointment_datetime: datetime,
     appointment_type: BookingType,
+    status: Literal["pending", "confirmed"] = "confirmed",
     notes: str | None = None,
 ) -> tuple[dict | None, tuple[dict, int] | None]:
     payload = {
@@ -186,7 +187,7 @@ def _insert_appointment(
         "doctor_id": doctor_id,
         "clinic_id": clinic_id,
         "appointment_datetime": _normalize_dt(appointment_datetime),
-        "status": "confirmed",
+        "status": status,
         "appointment_type": appointment_type,
         "notes": notes,
     }
@@ -219,6 +220,7 @@ def book_admin_appointment(
     doctor_id: str,
     appointment_date: date,
     appointment_time: time,
+    status: Literal["pending", "confirmed"] = "confirmed",
     notes: str | None = None,
     accept_waitlist: bool = False,
     allow_override: bool = False,
@@ -260,6 +262,7 @@ def book_admin_appointment(
             clinic_id=clinic_id,
             appointment_datetime=requested_slot,
             appointment_type="MAIN",
+            status=status,
             notes=notes,
         )
 
@@ -306,6 +309,7 @@ def book_admin_appointment(
                     clinic_id=clinic_id,
                     appointment_datetime=next_slot,
                     appointment_type="WAITLIST",
+                    status=status,
                     notes=waitlist_notes,
                 )
 
@@ -344,6 +348,7 @@ def book_admin_appointment(
             clinic_id=clinic_id,
             appointment_datetime=requested_slot,
             appointment_type="OVERRIDE",
+            status=status,
             notes=override_notes,
         )
 
