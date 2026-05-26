@@ -1,0 +1,116 @@
+= Verification vs Validation Guidelines in Medical Scheduling
+:author: Omar Cordero (omar-cordero)
+
+== Overview
+
+Verification and validation are essential quality assurance activities in any healthcare software system.
+
+In the Simple Medical Appointments system, verification ensures that scheduling functionality behaves according to technical requirements and business rules, while validation ensures the system satisfies the needs and expectations of patients and clinic staff.
+
+A scheduling system may correctly enforce appointment rules and constraints while still creating usability or workflow problems for users. For this reason, both verification and validation are necessary to build reliable and effective medical scheduling applications.
+
+== Verification
+
+Verification focuses on determining whether the system was built correctly according to requirements, specifications, and business rules.
+
+Verification activities typically involve technical inspections, automated tests, and checks against defined system behavior.
+
+=== Verification Examples
+
+[cols="1,3", options="header"]
+|===
+| Verification Activity | Purpose
+
+| Confirm appointment conflict rules work correctly
+| Ensure overlapping appointments cannot be created for the same doctor and time slot
+
+| Verify scheduling restrictions are enforced for unavailable time slots
+| Ensure appointments cannot be booked outside clinic operating hours
+
+| Verify appointment data is stored correctly in the database
+| Ensure patient, doctor, and scheduling information persists correctly after booking
+|===
+
+== Validation
+
+Validation focuses on determining whether the system satisfies real-world user expectations and operational needs.
+
+Validation activities often involve usability evaluation, workflow analysis, and feedback from patients or clinic staff.
+
+=== Validation Examples
+
+[cols="1,3", options="header"]
+|===
+| Validation Activity | Purpose
+
+| Evaluate whether patients can easily book appointments
+| Ensure the booking workflow is understandable and simple to complete
+
+| Determine whether appointment availability is understandable to users
+| Ensure users can clearly identify open and unavailable appointment slots
+
+| Check whether the scheduling workflow matches real clinic expectations
+| Ensure clinic staff can manage appointments efficiently during daily operations
+|===
+
+== Key Differences
+
+[cols="1,3", options="header"]
+|===
+| Verification | Validation
+
+| Focuses on technical correctness
+| Focuses on user needs and expectations
+
+| Confirms the system follows requirements
+| Confirms the system solves the intended problem
+
+| Often performed through testing and inspection
+| Often performed through usability evaluation and feedback
+
+| Asks: "Was the system built correctly?"
+| Asks: "Was the correct system built?"
+|===
+
+== Example Scenario
+
+A scheduling system correctly prevents overlapping appointments and enforces all clinic scheduling rules.
+
+From a verification perspective, the system behaves correctly because all technical requirements are satisfied.
+
+However, patients may struggle to understand appointment availability because unavailable slots appear identical to available slots in the user interface.
+
+In this case:
+
+* verification passes because scheduling logic functions correctly
+* validation fails because users experience confusion and difficulty using the system
+
+This demonstrates how a technically correct system can still fail to satisfy real user expectations.
+
+== When Verification Should Occur
+
+Verification should occur:
+
+* during development of scheduling functionality
+* after implementing scheduling rules or constraints 	 	
+* during automated testing and code review
+* before merging changes into the main branch
+
+== When Validation Should Occur
+
+Validation should occur:
+
+* during usability evaluations
+* when testing workflows with realistic user scenarios
+* when gathering feedback from patients or clinic staff
+* before releasing major scheduling updates
+
+== Importance in Healthcare Applications
+
+Healthcare systems require both verification and validation because failures can affect patient scheduling, clinic operations, and overall user trust.
+
+Verification helps ensure scheduling functionality behaves correctly according to specifications.
+
+Validation helps ensure patients and clinic staff can successfully use the system in real-world situations.
+
+Both are necessary to create reliable, usable, and effective medical scheduling systems.
