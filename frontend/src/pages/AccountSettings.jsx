@@ -55,7 +55,6 @@ function AccountSettings() {
   const refPassword = useRef(null)
   const refAccessibility = useRef(null)
   const refNotifs   = useRef(null)
-  const refDanger   = useRef(null)
 
   const scrollTo = (ref) => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
@@ -96,7 +95,6 @@ function AccountSettings() {
   const [name, setName] = useState('')
 
   // Danger modals
-  const [showDelete, setShowDelete] = useState(false)
 
   // ── Load ────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -186,12 +184,6 @@ function AccountSettings() {
     navigate('/login')
   }
 
-  // ── Danger actions ──────────────────────────────────────────────────────────
-  const handleDelete = async () => {
-    setShowDelete(false)
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
 
   if (loading) return null
 
@@ -225,11 +217,6 @@ function AccountSettings() {
             <span className="adb-nav-label">Notifications</span>
           </div>
 
-          {/* ACCOUNT */}
-          <span className="as-nav-group-label">ACCOUNT</span>
-          <div className="adb-nav-item" onClick={() => scrollTo(refDanger)}>
-            <span className="adb-nav-label">Danger Zone</span>
-          </div>
 
         </nav>
       </aside>
@@ -511,22 +498,6 @@ function AccountSettings() {
           </div>
         </div>
 
-        {/* ── Danger Zone ── */}
-        <div className="as-card as-card-danger" ref={refDanger}>
-          <div className="as-danger-title-row">
-            <span style={{ color: '#dc2626', fontSize: 18 }}>⚠</span>
-            <h2 className="as-danger-title">Danger Zone</h2>
-          </div>
-          <p className="as-danger-sub">These actions are irreversible. Please proceed with caution.</p>
-
-          <div className="as-danger-row">
-            <div className="as-danger-info">
-              <span className="as-danger-item-title">Delete Account</span>
-              <span className="as-danger-item-desc">Permanently delete your account and all data. This cannot be undone.</span>
-            </div>
-            <button className="as-btn-danger-fill" onClick={() => setShowDelete(true)}>Delete Account</button>
-          </div>
-        </div>
       </main>
 
       {/* ── Logout Modal ── */}
@@ -548,24 +519,6 @@ function AccountSettings() {
         </div>
       )}
 
-      {/* ── Delete Modal ── */}
-      {showDelete && (
-        <div className="as-modal-overlay" onClick={() => setShowDelete(false)}>
-          <div className="as-modal" onClick={e => e.stopPropagation()}>
-            <div className="as-modal-header">
-              <h2>Delete Account</h2>
-              <p>This action is permanent and cannot be undone.</p>
-            </div>
-            <div className="as-modal-body">
-              <p>All your data, appointments, and history will be permanently deleted.</p>
-            </div>
-            <div className="as-modal-footer">
-              <button className="as-modal-cancel" onClick={() => setShowDelete(false)}>Cancel</button>
-              <button className="as-btn-danger-fill" style={{ flex: 1, height: 44 }} onClick={handleDelete}>Delete Forever</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
