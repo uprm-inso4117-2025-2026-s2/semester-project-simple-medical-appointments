@@ -1134,3 +1134,282 @@ html.theme-monochromatic .as-modal-cancel {
 html.theme-monochromatic .as-modal-cancel:hover {
   background: #e8e8e8;
 }
+
+html.theme-protanopia body {
+  filter: none;
+}
+
+html.theme-protanopia .home-page,
+html.theme-protanopia .auth-bg,
+html.theme-protanopia .login-page {
+  background: #f6f8ff;
+}
+
+html.theme-protanopia .home-nav-brand span,
+html.theme-protanopia .home-nav-logout {
+  color: #1a237e;
+}
+
+html.theme-protanopia .home-nav-email {
+  color: #374151;
+}
+
+html.theme-protanopia .home-nav-logout {
+  background: #e3eafc;
+  border-color: #1a237e;
+}
+
+html.theme-protanopia .home-nav-logout:hover {
+  background: #c5cae9;
+}
+
+html.theme-protanopia .home-welcome h1 {
+  color: #1a237e;
+}
+
+html.theme-protanopia .home-welcome p {
+  color: #374151;
+}
+
+html.theme-protanopia .home-card {
+  background: #ffffff;
+  border: 2px solid #1a237e;
+  box-shadow: none;
+}
+
+html.theme-protanopia .home-card:hover {
+  box-shadow: 0 0 0 3px #1976d2;
+}
+
+html.theme-protanopia .home-card-icon {
+  background: #1976d2;
+}
+
+html.theme-protanopia .home-card-title {
+  color: #1a237e;
+}
+
+html.theme-protanopia .home-card-desc {
+  color: #374151;
+}
+
+html.theme-protanopia .home-card-arrow {
+  color: #1976d2;
+}
+
+html.theme-protanopia .home-card-badge {
+  color: #374151;
+  background: #e3eafc;
+}
+
+html.theme-protanopia .login-left {
+  background: #e3eafc;
+}
+
+html.theme-protanopia .login-card,
+html.theme-protanopia .register-card,
+html.theme-protanopia .auth-card {
+  background: #ffffff;
+  border: 2px solid #1a237e;
+}
+
+html.theme-protanopia .login-right h1,
+html.theme-protanopia .register-card h1,
+html.theme-protanopia .auth-card h1 {
+  color: #1a237e;
+}
+
+html.theme-protanopia .login-right .auth-subtitle,
+html.theme-protanopia .register-card .auth-subtitle,
+html.theme-protanopia .auth-subtitle {
+  color: #374151;
+}
+
+html.theme-protanopia .auth-subtitle a,
+html.theme-protanopia .login-right .auth-subtitle a,
+html.theme-protanopia .register-card .auth-subtitle a {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
+html.theme-protanopia .form-group label {
+  color: #1a237e;
+  font-weight: 600;
+}
+
+html.theme-protanopia .form-group input,
+html.theme-protanopia .input-wrap input {
+  background: #ffffff;
+  color: #1a237e;
+  border: 2px solid #1a237e;
+}
+
+html.theme-protanopia .form-group input:focus,
+html.theme-protanopia .input-wrap input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px #ffeb3b;
+}
+
+html.theme-protanopia .input-error,
+html.theme-protanopia .input-error:focus {
+  border-color: #fbc02d !important;
+  box-shadow: 0 0 0 3px #fbc02d33 !important;
+}
+
+html.theme-protanopia .field-error {
+  color: #fbc02d;
+  font-weight: 600;
+}
+
+html.theme-protanopia .auth-error {
+  background: #fffde7;
+  border: 2px solid #fbc02d;
+  color: #fbc02d;
+  font-weight: 600;
+}
+
+html.theme-protanopia .forgot-link {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+html.theme-protanopia .auth-btn {
+  background: #1a237e;
+  color: #ffffff;
+  border: 2px solid #1a237e;
+  font-weight: 700;
+}
+
+html.theme-protanopia .auth-btn:hover:not(:disabled) {
+  background: #ffffff;
+  color: #1a237e;
+}
+
+html.theme-protanopia .auth-btn.success {
+  background: #388e3c;
+  border-color: #388e3c;
+  color: #ffffff;
+}
+
+html.theme-protanopia .as-toggle input:checked + .as-toggle-track {
+  background: #1976d2;
+  border-color: #1976d2;
+}
+
+html.theme-protanopia .as-radio input {
+  accent-color: #1976d2;
+}
+
+html.theme-protanopia .as-status-dot.confirmed { background: #388e3c; }
+html.theme-protanopia .as-status-dot.pending   { background: #1976d2; }
+html.theme-protanopia .as-status-dot.cancelled { background: #fbc02d; }
+
+html.theme-protanopia .as-status-item {
+  color: #1a237e;
+  font-weight: 500;
+}
+
+html.theme-protanopia .as-btn-primary {
+  background: #1976d2;
+  color: #ffffff;
+  border: 2px solid #1976d2;
+  font-weight: 700;
+}
+
+html.theme-protanopia .as-btn-primary:hover:not(:disabled) {
+  background: #ffffff;
+  color: #1976d2;
+  opacity: 1;
+}
+
+html.theme-protanopia .as-btn-cancel {
+  background: #ffffff;
+  color: #1a237e;
+  border: 2px solid #1a237e;
+  font-weight: 600;
+}
+
+html.theme-protanopia .as-btn-cancel:hover {
+  background: #e3eafc;
+  color: #1a237e;
+}
+
+html.theme-protanopia .as-logout-btn {
+  border: 2px solid #fbc02d;
+  color: #fbc02d;
+  font-weight: 700;
+}
+
+html.theme-protanopia .as-logout-btn:hover {
+  background: #fbc02d;
+  color: #1a237e;
+}
+
+html.theme-protanopia .as-card {
+  background: #ffffff;
+  border: 2px solid #1a237e;
+  box-shadow: none;
+}
+
+html.theme-protanopia .as-card-danger {
+  border: 2px solid #fbc02d;
+  background: #ffffff;
+}
+
+html.theme-protanopia .as-card-title {
+  color: #1a237e;
+  font-weight: 700;
+}
+
+html.theme-protanopia .as-card-sub {
+  color: #374151;
+}
+
+html.theme-protanopia .as-card-sub strong {
+  color: #1a237e;
+}
+
+html.theme-protanopia .as-label {
+  color: #1a237e;
+  font-weight: 600;
+}
+
+html.theme-protanopia .as-input {
+  background: #ffffff;
+  color: #1a237e;
+  border: 2px solid #1a237e;
+}
+
+html.theme-protanopia .as-input::placeholder {
+  color: #374151;
+}
+
+html.theme-protanopia .as-input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px #ffeb3b;
+}
+
+html.theme-protanopia .as-input.error {
+  border-color: #fbc02d;
+}
+
+html.theme-protanopia .as-pw-hint {
+  color: #374151;
+}
+
+html.theme-protanopia .as-eye-btn {
+  color: #1a237e;
+}
+
+html.theme-protanopia .as-eye-btn:hover {
+  color: #1976d2;
+}
+
+html.theme-protanopia .as-strength-seg {
+  background: #e3eafc;
+  border: 1px solid #1a237e;
+}
+html.theme-protanopia .as-strength-seg.filled-weak   { background: #fbc02d; }
+html.theme-protanopia .as-strength-seg.filled-fair   { background: #1976d2; }
+html.theme-protanopia .as-strength-seg.filled-good   { background: #388e3c; }
+html.theme-protanopia .as-strength-seg.filled-strong { background: #1a237e; }

@@ -22,8 +22,12 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.classList.remove('theme-monochromatic')
+    document.documentElement.classList.remove('theme-protanopia')
+    // Add the selected theme
     if (colorBlindMode === 'monochromatic') {
       document.documentElement.classList.add('theme-monochromatic')
+    } else if (colorBlindMode === 'protanopia') {
+      document.documentElement.classList.add('theme-protanopia')
     }
     localStorage.setItem('colorBlindMode', colorBlindMode)
   }, [colorBlindMode])
