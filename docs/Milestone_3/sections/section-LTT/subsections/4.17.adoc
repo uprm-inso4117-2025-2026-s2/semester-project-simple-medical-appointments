@@ -1,1 +1,59 @@
 === *System/Acceptance Testing Automation*
+---
+==== Automating System and Acceptance Testing for Appointment Scheduling
+:author: Axel A. Burgos
+
+System and acceptance test automation are important software testing practices used to validate complete application workflows and confirm that software requirements are satisfied. These testing strategies help developers ensure that the entire application behaves correctly from the user perspective.
+
+In the Simple Medical Appointments system, automated system and acceptance testing are especially important because appointment scheduling depends on multiple connected components, including frontend interfaces, backend APIs, databases, and scheduling validation rules.
+
+===== System Test Automation
+
+System testing validates the behavior of the complete integrated application. These tests evaluate how all system components interact together during real scheduling workflows.
+
+For example, a system test may verify that a patient can successfully log in, select an available doctor, schedule an appointment, and receive a confirmation notification.
+
+[discrete]
+===== Example System Tests
+
+* Verifying complete appointment booking workflows
+* Confirming appointment cancellations update availability correctly
+* Testing doctor schedule updates across the system
+* Validating appointment confirmation notifications
+
+===== Acceptance Test Automation
+
+Acceptance testing verifies that the application satisfies user requirements and expected business behavior. These tests focus on confirming that the system meets the needs of patients, doctors, and administrators.
+
+In the medical appointment system, acceptance testing ensures that scheduling workflows operate correctly under realistic usage conditions.
+
+[discrete]
+===== Example Acceptance Tests
+
+* Patients can successfully reserve available appointments
+* Doctors can update their availability schedules
+* Administrators can manage appointment records correctly
+* Users receive accurate appointment confirmations after booking
+
+===== Benefits of Automated Testing
+
+Automated system and acceptance testing provide several advantages:
+
+* Improved workflow validation
+* Faster detection of scheduling defects
+* Reduced manual testing effort
+* Better software reliability
+* Increased confidence before deployment
+
+These tests are especially important after modifying scheduling logic or backend appointment validation features.
+
+===== Challenges of Automated Testing
+
+Although automated testing improves software quality, system and acceptance tests may require complete environments with databases, APIs, authentication systems, and frontend interfaces configured correctly before execution.
+
+Maintaining automated workflows may also become more difficult as application requirements and scheduling functionality evolve over time.
+
+===== Conclusion
+
+System and acceptance test automation help developers verify that appointment scheduling workflows behave correctly throughout the entire application. By validating integrated system behavior and user requirements, these testing strategies improve software reliability, reduce hidden defects, and support a better patient experience.
+---

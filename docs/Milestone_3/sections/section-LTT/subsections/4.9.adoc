@@ -1,1 +1,199 @@
-=== *(Dependent) Types*
+=== [.added]#*(Dependent) Types*#
+:author: [.added]#Julian Vivas#
+
+==== [.added]#Lecture Topic Task: Domain Types for Appointment Scheduling#
+
+[.added]#This Lecture Topic Task applies the course lecture on types to the Simple Medical Appointments scheduling domain. The lecture presents types as checked properties of program fragments: a type checker can reject code before execution when a value does not satisfy the structure expected by a function. The goal for this task is to move part of the booking logic away from unstructured strings and dictionaries and toward named domain types that communicate what the function expects.#
+
+[.added]#The relevant lecture insight is that runtime validation alone creates testing debt. A function can check for invalid values while it runs, but every guard then needs tests to prove the guard exists and works. Stronger types shift part of that work left: invalid combinations become harder to express, and the remaining tests can focus on behavior instead of repeatedly checking whether every primitive value was interpreted correctly.#
+
+==== [.added]#Problem in the Current Design#
+
+[.added]#Appointment scheduling naturally contains different values that may all be represented as strings or dictionaries in raw code: patient identifiers, doctor identifiers, doctor profile data, appointment records, dates, times, and slot status values. When these values are left as plain primitives, a function signature does not explain which string is a patient ID, which string is a doctor ID, or which dictionary shape represents a valid appointment.#
+
+[.added]#For example, a booking function that accepts raw strings and dictionaries may look simple, but the meaning of each value is hidden inside the function body. This weakens understandability and makes accidental argument swaps possible. The type checker cannot distinguish a patient identifier from a doctor identifier if both are just `str`.#
+
+[source,python]
+----
+def book_appointment(patient_id, doctor, slot, existing_appointments):
+    ...
+----
+
+[.added]#The lecture's railway example describes the same problem with speed values: a plain integer can represent a valid speed, an impossible negative speed, or a value above the track limit. In the appointment system, a plain string can represent a patient ID, a doctor ID, a status label, or malformed input. The code must therefore carry extra validation and explanatory burden unless the domain concepts are named directly.#
+
+==== [.added]#Typing Strategy#
+
+[.added]#The proposed typing strategy introduces domain types for the core scheduling concepts. Python does not provide full refinement types in the same way as verification-oriented languages, but `NewType`, `dataclass`, `TypedDict`, and `Literal` can approximate the same design intent: values cross an input boundary, are validated or constructed, and then internal functions operate on typed concepts instead of anonymous primitives.#
+
+[cols="1,2,2"]
+|===
+| Domain Type | Suggested Python Form | Meaning
+
+| `PatientID`
+| `NewType("PatientID", str)`
+| Distinguishes a patient identifier from other string identifiers.
+
+| `Doctor`
+| `@dataclass(frozen=True)`
+| Groups doctor identity, display name, specialty, and clinic context as one coherent domain value.
+
+| `TimeSlot`
+| `@dataclass(frozen=True)`
+| Represents a bookable interval with a start time, end time, and availability status.
+
+| `Appointment`
+| `TypedDict` or `@dataclass(frozen=True)`
+| Represents the relationship among a patient, doctor, slot, and appointment status.
+
+| `AppointmentStatus`
+| `Literal["requested", "confirmed", "cancelled", "completed", "no_show"]`
+| Restricts appointment state labels to known lifecycle states.
+|===
+
+[.added]#These types make the scheduling vocabulary visible at the boundary of each function. Instead of asking a reader to inspect the function body to infer which dictionary keys are expected, the signature communicates the domain model directly.#
+
+[source,python]
+----
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Literal, NewType, Sequence, TypedDict
+
+PatientID = NewType("PatientID", str)
+DoctorID = NewType("DoctorID", str)
+AppointmentID = NewType("AppointmentID", str)
+
+AppointmentStatus = Literal[
+    "requested",
+    "confirmed",
+    "cancelled",
+    "completed",
+    "no_show",
+]
+
+@dataclass(frozen=True)
+class Doctor:
+    id: DoctorID
+    name: str
+    specialty: str
+
+@dataclass(frozen=True)
+class TimeSlot:
+    doctor_id: DoctorID
+    starts_at: datetime
+    ends_at: datetime
+    is_available: bool
+
+class Appointment(TypedDict):
+    id: AppointmentID
+    patient_id: PatientID
+    doctor_id: DoctorID
+    slot: TimeSlot
+    status: AppointmentStatus
+----
+
+==== [.added]#Non-Trivial Typed Function#
+
+[.added]#The non-trivial example function for this task is appointment booking because it combines several domain concepts and enforces a meaningful scheduling rule: an appointment cannot be created if the requested slot conflicts with an existing appointment for the same doctor.#
+
+[source,python]
+----
+def book_appointment(
+    patient_id: PatientID,
+    doctor: Doctor,
+    requested_slot: TimeSlot,
+    existing_appointments: Sequence[Appointment],
+) -> Appointment:
+    """Create a requested appointment when the doctor and slot are compatible."""
+    if requested_slot.doctor_id != doctor.id:
+        raise ValueError("slot does not belong to selected doctor")
+
+    for appointment in existing_appointments:
+        same_doctor = appointment["doctor_id"] == doctor.id
+        overlaps = (
+            requested_slot.starts_at < appointment["slot"].ends_at
+            and appointment["slot"].starts_at < requested_slot.ends_at
+        )
+        active = appointment["status"] in ("requested", "confirmed")
+
+        if same_doctor and overlaps and active:
+            raise ValueError("time slot conflict")
+
+    return {
+        "id": AppointmentID("generated-by-repository"),
+        "patient_id": patient_id,
+        "doctor_id": doctor.id,
+        "slot": requested_slot,
+        "status": "requested",
+    }
+----
+
+[.added]#This signature communicates more than a primitive version would. The function requires a `PatientID`, not any string; it requires a `Doctor`, not an unrelated dictionary; it requires a `TimeSlot`, not a loose pair of dates; and it returns an `Appointment`, not an unspecified dictionary. This directly supports the Milestone 3 guideline that types should communicate insight about functions and improve understandability.#
+
+==== [.added]#Input Boundary and Refinement#
+
+[.added]#The lecture distinguishes between internal logic and the input/output boundary. User input still arrives as raw strings, JSON objects, and form values. Those values must be checked when they enter the system. After validation, they should be converted into domain types so the rest of the scheduling code can rely on stronger assumptions.#
+
+[source,python]
+----
+def parse_patient_id(raw_value: str) -> PatientID:
+    if not raw_value.strip():
+        raise ValueError("patient id cannot be empty")
+    return PatientID(raw_value)
+----
+
+[.added]#This mirrors the lecture's refinement-type pattern: invalid values are rejected at the boundary, while valid values are carried forward with a type that records the property established by the check. Python's type system cannot prove every date or scheduling invariant by itself, but named types still prevent many category mistakes and make remaining runtime checks explicit.#
+
+==== [.added]#Unit / None Return Type for Actions#
+
+[.added]#The professor's Milestone 1 feedback noted that an action function returning `Unit` needs justification. In this project, side-effecting action functions such as cancellation, authorization, or reminder issuing may not need to return a new domain value. Their observable result is a state change, a persisted update, or an emitted notification.#
+
+[source,python]
+----
+def cancel_appointment(appointment_id: AppointmentID) -> None:
+    """Cancel an appointment.
+
+    Returns None because the purpose of this action is the persisted state
+    transition from active to cancelled, not the production of a new value.
+    Failure should be reported through an exception or an explicit Result type.
+    """
+    ...
+----
+
+[.added]#In the conceptual function signatures, this corresponds to `Result Unit Error`: success means the action completed, while failure carries an error. In Python, `None` plays the role of `Unit` when the implementation reports failure by exception. If the team later adopts an explicit result object, the same idea can be represented as `Result[None, BookingError]`.#
+
+==== [.added]#Testing Impact#
+
+[.added]#Using domain types does not remove the need for tests, but it changes what the tests need to prove. Boundary tests still verify that raw user input is validated correctly. Behavior tests still verify scheduling outcomes such as conflict rejection and successful booking. However, tests that merely check whether a doctor dictionary has the expected shape or whether a patient ID string was passed in the correct argument position become less central because the type checker can catch those mistakes earlier.#
+
+[.added]#The practical testing plan is therefore: use `mypy` or another static checker for typed scheduling functions, keep unit tests for domain behavior such as overlap detection, and keep integration tests for JSON parsing, persistence, and API responses. This follows the lecture's message that static typing gives denser coverage for representable type errors, while dynamic testing remains necessary for runtime behavior and external boundaries.#
+
+==== [.added]#Traceability to Course Lecture#
+
+[cols="1,2,2"]
+|===
+| Lecture Concept | Application in Project | Reliability Benefit
+
+| Types state properties of program fragments.
+| `PatientID`, `Doctor`, `TimeSlot`, and `Appointment` name scheduling concepts directly.
+| Function signatures become part of the design documentation.
+
+| Runtime guards create testing debt.
+| Boundary parsing converts raw strings and JSON into domain types.
+| Repeated shape and category checks are reduced inside core logic.
+
+| Refinement types reject impossible values earlier.
+| `AppointmentStatus` restricts lifecycle labels; typed IDs separate patient and doctor identifiers.
+| Invalid states become harder to express accidentally.
+
+| Phantom or branded types encode state distinctions.
+| `NewType` brands identifiers that would otherwise all be strings.
+| The checker can detect accidental identifier swaps.
+
+| `Unit` represents action success without a produced value.
+| `None` is used for side-effecting Python functions, with documented justification.
+| Readers can distinguish state-changing actions from value-producing queries.
+|===
+
+==== [.added]#Reference#
+
+[.added]#. M. Schütz-Schmuck, "Types," INSO 4117 Software Reliability Testing, University of Puerto Rico at Mayagüez, March 18, 2026.#
