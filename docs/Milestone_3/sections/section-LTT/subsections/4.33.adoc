@@ -1,116 +1,94 @@
-= Verification vs Validation Guidelines in Medical Scheduling
-:author: Omar Cordero (omar-cordero)
+==== Behavior Driven Development for Clinic / Doctor Experience Appointment Scheduling
+:author: Cabinetman
 
-== Overview
+===== Objective
 
-Verification and validation are essential quality assurance activities in any healthcare software system.
+Define a Behavior Driven Development (BDD) strategy for validating the Clinic / Doctor Experience appointment scheduling and booking workflows.
 
-In the Simple Medical Appointments system, verification ensures that scheduling functionality behaves according to technical requirements and business rules, while validation ensures the system satisfies the needs and expectations of patients and clinic staff.
+===== BDD Scenario Structure
 
-A scheduling system may correctly enforce appointment rules and constraints while still creating usability or workflow problems for users. For this reason, both verification and validation are necessary to build reliable and effective medical scheduling applications.
+The BDD strategy should express system behaviour using clear Given-When-Then scenarios that focus on observable outcomes rather than internal implementation details.
 
-== Verification
+[source,gherkin]
+----
+Feature: Clinic Appointment Scheduling
 
-Verification focuses on determining whether the system was built correctly according to requirements, specifications, and business rules.
+  Background:
+    Given a registered clinic and doctor schedule exist
+    And the doctor has an active availability window
+----
 
-Verification activities typically involve technical inspections, automated tests, and checks against defined system behavior.
+The strategy should target the following behaviours in the Clinic Experience system:
 
-=== Verification Examples
+* Doctor schedule configuration
+* Slot generation
+* Main appointment booking
+* Waitlist behavior
+* Override booking
+* Appointment cancellation
+* Clinic closure validation
 
-[cols="1,3", options="header"]
+===== Coverage Plan
+
+[cols="1,2,2",options="header"]
 |===
-| Verification Activity | Purpose
-
-| Confirm appointment conflict rules work correctly
-| Ensure overlapping appointments cannot be created for the same doctor and time slot
-
-| Verify scheduling restrictions are enforced for unavailable time slots
-| Ensure appointments cannot be booked outside clinic operating hours
-
-| Verify appointment data is stored correctly in the database
-| Ensure patient, doctor, and scheduling information persists correctly after booking
-|===
-
-== Validation
-
-Validation focuses on determining whether the system satisfies real-world user expectations and operational needs.
-
-Validation activities often involve usability evaluation, workflow analysis, and feedback from patients or clinic staff.
-
-=== Validation Examples
-
-[cols="1,3", options="header"]
-|===
-| Validation Activity | Purpose
-
-| Evaluate whether patients can easily book appointments
-| Ensure the booking workflow is understandable and simple to complete
-
-| Determine whether appointment availability is understandable to users
-| Ensure users can clearly identify open and unavailable appointment slots
-
-| Check whether the scheduling workflow matches real clinic expectations
-| Ensure clinic staff can manage appointments efficiently during daily operations
+| Workflow | Scenario Focus | Expected Result
+| Doctor schedule configuration | Provider publishes working hours and exceptions | Published availability is stored and used by slot generation
+| Slot generation | System creates bookable slots from availability | Generated slots match the configured duration and boundaries
+| Main appointment booking | Patient books an open slot | Appointment is created and the slot becomes unavailable
+| Waitlist behavior | Patient books when no slots remain | Patient is added to the waitlist in order
+| Override booking | Authorized user overrides capacity or restriction | Booking succeeds and the override is recorded
+| Appointment cancellation | Existing appointment is cancelled | Slot is released for future booking
+| Clinic closure validation | Patient books during closed hours | Booking is rejected
 |===
 
-== Key Differences
+===== Representative Scenarios
 
-[cols="1,3", options="header"]
-|===
-| Verification | Validation
+====== Scenario 1: Book an Available Slot
 
-| Focuses on technical correctness
-| Focuses on user needs and expectations
+[source,gherkin]
+----
+  Scenario: Book an available slot
+    Given the patient "Ivan Morales" has a registered account
+    And the doctor has an available slot on "2026-04-10" at "10:00" for 30 minutes
+    When the patient submits a booking request for that slot
+    Then the appointment is saved with status "Requested"
+    And the slot on "2026-04-10" at "10:00" is marked as unavailable
+----
 
-| Confirms the system follows requirements
-| Confirms the system solves the intended problem
+This scenario validates the happy path of the booking flow. The expected result is a persisted appointment and a slot that cannot be reserved twice.
 
-| Often performed through testing and inspection
-| Often performed through usability evaluation and feedback
+====== Scenario 2: Join the Waitlist When No Slot Remains
 
-| Asks: "Was the system built correctly?"
-| Asks: "Was the correct system built?"
-|===
+[source,gherkin]
+----
+  Scenario: Join the waitlist when no slot remains
+    Given the patient "Ivan Morales" has a registered account
+    And all slots for the selected time have already been booked
+    When the patient requests an appointment for that time
+    Then the patient is added to the waitlist
+    And the system keeps the slot fully booked
+----
 
-== Example Scenario
+This scenario checks that the system preserves ordering and does not silently overbook a full schedule.
 
-A scheduling system correctly prevents overlapping appointments and enforces all clinic scheduling rules.
+====== Scenario 3: Reject Booking During Clinic Closure
 
-From a verification perspective, the system behaves correctly because all technical requirements are satisfied.
+[source,gherkin]
+----
+  Scenario: Reject booking during clinic closure
+    Given the clinic is closed on "2026-04-10"
+    When the patient attempts to book an appointment on that date
+    Then the system rejects the request with status 409
+    And no appointment is created
+----
 
-However, patients may struggle to understand appointment availability because unavailable slots appear identical to available slots in the user interface.
+This scenario confirms that closure rules are enforced before an appointment is written to the schedule.
 
-In this case:
+===== Discussion
 
-* verification passes because scheduling logic functions correctly
-* validation fails because users experience confusion and difficulty using the system
+BDD scenarios for appointment scheduling should remain small, readable, and traceable to a single business rule. The most important checks are boundary conditions such as slot generation at the edge of working hours, booking collisions, waitlist overflow, cancellation restoring availability, and closure enforcement. By expressing these conditions in Gherkin, the team gets executable documentation that can be reviewed by both technical and non-technical stakeholders.
 
-This demonstrates how a technically correct system can still fail to satisfy real user expectations.
+===== Conclusion
 
-== When Verification Should Occur
-
-Verification should occur:
-
-* during development of scheduling functionality
-* after implementing scheduling rules or constraints 	 	
-* during automated testing and code review
-* before merging changes into the main branch
-
-== When Validation Should Occur
-
-Validation should occur:
-
-* during usability evaluations
-* when testing workflows with realistic user scenarios
-* when gathering feedback from patients or clinic staff
-* before releasing major scheduling updates
-
-== Importance in Healthcare Applications
-
-Healthcare systems require both verification and validation because failures can affect patient scheduling, clinic operations, and overall user trust.
-
-Verification helps ensure scheduling functionality behaves correctly according to specifications.
-
-Validation helps ensure patients and clinic staff can successfully use the system in real-world situations.
-
-Both are necessary to create reliable, usable, and effective medical scheduling systems.
+A BDD strategy for the Clinic / Doctor Experience should prioritize booking, waitlist, override, cancellation, and closure scenarios because those flows carry the highest risk of regression. Writing the scenarios in Given-When-Then form gives the team a clear contract for expected behaviour and creates a practical path for automated acceptance coverage.

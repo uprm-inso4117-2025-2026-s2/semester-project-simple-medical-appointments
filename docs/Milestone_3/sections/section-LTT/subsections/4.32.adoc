@@ -74,22 +74,31 @@ Tips:
 
 ==== Execution Results
 
-I ran a local mutation experiment for `app.services.scheduling` using a small, deterministic harness (native `mutmut` requires WSL on Windows, so I used a local runner). The runner applied four targeted mutants and executed the unit tests in `backend/tests/unit/test_scheduling.py`.
+I ran a small, deterministic local mutation experiment against `app.services.scheduling` and the unit tests in `backend/tests/unit/test_scheduling.py` (mutmut required WSL on this host, so a lightweight harness was used).
 
-- Mutants tested:
-  - `A_more_permissive_end`: changed `if slot_end > end_min` → `if slot_end >= end_min`
-  - `B_allow_zero_slot`: changed `if slot_minutes <= 0` → `if slot_minutes < 0`
-  - `C_off_by_one`: changed `slot_end = cur + slot_minutes` → `slot_end = cur + slot_minutes - 1`
-  - `D_invert_check`: changed `if slot_end > end_min` → `if slot_end < end_min`
+[cols="1,1,1",options="header"]
+|===
+| Mutant | Change | Result
 
-- Results summary: 0/4 mutants were killed by the current unit tests (all 4 mutants survived).
+| A_more_permissive_end
+| `if slot_end > end_min` → `if slot_end >= end_min`
+| Survived
 
-The machine-readable run report was temporarily saved under `backend/tmp_mutants/` during the experiment.
+| B_allow_zero_slot
+| `if slot_minutes <= 0` → `if slot_minutes < 0`
+| Survived
+
+| C_off_by_one
+| `slot_end = cur + slot_minutes` → `slot_end = cur + slot_minutes - 1`
+| Survived
+
+| D_invert_check
+| `if slot_end > end_min` → `if slot_end < end_min`
+| Survived
+|===
+
+The run produced 0/4 mutants killed by the existing tests. A machine-readable report was written to `backend/tmp_mutants/` during the experiment (now cleaned up).
 
 ==== Conclusion
-
-The current unit tests in `backend/tests/unit/test_scheduling.py` execute cleanly but do not detect several realistic faults introduced into the scheduling logic. Specifically:
-
-- Off-by-one and relational operator changes in the slot-generation logic were not caught by the existing assertions.
-- The check that enforces `slot_minutes` positivity did not produce failing tests under the applied mutation (see mutant `B_allow_zero_slot`), indicating gaps in direct assertion of error conditions for boundary inputs.
+The existing unit tests for scheduling pass, but the mutation experiment shows they do not catch common faults (off-by-one, relational operator changes, or boundary-check omissions). Add focused boundary tests and explicit assertions for slot inclusion/exclusion to improve detection; integrate mutation runs in CI (WSL/Linux) to track progress.
 ---
