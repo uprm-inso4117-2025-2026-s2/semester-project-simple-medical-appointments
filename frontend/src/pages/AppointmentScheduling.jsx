@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { getAppointments, getAvailableSlots, rescheduleAppointment } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import AppointmentTypeSelector from "../components/booking/AppointmentType";
 import DateSelector from "../components/booking/DateSelector";
@@ -11,9 +12,32 @@ import "../styles/AppointmentScheduling.css";
 export default function AppointmentSchedule() {
   const navigate = useNavigate();
 
+  // Reschedule state
+  const [rescheduleMode, setRescheduleMode] = useState(false);
+  const [appointments, setAppointments] = useState([]);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
+  const [rescheduleAppt, setRescheduleAppt] = useState(null);
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(null);
+  const [rescheduleError, setRescheduleError] = useState(null);
+  const [rescheduleSubmitting, setRescheduleSubmitting] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleSlots, setRescheduleSlots] = useState([]);
+  const [rescheduleSlotsLoading, setRescheduleSlotsLoading] = useState(false);
+  const [rescheduleSelectedSlot, setRescheduleSelectedSlot] = useState(null);
+
+  // Normal scheduling state
   const [selectedTypeId, setSelectedTypeId] = useState(1);
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 8, 5));
   const [selectedTime, setSelectedTime] = useState(null);
+  // Fetch appointments if in reschedule mode
+  useEffect(() => {
+    if (!rescheduleMode) return;
+    setLoadingAppointments(true);
+    getAppointments("confirmed")
+      .then((data) => setAppointments(data))
+      .catch(() => setAppointments([]))
+      .finally(() => setLoadingAppointments(false));
+  }, [rescheduleMode]);
 
   const user = {
     name: "Patient Name",
@@ -233,9 +257,136 @@ export default function AppointmentSchedule() {
     },
   });
 };
+  if (rescheduleMode) {
+    // Step 1: Select appointment
+    if (!rescheduleAppt) {
+      return (
+        <div className="appointment-page">
+          <div className="appointment-shell">
+            <button style={{ marginBottom: 16 }} onClick={() => setRescheduleMode(false)}>
+              Back to Scheduling
+            </button>
+            <h2>Reschedule Appointment</h2>
+            {loadingAppointments ? (
+              <p>Loading your appointments…</p>
+            ) : appointments.length === 0 ? (
+              <p>No appointments available to reschedule.</p>
+            ) : (
+              <ul>
+                {appointments.map((appt) => (
+                  <li key={appt.id}>
+                    <button onClick={() => setRescheduleAppt(appt)}>
+                      {appt.doctor_name || "Doctor"} at {appt.clinic_name || "Clinic"} on {new Date(appt.appointment_datetime).toLocaleString()}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Step 2: Pick new date and slot
+    return (
+      <div className="appointment-page">
+        <div className="appointment-shell">
+          <button style={{ marginBottom: 16 }} onClick={() => setRescheduleAppt(null)} disabled={rescheduleSubmitting}>
+            Back to Appointment List
+          </button>
+          <h2>Pick a new date and slot</h2>
+          <p>Current: {new Date(rescheduleAppt.appointment_datetime).toLocaleString()}</p>
+
+          <label htmlFor="reschedule-date">Select new date:</label>
+          <input
+            id="reschedule-date"
+            type="date"
+            value={rescheduleDate}
+            onChange={async (e) => {
+              setRescheduleDate(e.target.value);
+              setRescheduleSlotsLoading(true);
+              setRescheduleSlots([]);
+              setRescheduleSelectedSlot(null);
+              setRescheduleError(null);
+              try {
+                const data = await getAvailableSlots(rescheduleAppt.doctor_id, e.target.value);
+                setRescheduleSlots(data.slots || []);
+              } catch (err) {
+                setRescheduleError("Could not load slots");
+              } finally {
+                setRescheduleSlotsLoading(false);
+              }
+            }}
+            disabled={rescheduleSubmitting}
+          />
+
+          {rescheduleDate && (
+            <div style={{ marginTop: 16 }}>
+              <p>Available slots:</p>
+              {rescheduleSlotsLoading ? (
+                <p>Loading slots…</p>
+              ) : rescheduleSlots.length === 0 ? (
+                <p>No slots available for this date.</p>
+              ) : (
+                <ul>
+                  {rescheduleSlots.map((slot) => (
+                    <li key={slot.start_time}>
+                      <button
+                        disabled={rescheduleSubmitting}
+                        style={{ fontWeight: rescheduleSelectedSlot?.start_time === slot.start_time ? "bold" : "normal" }}
+                        onClick={() => setRescheduleSelectedSlot(slot)}
+                      >
+                        {slot.start_time}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {rescheduleError && <p style={{ color: "red" }}>{rescheduleError}</p>}
+
+          <div style={{ marginTop: 24 }}>
+            <button onClick={() => setRescheduleAppt(null)} disabled={rescheduleSubmitting}>Back</button>
+            <button
+              onClick={async () => {
+                if (!rescheduleSelectedSlot) return;
+                setRescheduleSubmitting(true);
+                setRescheduleError(null);
+                try {
+                  const newDatetime = `${rescheduleDate}T${rescheduleSelectedSlot.start_time}:00`;
+                  await rescheduleAppointment(rescheduleAppt.id, newDatetime);
+                  setRescheduleSuccess("Appointment rescheduled successfully.");
+                  setTimeout(() => {
+                    setRescheduleSuccess(null);
+                    setRescheduleAppt(null);
+                  }, 3000);
+                } catch (err) {
+                  setRescheduleError(err.message || "Failed to reschedule.");
+                } finally {
+                  setRescheduleSubmitting(false);
+                }
+              }}
+              disabled={!rescheduleSelectedSlot || rescheduleSubmitting}
+            >
+              {rescheduleSubmitting ? "Rescheduling…" : "Confirm Reschedule"}
+            </button>
+          </div>
+          {rescheduleSuccess && <p style={{ color: "green" }}>{rescheduleSuccess}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // Default: normal scheduling flow
   return (
     <div className="appointment-page">
       <div className="appointment-shell">
+        <button style={{ marginBottom: 16 }} onClick={() => setRescheduleMode(true)}>
+          Reschedule an Appointment
+        </button>
+        {/* ...existing code... */}
         <header className="appointment-header">
           <div className="appointment-header-left">
             <h1 className="patient-name">{user.name}</h1>

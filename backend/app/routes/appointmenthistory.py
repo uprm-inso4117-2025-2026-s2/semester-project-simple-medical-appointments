@@ -38,6 +38,7 @@ def _fetch_appointments(filters=None):
         {
             'id':                   a['id'],
             'patient_id':           a.get('patient_id'),
+            'doctor_id':            a.get('doctor_id'),
             'doctor_name':          doctors_map.get(a.get('doctor_id'), 'Unknown'),
             'clinic_name':          clinics_map.get(a.get('clinic_id'), 'Unknown'),
             'status':               a.get('status'),

@@ -7,14 +7,23 @@ Endpoints:
 - GET /api/scheduling/appointments/patient/<patient_id>
 - PUT /api/scheduling/appointments/<appointment_id>
 - PATCH /api/scheduling/appointments/<appointment_id>/cancel
+- POST /api/scheduling/appointments/<appointment_id>/reschedule
 """
 
 from datetime import datetime
 
 from flask import Blueprint, request, jsonify, current_app
 from supabase import create_client, Client
+
 from app.middleware.auth_middleware import requires_auth
-from app.repositories.slot_bookings import book_admin_appointment, try_reserve_slot
+from app.repositories.slot_bookings import (
+    book_admin_appointment,
+    try_reserve_slot,
+    _validate_requested_slot,
+    _count_appointments_by_type,
+    _regular_slot_usage,
+    _get_main_capacity,
+)
 
 scheduling_appointments_bp = Blueprint("scheduling_appointments", __name__)
 
@@ -337,6 +346,129 @@ def update_appointment(appointment_id):
             "success": False,
             "message": str(e)
         }), 500
+
+
+@scheduling_appointments_bp.route("/<appointment_id>/reschedule", methods=["POST"])
+@requires_auth
+def reschedule_appointment(appointment_id):
+    """
+    POST /api/scheduling/appointments/<id>/reschedule
+
+    Reschedules an existing appointment to a new datetime.
+
+    Request body (JSON):
+      { "new_datetime": "2025-06-15T09:00:00" }
+
+    Rules:
+    - Appointment must be pending or confirmed.
+    - new_datetime must be a valid generated slot for the doctor.
+    - The new slot must have available capacity.
+    - The old slot is freed automatically (counts are recalculated live).
+    """
+    validation_result = _validate_json_request()
+    if not isinstance(validation_result, dict):
+        return validation_result
+
+    data = validation_result
+    new_datetime_str = data.get("new_datetime", "")
+    if not new_datetime_str or (isinstance(new_datetime_str, str) and not new_datetime_str.strip()):
+        return jsonify({
+            "success": False,
+            "message": "new_datetime is required (ISO 8601 format, e.g. 2025-06-15T09:00:00)"
+        }), 400
+
+    try:
+        supabase = _get_supabase_client()
+
+        fetch_response = (
+            supabase.table("appointments")
+            .select("*")
+            .eq("id", appointment_id)
+            .execute()
+        )
+        if not fetch_response.data:
+            return jsonify({"success": False, "message": "Appointment not found"}), 404
+
+        appointment = fetch_response.data[0]
+
+        reschedulable_statuses = {"pending", "confirmed"}
+        current_status = (appointment.get("status") or "").lower()
+        if current_status not in reschedulable_statuses:
+            return jsonify({
+                "success": False,
+                "message": (
+                    f"Cannot reschedule an appointment with status '{current_status}'. "
+                    "Only pending or confirmed appointments may be rescheduled."
+                )
+            }), 409
+
+        try:
+            new_dt = datetime.fromisoformat(
+                new_datetime_str.strip().replace("Z", "+00:00")
+            ).replace(tzinfo=None)
+        except ValueError:
+            return jsonify({
+                "success": False,
+                "message": "Invalid new_datetime format. Use ISO 8601 (e.g. 2025-06-15T09:00:00)"
+            }), 400
+
+        
+        current_dt_str = appointment.get("appointment_datetime", "")
+        if current_dt_str:
+            try:
+                current_dt = datetime.fromisoformat(
+                    current_dt_str.replace("Z", "+00:00")
+                ).replace(tzinfo=None)
+                if current_dt == new_dt:
+                    return jsonify({
+                        "success": False,
+                        "message": "The selected time is already your current appointment time."
+                    }), 400
+            except ValueError:
+                pass
+        doctor_id = appointment.get("doctor_id")
+        if not doctor_id:
+            return jsonify({"success": False, "message": "Appointment has no associated doctor."}), 400
+
+        new_date = new_dt.date()
+        new_time = new_dt.time()
+
+        requested_slot, error_body, error_status = _validate_requested_slot(
+            doctor_id, new_date, new_time
+        )
+        if error_body is not None:
+            return jsonify({
+                "success": False,
+                "message": error_body.get("error", "Requested time is not a valid slot for this doctor.")
+            }), error_status or 400
+
+        main_capacity = _get_main_capacity(doctor_id, new_date)
+        counts = _count_appointments_by_type(doctor_id, requested_slot)
+
+        if _regular_slot_usage(counts) >= main_capacity:
+            return jsonify({
+                "success": False,
+                "message": "The selected time slot is full. Please choose a different time."
+            }), 409
+
+        update_response = (
+            supabase.table("appointments")
+            .update({"appointment_datetime": new_dt.isoformat()})
+            .eq("id", appointment_id)
+            .execute()
+        )
+
+        if not update_response.data:
+            return jsonify({"success": False, "message": "Failed to update appointment."}), 500
+
+        return jsonify({
+            "success": True,
+            "message": "Appointment rescheduled successfully.",
+            "data": update_response.data[0]
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @scheduling_appointments_bp.route("/<appointment_id>/cancel", methods=["PATCH"])

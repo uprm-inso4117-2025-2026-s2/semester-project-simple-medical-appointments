@@ -42,7 +42,9 @@ async function request(path, options = {}) {
     let message = `API error: ${response.status} ${response.statusText}`
     try {
       const body = await response.json()
+      // Backend endpoints use either { error } or { success, message }.
       if (body.error) message = body.error
+      else if (body.message) message = body.message
     } catch (_) { /* ignore */ }
     const err = new Error(message)
     err.status = response.status
@@ -121,12 +123,32 @@ export function cancelAppointment(id, reason = '', cancelledById = null) {
   })
 }
 
+// --- Scheduling / Rescheduling ---
+
+/**
+ * Fetch the generated time slots for a doctor on a given date.
+ * Does not require auth (the slots endpoint is public).
+ * @param {string} doctorId
+ * @param {string} date - YYYY-MM-DD
+ * @returns {Promise<{ slots: Array<{ start_time: string, end_time: string, available: boolean }> }>}
+ */
+export function getAvailableSlots(doctorId, date) {
+  return request(
+    `/slots/?doctor_id=${encodeURIComponent(doctorId)}&date=${encodeURIComponent(date)}`,
+    { skipAuth: true },
+  )
+}
+
+/**
+ * Reschedule an existing appointment to a new datetime.
+ * @param {string} appointmentId - Supabase appointment UUID
+ * @param {string} newDatetime   - ISO 8601, e.g. "2025-06-15T09:00:00"
+ */
+export function rescheduleAppointment(appointmentId, newDatetime) {
+  return request(`/scheduling/appointments/${appointmentId}/reschedule`, {
+    method: 'POST',
+    body: JSON.stringify({ new_datetime: newDatetime }),
+  })
+}
+
 // --- Add new API functions below as routes are created in Flask ---
-// Example:
-// export function getAppointments() {
-//   return request('/appointments')
-// }
-//
-// export function createAppointment(data) {
-//   return request('/appointments', { method: 'POST', body: JSON.stringify(data) })
-// }
