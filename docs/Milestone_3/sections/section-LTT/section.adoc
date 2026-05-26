@@ -38,3 +38,35 @@ include::subsections/4.19.adoc[]
 
 include::subsections/4.20.adoc[]
 
+include::subsections/4.21.adoc[]
+
+include::subsections/4.22.adoc[]
+
+include::subsections/4.23.adoc[]
+
+include::subsections/4.24.adoc[]
+
+include::subsections/4.25.adoc[]
+
+include::subsections/4.26.adoc[]
+
+include::subsections/4.27.adoc[]
+
+include::subsections/4.28.adoc[]
+
+include::subsections/4.29.adoc[]
+
+include::subsections/4.30.adoc[]
+
+include::subsections/4.31.adoc[]
+
+include::subsections/4.32.adoc[]
+
+include::subsections/4.33.adoc[]
+
+include::subsections/4.34.adoc[]
+
+include::subsections/4.35.adoc[]
+
+include::subsections/4.36.adoc[]
+
