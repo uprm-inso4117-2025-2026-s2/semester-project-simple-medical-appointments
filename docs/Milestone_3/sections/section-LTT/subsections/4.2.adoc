@@ -911,6 +911,252 @@ The following assumptions were made due to information not yet documented in the
 
 ---
 
+==== Exploratory Testing: Authentication & Role Permission Boundaries
+
+:author: Carlos Pepin Delgado
+
+The lecture defines *exploratory testing* as unscripted testing where an experienced tester explores the system without a pre-scripted plan [1]. Applied to the Authentication and Role Permission Boundaries module, exploratory testing surfaces behaviors that scripted cases cannot reach: boundary conditions and unexpected interactions that only emerge when a tester reasons actively about what could go wrong. The lecture also defines *session-based testing* as keeping a log during exploration to avoid unnecessary repetition [1]; this session follows that structure with a charter, three targeted risk areas, and a formal defect report.
+
+This session was conducted in Milestone 3 because exploratory testing requires a working middleware stack to probe real boundaries. Earlier milestones lacked JWT verification, `requires_role`, and the registration sync flow in their final integrated form.
+
+The implementation lives in `backend/tests/exploratory/`: `test_scripted_baseline.py` for the scripted baseline and `test_exploratory_session.py` for the session charter, risk area probes, and findings. Both are executable via `pytest tests/exploratory/ -v -s`. The fix to `VALID_ROLES` is in `app/routes/auth.py`.
+
+===== Scripted Baseline
+
+The lecture defines the *SCRIPT* format as a test case structure of preconditions, inputs, and expected results [1]: the minimum required to make a test case repeatable and reviewable. Three cases establish the known-correct behaviors of the registration endpoint and the `requires_role` permission gate before the exploratory session begins.
+
+====== ET-SC-01: Valid Registration Accepted
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-01
+
+| Title
+| Valid registration payload with all required fields and role=patient returns 201
+
+| Testing Type
+| Functional
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Common: all required fields present, valid role
+|===
+
+*Preconditions:* +
+Registration endpoint is reachable. DB sync is mocked to isolate route-level validation from Supabase I/O.
+
+*Steps:*
+
+- POST `/api/auth/register` with `user_id`, `first_name="Naiomi"`, `last_name="Ruiz"`, `username`, `role="patient"`.
+- Observe HTTP response and body.
+
+*Expected Result:* +
+HTTP 201. Body contains a success message. No error key present.
+
+*Failure Condition:* Any status other than 201, or an error key present in the response.
+
+====== ET-SC-02: Missing Required Field Rejected Before DB Call
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-02
+
+| Title
+| Registration with user_id omitted returns 400 without reaching Supabase
+
+| Testing Type
+| Functional
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Invalid: required field absent
+|===
+
+*Preconditions:* +
+Registration endpoint is reachable. No prior session.
+
+*Steps:*
+
+- POST `/api/auth/register` with `first_name`, `last_name`, `username`, `role="patient"`, `user_id` omitted.
+- Observe HTTP response and body.
+
+*Expected Result:* +
+HTTP 400. Error message identifies `user_id` as missing. No Supabase call is made; validation fires in-process.
+
+*Failure Condition:* HTTP 201, or error message absent or not field-specific.
+
+====== ET-SC-03: Patient Token Blocked From Admin Route
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Test ID
+| ET-SC-03
+
+| Title
+| Patient-role JWT calling GET /api/admin/users returns 403
+
+| Testing Type
+| Security
+
+| Testing Level
+| System
+
+| Axes Covered
+| Functionality, Input Space
+
+| Input Partition
+| Corner: valid token, invalid role for target route
+|===
+
+*Preconditions:* +
+A valid JWT exists for a patient-role user. `GET /api/admin/users` requires the admin role via `requires_role({"admin"})`.
+
+*Steps:*
+
+- Send `GET /api/admin/users` with a patient Bearer token in the Authorization header.
+- Observe HTTP response.
+
+*Expected Result:* +
+HTTP 403. No user data returned in the body.
+
+*Failure Condition:* HTTP 200 with data, or HTTP 404 indicating the route is unregistered.
+
+===== Session Charter
+
+The lecture defines a session charter as a mission statement, scope, and time box that bound a focused exploratory session [1].
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| Mission
+| Probe the boundary between role assignment at registration and the requires_role permission gates to surface behaviors the scripted baseline does not reach.
+
+| Scope
+| POST /api/auth/register (role field validation), requires_role decorator (None role path), requires_auth (missing Authorization header path).
+
+| Time Box
+| One focused session targeting three risk areas.
+
+| Out of Scope
+| Login flow, logout, session expiry, password reset, frontend routing.
+|===
+
+===== Session Log
+
+Session-based testing, as the lecture defines it, requires keeping a log to avoid unnecessary repetition of tests [1].
+
+====== RISK-A: No-Role User Hitting a Protected Route
+
+*Rationale:* +
+`get_role_for_user` returns `None` for users with no row in the `user_roles` table. `None not in {"admin"}` is `True`, so the 403 branch in `requires_role` fires without an explicit `None` check. If this path is broken, every role-gated route is reachable by any authenticated user without a role assignment.
+
+*Probe:* +
+`GET /api/admin/users` with a valid JWT for a user whose `get_role_for_user` is mocked to return `None`.
+
+*Finding:* +
+Confirmed correct. HTTP 403 returned. The implicit check holds.
+
+====== RISK-B: Self-Registration With role="admin"
+
+*Rationale:* +
+`VALID_ROLES` in `app/routes/auth.py` included `"admin"` before this session. The registration endpoint has no authentication gate. Any unauthenticated caller could POST with `role="admin"` and receive admin privileges without approval from an existing admin.
+
+*Probe:* +
+`POST /api/auth/register` with `role="admin"` and all required fields.
+
+*Finding:* +
+Defect confirmed. HTTP 201 returned. Admin role accepted without authentication. See DEFECT-128-01.
+
+====== RISK-C: Missing Authorization Header
+
+*Rationale:* +
+`requires_auth` must reject unauthenticated requests before `requires_role` is evaluated. If this path fails, the entire permission layer has no stable foundation: a role check cannot fire if the caller is not identified first.
+
+*Probe:* +
+`GET /api/admin/users` with no Authorization header.
+
+*Finding:* +
+Confirmed secure. `extract_token()` returns `None` for a missing header; `requires_auth` returns HTTP 401 immediately.
+
+===== Defect Report
+
+The lecture defines *defect report elements* as: summary, preconditions, steps to reproduce, expected result, actual result, severity, and status [1].
+
+====== DEFECT-128-01: Unauthenticated Caller Can Self-Assign Admin Role
+
+[cols="1,3", options="header"]
+|===
+| Field | Detail
+
+| ID
+| DEFECT-128-01
+
+| Summary
+| POST /api/auth/register accepts role="admin" from any unauthenticated caller, assigning admin privileges without approval.
+
+| Preconditions
+| POST /api/auth/register is reachable without authentication. "admin" is present in VALID_ROLES in app/routes/auth.py.
+
+| Steps to Reproduce
+| POST /api/auth/register with a valid payload and role="admin".
+
+| Expected Result
+| HTTP 400. Admin role rejected at registration; admins are assigned by existing admins via PUT /api/admin/users/:id/role.
+
+| Actual Result
+| HTTP 201. Admin role accepted and stored without authentication or approval.
+
+| Severity
+| Critical: any unauthenticated user can escalate to admin, gaining access to all admin-only endpoints.
+
+| Status
+| Fixed. "admin" removed from VALID_ROLES in app/routes/auth.py.
+|===
+
+===== Session Outcome
+
+The *defect lifecycle*, as the lecture defines it, runs from discovery through fix and verification [1]. DEFECT-128-01 completed that cycle within this session: discovered during the RISK-B probe, fixed by removing `"admin"` from `VALID_ROLES`, and verified by ET-SC-01 (valid roles still accepted) and the RISK-B probe post-fix (role="admin" now returns 400).
+
+[cols="1,2,2", options="header"]
+|===
+| Area | Status | Evidence
+
+| No-role user access (RISK-A)
+| Confirmed secure
+| HTTP 403 returned by requires_role when get_role_for_user is None
+
+| Admin self-registration (RISK-B)
+| Defect found and fixed
+| DEFECT-128-01; "admin" removed from VALID_ROLES in app/routes/auth.py
+
+| Unauthenticated access (RISK-C)
+| Confirmed secure
+| HTTP 401 returned by requires_auth when Authorization header is absent
+|===
+
+===== References
+
+[1] B. Vélez, "Test Case Execution and Defect Management," INSO 4117 Software Reliability Testing, University of Puerto Rico, Spring 2019.
+
 ==== User Profile Test Plan
 :author: Viviana Ramos Vivoni
 
@@ -1837,3 +2083,484 @@ The plan must provide strong coverage of scheduling validation logic using rando
 == References
 
 * Schütz-Schmuck, M. (2023). Property-Based Testing.
+
+---
+
+==== Risk-Based Test Plan: Account Settings
+:author: Viviana Ramos
+
+===== Scope
+
+*In scope*
+
+* `GET /api/settings/<user_id>` — retrieve current user's profile and preferences
+* `PUT /api/settings/<user_id>` — update one or more preference fields
+* `AccountSettings.jsx` — frontend page (Change Email, Change Password, Accessibility, Notifications, Danger Zone sections)
+
+*Out of scope*
+
+* Login, registration, and session expiry flows
+* The profile endpoint (`/api/profile/<user_id>`) except where it overlaps with settings behavior
+* Performance and load testing
+* Email delivery infrastructure
+
+===== Risk Model
+
+The expected defect cost formula used throughout this plan is:
+
+____
+D = P(D occurs) × Cost(D occurs)
+____
+
+*What raises probability:* complex logic, heavy user interaction through a GUI, fields with many valid and invalid values. +
+*What raises cost:* a user accessing or modifying another user's data (privacy breach), functionality that blocks all other settings use (sine qua non), and security-visible failures that damage trust.
+
+*Probability scale:* 1 (Very Low) – 5 (Very High) +
+*Cost scale:* 1 (Negligible) – 5 (Critical)
+
+===== Risk Analysis
+
+[cols="1,3,1,1,1,3",options="header"]
+|===
+| Risk ID | Behavior | P | Cost | D | Rationale
+
+| R-AS-01
+| User reads another user's settings via `GET /api/settings/<other_user_id>`
+| 4
+| 5
+| *20*
+| `current_user_id != user_id` check in the route is the only guard. If broken, any authenticated user can read any other user's preferences and profile data — a direct privacy breach.
+
+| R-AS-02
+| User updates another user's preferences via `PUT /api/settings/<other_user_id>`
+| 4
+| 5
+| *20*
+| Same ownership check guards the write path. A bypass allows arbitrary preference modification on any account.
+
+| R-AS-03
+| Unauthenticated request reaches `GET` or `PUT`
+| 3
+| 5
+| *15*
+| Both routes apply `@require_auth`. If the decorator fails or is missing, unauthenticated callers can read or write any user's settings.
+
+| R-AS-04
+| `GET /api/settings/<user_id>` returns only settings, omitting the profile block
+| 4
+| 3
+| *12*
+| The service function `get_user_settings()` fetches from `profiles` but the return dict only includes `'settings'` — the profile data is silently dropped. The route docstring documents `profile` as part of the response. Callers relying on the documented shape receive incomplete data.
+
+| R-AS-05
+| `PUT` with only unknown field names returns 200 instead of 400
+| 3
+| 3
+| *9*
+| `update_user_preferences` filters to `UPDATABLE_PREFERENCE_FIELDS` and raises `ValueError` if `clean` is empty. If the filter is removed or the error is swallowed, a request with only unknown fields silently succeeds without modifying any data.
+
+| R-AS-06
+| Frontend password change skips strength check and accepts a weak password
+| 3
+| 3
+| *9*
+| `handleUpdatePassword` checks `strength < 2` before calling Supabase. If the condition is flipped or removed, the weak-password path submits to Supabase without frontend validation.
+
+| R-AS-07
+| Accessibility preferences lost on page reload
+| 4
+| 2
+| *8*
+| High contrast, font size, and colorblind theme are local React state only. The settings API has `accessibility_mode` as an updatable field but the frontend never calls it for these controls. Users who adjust accessibility settings lose them on refresh.
+
+| R-AS-08
+| Notification preferences saved via profile endpoint instead of settings endpoint
+| 3
+| 2
+| *6*
+| `handleSaveNotifications` calls `updateProfile()` (the profile endpoint) rather than the settings endpoint. A change to the profile endpoint's allowed fields could silently break notification saves.
+|===
+
+===== Test Tree
+
+The tree decomposes the feature along three axes: *testing level*, *testing type*, and *input space*.
+
+[source,text]
+----
+Account Settings
+├── Testing Level
+│   ├── Unit
+│   │   ├── update_user_preferences() filters unknown fields correctly
+│   │   ├── update_user_preferences() raises ValueError when clean dict is empty
+│   │   └── getStrength() returns correct score for each password tier
+│   ├── Integration
+│   │   ├── GET /api/settings/<user_id> — own settings returned (200)
+│   │   ├── GET /api/settings/<user_id> — cross-user blocked (403)
+│   │   ├── GET /api/settings/<user_id> — unauthenticated (401)
+│   │   ├── PUT /api/settings/<user_id> — valid preference update (200)
+│   │   ├── PUT /api/settings/<user_id> — cross-user blocked (403)
+│   │   ├── PUT /api/settings/<user_id> — no valid fields (400)
+│   │   ├── PUT /api/settings/<user_id> — missing body (400)
+│   │   └── PUT /api/settings/<user_id> — unauthenticated (401)
+│   ├── System
+│   │   ├── Full settings page loads and displays current preferences
+│   │   ├── Notification toggles save and reflect correctly on reload
+│   │   └── Password change with weak password rejected in UI before API call
+│   └── Acceptance
+│       └── User can change notification preferences and see them persist after reload
+│
+├── Testing Type
+│   ├── Functional
+│   │   ├── GET returns documented profile + settings shape
+│   │   ├── PUT updates only the supplied fields, not others
+│   │   └── Notification save calls correct endpoint with correct payload
+│   ├── Security
+│   │   ├── Cross-user GET blocked at route level (403)
+│   │   ├── Cross-user PUT blocked at route level (403)
+│   │   └── No token → 401 before any data is read
+│   └── Usability
+│       └── Weak password feedback visible before submit button is pressed
+│
+└── Input Space
+    ├── Valid inputs
+    │   ├── PUT with preferred_language = "es"
+    │   ├── PUT with notify_appointment_reminders = false
+    │   └── PUT with theme = "dark"
+    ├── Boundary values
+    │   ├── PUT with exactly one valid field
+    │   └── PUT with all seven updatable fields at once
+    └── Invalid inputs
+        ├── PUT with only unknown field names
+        ├── PUT with empty JSON body {}
+        ├── PUT with no body at all
+        └── GET with a different user's ID in the URL path
+----
+
+===== Test Budget
+
+The full tree contains 25 scenarios. A realistic one-person budget for this feature covers 10–12 test cases. Pruning decisions are based on D scores and existing coverage.
+
+*Kept:*
+
+[cols="1,3,1,2",options="header"]
+|===
+| ID | Scenario | Linked Risk | Level
+
+| TC-AS-01
+| GET own settings — 200, both profile and settings blocks present in response
+| R-AS-04 (D=12)
+| Integration
+
+| TC-AS-02
+| GET cross-user — 403
+| R-AS-01 (D=20)
+| Integration
+
+| TC-AS-03
+| GET unauthenticated — 401
+| R-AS-03 (D=15)
+| Integration
+
+| TC-AS-04
+| PUT valid preference update — 200, updated_preferences in response
+| baseline
+| Integration
+
+| TC-AS-05
+| PUT cross-user — 403
+| R-AS-02 (D=20)
+| Integration
+
+| TC-AS-06
+| PUT with only unknown fields — 400, allowed_fields in response
+| R-AS-05 (D=9)
+| Integration
+
+| TC-AS-07
+| PUT with no body — 400
+| boundary
+| Integration
+
+| TC-AS-08
+| PUT unauthenticated — 401
+| R-AS-03 (D=15)
+| Integration
+
+| TC-AS-09
+| Frontend: weak password (strength < 2) blocked before API call
+| R-AS-06 (D=9)
+| System
+
+| TC-AS-10
+| Frontend: password mismatch — error shown, API not called
+| functional
+| System
+|===
+
+*Cut and why:*
+
+* *Acceptance test (notification preferences persist after reload)* — cut because it requires a live Supabase instance and end-to-end tooling not yet in CI. TC-AS-04 covers the API contract; persistence depends on Supabase, already tested by the existing `TestSettingsUpdate` class.
+* *Usability test (weak password feedback visible before submit)* — folded into TC-AS-09. The strength scoring logic is covered at the unit level by `getStrength()` tests; layout verification would require a separate manual session.
+* *PUT with all seven fields at once* — cut. The service applies the same filter regardless of how many fields are sent; the single-field case in TC-AS-04 exercises the same code path.
+
+===== What Test Planning Revealed
+
+Planning the test tree against the actual implementation surfaced two gaps not visible from the issue description or route comments alone.
+
+*Gap 1 — GET response is missing the profile block.* The `GET /api/settings/<user_id>` docstring documents a response with both a `"profile"` key and a `"settings"` key. The service function `get_user_settings()` fetches from the `profiles` table but the return dict contains only `'settings'`. TC-AS-01 is written to catch this by asserting the presence of the `profile` key — it will fail against the current implementation. The fix is a one-line change to the return statement in `account_setting_services.py`.
+
+*Gap 2 — Accessibility preferences are not persisted.* Risk R-AS-07 was identified during input space analysis. The frontend exposes high contrast, font size, and colorblind theme controls, and `UPDATABLE_PREFERENCE_FIELDS` includes `accessibility_mode`, but the two are never connected. Users lose their accessibility settings on every reload. This was not caught by the existing integration tests because those tests only exercise the API layer. The gap is documented here rather than tested because resolving it requires a frontend change outside the scope of this plan.
+
+The risk analysis also confirmed that the access control path (R-AS-01 and R-AS-02, D=20 each) is partially covered by the existing `test_settings_update_forbidden_for_different_user` test. TC-AS-02 is still included to confirm the GET path carries the same guard, since the existing suite only tests PUT.
+
+===== References
+
+* Vélez, B. (2019). _Test Planning_. INSO 4117 Software Reliability Testing, University of Puerto Rico.
+=== Accessibility Strategy Design for Colorblind-Friendly Interfaces
+:author: Sebastian Suarez
+
+== Overview
+The purpose of this strategy is to ensure that the user interface of the appointment scheduling system is accessible to users with color vision deficiencies (color blindness). This involves designing interfaces that do not rely solely on color to convey information and ensuring that all users can effectively interact with the system.
+
+== Accessibility Principles
+1. **Perceivable**: Information and user interface components must be presentable to users in ways they can perceive. This includes using text labels, patterns, and shapes in addition to color.
+2. **Operable**: User interface components and navigation must be operable by all users, including those with color vision deficiencies.
+3. **Understandable**: Information and the operation of the user interface must be understandable to all users.
+4. **Robust**: Content must be robust enough to be interpreted reliably by a wide variety of user agents, including assistive technologies.
+
+== Design Strategies
+1. **Use Text Labels**: Ensure that all color-coded information is also accompanied by text labels that describe the meaning of the colors. For example, if a red color indicates a conflict in scheduling, include a text label that says "Conflict" next to the red indicator.
+2. **Use Patterns and Shapes**: In addition to color, use patterns (e.g., stripes, dots) or shapes (e.g., circles, squares) to differentiate between different types of information. For example, use a striped pattern for blocked times and a solid color for available times.
+3. **High Contrast**: Ensure that there is sufficient contrast between text and background colors to make text readable for users with color vision deficiencies. Use tools to check color contrast ratios and ensure they meet accessibility standards.
+4. **Colorblind-Friendly Palettes**: Use color palettes that are designed to be distinguishable by users with common types of color blindness (e.g., red-green color blindness). Avoid using red and green together as the only means of conveying information.
+5. **Testing with Simulators**: Use color blindness simulators to test the interface and ensure that it remains usable and understandable for users with different types of color vision deficiencies.
+
+== Testing Strategies
+1. **Automated Accessibility Testing**: Use automated tools to check for color contrast issues and ensure that color is not the sole means of conveying information.
+2. **Manual Testing**: Conduct manual testing with color blindness simulators to verify that the interface is usable and that all information is accessible to users with color vision deficiencies.
+3. **User Testing**: If possible, involve users with color vision deficiencies in usability testing to gather feedback on the interface and identify any areas for improvement.
+
+== Success Criteria
+The strategy is successful when:
+1. All color-coded information is also conveyed through text labels, patterns, or shapes.
+2. The interface has sufficient contrast to be readable for users with color vision deficiencies.
+3. The interface is tested and verified to be usable for users with different types of color blindness.
+
+== Conclusion
+By implementing these design and testing strategies, the appointment scheduling system can be made more accessible to users with color vision deficiencies, ensuring that all users can effectively interact with the system and access the information they need to manage their appointments.
+
+= Usability Testing Strategy for Availability
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how usability testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring users can easily create and manage schedules, blocked periods, and closed days without confusion or unnecessary complexity.
+
+== Scope
+
+This testing plan covers:
+
+* creating working schedules
+* adding blocked times
+* configuring closed days
+* editing existing availability rules
+* understanding validation messages
+* navigating the scheduling workflow
+
+The plan focuses on user interaction, clarity, and ease of use.
+
+== Usability Testing Strategy
+
+Usability testing will be used to observe how users interact with the availability rules system while performing common scheduling tasks.
+
+The testing strategy evaluates:
+
+* ease of learning
+* navigation clarity
+* error prevention
+* efficiency when completing tasks
+* understanding of validation feedback
+
+The goal is to identify areas where users experience confusion, hesitation, or repeated mistakes.
+
+== Test Scenarios
+
+=== Creating Availability Rules
+
+Users should be able to:
+
+* select working days
+* define working hours
+* save schedules successfully
+
+=== Adding Blocked Times
+
+Users should be able to:
+
+* create blocked periods inside working hours
+* understand blocked time restrictions
+* recognize invalid inputs clearly
+
+=== Managing Closed Days
+
+Users should be able to:
+
+* mark days as closed
+* understand that closed days cannot contain schedules
+* edit closed days easily
+
+=== Validation Feedback
+
+The system should provide clear validation messages when:
+
+* time ranges are invalid
+* intervals overlap
+* blocked periods fall outside working hours
+
+Users should understand how to correct errors quickly.
+
+== Test Tasks
+
+Participants may be asked to:
+
+* create a weekly availability schedule
+* add lunch break blocked times
+* mark a day as unavailable
+* edit an existing schedule
+* correct an overlapping time interval
+
+== Observation Areas
+
+The testing process should observe:
+
+* user confusion
+* repeated mistakes
+* navigation difficulties
+* time required to complete tasks
+* understanding of validation messages
+
+== Expected Results
+
+Usability testing should verify that:
+
+* users can complete scheduling tasks without assistance
+* scheduling workflows are understandable
+* validation feedback is clear
+* the interface reduces user errors
+* users can manage availability efficiently
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* users complete tasks successfully
+* confusion and repeated errors are minimized
+* scheduling actions are easy to understand
+* validation messages clearly explain problems
+* the availability workflow feels intuitive and efficient
+
+== References
+
+* Schütz-Schmuck, M. (2022). Usability Testing.
+
+= Analyze Scalability Risks for Availability Rules System using Perfomance Testing
+:author: Natanael Batista Alvarez
+
+== Overview
+
+The purpose of this testing plan is to define how performance testing will be used to evaluate the availability rules feature.
+
+The focus is on ensuring the system remains stable, responsive, and reliable while handling scheduling operations and multiple simultaneous requests.
+
+== Scope
+
+This testing plan covers:
+
+* creating availability rules
+* updating schedules
+* retrieving availability data
+* validation processing
+* database interactions
+* concurrent scheduling requests
+
+The plan focuses on system responsiveness and stability under load.
+
+== Performance Testing Strategy
+
+Performance testing will be used to evaluate how the availability rules system behaves during normal and high usage conditions.
+
+The testing strategy focuses on:
+
+* API response times
+* database performance
+* validation speed
+* concurrent user activity
+* system stability under load
+
+The goal is to identify bottlenecks, slow operations, and scalability concerns before deployment.
+
+== Test Scenarios
+
+=== Concurrent Schedule Creation
+
+The system should handle multiple users creating availability rules simultaneously without failures or inconsistent data.
+
+=== Availability Retrieval Under Load
+
+The system should maintain acceptable response times when many users request scheduling data repeatedly.
+
+=== Validation Performance
+
+The validation logic should remain responsive when processing:
+
+* large schedules
+* many blocked intervals
+* repeated validation requests
+
+=== Concurrent Updates
+
+The system should correctly process simultaneous updates to availability data without corruption or instability.
+
+== Metrics to Monitor
+
+The testing plan should measure:
+
+* average response time
+* request throughput
+* database query performance
+* system stability
+* error rates during heavy usage
+
+== Load Conditions
+
+Performance testing should evaluate:
+
+* normal expected usage
+* high request volume
+* repeated scheduling operations
+* stress conditions with concurrent requests
+
+== Expected Results
+
+Performance testing should verify that:
+
+* the system remains responsive during high activity
+* validation logic performs efficiently
+* database operations remain stable
+* concurrent requests do not create failures or inconsistencies
+
+== Success Criteria
+
+The testing plan is successful when:
+
+* scheduling operations remain responsive under load
+* API response times stay acceptable
+* the system remains stable during concurrent activity
+* no major performance bottlenecks are identified
+* scheduling data remains consistent during stress conditions
+
+== References
+
+* Schütz-Schmuck, M. (2022). Performance Testing.

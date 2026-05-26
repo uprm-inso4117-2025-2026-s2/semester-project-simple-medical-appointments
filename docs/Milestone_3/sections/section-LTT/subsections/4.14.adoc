@@ -1,1 +1,103 @@
 === *Fuzzing*
+
+---
+
+==== Fuzz Testing Strategy for Appointment Scheduling
+:author: Marymar Maldonado Roche
+
+===== Overview
+
+Fuzz testing (also called "fuzzing") is a testing technique in which the system is intentionally given unexpected, invalid, random, or extreme inputs to check whether it behaves safely. Instead of only feeding the system the "well-shaped" data that a normal user would enter, a fuzzer generates large numbers of strange or malformed values and observes how the program reacts.
+
+The goal of fuzz testing is not to confirm that valid inputs produce valid results, but rather to confirm that *invalid inputs never cause the system to crash, hang, corrupt data, or behave in an undefined way*. A correct system should either accept the input, or reject it with a clear and predictable error.
+
+For the Simple Medical Appointments project, the appointment scheduling feature is a natural target for fuzz testing because it accepts many different fields (dates, time ranges, durations, doctor IDs, clinic IDs, patient IDs, status flags, availability rules) and each one introduces an opportunity for invalid or malicious input.
+
+===== Why Apply Fuzz Testing to Scheduling
+
+Scheduling logic is one of the highest-risk areas of the system. A small bug in date or time handling can result in:
+
+* Patients booking appointments that never happen
+* Doctors being double-booked
+* Appointments being silently created in the past
+* The server crashing because a malformed value reached an unprotected piece of code
+
+Traditional unit tests usually only check expected inputs ("a normal Tuesday at 10:00 AM"). Fuzz testing complements them by attacking the *unexpected* corners of the input space — exactly the kind of inputs that real users, broken frontends, or malicious clients eventually produce.
+
+===== Connection to Lecture Concepts
+
+Fuzz testing maps directly onto several core ideas introduced during lectures:
+
+* *Input space:* Every parameter (date, time, duration, ID, status) defines a set of possible values. The full input space of the booking endpoint is the Cartesian product of all of those sets, which is too large to enumerate by hand. Fuzzing samples this enormous input space automatically.
+* *Invalid cases:* Inputs that violate the format or type expected by the system (for example, the string `"banana"` placed in the `date` field, or `null` placed in `doctor_id`). A well-designed system rejects these cleanly.
+* *Corner cases:* Values that sit on the boundary of valid and invalid (for example, an appointment that starts exactly at clinic closing time, or a duration of `0` minutes). These are classic sources of off-by-one defects.
+* *Extreme cases:* Values that are technically of the right type but unusually large, unusually small, or otherwise improbable (for example, a duration of `1,000,000` minutes, the year `9999`, or a patient ID equal to the maximum signed 32-bit integer).
+
+Fuzz testing exercises invalid, corner, and extreme cases as a normal part of its operation, which is something example-based testing rarely does.
+
+===== Scheduling-Related Inputs to Fuzz
+
+The scheduling subsystem of Simple Medical Appointments accepts the following fields, and each one should be fuzzed:
+
+* *Appointment date* — calendar dates, including past dates, far-future dates, and malformed strings
+* *Time ranges (start/end time)* — including end-before-start, identical start/end, and times outside `00:00–23:59`
+* *Appointment duration* — including negative, zero, fractional, and very large values
+* *Doctor ID* — including unknown IDs, negative IDs, non-numeric IDs, and IDs belonging to inactive accounts
+* *Clinic ID* — same patterns as doctor ID
+* *Patient ID* — same patterns, plus IDs for canceled or deleted patient profiles
+* *Appointment status* — strings outside the allowed set (`scheduled`, `canceled`, `completed`, etc.) and case variations
+* *Availability rules* — overlapping blocks, blocks outside working hours, and blocks with inverted ranges
+
+===== Example Fuzz Cases and Expected Behavior
+
+The table below shows representative fuzz cases and the behavior the system must exhibit for each. The system should never crash, hang, or accept clearly invalid input silently.
+
+.Example Fuzz Cases for Appointment Scheduling
+[options="header",cols="1,2,2,2"]
+|===
+| # | Field Being Fuzzed | Fuzz Input | Expected System Behavior
+
+| 1 | Appointment date | `"2026-02-30"` (invalid calendar date) | Reject with `400 Bad Request`, error message "invalid date"
+| 2 | Appointment date | `"banana"` (non-date string) | Reject with `400 Bad Request`, no stack trace exposed
+| 3 | Appointment date | `"1990-05-10"` (date in the past) | Reject with `400 Bad Request`, error message "cannot book in the past"
+| 4 | Appointment date | `"9999-12-31"` (far-future extreme) | Reject or accept according to policy; never crash
+| 5 | Start/end time | `start=10:00, end=09:00` (inverted range) | Reject with `400 Bad Request`, error message "end must be after start"
+| 6 | Start/end time | `start=09:00, end=09:00` (zero-length, corner case) | Reject with `400 Bad Request`, error message "duration must be positive"
+| 7 | Duration | `-30` minutes | Reject with `400 Bad Request`, error message "duration must be positive"
+| 8 | Duration | `0` minutes (corner case) | Reject with `400 Bad Request`
+| 9 | Duration | `1000000` minutes (extreme) | Reject with `400 Bad Request`, error message "duration exceeds maximum"
+| 10 | Doctor ID | `-1` | Reject with `400 Bad Request`
+| 11 | Doctor ID | `"DROP TABLE appointments;"` | Reject with `400 Bad Request`; query must be parameterized so SQL injection is impossible
+| 12 | Clinic ID | `null` | Reject with `400 Bad Request`, error message "clinic_id is required"
+| 13 | Patient ID | `99999999999999` (extreme) | Reject with `404 Not Found` if no such patient
+| 14 | Status | `"CANCELLED "` (trailing space) or `"cancelled"` (wrong case) | Either normalize or reject; never store as a new status value
+| 15 | Availability rule | Block from `13:00–12:00` (inverted) | Reject with `400 Bad Request`
+| 16 | Availability rule | Two overlapping blocks for the same doctor | Reject with `409 Conflict` or merge deterministically
+| 17 | Whole payload | Random bytes / malformed JSON | Reject with `400 Bad Request`; server stays healthy
+|===
+
+In every row, the underlying requirement is the same: the server returns a controlled error response and keeps running. A crash, a 500-level error caused by an uncaught exception, or a successfully stored invalid appointment all count as fuzz-test failures.
+
+===== Suggested Tools
+
+For the Python/Flask backend of Simple Medical Appointments, suitable fuzzing tools include:
+
+* *Hypothesis* — a property-based testing library that doubles as a structured fuzzer, generating random values within constrained strategies (dates, integers, strings, etc.)
+* *atheris* — a coverage-guided fuzzer for Python, suitable for fuzzing parser-like functions such as the date and duration validators
+* *schemathesis* — generates fuzzed HTTP requests directly from the OpenAPI schema of the REST endpoints
+
+For the React/Vite frontend, lightweight property/fuzz tools like *fast-check* (with Vitest or Jest) can fuzz form inputs and ensure the client-side validation also rejects invalid data before it ever reaches the backend.
+
+===== Benefits of Fuzz Testing the Scheduling Feature
+
+* Exposes hidden defects in date, time, and duration handling
+* Catches missing input validation before it reaches production
+* Reduces the risk of crashes caused by malformed API requests
+* Helps protect against injection-style attacks on ID fields
+* Increases confidence that the scheduling endpoints are robust under unusual real-world conditions
+
+===== Conclusion
+
+Fuzz testing is a low-cost, high-coverage way to harden the appointment scheduling feature of Simple Medical Appointments. By systematically generating invalid, corner, and extreme inputs across the entire scheduling input space — dates, time ranges, durations, doctor/clinic/patient IDs, statuses, and availability rules — fuzzing forces the system to demonstrate that it fails *safely* when faced with unexpected data. Combined with the unit, property-based, and load tests already in place, fuzz testing closes the gap between "the system works for expected inputs" and "the system is resilient against all inputs".
+
+---
