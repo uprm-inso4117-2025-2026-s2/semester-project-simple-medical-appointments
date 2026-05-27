@@ -19,6 +19,9 @@ ENV/
 instance/
 .webassets-cache
 
+# SQLite
+*.db
+
 # Node / React
 node_modules/
 dist/
@@ -37,6 +40,7 @@ frontend/.vite/
 # IDE
 .vscode/
 .idea/
+.cursor/
 
 # Logs
 *.log

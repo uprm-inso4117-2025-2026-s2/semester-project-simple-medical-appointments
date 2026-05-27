@@ -1,0 +1,52 @@
+= State Transition Testing for Slot Capacity
+
+:author: Simple Medical Appointments — Scheduling
+:doctype: article
+
+== Lecture tie-in
+
+* *Lecture 3 — Test Case Execution*: defect *life cycle* (states and allowed transitions) is the same modeling idea used here for per-slot booking capacity—only valid transitions are permitted and tests must reject illegal ones.
+* *Types* (Schütz-Schmuck): types express *state properties* of a program fragment; slot capacity is a numeric state (`booking_count`) with invariants `0 ≤ count ≤ max_appointments_per_slot` checked on every reserve/release.
+* *Lecture 2 — Test Planning*: high *Cost(D)* when sine-qua-non scheduling fails (double-booking past capacity); state-based tests target that risk directly.
+
+== Goal
+
+Model and verify state transitions when a clinic allows multiple appointments per time window (`max_appointments_per_slot = 2` in the stub). Ensures the scheduling API never offers full slots and never accepts over-capacity bookings.
+
+== State machine (per doctor, date, slot start)
+
+[cols="2,3", options="header"]
+|===
+| State | Invariant / observable behavior
+| AVAILABLE | `count = 0`; slot listed in `GET .../available-slots`
+| PARTIAL | `0 < count < max`; slot still listed
+| FULL | `count = max`; slot hidden from list; extra `reserve` → 409
+|===
+
+== Transition table
+
+[cols="2,2,2,3", options="header"]
+|===
+| From | Event | To | Expected
+| AVAILABLE | `reserve` (valid time) | PARTIAL | count = 1
+| PARTIAL | `reserve` | FULL | count = 2; 09:00 removed from public slot list
+| FULL | `reserve` | FULL | HTTP 409, body mentions full slot
+| FULL | `release` (cancel) | PARTIAL | `decrement_booking`; one seat freed
+| PARTIAL | `release` | AVAILABLE | count = 0; slot visible again
+| * | `reserve` (lunch / invalid time) | * | HTTP 400; count unchanged
+|===
+
+== Implementation
+
+* `app/repositories/slot_bookings.py` — count storage, `increment_booking`, `decrement_booking`, `try_reserve_slot`, and capacity-aware `slot_time_strings_for_doctor_day`.
+* Tests: `backend/tests/test_slot_capacity_state_transitions.py` (with the decision-table suite in `test_scheduling_decision_table.py`).
+
+== Relation to the product
+
+Scheduling must stay consistent under concurrency and cancellation: a released seat must reappear for patients, and a full slot must not accept another booking. State-transition tests document and guard that lifecycle.
+
+== References
+
+* B. Vélez, INSO 4117 *Lecture 3 test Preparation* (defect life cycle, structured test execution).
+* M. Schütz-Schmuck, INSO/types lecture (*state properties*, static checking mindset).
+* B. Vélez, INSO 4117 *Lecture 2 Test Planning* (risk/cost of scheduling defects).

@@ -2,6 +2,8 @@
 # Run with: python run.py
 # In production, use a WSGI server like gunicorn instead:
 #   gunicorn "app:create_app()"
+import init_db  # Initializes the database on server startup
+
 from app import create_app
 
 # Create the Flask app using the factory function in app/__init__.py

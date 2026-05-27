@@ -1,0 +1,187 @@
+
+/* ── PAGE ────────────────────────────────────────────────────────────── */
+
+.admin-details-page {
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(180deg,
+    rgb(6,  21,  27)  24.038%,
+    rgb(17, 60,  81)  78.365%,
+    rgb(27, 94, 125)  94.702%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── CARD ────────────────────────────────────────────────────────────── */
+
+.admin-details-card {
+  width: min(86.1vw, 1240px);
+  background: #fff;
+  border-radius: 50px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 1.5rem 3.5rem 2rem;
+}
+
+/* ── STEP DOTS — step 2 active: dark | active | dark ─────────────────── */
+
+.admin-step-dots {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.75rem;
+}
+
+.admin-step-dot {
+  height: 8px;
+  border-radius: 10px;
+  background: #113c51;
+  width: 10px;
+}
+
+.admin-step-dot.active {
+  width: 31px;
+  background: #248daa;
+}
+
+/* ── HEADING ─────────────────────────────────────────────────────────── */
+
+.admin-details-card h1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 4.44vw, 4rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.admin-details-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.39vw, 1.25rem);
+  font-weight: 200;
+  color: #1e1e1e;
+  margin-top: 4px;
+  margin-bottom: 1.25rem;
+  line-height: 1.26;
+}
+
+/* ── FIELD LABEL ─────────────────────────────────────────────────────── */
+
+.admin-field-label {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 400;
+  color: #0c0f28;
+  margin-bottom: 0.5rem;
+}
+
+/* ── ACCESS CODE INPUT ───────────────────────────────────────────────── */
+/* Figma: h=99px, full width, pill shape, letter-spacing on placeholder  */
+
+.admin-code-input {
+  display: block;
+  width: 100%;
+  height: clamp(52px, 6.88vw, 99px);
+  padding: 0 2rem;
+  border: 1px solid rgba(168, 155, 155, 0.97);
+  border-radius: 70px;
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  font-weight: 400;
+  color: #0c0f28;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.admin-code-input::placeholder {
+  color: #999;
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+}
+
+.admin-code-input:focus {
+  border-color: #248daa;
+  box-shadow: 0 0 0 3px rgba(36, 141, 170, 0.18);
+}
+
+.admin-code-input.error {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+}
+
+/* ── INFO BOX ────────────────────────────────────────────────────────── */
+/* Figma: bg=#f4f8fa, r=20, with info icon + descriptive text            */
+
+.admin-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #f4f8fa;
+  border-radius: 20px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-info-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  color: #248daa;
+}
+
+.admin-info-text {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(0.75rem, 1.11vw, 1rem);
+  font-weight: 300;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.admin-info-text strong {
+  font-weight: 500;
+  color: #0c0f28;
+}
+
+/* ── FIELD ERROR ─────────────────────────────────────────────────────── */
+
+.admin-field-error {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: #e53e3e;
+  margin-top: 0.3rem;
+  padding-left: 0.5rem;
+}
+
+/* ── BUTTON — taller than standard, matches Figma h=99px ────────────── */
+
+.admin-details-card .auth-btn {
+  height: clamp(52px, 6.88vw, 99px);
+}
+
+/* ── RESPONSIVE (< 900px) ───────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .admin-details-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .admin-details-card {
+    width: 100%;
+    border-radius: 30px;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+}
