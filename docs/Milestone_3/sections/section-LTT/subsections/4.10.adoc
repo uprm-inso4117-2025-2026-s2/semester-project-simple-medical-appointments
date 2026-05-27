@@ -254,3 +254,304 @@ The policy described here ensures that every state of 'main' is a state that the
 
 ---
 
+==== Design Quality Gate Strategies using Gated Commits
+:author: Pedro A. Morales
+
+===== Introduction
+
+Gated commits are an automated quality enforcement mechanism in which a set of
+predefined checks must pass before a code change is allowed to be merged into
+a protected branch. Rather than relying solely on manual code review, gated
+commits integrate automated verification directly into the version control
+workflow, ensuring that every merge into the main branch meets a consistent
+quality baseline.
+
+In the system, the appointment booking feature
+involves critical business logic: slot availability checks, concurrent reservation
+handling, booking confirmation, and cancellation workflows. A regression in any
+of these areas can directly impact patient access to care. A well-designed gated
+commit strategy for the booking feature branch ensures that no change is integrated
+without first passing a structured sequence of automated quality gates, preventing
+defects from reaching the main codebase.
+
+===== Booking Feature Branch Context
+
+The appointment booking module is the core scheduling component of the system.
+It handles the following operations that must be protected by quality gates:
+
+[source,text]
+----
+Patient
+   |
+   v
+Search Available Doctors / Clinics
+   |
+   v
+View Available Appointment Slots
+   |
+   v
+Submit Booking Request
+   |
+   v
+Validate Slot Availability
+   |
+   v
+Confirm or Reject Booking
+   |
+   v
+Send Confirmation to Patient
+----
+
+Any code change touching this workflow must pass all defined quality gates
+before being merged into the main branch.
+
+===== Quality Gate Design
+
+The gated commit strategy for the booking feature branch is organized into
+five sequential gates. Each gate must pass fully before the next is executed.
+A failure at any gate blocks the merge and notifies the developer.
+
+====== Gate 1 — Static Analysis
+
+*Purpose:* Enforce code style consistency and catch syntax-level issues
+before any tests are run.
+
+*Checks included:*
+
+- Linting rules enforced across all modified files
+- Code formatting standards validated
+- No unresolved compilation or syntax errors permitted
+- Import organization and unused variable checks
+
+*Pass condition:* Zero linting errors and zero compilation errors in all
+files touched by the commit.
+
+*Failure behavior:* Merge blocked. Developer receives linting report
+identifying all violations.
+
+====== Gate 2 — Unit Tests
+
+*Purpose:* Verify that the individual components of the booking module
+behave correctly in isolation.
+
+*Checks included:*
+
+- All unit tests for the booking module must pass
+- Minimum code coverage threshold of 80% enforced for modified files
+- Tests for slot availability logic, booking validation, and conflict detection
+  must be included
+
+*Pass condition:* 100% of unit tests pass and coverage threshold is met.
+
+*Failure behavior:* Merge blocked. Test report and coverage summary
+provided to developer.
+
+====== Gate 3 — Integration Tests
+
+*Purpose:* Verify that the booking module interacts correctly with the
+database and other system components.
+
+*Checks included:*
+
+- Booking API endpoint integration tests must pass
+- Database transaction tests for slot reservation and confirmation must pass
+- Concurrent booking scenario tests must pass
+- API response format and status code validation
+
+*Pass condition:* 100% of integration tests pass with no database
+transaction errors.
+
+*Failure behavior:* Merge blocked. Integration test report with
+failed endpoint details provided.
+
+====== Gate 4 — Regression Tests
+
+*Purpose:* Ensure that no previously passing behavior has been broken
+by the new change.
+
+*Checks included:*
+
+- Full regression suite for the booking workflow must pass
+- Slot conflict regression scenarios must pass
+- No test that was passing before the change may now fail
+
+*Pass condition:* Zero regression failures across the full booking
+regression suite.
+
+*Failure behavior:* Merge blocked. Regression diff report showing
+which previously passing tests now fail.
+
+====== Gate 5 — Team Lead Review Gate
+
+*Purpose:* Final human verification that the automated gates have been
+satisfied and that the change meets project standards.
+
+*Checks included:*
+
+- Team lead reviews commit content and gate results
+- Confirms that the change addresses the task requirements
+- Verifies documentation has been updated if applicable
+
+*Pass condition:* Explicit team lead approval registered on the
+pull request.
+
+*Failure behavior:* Merge blocked pending approval. Developer may
+be asked to make revisions before re-review.
+
+===== Gate Summary Table
+
+[cols="1,2,2,1"]
+|===
+|Gate |Purpose |Pass Condition |Blocks Merge?
+
+|Gate 1 – Static Analysis
+|Enforce code style and syntax correctness
+|Zero linting and compilation errors
+|Yes
+
+|Gate 2 – Unit Tests
+|Validate booking logic in isolation
+|All unit tests pass, coverage ≥ 80%
+|Yes
+
+|Gate 3 – Integration Tests
+|Validate API and database interactions
+|All integration tests pass
+|Yes
+
+|Gate 4 – Regression Tests
+|Prevent previously passing tests from breaking
+|Zero regressions across full booking suite
+|Yes
+
+|Gate 5 – Team Lead Review
+|Final human verification before merge
+|Explicit team lead approval
+|Yes
+|===
+
+===== Gate Pipeline Workflow
+
+The following diagram illustrates the full gate execution pipeline for
+a commit targeting the appointment booking feature branch.
+
+[source,text]
+----
++-----------------------------+
+| Developer Pushes Commit     |
+| to Booking Feature Branch   |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Gate 1: Static Analysis     |
+| Lint + Compilation Check    |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Linting Report
+       v
++-----------------------------+
+| Gate 2: Unit Tests          |
+| Booking Module + Coverage   |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Test + Coverage Report
+       v
++-----------------------------+
+| Gate 3: Integration Tests   |
+| API + Database Transactions |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Integration Report
+       v
++-----------------------------+
+| Gate 4: Regression Tests    |
+| Full Booking Suite          |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Regression Diff Report
+       v
++-----------------------------+
+| Gate 5: Team Lead Review    |
+| Manual Approval Required    |
++-------------+---------------+
+              |
+         Approved?
+        /         \
+      Yes           No
+       |             |
+       v        Merge Blocked
++-----------------------------+    Awaiting Revisions
+| Merge Into Main Branch      |
++-----------------------------+
+----
+
+===== Failure Handling and Escalation Policy
+
+When a gate fails the following escalation policy applies:
+
+[cols="1,2,2"]
+|===
+|Gate Failed |Immediate Action |Escalation if Unresolved
+
+|Gate 1
+|Developer fixes linting errors and repushes
+|Team lead notified after 24 hours
+
+|Gate 2
+|Developer fixes failing unit tests or improves coverage
+|Team lead notified after 24 hours
+
+|Gate 3
+|Developer investigates API or database interaction failure
+|Team lead notified immediately for database errors
+
+|Gate 4
+|Developer identifies and resolves regression root cause
+|Manager notified if regression affects core booking flow
+
+|Gate 5
+|Developer awaits team lead review or requests re-review
+|Manager notified if review is pending beyond 48 hours
+|===
+
+===== Impact on Booking System Reliability
+
+Implementing a gated commit strategy for the appointment booking feature
+branch provides several reliability guarantees for the system.
+
+By blocking merges that fail static analysis, the codebase maintains
+consistent style and avoids syntax-level defects accumulating over time.
+Unit and integration test gates ensure that the booking logic and its
+interactions with the database remain correct with every change. The
+regression gate specifically protects the system from re-introducing
+previously resolved booking conflicts or scheduling errors. The team lead
+review gate provides a final layer of human oversight before any change
+reaches the main branch.
+
+Together these gates form a continuous quality barrier that prevents
+defective booking logic from reaching production, reducing the risk of
+double-bookings, failed confirmations, or data inconsistencies caused
+by unverified code changes.
+
+---

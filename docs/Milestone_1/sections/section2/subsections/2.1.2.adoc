@@ -1,11 +1,11 @@
-==== *Terminology*
+= §2.1.2 Domain Terminology (Word Version)
 
 NOTE: *Milestone 2 Update:* (1) Function signatures have been added to domain verbs, now integrated into section 2.1.4. (2) The "Single Active Appointment per Provider Constraint" has been relaxed — a patient may hold multiple active appointments with the same provider (e.g., one for a routine cleaning and one for a procedure), but may not hold two appointments for the same time slot. (3) Missing terms used in function signatures (Specialty, Schedule, ReferralRegistry, InsuranceRegistry, NotificationQueue) have been added. (4) Consultation Type now explicitly states what can be observed from it.
 
 Each term is annotated with its classification and the development phase that introduces it.
 
-[discrete]
-===== Domain Nouns (entities, actors, abstractions)
+Patient :: `[domain] [actor]`
+A person seeking medical consultation or treatment. A Patient may request, confirm, cancel, or reschedule appointments and may join a waitlist when no acceptable times are available.
 
 *Patient* :: (actor, domain)
 A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
@@ -19,8 +19,8 @@ _Derived from: "I manage my mother's appointments because she doesn't use a smar
 A licensed professional offering medical consultations (e.g., general practitioner, specialist). Also referred to as "provider." Not to be confused with "doctor" in informal usage — the domain term is "healthcare provider."
 _Derived from: overloaded schedules, consultation variability._
 
-*Clinic* :: (entity, domain)
-A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
+Appointment :: `[domain] [entity]`
+A reserved time commitment for a Patient to consult a Doctor at a Clinic, associated with a consultation type and a booking status.
 
 *Appointment* :: (entity, domain)
 A reserved time block binding one patient to one provider at one clinic location on a specific date and time. An appointment has a consultation type, a status, and a unique identifier. From an appointment, one can observe: the patient, the provider, the time slot, the consultation type, the booking status, and the attendance outcome (if past).
@@ -55,8 +55,8 @@ The current condition of an appointment. Values: `Requested` (patient has reserv
 *Availability* :: (state, domain)
 The property of a time slot being open for reservation.
 
-[discrete]
-===== Domain Verbs (actions, events, domain operations)
+ClinicSystem :: `[requirements] [system]` _(required missing term)_
+The system-to-be boundary referenced in requirements and function signatures: the scheduling system that maintains doctors, clinics, time slots, appointment booking, and related constraints.
 
 Full function signatures and explanations appear in section 2.1.4 (Actions) and 2.1.5 (Supplementary Detail).
 
@@ -90,11 +90,10 @@ A clinic staff member records that a patient did not attend their appointment.
 *Modify Availability* :: (action, domain)
 A provider updates their working hours or blocked periods.
 
-[discrete]
-===== Domain Constraints (invariant business rules)
+== Domain constraints (invariants)
 
-*No Double Booking* ::
-A single time slot cannot be reserved by more than one patient simultaneously.
+No Double Booking :: `[domain] [constraint]`
+A single time slot must not be reserved by more than one patient simultaneously (unless the project explicitly defines capacity > 1 elsewhere).
 
 *No Overlapping Appointments for One Provider* ::
 A provider cannot have two confirmed appointments at overlapping times.
@@ -114,8 +113,8 @@ An appointment that requires insurance authorization cannot transition to `Confi
 *Referral Dependency* ::
 An appointment that requires a referral cannot transition to `Confirmed` until a valid referral for the appropriate specialty is recorded.
 
-[discrete]
-===== Cross-Phase Terms (Explicitly Annotated)
+Schedule fragmentation :: `[domain] [phenomenon]`
+Clinics lack visibility into other clinic locations’ schedules; availability is siloed.
 
 *User Account* :: (entity, requirements/implementation)
 A technical authentication construct representing a system login identity. _Not a domain concept._ Introduced when specifying how patients and providers identify themselves to the system-to-be.
