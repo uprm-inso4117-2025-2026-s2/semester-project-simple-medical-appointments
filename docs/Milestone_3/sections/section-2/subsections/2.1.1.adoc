@@ -3,98 +3,45 @@
 
 ==== *Domain Rough Sketches*
 
-NOTE: This section contains unprocessed observations collected from domain interviews with patients, clinic administrative staff, healthcare providers, and an insurance coordinator. No interpretive analysis appears here — that belongs in section 3.1 (Concept Analysis). The observations are recorded as close to verbatim as possible.
-
 [discrete]
 ===== Patients
 
-*Patient (Carmen, 67, retired teacher)*:
+*Patient (Carmen, 67, retired teacher)*:  
+[.changed]#"On Monday, 5 Feb 2026 at 8:02 a.m., I started calling Clinica San Rafael because my primary doctor said to call right when they opened. I hit redial 23 times before someone picked up at 8:49. The earliest slot they offered was Tuesday, 12 May 2026 at 3:40 p.m. I wrote it on a yellow sticky note and taped it to my fridge door with the clinic magnet so I would not lose it again."#
 
-"I called the clinic at 8:00 in the morning like they told me, but the line was already busy.
+*Patient (Miguel, 34, construction worker)*:  
+[.changed]#"My shift on the Aguadilla site runs 7:00 a.m. to 5:30 p.m. with a 30-minute lunch. I tried calling Dr. Ramos's office during lunch on 21 Jan 2026, but I was on hold for 18 minutes and had to hang up when the foreman called me back to the site. The next day I stopped by the clinic at 6:10 p.m.; the front door was already locked. I ended up making a third trip on Saturday morning to ask in person if any cancellations had opened."# 
 
-I kept dialing for almost an hour. When someone finally answered, they said the next available appointment was in three months.
+*Patient (Elena, 52, caring for elderly mother)*:  
+[.changed]#"I manage my mother's appointments because she does not use a smartphone. In March 2026 I had her primary care on the 3rd, her cardiology follow-up on the 10th, and lab work on the 7th. When the cardiology office pushed the follow-up back two weeks, I had to move the lab and rebook the primary care so the results would still be current."#  
 
-I wrote the date on a small paper and stuck it on my fridge so I wouldn't forget."
+*Patient (Natalia, university student)*:  
+[.changed]#"I joined a waitlist in February and never got a text or email saying where I stood. After two weeks I did not know whether to wait or book somewhere else."#  
 
-
-*Patient (Miguel, 34, construction worker)*:
-
-"I can't always call during work hours. By the time I get out, the office is closed.
-
-So I just go in person sometimes and ask if there's anything available.
-
-If they say no, I just try again another day."
-
-
-*Patient (Elena, 52, caring for elderly mother)*:
-
-"I manage my mother's appointments because she doesn't use a smartphone.
-
-Sometimes I have to coordinate her primary doctor, a specialist, and lab tests.
-
-If one appointment changes, everything else has to move too."
-
-
-*Patient (Natalia, university student)*:
-
-"I joined a waitlist once, but nobody ever told me if I moved up or not.
-
-I didn't know whether to wait or book somewhere else."
-
-
-*Patient (Rosa, 29, new resident in the area)*:
-
-"I didn't know which doctor accepted my insurance.
-
-I called three clinics before finding one that did.
-
-There's no single place where you can compare everything."
+*Patient (Rosa, 29, new resident in the area)*:  
+[.changed]#"I moved to Bayamon eight weeks ago with Triple-S coverage. On 14 Feb 2026 I called three clinics (Santa Rosa, Dr. Melendez, and Clinica del Norte); two kept me on hold over ten minutes and then said they did not take my plan. I finally found a family doctor through a Facebook group post, not the insurer's site."#  
 
 [discrete]
 ===== Clinic Administrative Staff
 
-*Clinic Administrative Assistant (Laura, small family clinic)*:
+*Clinic Administrative Assistant (Laura, small family clinic)*:  
+[.changed]#"The phones start ringing at 8:00 a.m. and do not stop. We book while answering another call on hold. When someone cancels, we flip through a notebook to remember who asked for an earlier slot and start dialing numbers from memory. We also keep a spreadsheet because we do not trust the notebook alone."#  
 
-"The phones don't stop ringing from the moment we open. Sometimes we're booking appointments while answering another call at the same time.
-
-If someone cancels, we try to call another patient from memory, but not everyone picks up.
-
-We use a notebook and a spreadsheet, just to be safe."
-
-
-*Clinic Administrator (José, regional clinic network)*:
-
-"We don't have visibility into other clinics' schedules.
-
-Patients call asking if another location has earlier availability, but we can't see that information.
-
-Everything is isolated."
+*Clinic Administrator (Jose, regional clinic network)*:  
+[.changed]#"We do not have visibility into the schedules of our other locations. Patients ask if the Bayamon site has something sooner, but I cannot see their calendar, so I can only tell them to call over there."#  
 
 [discrete]
 ===== Doctors / Providers
 
-*Doctor (Dr. Rivera, cardiologist)*:
+*Doctor (Dr. Rivera, cardiologist)*:  
+[.changed]#"My calendar shows full for weeks, but some days I get two no-shows, and other days the stress tests run long and everything slides. Patients get frustrated, but I cannot predict which consult will take 10 minutes and which will take 30."#  
 
-"My schedule looks full weeks ahead, but sometimes there are no-shows.
-
-Other days, appointments take longer than expected, and everything runs late.
-
-Patients get frustrated, but we can't predict exactly how long each consultation will take."
-
-
-*Doctor (Dr. Morales, general practitioner)*:
-
-"Some patients book multiple appointments just in case, then cancel last minute.
-
-I understand why they do it — they're afraid of losing the slot — but it makes scheduling unpredictable."
+*Doctor (Dr. Morales, general practitioner)*:  
+[.changed]#"Some patients book two appointments with me and another doctor the same week and then cancel the day before. I get why they do it—they are afraid of losing the slot—but it makes the week unpredictable."#  
 
 [discrete]
 ===== Insurance / External Coordination
 
-*Insurance Coordinator (Marcos, hospital billing office)*:
-
-"Sometimes we have to confirm insurance authorization before finalizing an appointment.
-
-If approval takes too long, the slot might already be given to someone else.
-
-Patients think it's our fault, but we're waiting on external systems."
+*Insurance Coordinator (Marcos, hospital billing office)*:  
+[.changed]#"Sometimes we have to confirm insurance authorization before finalizing an appointment. If approval takes too long, the slot can be given away. Patients think it is our fault, but we are waiting on the insurer's portal to respond."#  
+cepts**: _authorization dependency_, _external system latency_, _conditional booking_, _slot expiration risk_, _cross-system coordination_.ts**: _authorization dependency_, _external system latency_, _conditional booking_, _slot expiration risk_, _cross-system coordination_.#

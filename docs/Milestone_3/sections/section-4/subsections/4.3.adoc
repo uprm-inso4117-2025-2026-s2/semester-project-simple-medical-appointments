@@ -1,7 +1,5 @@
 === *Use of debugging*
 
-
-
 ==== Overview
 
 We document two debugging sessions conducted during development. Both use deliberate, hypothesis-driven debugging with specific tools. The first session uses Python's `pdb` to investigate a suspected defect; the second uses Chrome DevTools to explore an unexpected behavior in the frontend reschedule flow.
@@ -74,7 +72,7 @@ Two correct segments. The scheduling logic was not the problem.
 * *Watch expressions* — `target_date.weekday()`, `unblocked_segments`, `slots`
 * *Print/inspect* — `p target_date`, `p slots` at the paused point
 
----
+
 
 ==== Session 2 — Exploring Behavior: Why Does Reschedule Cause a Double Booking?
 
@@ -123,18 +121,3 @@ The 303 ms gap was clearly visible in the Network tab timing waterfall. During t
 * *Step-over* — advanced through each API call in sequence
 * *Watch expressions* — `selectedSlotId`, `currentAppointmentId`, `rescheduleResponse`
 * *Network panel (timing waterfall)* — second feature; showed the 303ms gap between API calls
-
----
-
-==== Summary
-
-Both sessions demonstrate deliberate, hypothesis-driven debugging:
-
-[cols="1,2,2,2",options="header"]
-|===
-| Session | Hypothesis | Features Used | Finding
-| 1 — Empty slot list | weekday check wrong | Breakpoint, Step-into, Watch, Print | Defect was in route handler, not scheduling logic
-| 2 — Double booking | reschedule not atomic | Breakpoint, Step-over, Watch, Network panel | 303ms gap; fixed with atomic endpoint
-|===
-
-In both cases, the debugger reached the finding faster than `console.log` or `print` statements would have — and without the risk of committing debug output to the repository.

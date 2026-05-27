@@ -1,0 +1,340 @@
+
+/* ── LAYOUT ──────────────────────────────────────────────────────────────── */
+
+.ddb-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+
+.ddb-sidebar {
+  width: 268px;
+  flex-shrink: 0;
+  background: #0a2530;
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem 0 2rem;
+}
+
+/* Profile block */
+
+.ddb-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.4rem;
+}
+
+.ddb-avatar {
+  width: clamp(80px, 10.42vw, 150px);
+  height: clamp(80px, 10.42vw, 150px);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.ddb-avatar svg {
+  width: 50%;
+  height: 50%;
+  stroke: rgba(255, 255, 255, 0.5);
+}
+
+.ddb-profile-name {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  text-align: center;
+}
+
+.ddb-profile-name:hover {
+  color: #248daa;
+  text-decoration: underline;
+}
+
+.ddb-profile-role {
+  font-size: 14px;
+  font-weight: 200;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Nav */
+
+.ddb-nav {
+  display: flex;
+  flex-direction: column;
+  margin-top: 1.5rem;
+  flex: 1;
+}
+
+.ddb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.85rem 0 0.85rem 28px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.6);
+  transition: background 0.15s, color 0.15s;
+}
+
+.ddb-nav-item.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: #fff;
+  color: #fff;
+}
+
+.ddb-nav-item:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ddb-nav-logout {
+  margin-top: auto;
+}
+
+.ddb-nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.ddb-nav-item.active .ddb-nav-icon,
+.ddb-nav-item:hover .ddb-nav-icon {
+  opacity: 1;
+}
+
+.ddb-nav-icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.ddb-nav-icon-svg svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+}
+
+.ddb-nav-item.active .ddb-nav-icon-svg,
+.ddb-nav-item:hover .ddb-nav-icon-svg {
+  color: #fff;
+}
+
+.ddb-nav-label {
+  font-size: 15px;
+  font-weight: 400;
+}
+
+/* ── MAIN CONTENT ────────────────────────────────────────────────────────── */
+
+.ddb-main {
+  flex: 1;
+  background: #fff;
+  padding: clamp(1.5rem, 4.86vw, 70px) clamp(1.5rem, 5.14vw, 74px);
+  overflow-y: auto;
+}
+
+/* Back button */
+
+.ddb-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: 1px solid rgba(17, 60, 81, 0.25);
+  border-radius: 70px;
+  color: #113c51;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  padding: 0.35rem 1rem 0.35rem 0.6rem;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+  transition: background 0.15s;
+}
+
+.ddb-back-btn:hover {
+  background: rgba(17, 60, 81, 0.06);
+}
+
+.ddb-back-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke: #113c51;
+}
+
+/* Welcome */
+
+.ddb-welcome {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1.75rem, 2.78vw, 2.5rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.5rem;
+}
+
+.ddb-subtitle {
+  font-size: clamp(0.875rem, 1.39vw, 1.25rem);
+  font-weight: 300;
+  color: #666;
+  margin: 0 0 2rem;
+}
+
+/* Stats card */
+
+.ddb-stats-card {
+  background: #f4f8fa;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  max-width: 380px;
+}
+
+.ddb-stats-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+}
+
+.ddb-stats-count {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(2rem, 2.5vw, 2.25rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 0.25rem;
+}
+
+.ddb-stats-next {
+  font-size: 13px;
+  color: #248daa;
+  margin: 0;
+}
+
+/* Section heading */
+
+.ddb-section-heading {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  font-weight: 600;
+  color: #0c0f28;
+  margin: 0 0 1rem;
+}
+
+/* Schedule list */
+
+.ddb-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ddb-schedule-card {
+  background: #f4f8fa;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 88px;
+}
+
+.ddb-schedule-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.ddb-schedule-info {
+  flex: 1;
+}
+
+.ddb-schedule-patient {
+  font-size: 16px;
+  font-weight: 500;
+  color: #0c0f28;
+  margin: 0 0 0.25rem;
+}
+
+.ddb-schedule-time {
+  font-size: 14px;
+  font-weight: 300;
+  color: #888;
+  margin: 0;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .ddb-layout {
+    flex-direction: column;
+  }
+
+  .ddb-sidebar {
+    width: 100%;
+    padding: 1.5rem 0 0;
+  }
+
+  .ddb-profile {
+    padding-bottom: 1rem;
+  }
+
+  .ddb-nav {
+    flex-direction: row;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .ddb-nav-item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.6rem 1rem;
+    flex-shrink: 0;
+    gap: 0;
+    flex-direction: column;
+  }
+
+  .ddb-nav-item.active {
+    border-left-color: transparent;
+    border-bottom-color: #fff;
+  }
+
+  .ddb-nav-label {
+    display: none;
+  }
+
+  .ddb-nav-logout {
+    margin-top: 0;
+    margin-left: auto;
+  }
+
+  .ddb-main {
+    padding: 1.5rem;
+  }
+}

@@ -1,159 +1,85 @@
-
 ==== *Mutation Testing*
 
-Mutation testing is a technique used to evaluate the effectiveness of a test suite by introducing small changes, or “mutations,” into the source code. This approach helps assess how well the tests can identify potential faults in the code.
+[.changed]#This subsection separates mutation-testing scope for backend domain logic from frontend/UI behavior. Mutation analysis here is scoped to backend source code and backend tests only.#
 
-For this project, The mutation testing process was carried out using Stryker, integrated with Vitest for test execution. Vitest is responsible for running the tests each time a mutation is introduced and verifying whether the expected behavior is still maintained. The testing focused on the `AppointmentHistory.test.jsx` file, which contains the tests for the `AppointmentHistory.jsx` component. This component handles the display of a patient’s appointment history, including loading states, error messages, and the separation of upcoming and past appointments. Because this functionality involves both logic and user interface behavior, it is an important part of the application to evaluate.
+===== *Correct Mutation-Testing Target*
 
-image::mutation-testing-results.png[Mutation Testing Results,align=center, pdfwidth=100%]
-_Figure 3.3.6. - 1. Mutation Testing Results._
+[.changed]#Mutation testing must mutate production code while keeping tests unchanged. The previous approach that mutated test files is not valid for judging test-suite adequacy.#
 
-During mutation testing, Stryker introduced changes and repeatedly executed the Vitest test suite. On average, about 4.37 tests were executed per mutation. The results showed that 29 mutations were detected (killed) by the tests, while 33 survived, resulting in a mutation score of 46.77%. This indicates that the current tests are able to detect a significant portion of faults, but there are still several cases where incorrect behavior wouldn't be identified, suggesting room for improvement in the test suite.
+[.changed]#For this branch, the primary production target is backend scheduling logic in `backend/app/services/scheduling.py`, exercised by `backend/tests/unit/test_scheduling.py`.#
 
-[discrete]
-==== Survived Mutations
+===== *Scope Separation (Logic vs UI)*
 
-The following are some examples where the tests were unable to detect mutations:
+[cols="1,3", options="header"]
+|===
+| Scope | Mutation-testing status in this report
 
-[discrete]
-===== *Case 1: ArrowFunction (Survived)*
+| Backend domain logic
+| [.changed]#Included: source-level mutation target and interpretation model for scheduling service code.#
 
-- *Original code*
+| Frontend UI behavior
+| [.changed]#Excluded from this section to avoid mixing concerns; UI mutation analysis should be documented separately with frontend-specific tooling/tests.#
+|===
 
-```javascript
-vi.mock('../services/api', () => ({
-    getAppointmentHistory: vi.fn(),
-}))
-```
----
+===== *Mutation Coverage Breadth Plan (Beyond One File)*
 
-- *Mutated version*
+[.changed]#Applying mutation testing to a single source file is useful but insufficient for broad project-level conclusions.#
 
-```javascript
-vi.mock('../services/api', () => undefined)
-```
+[.changed]#The target set should be expanded incrementally as executable unit coverage exists for each module.#
 
-This mutation replaced the API mock with `undefined`, effectively removing the mocked function. Despite this change, the tests still passed, meaning they didn't detect that the API was no longer available. This indicates that the tests don't fully verify the component’s dependency on the API, allowing incorrect behavior to go unnoticed.
+[cols="1,2,2", options="header"]
+|===
+| Priority | Source module | Current readiness
 
-[discrete]
-===== Case 2: BlockStatement (Survived):
+| 1
+| `backend/app/services/scheduling.py`
+| Ready now (unit tests present)
 
-- *Original code*
+| 2
+| `backend/app/services/working_hours.py`
+| Partial readiness (requires focused unit tests for deterministic mutation runs)
 
-```javascript
-it('shows an error message when the appointment history request fails', async () => {
-    getAppointmentHistory.mockRejectedValue(new Error('Network failed'))
+| 3
+| `backend/app/repositories/slot_bookings.py`
+| Partial readiness (needs isolated tests around booking-state transitions)
 
-    render(<AppointmentHistory />)
+| 4
+| `backend/app/routes/scheduling_appointments.py`
+| Lower readiness (route-level tests need stronger isolation to interpret mutants accurately)
+|===
 
-    expect(await screen.findByText(/error: network failed/i)).toBeInTheDocument()
-})
-```
----
+===== *Result Reporting Format*
 
-- *Mutated version*
+[.changed]#Text-based mutation findings are reported as tables, not screenshots, for traceability and reviewability in version control.#
 
-```javascript
-it('shows an error message when the appointment history request fails', async () => {})
-```
+[cols="1,2,2,2", options="header"]
+|===
+| Mutant outcome | Interpretation | Action | Confidence impact
 
-The mutation removed the entire test logic, leaving an empty test. The test suite still passed, meaning this test doesn't effectively verify behavior and its removal doesn't impact the results, indicating weak test coverage.
+| Killed
+| Tests detected injected fault
+| Keep current assertions; use as regression guard
+| Increases confidence for covered behavior
 
-[discrete]
-===== Case 3: StringLiteral (Survived)
+| Survived
+| Tests did not detect injected fault
+| Add/strengthen assertions or missing scenario
+| Reveals concrete gap
 
-- *Original code*
+| Equivalent / non-actionable
+| Mutation does not change observable semantics
+| Document and exclude from score interpretation
+| Neutral
+|===
 
-```javascript
-it('shows a loading message while appointment history is being fetched', () => {
-    getAppointmentHistory.mockReturnValue(new Promise(() => {}))
-})
-```
+===== *Score Interpretation Policy*
 
----
+[.changed]#A mutation score below 50% is treated as "limited adequacy with significant gaps," not as strong confidence.#
 
-- *Mutated version*
+[.changed]#Any score statement in this project must be tied to the exact mutated source modules and test suites used in that run.#
 
-```javascript
-it('', () => {
-    getAppointmentHistory.mockReturnValue(new Promise(() => {}))
-})
-```
+===== *Bounded Conclusions*
 
-The mutation removed the test description string. The test still passed, meaning the description isn't used to validate behavior, so this change doesn't affect test effectiveness.
+[.changed]#Mutation outcomes support conclusions about test-suite effectiveness for mutated modules only; they do not justify broad claims about overall system reliability unless most relevant source modules are included.#
 
-Most of the remaining surviving mutations fall into similar categories:
-
-* StringLiteral → text changed
-* BlockStatement → code removed
-* ArrowFunction → function behavior changed
-
-[discrete]
-==== Killed Mutations
-
-There were 29 mutations that were successfully detected by the test suite. Some examples include:
-
-[discrete]
-===== Case 1: ObjectLiteral (Killed)
-
-- *Original*
-
-```javascript
-vi.mock('../services/api', () => ({
-    getAppointmentHistory: vi.fn(),
-}))
-```
----
-
-- *Mutated*
-
-```javascript
-vi.mock('../services/api', () => ({}))
-```
-
-The mutation removed the mocked function. The test failed because it depends on the API mock, showing that the test correctly verifies the component’s dependency on external data.
-
-[discrete]
-===== Case 2: BlockStatement (Killed)
-- *Original*
-
-```javascript
-screen.findByRole('heading', { name: /upcoming appointments/i })
-```
-
----
-
-- *Mutated*
-
-```javascript
-screen.findByRole('', { name: /upcoming appointments/i })
-```
-
-The mutation removed the role value. The test failed because it relies on correctly identifying elements in the UI, showing that it validates the structure and accessibility of the component.
-
-[discrete]
-===== Case 3: StringLiteral (Killed)
-- *Original*
-
-```javascript
-getAppointmentHistory.mockResolvedValue([
-    { id: 1, doctor_name: 'Dr. Future', ... },
-    { id: 2, doctor_name: 'Dr. Past', ... }
-])
-```
----
-
-- *Mutated*
-
-```javascript
-getAppointmentHistory.mockResolvedValue([])
-```
-
-The mutation removed all appointment data. The test failed because it expects specific data to be rendered, showing that it properly verifies how data is displayed and processed.
-
-[discrete]
-==== *Analysis and Reliability*
-
-These findings suggest that the project is fairly reliable when it comes to its core features, since the tests are able to catch major issues like missing data, broken API interactions, and incorrect UI rendering. This lowers the risk of obvious failures that would directly affect users.
-
-At the same time, the surviving mutations show that there are still gaps in the tests, especially around more subtle logic and edge cases. This means there is still some risk that certain bugs could go unnoticed, particularly in less common scenarios or when small changes are made to the code. Strengthening the tests in these areas would help reduce that risk and make the system more dependable.
+[.changed]#A valid project-level statement at current maturity is: "The backend test suite reflects implemented scheduling features for mutated backend modules, with remaining gaps identified by surviving mutants."#

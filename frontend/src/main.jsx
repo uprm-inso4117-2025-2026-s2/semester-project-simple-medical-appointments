@@ -2,16 +2,21 @@
 // This file mounts the root <App /> component into the #root div in index.html.
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App'
 import './index.css' // Global styles
+import './styles/themes.css' // Accessibility themes (high-contrast, colorblind, etc.)
+
+const isSlotUsagePreview = window.location.pathname === '/slot-usage-preview'
+const AppShell = React.lazy(() => import('./ShellApp'))
+const SlotUsagePreview = React.lazy(() => import('./pages/SlotUsagePreview'))
+
+function RootApp() {
+  return isSlotUsagePreview ? <SlotUsagePreview /> : <AppShell />
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // StrictMode highlights potential issues in development (double-renders, deprecated APIs, etc.)
   <React.StrictMode>
-    {/* BrowserRouter enables client-side routing using the browser's URL bar */}
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <React.Suspense fallback={<main style={{ padding: '2rem' }}>Loading preview...</main>}>
+      <RootApp />
+    </React.Suspense>
   </React.StrictMode>
 )

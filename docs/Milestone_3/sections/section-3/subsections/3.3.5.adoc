@@ -18,6 +18,28 @@ The verification is applied at the level of the project’s booking logic as def
 
 Where `P` and `Q` are defined as follows.
 
+===== *Predicate Relationship (`booked` vs `slotAvailable`)*
+
+[.changed]#To avoid ambiguity, `booked(doctor_id, slot_id)` is treated as a derived predicate, not an independent flag.#
+
+[source,text]
+----
+booked(doctor_id, slot_id) ≜
+  exists appointment a :
+    hasDoctor(a, doctor_id) and
+    hasSlot(a, slot_id) and
+    status(a) = Confirmed
+----
+
+[.changed]#For the same doctor-slot pair, the model enforces a consistency rule:#
+
+[source,text]
+----
+slotAvailable(slot_id)  <=>  not booked(doctor_id, slot_id)
+----
+
+[.changed]#So yes: one can be expressed in terms of the other, provided the scope is the same slot and doctor pair and status semantics are fixed to `Confirmed` as the consuming state.#
+
 
 ===== *Preconditions*
 
@@ -27,7 +49,7 @@ Where `P` and `Q` are defined as follows.
 * `slotExists(slot_id)`
 * `slotBelongsToDoctor(slot_id, doctor_id)`
 * `slotAvailable(slot_id)`
-* `not booked(doctor_id, slot_id)`
+* `not booked(doctor_id, slot_id)` (equivalently, `slotAvailable(slot_id)`)
 
 
 ===== *Postconditions*
@@ -97,6 +119,8 @@ wp(assert slotAvailable(slot_id);
 
 
 Therefore, the weakest precondition for reaching `Q` is exactly that the slot is available and not already booked before the state transition begins. This matches the intended scheduling rule for the project.
+
+[.added]#Because `booked` is defined from appointment status and slot association, this weakest precondition can also be written with a single availability condition under the same consistency rule.#
 
 
 ===== *Verification Result*

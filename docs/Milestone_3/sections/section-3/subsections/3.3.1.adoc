@@ -1,96 +1,74 @@
 === *Testing Methodology*
 
-
 ==== *Test-Driven Development (TDD)*
 
-This section documents the Test-Driven Development (TDD) approach used to guide the implementation of the Simple Medical Appointments system. The process ensures that system behavior is defined and validated through executable tests before implementation begins, maintaining alignment with functional requirements defined in Section 3.2.
+[.changed]#This subsection reports concrete TDD work already present in the repository, instead of describing TDD in abstract terms.#
 
-===== *TDD Process (Red → Green → Refactor)*
+[.changed]#Primary TDD artifact on this branch: `backend/app/services/scheduling.py`, driven by `backend/tests/unit/test_scheduling.py`.#
 
-The development process follows the standard TDD cycle:
+===== *Function Under TDD*
 
-[discrete]
-====== Red Phase (Define Expected Behavior)
+* [.changed]#`TimeRange.split(slot_minutes)`#
+* [.changed]#`TimeRange.subtract(blocked)`#
+* [.changed]#`generate_available_slots(availability: DailyAvailability)`#
 
-- Test cases are written before implementation.
-- Each test encodes a specific requirement using observable system behavior.
-- Tests initially fail, confirming that the behavior is not yet implemented.
+[.changed]#These functions are domain-level scheduling logic and can be tested without HTTP, database, or frontend dependencies.#
 
-Examples:
-
-- Attempt to book an already reserved Time Slot → expected failure (<<REQ-BOOK-F-01>>)
-- Attempt to confirm an appointment without required insurance → expected failure (derived from scheduling constraints)
+===== *Applied TDD Iterations (Red -> Green -> Refactor)*
 
 [discrete]
-====== Green Phase (Minimal Implementation)
+====== Iteration 1: Slot Splitting Baseline
 
-- Implementation is written to satisfy the failing test with minimal logic.
-- Focus is strictly on meeting test expectations, not optimization.
-
-Examples:
-
-- Introduce atomic reservation logic to prevent double booking.
-- Add validation checks for referral and insurance status before confirmation.
+* [.changed]#RED: wrote failing tests for exact-fit and partial-slot behavior (`test_exact_fit_two_slots`, `test_partial_slot_discarded`).#
+* [.changed]#GREEN: implemented `TimeRange.split` loop with half-open interval semantics and discard of trailing partial slot.#
+* [.changed]#REFACTOR: clarified function docstring to make boundary behavior explicit.#
 
 [discrete]
-====== Refactor Phase (Improve Structure)
+====== Iteration 2: Invalid Slot Length Guard
 
-- Code is reorganized without changing external behavior.
-- Redundant logic is removed and responsibilities are separated.
-
-Examples:
-
-- Extract validation logic into dedicated service components.
-- Centralize scheduling rules (availability, conflicts) into a single module.
-
-===== *Scenario-Based Test Design*
-
-Test scenarios are derived directly from domain events identified in Section 3.1:
-
-- Appointment Request
-- Appointment Confirmation
-- Cancellation
-- Rescheduling
-- No-Show
-- Availability Definition
-
-Each scenario corresponds to one or more functional requirements and is expressed as a behavioral test.
+* [.changed]#RED: added failing tests for `slot_minutes <= 0` (`test_zero_slot_minutes_raises`, `test_negative_slot_minutes_raises`).#
+* [.changed]#GREEN: added guard clause in `TimeRange.split` raising `ValueError` for non-positive slot size.#
+* [.changed]#REFACTOR: reused the same guard pattern in `generate_available_slots` for consistency at service entry point.#
 
 [discrete]
-====== Coverage Strategy
+====== Iteration 3: Blocked-Period Subtraction
 
-- Every functional requirement has at least one associated test case.
-- Both normal flows and edge cases are covered.
+* [.changed]#RED: added failing tests for lunch-block split, no-overlap case, full-overlap case, and edge-boundary adjacency (`test_subtract_middle_lunch`, `test_subtract_no_overlap`, `test_subtract_full_overlap`, `test_adjacent_block_no_overlap`).#
+* [.changed]#GREEN: implemented `TimeRange.subtract` and helper `_subtract_segment`.#
+* [.changed]#REFACTOR: extracted overlap logic into helper to keep `subtract` readable and compositional for multiple blocked ranges.#
 
-Examples:
+[discrete]
+====== Iteration 4: End-to-End Slot Generation
 
-- Happy path: Patient books an available Time Slot successfully (<<REQ-BOOK-F-01>>)
-- Edge case: Concurrent booking attempts for the same Time Slot → only one succeeds (<<REQ-BOOK-F-01>>)
-- Edge case: Cancellation releases slot immediately (<<REQ-BOOK-F-02>>)
+* [.changed]#RED: wrote failing integration-style unit tests for daily generation (`test_weekday_no_blocks`, `test_blocked_lunch_reduces_slots`, `test_empty_working_hours_no_slots`).#
+* [.changed]#GREEN: implemented `generate_available_slots` by composing `subtract` + `split` and combining date/time into `datetime`.#
+* [.changed]#REFACTOR: explicit sort at the end (`slots.sort()`) to guarantee deterministic output regardless of segment ordering.#
 
-===== *Design Impact of TDD*
+===== *Test Refinements Recorded*
 
-TDD directly influenced system design decisions:
+* [.changed]#Added boundary-specific test (`test_boundary_slot_included`) to lock rule: slot ending exactly at range end is valid.#
+* [.changed]#Added ordering test (`test_slots_are_sorted`) to prevent nondeterministic sequence regressions.#
+* [.changed]#Added zero-duration and short-range checks to preserve safe behavior under degenerate inputs.#
 
-**Atomic Operations**:: Booking and cancellation logic were implemented as atomic transactions to satisfy concurrency tests.
+===== *Design Decision: `DailyAvailability(slot_minutes=0)`*
 
-**Explicit State Modeling**:: Appointment states (Requested, Confirmed, Cancelled, No-Show) were formalized to support state-transition tests.
+[.changed]#Feedback asked whether invalid `DailyAvailability` objects should be impossible to construct instead of relying on runtime `ValueError`.#
 
-**Separation of Concerns**:: Validation, scheduling logic, and persistence were separated to allow isolated testing.
+[.changed]#Current branch behavior: validation occurs in service execution (`generate_available_slots`) and in `TimeRange.split`, where `slot_minutes <= 0` raises `ValueError`.#
 
-**Deterministic Behavior**:: All operations produce predictable outcomes under concurrent conditions, as required by test scenarios.
+[.added]#Alternative considered: enforce the invariant at object construction (for example, a `__post_init__` check in `DailyAvailability`) so invalid instances cannot exist at all.#
 
-===== *Traceability to Requirements*
+[.changed]#Rationale for current state: the existing implementation centralizes guard checks at operation boundaries; this kept iterations small and matched existing tests.#
 
-Each test case is explicitly linked to one or more requirements:
+[.added]#Refinement opportunity: move or duplicate the guard into `DailyAvailability` construction to strengthen type-level domain safety while preserving current tests.#
 
-- Booking validation → <<REQ-BOOK-F-01>>
-- Cancellation behavior → <<REQ-BOOK-F-02>>
-- Availability constraints → <<REQ-AVAIL-F-01>>
-- Authentication and role enforcement → <<REQ-AUTH-F-01>>
+===== *Relationship to BDD Coverage*
 
-This ensures:
+[.changed]#Repository BDD scenarios currently cover only booking success, double-booking prevention, and provider cancellation.#
 
-- Full coverage of functional requirements
-- Verifiable system behavior
-- Alignment between specification and implementation
+[.changed]#This TDD subsection therefore focuses on scheduling-core functions that are already implemented and unit-tested, while broader lifecycle behaviors are documented as pending BDD expansion in Section 3.3.2 and 3.3.3.#
+
+===== *Traceability*
+
+* [.changed]#`TimeRange.split` and `generate_available_slots` support <<REQ-AVAIL-F-01>> by formalizing slot generation and overlap-safe availability handling.#
+* [.changed]#Blocked-period and release behavior support consistency expectations used by <<REQ-BOOK-F-02>> and validation flows in Section 3.2.#

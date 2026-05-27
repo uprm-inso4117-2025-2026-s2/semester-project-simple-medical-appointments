@@ -29,3 +29,33 @@ Feature: Appointment Booking
     When "Dr. Schutz" cancels the appointment with reason "Doctor unavailable"
     Then the appointment status is updated to "Cancelled"
     And the slot on "2026-04-10" at "10:00" is marked as available
+
+  Scenario: Booking requiring insurance stays pending
+    Given the patient "Ivan Morales" has a registered account
+    And insurance authorization is required for the requested consultation
+    And insurance authorization has not been received
+    When the patient selects the slot and submits the booking
+    Then the appointment is saved with status "PendingApproval"
+    And the slot on "2026-04-10" at "10:00" is marked as unavailable
+
+  Scenario: Pending appointment is confirmed after insurance authorization
+    Given the patient "Ivan Morales" has a pending-approval appointment on "2026-04-10" at "10:00"
+    And insurance authorization has been received
+    When staff confirms the pending appointment
+    Then the appointment status is updated to "Confirmed"
+    And the slot remains reserved for "Ivan Morales"
+
+  Scenario: Patient cannot reschedule below clinic cutoff
+    Given the patient "Ivan Morales" has a confirmed appointment at "14:00"
+    And the current time is "13:55"
+    And clinic reschedule cutoff is 10 minutes before appointment
+    When "Ivan Morales" requests reschedule to "16:00"
+    Then the system rejects the request with status 422
+    And the appointment status is updated to "Confirmed"
+
+  Scenario: Waitlisted patient gets released slot
+    Given the patient "Ivan Morales" is on the waitlist for the provider slot
+    And the slot on "2026-04-10" at "10:00" is released by cancellation
+    When the system runs waitlist reassignment
+    Then the appointment is saved with status "Confirmed"
+    And the slot remains reserved for "Ivan Morales"

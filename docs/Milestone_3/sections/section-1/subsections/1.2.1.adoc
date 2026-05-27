@@ -8,10 +8,11 @@ Access to medical services in Puerto Rico has become increasingly strained in
 recent years due to structural pressures on the healthcare system. One major
 factor is the sustained migration of healthcare professionals away from the
 island, which has reduced the number of practicing physicians available to meet
-patient demand. The WHO recommends a ratio of 2.3 health workers per 1,000 population. 
+patient demand. [.removed]#The WHO recommends a ratio of 2.3 health workers per 1,000 population.# 
+[.added]#The World Health Organization (WHO) recommends a minimum threshold of 2.3 healthcare workers (including physicians, nurses, and midwives) per 1,000 population to maintain adequate healthcare service coverage. However, this metric refers broadly to healthcare workers and is not directly equivalent to the number of practicing physicians reported in Puerto Rico.# 
 According to the PR College of Physicians and Surgeons (PRCPS), 
-there are only 9,000 practicing doctors in Puerto Rico. Per the PRCPS, 
-since 2014 365-500 physicians have left the island <<prDocMigration, [1]>>. 
+there are only 9,000 practicing doctors in Puerto Rico. [.removed]#Per the PRCPS, since 2014 365-500 physicians have left the island <<prDocMigration, [1]>>.# 
+[.added]#The PRCPS additionally reported that between 365 and 500 physicians have migrated from Puerto Rico annually since 2014 <<prDocMigration, [1]>>. Although the migration figures refer to licensed physicians broadly and do not explicitly distinguish whether all departing physicians were actively practicing at the time of migration, the continued outflow contributes to concerns regarding long-term physician availability on the island.# 
 Additionally, due to geographic isolation, limited infrastructure, 
 and chronic underfunding of healthcare services, many clinics operate at or near full capacity and
 patients often experience delays when attempting to obtain appointments <<prHealthCrisis, [2]>>.
