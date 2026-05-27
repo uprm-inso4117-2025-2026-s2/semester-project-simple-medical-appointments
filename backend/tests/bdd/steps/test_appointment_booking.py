@@ -109,6 +109,13 @@ def no_appointment_created(booking_context, patient_name):
 def slot_still_reserved(booking_context, patient_name):
     assert booking_context['appointments'][patient_name]['status'] == 'Confirmed'
 
+
+@then(parsers.parse('the slot remains reserved for "{patient_name}"'))
+def slot_still_reserved_for(booking_context, patient_name):
+    assert booking_context['slot_status'] == 'Reserved'
+    assert patient_name in booking_context['appointments']
+    assert booking_context['appointments'][patient_name]['status'] == 'Confirmed'
+
 # ── Scenario 3: Doctor Cancels ────────────────────────────────────────────────
 
 @given(parsers.parse('the patient "{patient_name}" has a confirmed appointment on "{slot_date}" at "{slot_time}"'))
