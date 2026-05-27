@@ -38,7 +38,7 @@ include::sections/section-3/section.adoc[]
 
 include::sections/section-4/section.adoc[]
 
-// include::sections/section-LTT/section.adoc[]
+include::sections/section-LTT/section.adoc[]
 
 include::sections/AI_Disclosure_Statement.adoc[]
 
