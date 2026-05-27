@@ -2,37 +2,38 @@
 
 [NOTE]
 ====
-Each term below is derived from raw observations in the Domain Rough Sketch (2.1.1) and refined through concept analysis. Terms are presented with their classification (entity, actor, event, behavior, function, etc.) and the phase in which they appear (domain, requirements, implementation).
+Each term below is derived from raw observations in the Domain Rough Sketch (2.1.1) and refined through concept analysis. Terms are presented with their classification ([.changed]#entity, action, event, or behavior#) and the phase in which they appear (domain, requirements, implementation).
 
 Terms are organized into Domain Nouns, Domain Verbs, and Domain Constraints to align with ubiquitous language principles.
 ====
 
 
 [discrete]
-===== Domain Nouns (entities, actors, abstractions)
+===== [.changed]#Domain Nouns (entities)#
 
+NOTE: [.changed]#*Actor* is not used as a separate concept classification. It is a role annotation for entities that can initiate actions.#
 
-*Patient* :: (actor, domain)
-A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments.
+*Patient* :: [.changed]#(entity, domain)#
+A person seeking medical consultation or treatment. A patient may request, confirm, cancel, or reschedule appointments. [.added]#Role: actor.#
 [.small]*Derived from: Carmen’s redial marathon to secure a May slot (5 Feb 2026) and Natalia’s stalled waitlist (Feb 2026).*
 
-*Caregiver* :: (actor, domain)
-A person managing appointments on behalf of a patient who cannot coordinate independently.
+*Caregiver* :: [.changed]#(entity, domain)#
+A person managing appointments on behalf of a patient who cannot coordinate independently. [.added]#Role: actor.#
 [.small]*Derived from: Elena coordinating three linked visits for her mother in March 2026.*
 
-*Healthcare Provider* :: (actor, domain)
-A licensed professional offering medical consultations (e.g., general practitioner, specialist).
+*Healthcare Provider* :: [.changed]#(entity, domain)#
+A licensed professional offering medical consultations (e.g., general practitioner, specialist). [.added]#Role: actor.#
 [.small]*Derived from: Dr. Rivera’s variable consult durations and no-shows (Feb 2026 sketch).*
 
-*Doctor* :: (actor, domain)
-A specific type of healthcare provider with a medical degree. Doctors may have different scheduling constraints than other providers.
+*Doctor* :: [.changed]#(entity, domain)#
+A specific type of healthcare provider with a medical degree. Doctors may have different scheduling constraints than other providers. [.added]#Role: actor.#
 [.small]*Derived from: provider-level constraints voiced by Dr. Rivera and Dr. Morales (Feb 2026 sketches).*
 
 *Clinic* :: (entity, domain)
 A healthcare facility that hosts providers and manages appointment availability within defined operational constraints.
 
 *Appointment* :: (entity, domain)
-A reserved time block allocated to a patient for consultation with a provider at a specific clinic location.
+[.changed]#A scheduled consultation record linking a patient, provider, clinic, and a reserved time slot.# [.added]#Note: "time block" (used informally in some sketches) is not a distinct entity; it refers to the reserved Time Slot associated with an appointment.#
 
 *Time Slot* :: (entity, domain)
 A discrete, reservable interval in a provider’s schedule. A time slot may be available, reserved, canceled, or expired.
@@ -40,7 +41,7 @@ A discrete, reservable interval in a provider’s schedule. A time slot may be a
 *Schedule* :: (entity, domain)
 The structured allocation of time slots associated with a provider or clinic.
 
-*Consultation Type* :: (taxonomy, domain)
+*Consultation Type* :: [.changed]#(entity, domain)#
 A classification of medical visit (e.g., follow-up, first-time visit, procedure) that influences duration and constraints.
 
 *Waitlist* :: (entity, domain)
@@ -54,26 +55,29 @@ The release of a previously reserved appointment before its scheduled time.
 The absence of a patient at a scheduled appointment without prior cancellation.
 [.small]*Derived from: Dr. Rivera’s no-show fluctuation (Feb 2026 sketch).*
 
-*Insurance Authorization* :: (process, domain)
-An external approval required before certain appointments can be confirmed.
+*Insurance Authorization* :: [.changed]#(entity, domain)#
+[.changed]#A formal approval record issued by an insurer that must be obtained before certain appointments can be confirmed.#
 [.small]*Derived from: Marcos waiting on insurer portals before confirming slots (Feb 2026 sketch).*
 
-*Referral* :: (entity/event, domain)
+*Referral* :: [.changed]#(entity, domain)#
 A directive from one provider requiring a patient to consult another provider before treatment.
 
-*Availability* :: (state, domain)
+[.added]#*Referral Recorded*# :: [.added]#(event, domain)#
+[.added]#The moment at which a referral from an external provider is registered in the system, making the patient eligible to book the referred consultation.#
+
+*Availability* :: [.changed]#(entity, domain)#
 The condition of a time slot being open for reservation.
 
-*Booking Status* :: (state, domain)
+*Booking Status* :: [.changed]#(entity, domain)#
 The current condition of an appointment (pending, confirmed, canceled, completed).
 
-*Operational Hours* :: (constraint entity, domain)
+*Operational Hours* :: [.changed]#(entity, domain)#
 The defined time boundaries within which a clinic accepts or schedules appointments.
 [.small]*Derived from: Miguel finding the clinic closed after his shift (21–22 Jan 2026).*
 
 
 [discrete]
-===== Domain Verbs (actions, events, domain operations)
+===== [.changed]#Domain Verbs (actions and events)#
 
 
 *Request Appointment* :: (action, domain)
@@ -83,11 +87,17 @@ A patient expresses intent to reserve an available time slot.
 *Reserve Time Slot* :: (action, domain)
 The act of assigning a specific time slot to a patient.
 
-*Confirm Appointment* :: (event, domain)
-The transition of an appointment from pending to confirmed state.
+[.changed]#*Confirm Appointment*# :: [.removed]#(event, domain)# [.added]#(action, domain)#
+[.changed]#The action of validating and approving a pending appointment so it can become part of the clinic schedule.#
 
-*Cancel Appointment* :: (action/event, domain)
-The intentional release of a reserved time slot by patient or clinic.
+[.added]#*Appointment Confirmed*# :: [.added]#(event, domain)#
+[.added]#The instant at which an appointment's status changes from pending to confirmed.#
+
+*Cancel Appointment* :: [.changed]#(action, domain)#
+The intentional withdrawal of a reserved appointment by a patient or clinic staff member.
+
+[.added]#*Appointment Canceled*# :: [.added]#(event, domain)#
+[.added]#The moment at which a previously reserved time slot is released back to available status following a cancellation.#
 
 *Reschedule Appointment* :: (action, domain)
 The replacement of one reserved time slot with another.
@@ -96,38 +106,48 @@ The replacement of one reserved time slot with another.
 A patient registers interest in being assigned a slot if one becomes available.
 [.small]*Derived from: Natalia joining a waitlist without receiving position updates (Feb 2026).*
 
-*Assign Waitlisted Patient* :: (event, domain)
-The allocation of a newly freed time slot to the next eligible patient in the waitlist.
+*Assign Waitlisted Patient* :: [.changed]#(action, domain)#
+[.changed]#The action of selecting the next eligible waitlisted patient and allocating a newly freed time slot to that patient.#
 
-*Authorize Coverage* :: (external event, domain)
-Insurance approval required before final confirmation of certain appointment types.
+[.added]#*Waitlisted Patient Assigned*# :: [.added]#(event, domain)#
+[.added]#The instant at which a newly freed time slot becomes reserved for the selected waitlisted patient.#
+
+[.added]#*Request Coverage Authorization*# :: [.added]#(action, domain)#
+[.added]#The act of submitting an insurance pre-authorization request for a specific appointment type, performed by clinic staff or triggered by the system.#
+[.small.added]#Derived from: Marcos pausing confirmations until insurer approval arrives (Feb 2026).#
+
+[.removed]#*Authorize Coverage*# [.added]#*Coverage Authorized*# :: [.removed]#(combined external classification)# [.added]#(event, domain)#
+[.changed]#The moment at which insurance approval for a specific appointment is recorded in the system, satisfying the Authorization Dependency constraint.#
 [.small]*Derived from: Marcos pausing confirmations until insurer approval arrives (Feb 2026).*
 
-*Expire Slot* :: (event, domain)
-Automatic release of a temporarily held slot after a defined confirmation window.
+[.removed]#*Expire Slot*# [.added]#*Slot Expiration Check*# :: [.removed]#(event, domain)# [.added]#(action, domain)#
+[.changed]#The scheduled system action that evaluates temporarily held slots after their confirmation window ends.#
+
+[.added]#*Slot Expired*# :: [.added]#(event, domain)#
+[.added]#The instant at which a temporarily held time slot is released because its confirmation window has ended.#
 
 
 [discrete]
 ===== Domain Constraints (invariant business rules)
 
-*No Double Booking* ::
+*No Double Booking* :: [.added]#(behavior, domain)#
 A single time slot cannot be reserved by more than one patient simultaneously.
 [.small]*Derived from: Dr. Morales observing duplicate bookings that cancel late (Feb 2026 sketch).*
 
-*Single Active Appointment per Provider Constraint* ::
+*Single Active Appointment per Provider Constraint* :: [.added]#(behavior, domain)#
 A patient may not hold multiple concurrent active appointments with the same provider.
 
-*Operational Hour Restriction* ::
+*Operational Hour Restriction* :: [.added]#(behavior, domain)#
 Appointments cannot be scheduled outside clinic operational hours.
 [.small]*Derived from: Miguel’s inability to book after 6:00 p.m. when the clinic door was locked (22 Jan 2026).*
 
-*Consultation Duration Integrity* ::
+*Consultation Duration Integrity* :: [.added]#(behavior, domain)#
 The allocated time slot must match the required duration for the selected consultation type.
 
-*Waitlist Ordering Integrity* ::
+*Waitlist Ordering Integrity* :: [.added]#(behavior, domain)#
 Waitlisted patients must be assigned based on defined priority rules.
 
-*Authorization Dependency* ::
+*Authorization Dependency* :: [.added]#(behavior, domain)#
 Certain appointments cannot transition to confirmed status without required insurance approval.
 [.small]*Derived from: Marcos losing slots while waiting for insurer authorization (Feb 2026 sketch).*
 
@@ -141,13 +161,13 @@ These terms appear in later phases and are included for clarity.
 A technical authentication construct representing a system login identity.
 *Not a domain concept.*
 
-*Authentication Token* :: (artifact, implementation)
+*Authentication Token* :: [.changed]#(entity, implementation)#
 A signed credential used to verify session identity.
 
-*Notification* :: (system event, requirements)
+*Notification* :: [.changed]#(event, requirements)#
 A system-generated alert informing patients or clinics about appointment changes.
 
-*Session* :: (technical state, implementation)
+*Session* :: [.changed]#(entity, implementation)#
 The authenticated runtime context allowing authorized actions.
 
 
