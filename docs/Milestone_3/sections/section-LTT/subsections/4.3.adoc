@@ -305,3 +305,102 @@ Boundary/edge coverage is explicitly included in:
 * TC-CL-12 (booking time violation)
 
 ---
+
+=== *Exploratory Testing Notes for Appointment Success Return Button*
+:author: Carlos Ferrer
+
+==== Overview
+
+This document records notes from a short exploratory testing session on the Appointment Success page, specifically focusing on the `Return back to home page` button and the success message shown near it. This task connects to the Exploratory Testing lecture topic which is unscripted testing where the tester explores the system without a fixed test script. The tester still keeps notes so the session is useful and not just random clicking.
+
+==== Session Notes
+
+===== Starting Point
+
+I started from the normal appointment scheduling flow. I selected the required appointment information and confirmed the appointment.
+
+The app navigated to `/appointment-success` and the success page appeared. The page showed the success message, appointment information, and the `Return back to home page` button.
+
+This confirmed that the `Return back to home page` button can be reached through the normal flow.
+
+===== Return Button Behavior
+
+After reaching the success page, I focused on the return button.
+
+The button is easy to find and its purpose is clear. The current label is:
+
+`Return back to home page`
+
+The button action calls:
+
+`navigate("/")`
+
+I then checked the route definition in `App.jsx`. The `/` route is mapped to the `Home` page, so the button does return the patient to the home page.
+
+===== Resubmission Check
+
+While checking the return button, I looked for whether it could accidentally submit or repeat the appointment action.
+
+The return button only calls:
+
+`navigate("/")`
+
+It does not call the appointment confirmation function, submit form data, or change appointment state.
+
+This is good because the button only performs navigation.
+
+===== Direct Access Check
+
+After checking the normal flow, I looked at what might happen if the success page is opened directly without the appointment data normally passed through navigation state.
+
+The code has fallback values:
+
+* `patientName = "Patient Name"`
+* `selectedDate = null`
+* `selectedTime = ""`
+
+This means the page should not crash if it is opened directly.
+
+However, this led to a clarity issue. If `selectedDate` is missing, `formatDate(selectedDate)` returns an empty string. The success message may read like:
+
+`Your appointment has been booked for .`
+
+This is confusing because the page still says the appointment was booked, but no date is shown.
+
+===== Missing Time Check
+
+I also checked the missing time case.
+
+The code only adds `at selectedTime` if `selectedTime` exists. If the time is missing, the code avoids adding an empty `at` phrase and the sentence still ends with a period.
+
+This case is handled better than the missing date case.
+
+===== Normal Flow Protection
+
+I then checked whether the normal scheduling flow allows the user to reach the success page with missing appointment information.
+
+The scheduling page checks for missing appointment type, date, and time before navigating to `/appointment-success`.
+
+If information is missing, the validation popup appears and the user stays on the scheduling page.
+
+This means the unclear missing date message is mainly a direct access edge case, not something expected in the normal booking flow.
+
+==== Findings
+
+* The return button works as expected
+* The return button sends the patient to the Home page
+* The button does not resubmit appointment data
+* The normal scheduling flow blocks missing appointment information before reaching the success page
+* The success page can still render without appointment data
+* The main issue found is the direct access case where the message can become unclear if no date is available
+
+==== Recommendations
+
+* Consider changing `Return back to home page` to `Return to Home` or `Back to Home` for shorter wording
+* Add a clearer fallback message if the success page is opened without appointment data
+* If no appointment date is available, avoid showing `Your appointment has been booked for .`
+* Keep the return button simple because its only job is to help the user leave the success page
+
+==== Conclusion
+
+This exploratory session found that the Appointment Success return button works correctly. It sends the patient back to the Home page and does not resubmit appointment data. The main issue found during exploration is not the button itself. Its that the success message can become unclear if the success page is opened directly without appointment data. The suggested improvement is to add a clearer fallback message for that direct access edge case.
