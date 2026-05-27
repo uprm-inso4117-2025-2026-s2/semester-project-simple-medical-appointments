@@ -1,61 +1,43 @@
 ==== *Ideas*
 
-===== Real-Time Agenda
- * Live availability display
- * Synchronization of schedule updates between patients and clinics
- * Management of time blocks and appointment durations
+===== Shared Availability View
 
-===== Waitlist Feature
-If a doctor's schedule is full, patients can join a waitlist and automatically receive a slot when cancellations occur.
+[.changed]#Addressed needs: patients, staff, providers.#
 
-===== Conflict Detection and Capacity Handling
-Prevent double bookings and manage maximum appointment limits per time slot.
+[.changed]#Represent provider availability as explicit time slots with visible status, so that patients can discover openings, staff can see the same schedule state, and providers can publish or withdraw availability without relying on separate paper or memory-based workflows.#
 
-===== Appointment type Configuration
-Allow clinics to assign different durations for specific procedures and restrict certain procedures to designated time blocks.
+===== Structured Appointment States
 
-===== Staff Review and Confirmation
-Appointments may enter a pending state for staff approval before being finalized, ensuring correct booking types and improved reliability.
+[.changed]#Addressed needs: patients, staff, clinics.#
 
-===== Patient Appointment Limits
-Limit the number of active appointments per specialist (e.g., one at a time) to prevent unnecessary reservation of multiple slots.
+[.changed]#Represent appointments with explicit states such as `Requested`, `PendingApproval`, `Confirmed`, `Cancelled`, and `NoShow`, so that everyone can distinguish a request from a finalized booking and see why an appointment is blocked or delayed.#
 
-===== Clinic Constraints Configuration
-* Allow institutes to define rules such as:
-* No appointments on specific days
-* No appointments after certain hours
-* Custom availability restrictions
+===== Waitlist with Explicit Reassignment Rules
 
-===== Accessibility Features
-* Clear interface design
-* Larger text options
-* Simplified navigation
-* Accessibility-friendly layout for elderly users
+[.changed]#Addressed needs: patients, staff.#
 
-===== Advanced Filtering Options
-* Filter by specialty
-* Filter by location
-*Filter by accepted health insurance plans
-* Filter by doctor availability
-* Filter by services offered
+[.changed]#When no slot is available, allow a patient to register interest in a future opening. Reassignment should follow explicit eligibility and ordering rules instead of informal notebook-based callbacks.#
 
-===== Clear Calendar Separation
-Display schedules per doctor and per location without overlapping all calendars simultaneously.
+===== Consultation-Type Configuration
 
-===== Data Privacy and Protection Measures
-* Secure document storage
-* Controlled access permissions
-* Patient history visibility limited to authorized roles
-* Change history tracking
+[.changed]#Addressed needs: providers, clinics.#
 
-===== HIPAA Compliance Considerations
-Availability data must be handled in a way that does not expose confidential patient information.
+[.changed]#Associate consultation types with expected durations and booking prerequisites. This allows the schedule to reflect that a follow-up, first visit, or procedure may need different slot lengths or approvals.#
 
-===== Secure Authentication and Role Management
-Distinct roles (patient, doctor, location, admin) with clearly defined permissions.
+===== Duplicate-Booking Controls
 
-===== Automated Notifications
-* Appointment confirmations
-* Cancellation alerts
-* Rescheduling updates
-* Reminder messages
+[.changed]#Addressed needs: patients, providers, staff.#
+
+[.changed]#Prevent duplicate holds or conflicting active bookings for the same provider and consultation window, while still allowing legitimate multiple future appointments when they are not in conflict.#
+
+===== Multi-Party Accessibility Support
+
+[.changed]#Addressed needs: elderly patients, caregivers, staff.#
+
+[.changed]#Use simple navigation, readable status feedback, and reminder support so that patients with lower digital confidence and caregivers coordinating on someone else's behalf can still complete scheduling tasks reliably.#
+
+===== Search and Comparison Support
+
+[.changed]#Addressed needs: patients, clinics.#
+
+[.changed]#Allow patients to search by specialty, location, accepted insurance, and slot availability so they do not need to contact each clinic separately just to learn whether a suitable opening exists.#

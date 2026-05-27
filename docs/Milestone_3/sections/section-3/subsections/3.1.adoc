@@ -4,130 +4,174 @@
 
 ==== *From Raw Observations to Domain Structure*
 
-The descriptive section revealed fragmented scheduling practices, overloaded communication channels, informal coordination patterns, and systemic access inequalities. 
-The following concept analysis abstracts these raw observations into structured domain elements and relationships that define the medical appointment scheduling problem.
-The goal of this section is not to repeat observations, but to transform them into coherent domain concepts.
+[.changed]#The descriptive section exposed fragmented scheduling interactions, inconsistent coordination mechanisms, and heavy reliance on manual communication channels.#
 
-[discrete]
-==== Trace from stakeholder fragments to concepts
+[.changed]#This section performs a traceable abstraction step, mapping concrete stakeholder fragments into domain-level concepts and clarifying how those concepts govern system behavior.#
+
+[.changed]#Where definitions already exist, this section links to Section 2.1.2 (Terminology) rather than duplicating full definitions.#
+
+[NOTE]
+All concepts below are derived from Section 1.3 (Stakeholder Observations) and Section 2.2 (Personas and Requirements). Only traceable concepts are included.
+
+==== *Trace from Stakeholder Fragments to Domain Concepts*
 
 [cols="1,3,3",options="header"]
 |===
-|Concept |Representative stakeholder snippet |Why it maps
-|Patient |Persona Jose: "needs simplified interactions" (Section 2.2.2) |Shows the user role who books and attends appointments.
-|Provider |Persona Dr. Morales: "manages overloaded schedules across clinics" (Section 2.2.2) |Describes the actor offering availability across locations.
-|Appointment |Domain requirement DR-003: one patient with at least one provider (Section 2.2.3) |Captures the scheduled encounter between patient and provider.
-|Time Slot |Domain requirement DR-005: bounded availability intervals (Section 2.2.3) |Defines the reservable unit of provider time.
-|Referral |Observation: certain specialist visits need prior approval (Section 2.2.3 DR-013) |Adds a prerequisite before confirmation.
-|Insurance authorization |Observation: confirmation waits on insurance approval (Section 2.2.3 DR-007) |External gate that delays booking completion.
-|Cancellation |Pain point: cancellations are redistributed informally (Section 1.3.1) |State change that frees a reserved slot.
-|Reminder notification |Requirement linkage REQ-NOTIF-F-02 (Section 2.2.1) |Event intended to reduce no-shows.
+|Concept |Concrete stakeholder fragment |Abstraction logic
+
+|Patient
+|"Patients contact multiple clinics simultaneously" (Section 1.3.1)
+|Abstracts the entity that initiates scheduling requests across systems.
+
+|Provider
+|Dr. Morales: "manages overloaded schedules across clinics" (Section 2.2.2)
+|Represents constrained service capacity distributed across locations.
+
+|Time Slot
+|"Providers define working hours in blocks" (Section 1.3.1)
+|Represents the atomic allocatable unit of provider capacity.
+
+|Appointment
+|REQ-APPT-F-01 (Section 2.2.3)
+|Represents committed allocation of one TimeSlot to one patient-provider interaction.
+
+|Referral
+|REQ-CONFIRM-F-01 (Section 2.2.3)
+|Represents a prerequisite constraint before confirmation.
+
+|Insurance Authorization
+|REQ-CONFIRM-F-01 (Section 2.2.3)
+|Represents an external validation gate before confirmation.
+
+|Cancellation
+|"Cancellations are handled informally via calls/messages" (Section 1.3.1)
+|Represents removal of an existing appointment and slot release trigger.
+
+|Reminder Notification
+|REQ-NOTIF-F-02
+|Represents time-triggered communication linked to appointment state.
 |===
 
-[NOTE]
-Long-form descriptions for these concepts live in Section 2.1.2 (Terminology). Here we only show the trace from raw fragments to abstractions.
+==== *Terminology Change Impact (Traceable Effects)*
+
+[.changed]#The abstraction process required terminology refinements in Section 2.1.2 and consistency updates in related sections.#
+
+[cols="1,3",options="header"]
+|===
+|Refinement |Downstream impact
+
+|TimeSlot vs Appointment separation
+|Resolved ambiguity in scheduling lifecycle and event transitions.
+
+|Explicit slot states (`Available`, `Held`, `Reserved`, `Expired`)
+|Standardized state semantics across events and function signatures.
+
+|Insurance Authorization as prerequisite
+|Reframed confirmation as a gated transition instead of immediate booking.
+
+|Referral as prerequisite
+|Introduced explicit confirmation dependency in requirement validation.
+
+|Expected duration (not guaranteed runtime)
+|Aligned narrative, behavior analysis, and consultation-type constraints.
+|===
 
 ==== *Core Domain Entities*
 
-From recurring patterns in stakeholder fragments and operational observations, the following primary entities were identified:
+[.changed]#Entities are defined in Section 2.1.2. This subsection shows why they appear in the model.#
 
-*Patient*  
-An individual seeking medical consultation. Patients may differ in digital literacy, transportation availability, insurance type, and appointment urgency.
+*Patient* - derived from repeated booking initiation behavior across clinics.
 
-*Provider*  
-A doctor or specialist offering medical consultations. Providers may operate in multiple clinics and manage overloaded schedules.
+*Provider* - derived from constrained multi-clinic availability patterns.
 
-*Clinic*  
-An organization where providers offer consultations. Clinics manage scheduling logistics, administrative staff, and communication workflows.
+*Clinic* - derived from organizational scheduling boundaries.
 
-*Appointment*  
-A scheduled interaction between a Patient and a Provider at a specific time and location. Appointments vary in duration and consultation type.
+*Appointment* - derived from requirement for confirmed scheduled interactions.
 
-*Time Slot*  
-A discrete unit of provider availability that can be reserved, canceled, or reassigned.
+*TimeSlot* - derived from structured provider availability segmentation.
 
-*Referral*  
-A requirement that introduces dependency between providers and adds coordination steps before scheduling.
+*Referral* - derived from prerequisite consultation constraints.
 
-*Insurance Authorization*  
-An external validation process that may delay confirmation of appointments.
+*InsuranceAuthorization* - derived from external validation requirements.
 
-==== *Events in the Domain*
+==== *Event Derivation (State Transitions Only)*
 
-The domain is event-driven. The following state-changing events structure system behavior:
+[IMPORTANT]
+[.changed]#An event is instantaneous. It is not an action or process.#
 
-* Appointment request submitted (patient initiates booking)
-* Appointment confirmation recorded (system/provider accepts)
-* Appointment cancellation recorded (patient or provider frees the slot)
-* Appointment rescheduled (old slot released, new slot held)
-* No-show detected at appointment start time
-* Walk-in arrival logged at clinic desk
-* Reminder notification sent to patient
-* Referral received for a specific appointment
-* Insurance authorization received for a specific appointment
+The following events are derived from stakeholder fragments and requirements:
 
-These events alter system state and influence availability, workload, and waiting time.
+* AppointmentRequestSubmitted  
+  -> Derived from repeated patient request attempts (Section 1.3.1)  
+  -> Represents transition where a request record is created
 
-==== *Behavioral Patterns Identified*
+* AppointmentConfirmed  
+  -> Derived from confirmation requirements (<<REQ-CONFIRM-F-02>>)  
+  -> Represents transition into `Confirmed` appointment status
 
-The descriptive material revealed recurring behavioral patterns. Each pattern is tied to observed fragments and drives a requirement or feature:
+* AppointmentCancelled  
+  -> Derived from cancellation handling patterns (Section 1.3.1, <<REQ-BOOK-F-02>>)  
+  -> Represents transition where appointment is cancelled and slot can be released
 
-* Patients contact multiple clinics simultaneously (Section 1.3.1 pain points) -> motivates conflict checks (REQ-AVAIL-F-01).
-* Staff maintain informal priority lists (Admin persona Marta, Section 2.2.2) -> motivates admin oversight and filters (REQ-ADMIN-F-01).
-* Providers prioritize returning patients (Dr. Morales persona, Section 2.2.2) -> influences slot allocation rules (F2.2).
-* Cancellations are redistributed informally (Section 1.3.1) -> drives atomic slot release and reuse (REQ-BOOK-F-02).
-* Appointment duration frequently exceeds planned time (Section 1.3.1) -> drives buffer/overrun handling in scheduling rules (E2/E3).
+* NoShowRecorded  
+  -> Derived from attendance outcome requirement (<<REQ-ATTEND-F-01>>)  
+  -> Represents transition where unattended confirmed appointment is recorded
 
-These behaviors indicate a lack of centralized visibility and systematic coordination.
+* InsuranceAuthorizationReceived  
+  -> Derived from prerequisite evidence requirement (<<REQ-CONFIRM-F-03>>)  
+  -> Represents transition where required external approval is recorded
 
-==== *Operational Concepts*
+* WaitlistEntryCreated  
+  -> Derived from waitlist requirements (<<REQ-WAIT-F-01>>)  
+  -> Represents transition where patient joins waitlist
 
-Beyond entities and events, higher-level operational abstractions emerged:
+* ReminderSent  
+  -> Derived from reminder requirement (<<REQ-NOTIF-F-02>>)  
+  -> Represents transition where reminder dispatch is recorded
 
-*Availability Visibility*  
-The degree to which real-time time slots are visible to patients and staff.
+==== *Behavioral Abstraction (Event Composition)*
 
-*Scheduling Coordination*  
-The mechanism used to assign appointments (manual, semi-digital, or automated).
+[.changed]#Behaviors are modeled as composed event sequences, not isolated labels.#
 
-*Administrative Load*  
-The amount of time and effort clinic staff dedicate to scheduling-related tasks.
+* Multi-clinic booking behavior  
+  -> AppointmentRequestSubmitted -> (AppointmentConfirmed or rejection)
 
-*Waiting Time*  
-The time between appointment request and confirmed consultation.
+* Cancellation-driven reassignment behavior  
+  -> AppointmentCancelled -> slot available -> waitlist selection opportunity
 
-*No-Show Rate*  
-The proportion of scheduled appointments not attended by patients.
+* Authorization-constrained booking behavior  
+  -> AppointmentRequestSubmitted -> InsuranceAuthorizationReceived -> AppointmentConfirmed
 
-*Access Inequality*  
-Differences in scheduling success due to geography, transportation, or digital literacy.
+* Attendance outcome behavior  
+  -> AppointmentConfirmed -> (Completed or NoShowRecorded)
 
-==== *Domain Tensions (Structural Conflicts)*
+==== *Operational Concepts (System-Level Properties)*
 
-From the raw notes, several domain-specific tensions were identified (not project justifications):
+[.changed]#Operational concepts represent emergent system properties derived from repeated constraints.#
 
-* Limited provider availability vs. high patient demand (drives F2/F3).
-* Overlaps and overruns vs. rigid slot definitions (drives REQ-AVAIL-F-01).
-* Patient-driven changes (cancellations/reschedules) vs. maintaining a reliable shared calendar (drives REQ-BOOK-F-02).
-* Access inequality (digital literacy/transport) vs. equal opportunity to book (motivates notifications and multi-channel access in F4/F1.1).
+*Availability Visibility* - derived from fragmented calendar access.
 
-These tensions define the core problem space the system must address.
+*Scheduling Coordination Load* - derived from manual coordination workflows.
 
-==== *Concept Relationships*
+*Waiting Time* - derived from delays between request and confirmation.
 
-The primary relationships in the domain are:
+*No-Show Rate* - derived from unattended appointment frequency.
 
-* A Patient requests an Appointment.
-* An Appointment reserves a Time Slot.
-* A Provider offers multiple Time Slots.
-* A Provider operates within one or more Clinics.
-* A Cancellation releases a Time Slot.
-* Referral and Insurance Authorization may constrain Appointment confirmation.
-* Reminder Notifications aim to reduce No-Show rates.
-* Administrative Load increases when Scheduling Coordination is manual.
+*Access Inequality* - derived from differences in booking success across users.
 
-These relationships reveal that the system's central coordination node is the management of Time Slots under real-time constraints.
+==== *Concept Relationships (Domain Structure)*
 
-==== *Why this abstraction is here*
+[.changed]#Relationships describe structural coupling among entities and states.#
 
-The abstraction summarizes how the named concepts interact: a constrained resource allocation system where limited provider time must be dynamically distributed among patients under uncertainty, administrative friction, and access inequality. It links the fragment trace above to the terminology in Section 2.1.2 and feeds the scenario validation in Section 3.2. This section is retained to show that the observed fragments cohere into a single coordination problem the requirements must solve.
+* A Patient submits an appointment request.
+* A Provider publishes TimeSlots within a Clinic context.
+* An Appointment binds one Patient, one Provider, one Clinic, and one TimeSlot.
+* Cancellation transitions an Appointment and releases its TimeSlot state.
+* Referral and InsuranceAuthorization constrain appointment confirmation.
+* Reminder notifications are associated with confirmed appointments.
+
+==== *Analytic Merit of This Section*
+
+[.changed]#This section provides auditable traceability from stakeholder fragments to domain abstraction and requirement linkage.#
+
+[.changed]#It explicitly distinguishes entities, events, behaviors, and operational properties, and aligns those abstractions with Section 2.1.2 terminology and Section 2.2 requirements.#

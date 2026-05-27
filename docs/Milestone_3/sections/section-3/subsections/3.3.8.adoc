@@ -1,8 +1,8 @@
-=== *Property-based Testing*
+==== *Property-based Testing*
 
 [.added]#This section documents how property-based testing and domain-oriented types are used to increase correctness and maintainability in the appointment scheduling logic.#
 
-==== Tooling and Scope
+===== Tooling and Scope
 
 [.added]#The backend testing stack uses `pytest` and `hypothesis` for property-based testing.#
 
@@ -10,7 +10,7 @@
 
 [.added]#Primary module under test: `generate_available_slots` and related domain types used in `backend/tests/unit/test_scheduling.py` (`TimeRange`, `DailyAvailability`).#
 
-==== Domain-Oriented Type Modeling
+===== Domain-Oriented Type Modeling
 
 [.added]#Instead of passing primitive tuples and raw integers everywhere, the scheduling logic uses explicit domain types:#
 
@@ -19,7 +19,7 @@
 
 [.added]#These types communicate intent directly and reduce invalid call patterns (for example, confusing a blocked interval with the base working interval).#
 
-==== Non-Trivial Typed Function Example
+===== Non-Trivial Typed Function Example
 
 [.added]#A non-trivial example is the slot generator signature:#
 
@@ -33,11 +33,11 @@ def generate_available_slots(availability: DailyAvailability) -> list[datetime]:
 
 [.added]#This signature encodes important conceptual constraints: one coherent availability object in, a chronological list of bookable start times out. It avoids loosely-coupled parameters such as `(start, end, blocks, step)` that are easier to misuse or mix up.#
 
-==== Properties Verified with Hypothesis
+===== Properties Verified with Hypothesis
 
 [.added]#The following properties are treated as invariants that must hold for all valid generated inputs.#
 
-===== Property P1: All Generated Slots Stay Within Allowed Time
+====== Property P1: All Generated Slots Stay Within Allowed Time
 
 [.added]#Invariant: every slot belongs to a segment inside `working_hours` and outside `blocked_periods`.#
 
@@ -66,7 +66,7 @@ def test_slots_stay_within_working_window(start_hour, duration_hours, slot_minut
     assert all(s.time() < end for s in slots)
 ----
 
-===== Property P2: Output Is Always Chronologically Sorted
+====== Property P2: Output Is Always Chronologically Sorted
 
 [.added]#Invariant: scheduling output is monotonic; no slot appears before a previously returned slot.#
 
@@ -89,7 +89,7 @@ def test_generated_slots_are_sorted(slot_minutes, block_start):
     assert slots == sorted(slots)
 ----
 
-===== Property P3: Invalid Slot Size Is Rejected
+====== Property P3: Invalid Slot Size Is Rejected
 
 [.added]#Invariant: non-positive slot duration is invalid and must fail deterministically.#
 
@@ -110,13 +110,13 @@ def test_non_positive_slot_minutes_raise_value_error(bad_minutes):
         generate_available_slots(avail)
 ----
 
-==== Why Types and Properties Improve Correctness
+===== Why Types and Properties Improve Correctness
 
 * [.added]#Types improve understandability: names like `DailyAvailability` and `TimeRange` explain domain meaning better than primitive containers.#
 * [.added]#Types reduce misuse: the function contract makes it harder to pass incomplete or swapped scheduling data.#
 * [.added]#Properties improve robustness: invariants are checked over many generated inputs, not only a few hand-picked examples.#
 * [.added]#Together, they reduce hidden defects in slot generation, which is a high-impact operation for patient booking reliability.#
 
-==== Conclusion
+===== Conclusion
 
 [.added]#Property-based testing complements the existing unit and BDD tests by validating universal scheduling invariants under broad input variation. Combined with explicit domain types, this approach strengthens correctness claims while making the scheduling code easier to reason about and maintain.#

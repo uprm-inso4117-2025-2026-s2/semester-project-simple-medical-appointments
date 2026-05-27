@@ -2,58 +2,64 @@
 
 ==== Domain Engineering
 
-Domain engineering activities focus on identifying, analyzing, and formalizing
-the core concepts, constraints, and interactions present in medical appointment
-scheduling. This includes examining stakeholder perspectives, operational
-practices, and domain tensions in order to construct a consistent domain model.
-These activities are carried out through domain descriptions, concept
-identification, and interaction modeling, ensuring that the system-to-be
-represents real-world behavior rather than assumptions.
+[.changed]#Domain engineering in this project is centered on the analysis of a medical appointment scheduling system implemented in the repository (currently maintained in a non-main development branch).# This includes identifying how entities such as patients, providers, and appointments are represented in the codebase, and how scheduling constraints are enforced through the current implementation logic.
+
+[.changed]#Instead of remaining at a purely theoretical level, domain understanding is derived directly from the existing modules handling scheduling workflows, repository data models, and service-layer logic responsible for appointment creation, updates, and conflict resolution.#
+
+[.added]#Due to the current repository structure, where some features and tests are not located in the main branch, domain analysis also considers branch-specific implementations to ensure completeness of the system understanding.#
+
+[.changed]#For this project, domain engineering is the work of turning the rough sketches into a usable scheduling vocabulary. That includes deciding, for example, how `Appointment`, `TimeSlot`, `Waitlist`, `Referral`, and `InsuranceAuthorization` differ, and how actions and events around them should be described without conflating them.#
+
+This ensures that the system-to-be represents real-world behavior as currently implemented, rather than assumptions detached from the actual codebase structure.
 
 ==== Requirements Engineering
 
-Requirements engineering is necessary to translate domain observations into
-precise and verifiable system requirements. This involves identifying domain
-properties, defining constraints, and documenting requirements in a structured
-manner that supports traceability. The process includes organizing requirements
-into coherent categories, refining them iteratively, and ensuring alignment with
-the domain model so that implementation decisions are grounded in clearly defined
-behavior.
+[.changed]#Requirements engineering in this project is directly derived from the implemented behavior of the medical appointment scheduling system, rather than abstract domain descriptions.# Functional requirements are extracted by analyzing existing services, controllers, and database models that define appointment creation, modification, and validation rules.
+
+[.changed]#Traceability is maintained by linking requirements to specific modules and (in some cases) branch-based implementations where relevant functionality exists but has not yet been merged into the main branch.#
+
+[.added]#Given that some tests and supporting documentation are distributed across development branches, requirements analysis explicitly accounts for these artifacts to avoid losing traceability coverage.#
+
+[.changed]#Requirements engineering in this project means converting those domain concepts into verifiable statements about booking, cancellation, confirmation, waitlists, reminders, and availability management, together with traceability from needs, domain concepts, and testing artifacts.#
+
+This ensures alignment between observed system behavior and documented requirements.
 
 ==== System Design and Architecture
 
-System design and architecture activities define how domain concepts and
-requirements are structured within the system. This includes the organization of
-components, the definition of interfaces, and the representation of scheduling
-logic and data relationships. Architectural decisions are guided by the need to
-maintain modularity, scalability, and consistency with the domain, enabling the
-system to evolve without violating its underlying structure.
+[.changed]#System architecture in this project reflects the current implementation of the medical appointment scheduling system within the repository, including service-layer separation, data models, and scheduling workflow orchestration.#
+
+[.changed]#Architectural decisions are influenced by the existing code organization, which includes multiple development branches containing active features that are not yet consolidated into main.#
+
+[.added]#As a result, the architectural description is based on a merged conceptual view of the system, combining main branch structure with relevant branch-specific implementations to accurately represent system behavior.#
+
+[.changed]#Architecture work is not just a generic layering exercise here. It includes deciding which parts of scheduling belong to explicit domain services, which API surfaces exist on the current branch, and how frontend and backend responsibilities are separated so that scheduling rules are not hidden inside UI code or route wrappers.#
 
 ==== Verification and Validation
 
-Verification and validation activities ensure that the system behaves according
-to its specified requirements and accurately reflects the domain. This includes
-the use of Test-Driven Development and Behavior-Driven Development 
-to guide implementation, as well as load testing, mutation testing, and formal
-verification techniques such as Hoare logic to evaluate correctness. Additional
-validation is performed through consistency checks, traceability verification,
-and scenario-based walkthroughs derived from domain interactions.
+[.changed]#Verification and validation activities are based on the available testing infrastructure in the repository, including unit and integration tests where present in active development branches.#
+
+[.changed]#Test-Driven Development and Behavior-Driven Development practices are applied where test suites are available, although some tests referenced in documentation are currently located outside the main branch or have been reorganized during development.#
+
+[.added]#To address this, validation also includes manual traceability checks against branch-specific test suites and execution of available tests across development branches when necessary.#
+
+[.changed]#Verification and validation activities in this project are tied to specific artifacts on `main`: backend unit tests for scheduling logic, backend BDD scenarios, a lightweight CI workflow, and formal reasoning over a concrete scheduling function. Where an activity is still partial, the report now states that limitation explicitly instead of describing an implementation that is not present on the branch.#
 
 ==== Documentation and Knowledge Management
 
-Documentation activities support the development process by maintaining a clear
-record of domain descriptions, requirements, design decisions, and validation
-results. This includes structured documentation, version control practices, and
-continuous updates to ensure that all project artifacts remain consistent and
-accessible. These activities enable coordination among team members and provide
-a basis for evaluating design and implementation choices.
+[.changed]#Documentation in this project is maintained across multiple repository locations, including the main branch and selected development branches where active features are being implemented.#
+
+[.added]#It is explicitly noted that the main branch alone does not contain the full documentation set, and some project artifacts (including tests and feature descriptions) reside in non-main branches.#
+
+[.changed]#Knowledge management therefore relies on consolidating information from repository structure, commit history, and branch-level documentation to maintain consistency across artifacts.#
+
+==== Documentation and Repository Alignment
+
+[.added]#A major non-coding activity in this project is keeping the report, repository, tests, and branch structure aligned. That includes documenting where milestone artifacts live, removing implementation claims that do not match `main`, and recording changes in the logbook so that the report remains auditable by reviewers and teammates.#
 
 ==== User Experience and Accessibility Considerations
 
-User experience and accessibility considerations address the need to ensure that
-interactions with the system are understandable and usable across different
-stakeholder groups. These activities involve analyzing how patients,
-administrative staff, and providers interact with scheduling processes, and
-ensuring that representations of these interactions remain clear and consistent.
-Accessibility considerations are incorporated to account for variations in user
-capabilities and levels of digital literacy within the domain context.
+[.changed]#User experience considerations are derived from the functional behavior of the medical appointment scheduling system, particularly how users interact with appointment creation, modification, and scheduling conflict resolution.#
+
+[.changed]#Different user roles (patients, administrative staff, and providers) are inferred from the implemented role-handling logic in the system rather than abstract modeling alone.#
+
+[.added]#Accessibility considerations are implicitly supported through the current interface and workflow design, but are also evaluated against branch-specific implementations where UI or interaction improvements are under development.#

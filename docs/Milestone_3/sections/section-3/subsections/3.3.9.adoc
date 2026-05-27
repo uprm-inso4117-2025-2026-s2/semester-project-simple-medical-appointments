@@ -1,8 +1,8 @@
-=== *Fuzzing*
+==== *Fuzzing*
 
 [.added]#This section documents how fuzz testing is used to stress the web interface and backend request handlers with malformed, boundary, and unexpected inputs to improve robustness and reliability.#
 
-==== Role of Fuzzing in the Testing Strategy
+===== Role of Fuzzing in the Testing Strategy
 
 [.added]#Fuzzing complements the test suite as follows:#
 
@@ -12,7 +12,7 @@
 
 [.added]#Together, these methods provide both correctness assurance and robustness assurance.#
 
-==== Web Interface Fuzzing Targets
+===== Web Interface Fuzzing Targets
 
 [.added]#Following the "Testing Web Applications" approach, fuzzing was focused on externally reachable input surfaces:#
 
@@ -21,7 +21,7 @@
 * [.added]#JSON API bodies and HTTP headers (content type variations, missing keys, incorrect value types).#
 * [.added]#Authentication-adjacent inputs (missing session tokens, malformed bearer tokens, mixed-case header formats).#
 
-==== Tooling and Execution Approach
+===== Tooling and Execution Approach
 
 [.added]#The backend fuzzing workflow uses `pytest` and `hypothesis` with generated malformed strings, invalid numerics, and randomized dictionaries to simulate web requests.#
 
@@ -29,9 +29,9 @@
 
 [.added]#Fuzz campaigns are executed in short repeated runs in CI-friendly mode (deterministic seed + bounded examples per run), so failures are reproducible.#
 
-==== Fuzzing Scenario Examples
+===== Fuzzing Scenario Examples
 
-===== 1. Malformed and Invalid Input Fuzzing
+====== 1. Malformed and Invalid Input Fuzzing
 
 [.added]#Goal: verify the API fails safely (4xx), never crashes (5xx), and never stores inconsistent state.#
 
@@ -59,7 +59,7 @@ def test_booking_payload_malformed_strings(client, patient_name, cancel_reason):
     assert response.status_code in {200, 201, 400, 409, 422}
 ----
 
-===== 2. Boundary-Value Fuzzing
+====== 2. Boundary-Value Fuzzing
 
 [.added]#Goal: test edge boundaries for accepted lengths and numeric ranges.#
 
@@ -84,7 +84,7 @@ def test_slot_and_identifier_boundaries(client, slot_minutes, provider_len):
     assert response.status_code in {200, 201, 400, 404, 409, 422}
 ----
 
-===== 3. Unexpected Interaction Flow Fuzzing
+====== 3. Unexpected Interaction Flow Fuzzing
 
 [.added]#Goal: randomize valid/invalid action order and verify state safety (no double booking, no impossible transitions).#
 
@@ -107,7 +107,7 @@ def test_randomized_booking_flow_never_enters_invalid_state(flow):
     assert invariant_holds_for(flow)
 ----
 
-===== 4. Injection and Formatting Edge Cases
+====== 4. Injection and Formatting Edge Cases
 
 [.added]#Goal: ensure dangerous strings are treated as data, not executable instructions.#
 
@@ -123,13 +123,13 @@ Examples included in fuzz corpus:
 
 [.added]#Expected behavior: requests are sanitized/validated and rejected or safely processed without code execution, query bypass, or server crash.#
 
-==== Relationship to Property-Based Testing
+===== Relationship to Property-Based Testing
 
-[.added]#Property-based testing (Section 4.5) focuses on domain invariants under valid structured inputs (e.g., slot ordering, time constraints). Fuzzing extends this by emphasizing malformed and adversarial web-facing inputs and randomized interaction order.#
+[.changed]#Property-based testing (Section 3.3.8) focuses on domain invariants under valid structured inputs (e.g., slot ordering, time constraints). Fuzzing extends this by emphasizing malformed and adversarial web-facing inputs and randomized interaction order.#
 
 [.added]#In short: property-based testing protects logic correctness; fuzzing protects input robustness and error-handling resilience.#
 
-==== Impact on Robustness, Security, and Reliability
+===== Impact on Robustness, Security, and Reliability
 
 * [.added]#Robustness: detects parser failures, unhandled exceptions, and brittle assumptions in request handling.#
 * [.added]#Security: reveals injection-like edge cases and malformed payload paths that require stricter validation.#

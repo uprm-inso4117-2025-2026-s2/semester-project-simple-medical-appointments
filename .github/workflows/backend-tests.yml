@@ -34,3 +34,15 @@ jobs:
         run: |
           cd backend
           pytest tests/bdd -v --tb=short
+
+      - name: Run backend unit tests
+        run: |
+          cd backend
+          pytest tests/unit -v --tb=short
+
+      - name: Run load-smoke test (Locust)
+        run: |
+          cd backend
+          nohup python -c "from app import create_app; app=create_app(testing=True); app.run(host='127.0.0.1', port=5000)" > /tmp/backend.log 2>&1 &
+          sleep 5
+          locust -f tests/load/locust_smoke.py --host=http://127.0.0.1:5000 --headless -u 10 -r 10 --run-time 20s --only-summary

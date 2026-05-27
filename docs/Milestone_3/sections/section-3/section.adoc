@@ -15,3 +15,9 @@ include::subsections/3.3.4.adoc[]
 include::subsections/3.3.5.adoc[]
 
 include::subsections/3.3.6.adoc[]
+
+include::subsections/3.3.7.adoc[]
+
+include::subsections/3.3.8.adoc[]
+
+include::subsections/3.3.9.adoc[]

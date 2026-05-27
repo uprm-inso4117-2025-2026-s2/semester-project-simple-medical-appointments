@@ -1,153 +1,67 @@
-
 ==== *Behavior-Driven Development (BDD) Scenario Design*
 
-This section defines behavior-driven scenarios used to specify and validate system behavior. Each scenario is written using the Given–When–Then structure and corresponds directly to functional requirements defined in Section 3.2. Scenarios are concrete, actor-specific, and reflect real scheduling interactions.
+[.changed]#This subsection now distinguishes between executable BDD test cases already implemented on this branch and scenario designs planned for expansion.#
 
-===== *Given–When–Then Structure*
+[.changed]#Executable source of truth: `backend/tests/bdd/features/appointment_booking.feature` and `backend/tests/bdd/steps/test_appointment_booking.py`.#
 
-Each scenario follows a strict behavioral format:
+===== *Where the Test Cases Are*
 
-- *Given* — a concrete system state with defined actors and conditions  
-- *When* — a specific action performed by an actor  
-- *Then* — observable system outcomes that can be verified  
-
-This structure ensures that all scenarios are testable and unambiguous.
-
-===== *Scenario 1: Carmen Books an Available Appointment*
-
-Carmen (patient) logs into the system at 9:05 AM to book an appointment with Dr. Morales (cardiologist).
-
-----
-Given Carmen is authenticated as a patient
-  And Dr. Morales has an available Time Slot from 10:00–10:30 AM
-When Carmen submits a booking request for that Time Slot
-Then the Time Slot is marked as Reserved
-  And an Appointment is created with status = Confirmed
-  And a confirmation notification is sent to Carmen
-  And the Time Slot is no longer available to other patients
-----
-
-*Mapped Requirements:*
-
-- <<REQ-BOOK-F-01>>
-- <<REQ-NOTIF-F-01>>
-
-===== *Scenario 2: Lucía Reschedules an Existing Appointment*
-
-Lucía (patient) has a confirmed appointment at 2:00 PM but needs to move it to a later time.
-
-----
-Given Lucía has a Confirmed Appointment at 2:00 PM
-  And a Time Slot at 4:00 PM is Available
-When Lucía requests to reschedule to the 4:00 PM slot
-Then the 2:00 PM Time Slot is set to Available
-  And the 4:00 PM Time Slot is set to Reserved
-  And the Appointment time is updated to 4:00 PM
-  And a confirmation notification is sent
-----
-
-*Mapped Requirements:*
-
-- <<REQ-BOOK-F-02>>
-- <<REQ-BOOK-F-01>>
-
-===== *Scenario 3: José Cancels an Appointment*
-
-José (patient) decides to cancel his scheduled consultation.
-
-----
-Given José has a Confirmed Appointment for tomorrow at 11:00 AM
-When José submits a cancellation request
-Then the Appointment status is set to Cancelled
-  And the associated Time Slot becomes Available
-  And the cancellation is reflected in the system immediately
-----
-
-*Mapped Requirements:*
-
-- <<REQ-BOOK-F-02>>
-
-===== *Scenario 4: Booking Rejected Due to Unavailable Slot*
-
-Carmen attempts to book a slot that has already been reserved by another patient.
-
-----
-Given Carmen is authenticated
-  And the 3:00 PM Time Slot for Dr. Morales is already Reserved
-When Carmen attempts to book that Time Slot
-Then the system rejects the booking request
-  And no Appointment is created
-  And an error message indicates the slot is no longer available
-----
-
-*Mapped Requirements:*
-
-- <<REQ-BOOK-F-01>>
-
-===== *Scenario 5: Marta Confirms Appointment After Insurance Approval*
-
-Marta (administrator) processes insurance approvals required for certain appointments.
-
-----
-Given an Appointment exists with status = Requested
-  And insurance authorization is required
-  And approval has been received
-When Marta confirms the appointment
-Then the Appointment status is updated to Confirmed
-  And the associated Time Slot is set to Reserved
-  And the confirmation is recorded in the system
-----
-
-*Mapped Requirements:*
-
-- <<REQ-BOOK-F-01>>
-- <<REQ-ADMIN-F-01>>
-
-===== *Scenario 6: No-Show Recorded by Provider*
-
-Dr. Morales records that a patient did not attend their scheduled consultation.
-
-----
-Given a Confirmed Appointment at 1:00 PM
-  And the appointment time has passed
-  And the patient did not attend
-When Dr. Morales marks the appointment as No-Show
-Then the Appointment status is updated to No-Show
-  And the Time Slot remains Reserved for historical purposes
-  And the event is recorded for reporting
-----
-
-*Mapped Requirements:*
-
-- <<REQ-ADMIN-F-01>>
-
-===== *Traceability Summary*
+[.changed]#The claim "Each test case is explicitly linked to one or more requirements" refers to the executable BDD scenarios in the repository. They are listed below with requirement mapping.#
 
 [cols="1,3,2", options="header"]
 |===
-| Scenario | Behavior Covered | Requirement References
+| Executable Scenario | Behavior Verified | Requirement References
 
-| Carmen books appointment
-| Booking, reservation, notification
+| Patient successfully books an available appointment
+| Request is recorded, slot becomes unavailable, response indicates success
 | <<REQ-BOOK-F-01>>, <<REQ-NOTIF-F-01>>
 
-| Lucía reschedules
-| Slot release and reassignment
-| <<REQ-BOOK-F-01>>, <<REQ-BOOK-F-02>>
-
-| José cancels
-| Cancellation and slot release
-| <<REQ-BOOK-F-02>>
-
-| Booking rejected
-| Conflict handling, double-booking prevention
+| Patient attempts to book an already-taken slot
+| Conflict is rejected (`409`), no second appointment created
 | <<REQ-BOOK-F-01>>
 
-| Marta confirms after insurance
-| Conditional confirmation, admin action
-| <<REQ-BOOK-F-01>>, <<REQ-ADMIN-F-01>>
-
-| No-show recorded
-| Attendance tracking, historical preservation
-| <<REQ-ADMIN-F-01>>
+| Doctor cancels a scheduled appointment
+| Appointment transitions to `Cancelled`, slot becomes available
+| <<REQ-BOOK-F-02>>
 |===
+
+===== *Applied Given-When-Then Design*
+
+[.changed]#Each executable scenario is written in Given-When-Then form and validated by step definitions that assert concrete state transitions (`Requested`, `Confirmed`, `Cancelled`) and slot availability effects.#
+
+===== *Scenario Completeness Correction: Insurance Approval Flow*
+
+[.changed]#Previous narrative versions implied immediate confirmation for all booking requests. That is incomplete for appointments requiring referral/insurance prerequisites.#
+
+[.added]#Design correction: booking can end in `PendingApproval` when prerequisites are missing, and only transitions to `Confirmed` after prerequisite evidence is recorded (see <<REQ-CONFIRM-F-01>>, <<REQ-CONFIRM-F-02>>, <<REQ-CONFIRM-F-03>>).#
+
+[.added]#This flow is currently modeled in Section 3.2 validation scenarios and is a planned BDD expansion item (not yet executable in `appointment_booking.feature`).#
+
+===== *Scenario 2 Boundary Question (\"5 till 2 p.m.\")*
+
+[.changed]#The rescheduling boundary case (for example request submitted at 1:55 PM for a 2:00 PM appointment) is not covered by current executable BDD scenarios.#
+
+[.added]#Planned scenario design:#
+
+----
+Given Lucia has a Confirmed Appointment at 2:00 PM
+  And clinic policy requires minimum reschedule notice
+When Lucia requests reschedule at 1:55 PM
+Then the system rejects or accepts the request according to configured policy
+  And the decision is recorded with explicit reason
+----
+
+[.added]#This planned case is tied to <<REQ-BOOK-F-03>> (clinic-defined cancellation/rescheduling policy windows).#
+
+===== *Scenario Expansion Backlog (Design, Not Yet Implemented as BDD Tests)*
+
+* [.added]#Pending-approval booking flow with later insurance authorization receipt.#
+* [.added]#Rescheduling near cutoff boundary (e.g., 1:55 PM for 2:00 PM slot).#
+* [.added]#Waitlist reassignment after cancellation with eligibility ordering.#
+* [.added]#No-show recording workflow and attendance outcome transitions.#
+
+===== *Traceability and Scope Statement*
+
+[.changed]#Current executable BDD coverage is intentionally narrow and limited to three scenarios implemented on this branch.#
+
+[.changed]#Requirement traceability is explicit for implemented scenarios, and planned scenarios are marked as backlog items to avoid overstating current verification scope.#

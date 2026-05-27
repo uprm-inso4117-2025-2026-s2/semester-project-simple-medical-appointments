@@ -1,8 +1,8 @@
-=== *Usability Testing*
+==== *Usability Testing*
 
 [.added]#This section documents the usability study performed for the appointment booking flow, which is one of the highest-value tasks for the target audience (patients).#
 
-==== Study Objective and Usability Questions
+===== Study Objective and Usability Questions
 
 [.added]#Primary scenario: a patient logs in, finds an available doctor timeslot, and confirms an appointment without external help.#
 
@@ -12,7 +12,7 @@
 * [.added]#Can users complete the task quickly enough to be practical during normal clinic scheduling use?#
 * [.added]#Where do users hesitate, make errors, or abandon the flow?#
 
-==== Test Setup and Methodology
+===== Test Setup and Methodology
 
 [.added]#Test format: moderated usability test with direct observation and timestamp logging.#
 
@@ -28,7 +28,7 @@
 * [.added]#Think-aloud comments were captured as short notes during each session.#
 * [.added]#Post-task satisfaction was measured on a 1-5 scale (1 = very difficult, 5 = very easy).#
 
-==== Participants and Rationale
+===== Participants and Rationale
 
 [.added]#A total of 8 participants were selected to match the project's primary audience: adults who schedule medical appointments online with basic to intermediate digital literacy.#
 
@@ -39,7 +39,7 @@
 
 [.added]#This sample was chosen to capture common real-world behaviors of first-time and occasional users, while staying feasible for milestone-level testing.#
 
-==== Minimum Success Criteria
+===== Minimum Success Criteria
 
 [.added]#The team defined the following minimum expectations before executing the test:#
 
@@ -48,7 +48,7 @@
 * [.added]#Critical error rate <= 1 critical error per participant (critical error = reaching a dead-end or selecting an invalid slot that blocks completion).#
 * [.added]#At least 70% of participants reporting satisfaction >= 4/5.#
 
-==== Results and Findings
+===== Results and Findings
 
 [.added]#Observed results for the booking scenario:#
 
@@ -63,7 +63,7 @@
 * [.added]#One participant expected a clearer confirmation message after booking.#
 * [.added]#Three participants paused at doctor filtering because specialty labels were too compact.#
 
-==== Recommendations and Design Impact
+===== Recommendations and Design Impact
 
 [.added]#Based on the findings, the team implemented the following recommendations:#
 

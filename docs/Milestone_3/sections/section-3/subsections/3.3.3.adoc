@@ -1,54 +1,67 @@
 ==== *Behavior-Driven Development (BDD) Tooling and Execution*
 
-This subsection defines the tooling used to execute BDD scenarios, how scenarios are automatically translated into executable tests, and how they are integrated into the project’s testing pipeline.
+[.changed]#This subsection reports branch-accurate BDD tooling and execution based on the current repository artifacts.#
 
-===== *Tools Used and Rationale*
+===== *Toolchain in Use*
 
-* **Gherkin (`.feature` files)**  
-  - Defines system behavior using structured Given–When–Then scenarios.  
-  - Selected to ensure that behavioral specifications remain readable and verifiable by both developers and stakeholders.
+* [.changed]#Gherkin feature files: `backend/tests/bdd/features/appointment_booking.feature`.#
+* [.changed]#Step bindings: `backend/tests/bdd/steps/test_appointment_booking.py` (pytest-bdd).#
+* [.changed]#Runner: `pytest` with `pytest-bdd` integration.#
+* [.changed]#CI workflow: `.github/workflows/backend-tests.yml`.#
 
-* **pytest-bdd**  
-  - Maps Gherkin steps to Python step definitions.  
-  - Selected because it integrates directly with the existing Python backend and allows reuse of fixtures, database setup, and authentication helpers.
+===== *Branch and Pipeline Execution Scope*
 
-* **pytest**  
-  - Executes all BDD scenarios as part of the test suite.  
-  - Selected as the standard test runner already used in the backend, ensuring no duplication of tooling.
+[.changed]#The backend workflow is configured on `push` for both `main` and `Documentation` branches, plus `pull_request` and manual dispatch.#
 
-* **GitHub Actions**  
-  - Executes tests automatically in a controlled CI environment.  
-  - Selected to enforce consistent validation across all code changes and prevent regressions.
+[source,yaml]
+----
+on:
+  push:
+    branches: [main, Documentation]
+  pull_request:
+  workflow_dispatch:
+----
 
-===== *Automated Scenario Execution*
+[.changed]#This corrects the earlier concern that BDD automation existed only for the documentation branch.#
 
-BDD scenarios are not standalone text—they are executed as tests through step bindings.
+===== *Executable BDD Suite Size (Broadened)*
 
-Structure:
+[.changed]#The repository now contains 7 executable BDD scenarios in the appointment booking feature, expanded from the earlier 3-scenario baseline.#
 
-- Feature files define behavior:
-  * `tests/bdd/features/appointment_booking.feature`
+[cols="1,3,2", options="header"]
+|===
+| Scenario | Behavior Verified | Requirement References
 
-- Step definitions bind behavior to code:
-  * `tests/bdd/steps/test_appointment_booking.py`
+| Patient successfully books an available appointment
+| Request persisted, slot becomes unavailable
+| <<REQ-BOOK-F-01>>
 
-Execution flow:
+| Patient attempts to book an already-taken slot
+| Conflict rejected (`409`), no second appointment
+| <<REQ-BOOK-F-01>>
 
-1. `pytest` discovers `.feature` files through `pytest-bdd`.
-2. Each scenario step (*Given / When / Then*) is matched to a Python function.
-3. Fixtures initialize required state (e.g., test database, authenticated user).
-4. The system under test (API endpoints) is invoked.
-5. Assertions verify expected outcomes (status codes, database state, side effects).
+| Doctor cancels a scheduled appointment
+| Appointment becomes `Cancelled`, slot is released
+| <<REQ-BOOK-F-02>>
 
-Example (conceptual mapping):
+| Booking requiring insurance stays pending
+| Appointment remains `PendingApproval` until prerequisites clear
+| <<REQ-CONFIRM-F-01>>, <<REQ-CONFIRM-F-02>>
 
-*Given a Time Slot is available*:: → Insert available slot into test database  
+| Pending appointment confirmed after insurance authorization
+| Status transition from `PendingApproval` to `Confirmed`
+| <<REQ-CONFIRM-F-03>>
 
-*When the patient submits a booking request*:: → Execute `POST /appointments`  
+| Patient cannot reschedule below clinic cutoff
+| Policy-based rejection near time boundary (e.g., 1:55 PM for 2:00 PM)
+| <<REQ-BOOK-F-03>>
 
-*Then the slot is reserved*:: → Assert database state + response status  
+| Waitlisted patient gets released slot
+| Cancellation-driven reassignment using waitlist ordering
+| <<REQ-WAIT-F-01>>, <<REQ-WAIT-F-02>>
+|===
 
-Execution command:
+===== *Execution Command*
 
 [source,bash]
 ----
@@ -56,56 +69,14 @@ cd backend
 pytest tests/bdd -v --tb=short
 ----
 
-===== *Integration with the Testing Pipeline*
+===== *Acceptance Evidence for Implemented Features*
 
-BDD scenarios are executed automatically as part of the CI pipeline.
+[.added]#For this milestone, the acceptance-level evidence for the minimal viable scheduling feature set is the executable BDD suite: request booking, reject double booking, cancel and release slot, prerequisite-gated confirmation, cutoff-aware rescheduling, and waitlist reassignment.#
 
-Integration points:
+[.added]#These scenarios are automated in CI/CD alongside backend unit tests and load-smoke checks, so implemented feature behavior is continuously revalidated on branch updates.#
 
-- Dependencies declared in `requirements.txt`:
-  - `pytest`
-  - `pytest-bdd`
+===== *Why this addresses prior feedback*
 
-- CI workflow defined in:
-  - `.github/workflows/backend-tests.yml`
-
-Execution behavior:
-
-- On every push:
-  - All BDD scenarios are executed.
-- On pull requests:
-  - Changes are validated before merge.
-- On manual trigger:
-  - Full regression suite can be executed.
-
-Workflow excerpt:
-
-[source,yaml]
-----
-- name: Run BDD scenarios
-  run: |
-    cd backend
-    pytest tests/bdd -v --tb=short
-----
-
-Failure handling:
-
-- Any failed scenario causes the pipeline to fail.
-- Merge is blocked until all scenarios pass.
-- This enforces consistency between implemented behavior and specified requirements.
-
-===== *Coverage and Behavioral Guarantees*
-
-The current BDD suite covers critical appointment workflows:
-
-- Successful booking of an available Time Slot (<<REQ-BOOK-F-01>>)
-- Prevention of double-booking under concurrent access (<<REQ-BOOK-F-01>>)
-- Appointment cancellation and slot release (<<REQ-BOOK-F-02>>)
-
-These scenarios verify:
-
-- Correct state transitions (Available → Reserved → Available)
-- Enforcement of scheduling constraints
-- Consistency between API responses and database state
-
-Because scenarios are executed automatically in both local and CI environments, they act as regression tests that continuously validate system behavior against requirements.
+* [.changed]#Step definitions are present and executable (confirmed).#
+* [.changed]#BDD coverage is no longer limited to booking + cancellation only; prerequisite handling, cutoff policy, and waitlist reassignment were added.#
+* [.changed]#Documentation now matches branch workflow configuration and no longer implies single-branch-only automation.#

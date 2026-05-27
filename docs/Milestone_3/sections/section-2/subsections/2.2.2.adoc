@@ -1,6 +1,11 @@
 
 ==== *Personas*
 
+[NOTE]
+====
+This subsection is supporting context for scope validation. It is not a requirement subsection and does not define normative requirement statements.
+====
+
 The personas below represent our core user segments and ground the scope of this product. For each persona we outline goals, pains, typical behaviors, and accessibility needs, and we link them to the stories, epics, and features defined in 2.2.1. 
 
 We will reference these personas by name during sprint planning and reviews (e.g., “Would this work for Carmen?”) to ensure decisions remain user-centered and concrete.
