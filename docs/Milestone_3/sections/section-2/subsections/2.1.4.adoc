@@ -129,101 +129,112 @@
 
 *Purpose:* These conceptual functions describe the core domain operations from a system-independent perspective, including their purpose, required inputs, outputs, and dependencies. They map to the domain events and actions defined above.
 
-====== Publish Slot
+[.changed]====== Insert Appointment
 
 ----
-publishSlot(timeSlotCatalog: TimeSlotCatalog, provider: Provider, slot: TimeSlot): Result TimeSlotId Error
+[.removed]#publishSlot(timeSlotCatalog: TimeSlotCatalog, provider: Provider, slot: TimeSlot): Result TimeSlotId Error#
+[.added]#_insert_appointment(*, patient_id: str, doctor_id: str, clinic_id: str, appointment_datetime: datetime, appointment_type: BookingType, status: Literal["pending", "confirmed"] = "confirmed", notes: str | None = None): tuple[dict | None, tuple[dict, int] | None]#
 ----
 
-- *Description:* Adds a new appointment slot to the provider’s availability and makes it discoverable.
-- *Conceptual Inputs:* Time slot catalog, provider, time slot definition.
-- *Conceptual Output:* Identifier of the created slot or an error.
+- *Description:* [.changed]#Inserts a new appointment record into the appointments table and makes it discoverable.#
+- *Conceptual Inputs:* [.changed]#Patient ID, doctor ID, clinic ID, appointment datetime, booking type, optional status (defaults to confirmed), and optional notes.#
+- *Conceptual Output:* [.changed]#The created appointment record as a dictionary, or an error tuple with details and HTTP status code.#
 - *Dependencies:* Requires provider authorization and valid scheduling constraints.
 - *Related Domain Events/Actions:* [.changed]#Action that produces *Appointment slot published* (event).#
 
-====== Request Appointment
+[.changed]====== Get Available Slots / Get Appointments
 
 ----
-requestAppointment(appointmentBook: AppointmentBook, patient: Patient, slotId: TimeSlotId): Result AppointmentId Error
+[.removed]#requestAppointment(appointmentBook: AppointmentBook, patient: Patient, slotId: TimeSlotId): Result AppointmentId Error#
+[.added]#getAvailableSlots(doctorId: string, date: string): Promise<{ slots: Array<{ start_time: string, end_time: string, available: boolean }> }>#
+[.added]#getAppointments(status?: string): Promise<Appointment[]>#
+[.added]#getAppointment(id: string): Promise<Appointment>#
 ----
 
-- *Description:* Registers a patient’s request to book a specific appointment slot.
-- *Conceptual Inputs:* Appointment book, patient, slot identifier.
-- *Conceptual Output:* Appointment identifier or error.
-- *Dependencies:* Slot must exist and be available.
+- *Description:* [.changed]#Retrieves available time slots for a given doctor on a specific date, fetches a list of appointments optionally filtered by status, or fetches a single appointment by ID. In reschedule mode, the UI layer automatically fetches confirmed appointments on mount.#
+- *Conceptual Inputs:* [.changed]#For slot lookup: doctor ID and date (YYYY-MM-DD). For appointment list: optional status filter. For single appointment: appointment ID.#
+- *Conceptual Output:* [.changed]#A list of time slots with availability flags, a list of appointments, or a single appointment record.#
+- *Dependencies:* [.changed]#Slot lookup is public (no auth required); appointment queries require authentication. Reschedule mode fetch is triggered by UI state.#
 - *Related Domain Events/Actions:* [.changed]#Triggers the *Request Appointment* (action), which produces the *Appointment Requested* (event).#
 
-====== Confirm Appointment
+[.changed]====== Validate Requested Slot
 
 ----
-confirmAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, referralRegistry: ReferralRegistry, insuranceRegistry: InsuranceRegistry, appointmentId: AppointmentId): Result Appointment Error
+[.removed]#confirmAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, referralRegistry: ReferralRegistry, insuranceRegistry: InsuranceRegistry, appointmentId: AppointmentId): Result Appointment Error#
+[.added]#_validate_requested_slot(doctor_id: str, day: date, start_time: time): tuple[datetime | None, dict | None, int | None]#
 ----
 
-- *Description:* Validates and confirms an appointment based on constraints such as referrals and insurance.
-- *Conceptual Inputs:* Appointment book, slot catalog, referral and insurance registries, appointment ID.
-- *Conceptual Output:* Confirmed appointment or error.
-- *Dependencies:* Requires eligibility validation and slot availability.
+- *Description:* [.changed]#Validates that a requested time slot falls within the doctor's generated availability for a given date before confirming the appointment.#
+- *Conceptual Inputs:* [.changed]#Doctor ID, appointment date, and requested start time.#
+- *Conceptual Output:* [.changed]#The resolved datetime if valid, or an error dictionary with an HTTP status code if the slot is unavailable.#
+- *Dependencies:* [.changed]#Requires fetched doctor availability and generated slot list for the given date.#
 - *Related Domain Events/Actions:* [.changed]#Action that produces *Appointment confirmed* (event).#
 
 ====== Cancel Appointment
 
 ----
-cancelAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId): Result Unit Error
+[.removed]#cancelAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId): Result Unit Error#
+[.added]#cancelAppointment(id: number, reason?: string, cancelledById?: number | null): Promise<void>#
 ----
 
-- *Description:* Cancels an existing appointment and releases its associated slot.
-- *Conceptual Inputs:* Appointment book, slot catalog, appointment ID.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Appointment must exist and be cancelable.
+- *Description:* [.changed]#Sends a cancellation request for an existing appointment via a PUT call, optionally recording the reason and the admin performing the action.#
+- *Conceptual Inputs:* [.changed]#Appointment ID, optional cancellation reason, and optional ID of the admin performing the cancellation.#
+- *Conceptual Output:* [.changed]#A resolved promise on success, or a rejected promise on failure.#
+- *Dependencies:* [.changed]#Appointment must exist and be cancelable; requires authentication.#
 - *Related Domain Events/Actions:* [.changed]#Triggers the *Cancel Appointment* (action), which produces the *Appointment Canceled* (event).#
 
 ====== Reschedule Appointment
 
 ----
-rescheduleAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId, newSlotId: TimeSlotId): Result Unit Error
+[.removed]#rescheduleAppointment(appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, appointmentId: AppointmentId, newSlotId: TimeSlotId): Result Unit Error#
+[.added]#rescheduleAppointment(appointmentId: string, newDatetime: string): Promise<void>#
 ----
 
-- *Description:* Changes an existing appointment to a different available slot.
-- *Conceptual Inputs:* Appointment book, slot catalog, appointment ID, new slot ID.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* New slot must be available and compatible.
+- *Description:* [.changed]#Sends a reschedule request for an existing appointment to a new datetime via a POST call to the scheduling endpoint.#
+- *Conceptual Inputs:* [.changed]#Appointment UUID and the new target datetime in ISO 8601 format.#
+- *Conceptual Output:* [.changed]#A resolved promise on success, or a rejected promise on failure.#
+- *Dependencies:* [.changed]#Appointment must exist; new datetime must correspond to a compatible available slot; requires authentication.#
 - *Related Domain Events/Actions:* [.changed]#Action that may produce appointment and slot state-change events.#
 
-====== Modify Availability
+[.changed]====== Update Appointment
 
 ----
-modifyAvailability(schedule: Schedule, provider: Provider, range: DateTimeRange, policy: Policy): Result Unit Error
+[.removed]#modifyAvailability(schedule: Schedule, provider: Provider, range: DateTimeRange, policy: Policy): Result Unit Error#
+[.added]#update_appointment(appointment_id: str): Response#
 ----
 
-- *Description:* Updates a provider’s working hours or scheduling constraints.
-- *Conceptual Inputs:* Schedule, provider, time range, policy.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Must respect scheduling policies and avoid conflicts.
+- *Description:* [.changed]#Updates one or more fields of an existing appointment via a PUT request, including doctor, datetime, status, and clinic. If the doctor or datetime changes, the new slot is validated and reserved before the record is written.#
+- *Conceptual Inputs:* [.changed]#Appointment ID (path parameter); JSON body with any combination of doctor_id, appointment_datetime (ISO-8601), status, and clinic_id.#
+- *Conceptual Output:* [.changed]#A JSON response with the updated appointment record on success, or an error message with an appropriate HTTP status code on failure.#
+- *Dependencies:* [.changed]#Appointment must exist; scheduling changes require slot reservation via try_reserve_slot and clinic resolution via _get_doctor_clinic_id; requires authentication.#
 - *Related Domain Events/Actions:* [.changed]#Triggers the *Modify Provider Availability* (action), which produces the *Provider Availability Modified* (event).#
 
-====== Join Waitlist
+[.removed]====== Join Waitlist
+[.added]====== Book Admin Appointment / Count Waitlist for Day
 
 ----
-joinWaitlist(waitlist: Waitlist, patient: Patient, specialty: Specialty): Result Unit Error
+[.removed]#joinWaitlist(waitlist: Waitlist, patient: Patient, specialty: Specialty): Result Unit Error#
+[.added]#_count_waitlist_for_day(doctor_id: str, day: date): int#
+[.added]#book_admin_appointment(*, patient_id: str, doctor_id: str, appointment_date: date, appointment_time: time, status: Literal["pending", "confirmed"] = "confirmed", notes: str | None = None, accept_waitlist: bool = False, allow_override: bool = False): tuple[dict | None, tuple[dict, int] | None]#
 ----
 
-- *Description:* Registers a patient in a waitlist for a given specialty.
-- *Conceptual Inputs:* Waitlist, patient, specialty.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Requires absence of immediate availability.
+- *Description:* [.changed]#Orchestrates the full admin booking flow for a given doctor and patient. Attempts to place a MAIN booking at the requested slot; if full and accepted, assigns a WAITLIST booking to the next available slot on the same day subject to a daily cap; if no waitlist placement is possible and override is allowed, books an OVERRIDE at the requested slot; otherwise rejects. The helper counts active waitlist appointments for a doctor on a given day to enforce the daily limit.#
+- *Conceptual Inputs:* [.changed]#For the helper: doctor ID and target date. For the orchestrator: patient ID, doctor ID, appointment date and time, optional status (defaults to confirmed), optional notes, a flag to accept waitlist placement, and a flag to allow override booking.#
+- *Conceptual Output:* [.changed]#The helper returns an integer count. The orchestrator returns a result dictionary with the appointment record, booking type, assigned and requested datetimes, and a message; or an error tuple with details and HTTP status code.#
+- *Dependencies:* [.changed]#Requires slot validation via _validate_requested_slot, clinic resolution via _get_doctor_clinic_id, capacity checks via _get_main_capacity and _count_appointments_by_type, next-slot lookup via _find_next_available_slot_same_day, and record insertion via _insert_appointment.#
 - *Related Domain Events/Actions:* [.changed]#Triggers the *Join Waitlist* (action), which produces the *Patient Added to Waitlist* (event).#
 
-====== Select Waitlist Candidate
+[.removed]====== Select Waitlist Candidate
 
 ----
-selectWaitlistCandidate(waitlist: Waitlist, slot: TimeSlot): Option Patient
+[.removed]selectWaitlistCandidate(waitlist: Waitlist, slot: TimeSlot): Option Patient
 ----
 
-- *Description:* Selects an eligible patient from the waitlist for a newly available slot.
-- *Conceptual Inputs:* Waitlist, time slot.
-- *Conceptual Output:* Optional patient.
-- *Dependencies:* Depends on prioritization rules.
-- *Related Domain Events/Actions:* [.changed]#Supports the *Reassign Slot* action and the *Slot reassigned to waiting patient* event.#
+- *Description:* [.removed]Selects an eligible patient from the waitlist for a newly available slot.
+- *Conceptual Inputs:* [.removed]Waitlist, time slot.
+- *Conceptual Output:* [.removed]Optional patient.
+- *Dependencies:* [.removed]Depends on prioritization rules.
+- *Related Domain Events/Actions:* [.removed]#Supports the *Reassign Slot* action and the *Slot reassigned to waiting patient* event.#
 
 ====== Reassign Slot
 
@@ -273,17 +284,17 @@ markNoShow(appointmentBook: AppointmentBook, appointmentId: AppointmentId): Resu
 - *Dependencies:* Triggered after appointment time passes.
 - *Related Domain Events/Actions:* [.changed]#Action that produces *Patient marked absent* (event).#
 
-====== Record Referral
+[.removed]====== Record Referral
 
 ----
-recordReferral(referralRegistry: ReferralRegistry, patient: Patient, provider: Provider, referral: Referral): Result Unit Error
+[.removed]recordReferral(referralRegistry: ReferralRegistry, patient: Patient, provider: Provider, referral: Referral): Result Unit Error
 ----
 
-- *Description:* Registers a referral required for consultation eligibility.
-- *Conceptual Inputs:* Referral registry, patient, provider, referral.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Requires external provider input.
-- *Related Domain Events/Actions:* [.changed]#Action that produces *Referral recorded for consultation* (event).#
+- *Description:* [.removed]Registers a referral required for consultation eligibility.
+- *Conceptual Inputs:* [.removed]Referral registry, patient, provider, referral.
+- *Conceptual Output:* [.removed]Success or failure.
+- *Dependencies:* [.removed]Requires external provider input.
+- *Related Domain Events/Actions:* [.removed]#Action that produces *Referral recorded for consultation* (event).#
 
 ====== Record Insurance Approval
 
@@ -297,50 +308,53 @@ recordInsuranceApproval(insuranceRegistry: InsuranceRegistry, patient: Patient, 
 - *Dependencies:* Requires insurer validation.
 - *Related Domain Events/Actions:* [.changed]#Action that produces a coverage authorization event and supports appointment confirmation.#
 
-====== Search Providers
+[.removed]====== Search Providers
 
 ----
-searchProviders(system: ClinicSystem, specialty: Specialty): List Provider
+[.removed]searchProviders(system: ClinicSystem, specialty: Specialty): List Provider
 ----
 
-- *Description:* Retrieves providers matching a given specialty.
-- *Conceptual Inputs:* Clinic system, specialty.
-- *Conceptual Output:* List of providers.
-- *Dependencies:* None (public operation).
-- *Related Domain Events/Actions:* [.changed]#Supports provider discovery behavior.#
+- *Description:* [.removed]Retrieves providers matching a given specialty.
+- *Conceptual Inputs:* [.removed]Clinic system, specialty.
+- *Conceptual Output:* [.removed]List of providers.
+- *Dependencies:* [.removed]None (public operation).
+- *Related Domain Events/Actions:* [.removed]#Supports provider discovery behavior.#
 
-====== List Available Slots
+[.changed]====== Generate Available Slots
 
 ----
-listAvailableSlots(timeSlotCatalog: TimeSlotCatalog, provider: Provider): List TimeSlot
+[.removed]#listAvailableSlots(timeSlotCatalog: TimeSlotCatalog, provider: Provider): List TimeSlot#
+[.added]#generate_available_slots(availability: DailyAvailability): List[datetime]#
 ----
 
-- *Description:* Lists available slots for a provider.
-- *Conceptual Inputs:* Slot catalog, provider.
-- *Conceptual Output:* List of time slots.
-- *Dependencies:* Slots must be published.
+- *Description:* [.changed]#Generates all concrete start datetimes for valid slots on a given day from a pre-built availability definition, without touching the database. The caller is responsible for fetching availability rules and filtering out slots that conflict with existing appointments.#
+- *Conceptual Inputs:* [.changed]#A DailyAvailability instance containing the date, working hours, blocked periods, and slot duration in minutes.#
+- *Conceptual Output:* [.changed]#A sorted list of datetimes representing available slot start times, or a ValueError if slot duration is not positive.#
+- *Dependencies:* [.changed]#Pure function; depends on the caller supplying a valid DailyAvailability with working hours, blocked periods, and slot interval already resolved.#
 - *Related Domain Events/Actions:* Supports *Appointment slot published*.
 
-====== Authorize Action
+[.changed]====== Check Access
 
 ----
-authorizeAction(policy: Policy, actor: Actor, action: Action): Result Unit Error
+[.removed]#authorizeAction(policy: Policy, actor: Actor, action: Action): Result Unit Error#
+[.added]#checkAccess(session: SupabaseSession, userRoleCache: SessionStorage): Promise<void>#
 ----
 
-- *Description:* Determines whether an actor is allowed to perform an action.
-- *Conceptual Inputs:* Policy, actor, action.
-- *Conceptual Output:* Authorization result.
-- *Dependencies:* Depends on role and policy definitions.
-- *Related Domain Events/Actions:* Governs all domain actions.
+- *Description:* [.changed]#Verifies that the current user holds the admin role before granting access to the dashboard. Checks the session cache first; if absent, queries the user_roles table and validates the role. Redirects to login if no session exists, or to home if the role is not admin. On success, caches the role in session storage and loads the user profile.#
+- *Conceptual Inputs:* [.changed]#Active Supabase session and the cached role value from session storage.#
+- *Conceptual Output:* [.changed]#Authorized UI state with loaded profile, or a redirect to login or home depending on the failure reason.#
+- *Dependencies:* [.changed]#Requires an active Supabase auth session, a user_roles table with a joined roles name, and session storage for role caching.#
+- *Related Domain Events/Actions:* [.changed]#Governs all domain actions.#
 
-====== Booking Behavior
+[.changed]====== Book Admin Appointment
 
 ----
-bookingBehavior(system: ClinicSystem, patient: Patient): BehaviorTrace
+[.removed]#bookingBehavior(system: ClinicSystem, patient: Patient): BehaviorTrace#
+[.added]#book_admin_appointment(*, patient_id: str, doctor_id: str, appointment_date: date, appointment_time: time, status: Literal["pending", "confirmed"] = "confirmed", notes: str | None = None, accept_waitlist: bool = False, allow_override: bool = False): tuple[dict | None, tuple[dict, int] | None]#
 ----
 
-- *Description:* Represents the full interaction flow of a patient booking an appointment.
-- *Conceptual Inputs:* Clinic system, patient.
-- *Conceptual Output:* Behavior trace.
-- *Dependencies:* Composes multiple domain functions.
-- *Related Domain Events/Actions:* Maps to booking-related behavior scenarios.
+- *Description:* [.changed]#Represents the full interaction flow of an admin booking an appointment for a patient, orchestrating slot validation, capacity checks, and fallback strategies through MAIN, WAITLIST, OVERRIDE, and REJECT paths.#
+- *Conceptual Inputs:* [.changed]#Patient ID, doctor ID, appointment date and time, optional status (defaults to confirmed), optional notes, a flag to accept waitlist placement, and a flag to allow override booking.#
+- *Conceptual Output:* [.changed]#A result dictionary with the appointment record, booking type, assigned and requested datetimes, and a message; or an error tuple with details and HTTP status code.#
+- *Dependencies:* [.changed]#Composes multiple domain functions: _validate_requested_slot, _get_doctor_clinic_id, _get_main_capacity, _count_appointments_by_type, _count_waitlist_for_day, _find_next_available_slot_same_day, and _insert_appointment.#
+- *Related Domain Events/Actions:* [.changed]#Maps to booking-related behavior scenarios.#
