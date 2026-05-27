@@ -14,72 +14,55 @@ Notation:
 Core Operations
 [source,text]
 ----
-publishSlot : TimeSlotCatalog >< Provider >< TimeSlot
- -> TimeSlotCatalog >< Result TimeSlotId Error
+[.changed]#publishSlot : generate_available_slots(availability: DailyAvailability) -> List[datetime]#
 
-requestAppointment : AppointmentBook >< Patient >< TimeSlotId
- -> AppointmentBook >< Result AppointmentId Error
+[.changed]#requestAppointment : book_admin_appointment(*, patient_id: str, doctor_id: str, appointment_date: date, appointment_time: time, status: Literal["pending", "confirmed"] = "confirmed", notes: str | None = None, accept_waitlist: bool = False, allow_override: bool = False) -> tuple[dict | None, tuple[dict, int] | None]#
 
-confirmAppointment : AppointmentBook >< TimeSlotCatalog >< ReferralRegistry >< InsuranceRegistry >< AppointmentId
- -> AppointmentBook >< TimeSlotCatalog >< Result Appointment Error
+[.changed]#confirmAppointment : update_appointment(appointment_id: str) -> Response#
 
-cancelAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId
- -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+[.changed]#cancelAppointment : cancel_appointment(appointment_id: str) -> Response#
 
-rescheduleAppointment : AppointmentBook >< TimeSlotCatalog >< AppointmentId >< TimeSlotId
- -> AppointmentBook >< TimeSlotCatalog >< Result Unit Error
+[.changed]#rescheduleAppointment : reschedule_appointment(appointment_id: str, new_datetime: str) -> Response#
 
-modifyAvailability : Schedule >< Provider >< DateTimeRange >< Policy
- -> Schedule >< Result Unit Error
+[.changed]#modifyAvailability : update_appointment(appointment_id: str) -> Response#
 ----
 
 Waitlist
 [source,text]
 ----
-joinWaitlist : Waitlist >< Patient >< Specialty
- -> Waitlist >< Result Unit Error
+[.changed]#joinWaitlist : _count_waitlist_for_day(doctor_id: str, day: date) -> int#
 
-selectWaitlistCandidate : Waitlist >< TimeSlot
- -> Waitlist >< Option Patient
+[.changed]#selectWaitlistCandidate : book_admin_appointment(*, patient_id: str, doctor_id: str, appointment_date: date, appointment_time: time, status: Literal["pending", "confirmed"] = "confirmed", notes: str | None = None, accept_waitlist: bool = False, allow_override: bool = False) -> tuple[dict | None, tuple[dict, int] | None]#
 
-reassignSlot : Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< TimeSlotId
- -> Waitlist >< AppointmentBook >< TimeSlotCatalog >< NotificationQueue >< Option AppointmentId
+[.changed]#reassignSlot : book_admin_appointment(..., accept_waitlist=True, allow_override=True) -> tuple[dict | None, tuple[dict, int] | None]#
 ----
 
 Notifications
 [source,text]
 ----
-queueReminder : NotificationQueue >< Appointment
- -> NotificationQueue
+[.changed]#queueReminder : get_profile(user_id: str) -> JSON#
 
-issueReminder : NotificationQueue >< Channel
- -> NotificationQueue >< Result Unit Error
+[.changed]#issueReminder : update_profile(user_id: str) -> JSON#
 ----
 
 Lifecycle Updates
 [source,text]
 ----
-markNoShow : AppointmentBook >< AppointmentId
- -> AppointmentBook >< Result Unit Error
+[.changed]#markNoShow : update_appointment(appointment_id: str) -> Response#
 
-recordReferral : ReferralRegistry >< Patient >< Provider >< Referral
- -> ReferralRegistry >< Result Unit Error
+[.removed]#recordReferral : ReferralRegistry >< Patient >< Provider >< Referral -> ReferralRegistry >< Result Unit Error#
 
-recordInsuranceApproval : InsuranceRegistry >< Patient >< Provider >< AppointmentId
- -> InsuranceRegistry >< Result Unit Error
+[.changed]#recordInsuranceApproval : get_profile(user_id: str) -> JSON ; update_profile(user_id: str) -> JSON#
 ----
 
 Search & Authorization
 [source,text]
 ----
-searchProviders : ClinicSystem >< Specialty
- -> List Provider
+[.removed]#searchProviders : ClinicSystem >< Specialty -> List Provider#
 
-listAvailableSlots : TimeSlotCatalog >< Provider
- -> List TimeSlot
+[.changed]#listAvailableSlots : generate_available_slots(availability: DailyAvailability) -> List[datetime]#
 
-authorizeAction : Policy >< Actor >< Action
- -> Result Unit Error
+[.changed]#authorizeAction : checkAccess(session: SupabaseSession, userRoleCache: SessionStorage) -> Promise<void>#
 ----
 
 Behavior

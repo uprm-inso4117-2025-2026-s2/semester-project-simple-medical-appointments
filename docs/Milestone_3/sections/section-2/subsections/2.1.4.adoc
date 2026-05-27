@@ -236,53 +236,53 @@
 - *Dependencies:* [.removed]Depends on prioritization rules.
 - *Related Domain Events/Actions:* [.removed]#Supports the *Reassign Slot* action and the *Slot reassigned to waiting patient* event.#
 
-====== Reassign Slot
+[.removed]====== Reassign Slot
 
 ----
-reassignSlot(waitlist: Waitlist, appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, notificationQueue: NotificationQueue, slotId: TimeSlotId): Option AppointmentId
+[.removed]reassignSlot(waitlist: Waitlist, appointmentBook: AppointmentBook, timeSlotCatalog: TimeSlotCatalog, notificationQueue: NotificationQueue, slotId: TimeSlotId): Option AppointmentId
 ----
 
-- *Description:* Assigns an available slot to a waitlisted patient and notifies them.
-- *Conceptual Inputs:* Waitlist, appointment book, slot catalog, notification queue, slot ID.
-- *Conceptual Output:* Optional appointment ID.
-- *Dependencies:* Requires candidate selection and slot availability.
-- *Related Domain Events/Actions:* [.changed]#Action that produces *Slot reassigned to waiting patient* (event).#
+- *Description:* [.removed]Assigns an available slot to a waitlisted patient and notifies them.
+- *Conceptual Inputs:* [.removed]Waitlist, appointment book, slot catalog, notification queue, slot ID.
+- *Conceptual Output:* [.removed]Optional appointment ID.
+- *Dependencies:* [.removed]Requires candidate selection and slot availability.
+- *Related Domain Events/Actions:* [.removed]#Action that produces *Slot reassigned to waiting patient* (event).#
 
-====== Queue Reminder
-
-----
-queueReminder(notificationQueue: NotificationQueue, appointment: Appointment): NotificationQueue
-----
-
-- *Description:* Adds a reminder notification for a scheduled appointment.
-- *Conceptual Inputs:* Notification queue, appointment.
-- *Conceptual Output:* Updated notification queue.
-- *Dependencies:* Appointment must be confirmed.
-- *Related Domain Events/Actions:* [.changed]#Supports the *Queue Appointment Reminder* (action) and *Appointment Reminder Issued* (event).#
-
-====== Issue Reminder
+[.removed]====== Queue Reminder
 
 ----
-issueReminder(notificationQueue: NotificationQueue, channel: Channel): Result Unit Error
+[.removed]queueReminder(notificationQueue: NotificationQueue, appointment: Appointment): NotificationQueue
 ----
 
-- *Description:* Sends queued reminders through a communication channel.
-- *Conceptual Inputs:* Notification queue, channel.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Requires configured communication channels.
-- *Related Domain Events/Actions:* [.changed]#Action that produces *Appointment Reminder Issued* (event).#
+- *Description:* [.removed]Adds a reminder notification for a scheduled appointment.
+- *Conceptual Inputs:* [.removed]Notification queue, appointment.
+- *Conceptual Output:* [.removed]Updated notification queue.
+- *Dependencies:* [.removed]Appointment must be confirmed.
+- *Related Domain Events/Actions:* [.removed]#Supports the *Queue Appointment Reminder* (action) and *Appointment Reminder Issued* (event).#
 
-====== Mark No-Show
+[.removed]====== Issue Reminder
 
 ----
-markNoShow(appointmentBook: AppointmentBook, appointmentId: AppointmentId): Result Unit Error
+[.removed]issueReminder(notificationQueue: NotificationQueue, channel: Channel): Result Unit Error
 ----
 
-- *Description:* Marks an appointment as unattended.
-- *Conceptual Inputs:* Appointment book, appointment ID.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Triggered after appointment time passes.
-- *Related Domain Events/Actions:* [.changed]#Action that produces *Patient marked absent* (event).#
+- *Description:* [.removed]Sends queued reminders through a communication channel.
+- *Conceptual Inputs:* [.removed]Notification queue, channel.
+- *Conceptual Output:* [.removed]Success or failure.
+- *Dependencies:* [.removed]Requires configured communication channels.
+- *Related Domain Events/Actions:* [.removed]#Action that produces *Appointment Reminder Issued* (event).#
+
+[.removed]====== Mark No-Show
+
+----
+[.removed]markNoShow(appointmentBook: AppointmentBook, appointmentId: AppointmentId): Result Unit Error
+----
+
+- *Description:* [.removed]Marks an appointment as unattended.
+- *Conceptual Inputs:* [.removed]Appointment book, appointment ID.
+- *Conceptual Output:* [.removed]Success or failure.
+- *Dependencies:* [.removed]Triggered after appointment time passes.
+- *Related Domain Events/Actions:* [.removed]#Action that produces *Patient marked absent* (event).#
 
 [.removed]====== Record Referral
 
@@ -296,17 +296,17 @@ markNoShow(appointmentBook: AppointmentBook, appointmentId: AppointmentId): Resu
 - *Dependencies:* [.removed]Requires external provider input.
 - *Related Domain Events/Actions:* [.removed]#Action that produces *Referral recorded for consultation* (event).#
 
-====== Record Insurance Approval
+[.removed]====== Record Insurance Approval
 
 ----
-recordInsuranceApproval(insuranceRegistry: InsuranceRegistry, patient: Patient, provider: Provider, appointmentId: AppointmentId): Result Unit Error
+[.removed]recordInsuranceApproval(insuranceRegistry: InsuranceRegistry, patient: Patient, provider: Provider, appointmentId: AppointmentId): Result Unit Error
 ----
 
-- *Description:* Stores insurance approval for a scheduled appointment.
-- *Conceptual Inputs:* Insurance registry, patient, provider, appointment ID.
-- *Conceptual Output:* Success or failure.
-- *Dependencies:* Requires insurer validation.
-- *Related Domain Events/Actions:* [.changed]#Action that produces a coverage authorization event and supports appointment confirmation.#
+- *Description:* [.removed]Stores insurance approval for a scheduled appointment.
+- *Conceptual Inputs:* [.removed]Insurance registry, patient, provider, appointment ID.
+- *Conceptual Output:* [.removed]Success or failure.
+- *Dependencies:* [.removed]Requires insurer validation.
+- *Related Domain Events/Actions:* [.removed]#Action that produces a coverage authorization event and supports appointment confirmation.#
 
 [.removed]====== Search Providers
 
