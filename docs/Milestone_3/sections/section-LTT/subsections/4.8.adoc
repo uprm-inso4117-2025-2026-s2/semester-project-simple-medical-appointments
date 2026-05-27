@@ -1,1 +1,331 @@
 === *Linear Temporal Logic*
+
+==== Linear Temporal Logic for No-Double-Booking Safety Properties
+:author: Pedro A. Morales
+
+===== Introduction
+
+Linear Temporal Logic (LTL) is a formal specification language used to express
+properties about the behavior of systems over time. LTL extends classical
+propositional logic with temporal operators that allow reasoning about sequences
+of states, making it particularly well suited for specifying how a system must
+behave across an entire execution, not just at a single point in time.
+
+In the *Simple Medical Appointments* system, the appointment booking workflow
+involves a sequence of state transitions: a slot begins as available, becomes
+reserved when a patient initiates a booking, transitions to confirmed once the
+booking is accepted, and may later be released back to available upon cancellation.
+Formally specifying the constraints governing these transitions ensures that
+critical scheduling invariants — particularly the prevention of double-bookings —
+are precisely defined and verifiable.
+
+This lecture topic applies LTL to formally specify the safety and liveness
+properties of the appointment booking workflow, demonstrating how temporal logic
+strengthens system reliability guarantees beyond what traditional testing alone
+can provide.
+
+===== Appointment Booking State Model
+
+Before defining LTL properties, the relevant system states and atomic propositions
+must be established.
+
+====== Appointment Slot States
+
+[source,text]
+----
+available    → The slot has no booking associated with it
+reserved     → A patient has initiated a booking request for the slot
+confirmed    → The booking has been validated and accepted by the system
+cancelled    → A previously confirmed booking has been cancelled
+released     → The slot has returned to available after cancellation
+----
+
+====== Atomic Propositions
+
+The following atomic propositions are used to construct LTL formulas:
+
+[cols="1,2"]
+|===
+|Proposition |Meaning
+
+|`available(s)`
+|Slot s is currently available for booking
+
+|`reserved(s, p)`
+|Slot s has been reserved by patient p
+
+|`confirmed(s, p)`
+|Slot s has been confirmed for patient p
+
+|`cancelled(s, p)`
+|The confirmed booking of patient p for slot s has been cancelled
+
+|`request(s, p)`
+|Patient p has submitted a booking request for slot s
+
+|`conflict(s)`
+|Two or more patients have simultaneously requested slot s
+|===
+
+===== LTL Temporal Operators
+
+The following LTL operators are used in the property specifications below:
+
+[cols="1,1,2"]
+|===
+|Operator |Symbol |Meaning
+
+|Globally
+|`G φ`
+|φ holds in all future states (always)
+
+|Finally
+|`F φ`
+|φ holds in at least one future state (eventually)
+
+|Next
+|`X φ`
+|φ holds in the next state
+
+|Until
+|`φ U ψ`
+|φ holds continuously until ψ becomes true
+
+|Implies
+|`φ → ψ`
+|If φ holds then ψ holds
+|===
+
+===== LTL Safety Properties
+
+Safety properties assert that something bad never happens throughout
+the execution of the system.
+
+====== Property 1 — No Double Booking
+
+A confirmed slot must never be simultaneously confirmed for more than one patient.
+
+[source,text]
+----
+G ¬(confirmed(s, p1) ∧ confirmed(s, p2) ∧ p1 ≠ p2)
+----
+
+Plain language: At all times, it is never the case that two different
+patients hold a confirmed booking for the same slot.
+
+====== Property 2 — Unavailable Slot Cannot Be Confirmed
+
+A booking request for a slot that is not available must never result
+in a confirmation.
+
+[source,text]
+----
+G (request(s, p) ∧ ¬available(s) → ¬confirmed(s, p))
+----
+
+Plain language: If a patient requests a slot that is not available,
+that request is never confirmed by the system.
+
+====== Property 3 — Confirmed Slot Leaves Available State
+
+Once a slot is confirmed for a patient, it must no longer appear as available.
+
+[source,text]
+----
+G (confirmed(s, p) → ¬available(s))
+----
+
+Plain language: A slot that has been confirmed for any patient is
+always marked as unavailable.
+
+====== Property 4 — Reservation Requires Prior Availability
+
+A slot can only be reserved if it was available at the time of the request.
+
+[source,text]
+----
+G (reserved(s, p) → available(s) U reserved(s, p))
+----
+
+Plain language: A reservation for a slot is only ever established
+if the slot was continuously available up to the moment of reservation.
+
+===== LTL Liveness Properties
+
+Liveness properties assert that something good eventually happens
+during the execution of the system.
+
+====== Property 5 — Valid Request Eventually Resolved
+
+Every valid booking request must eventually result in either a
+confirmation or a rejection. The system must never leave a request
+permanently pending.
+
+[source,text]
+----
+G (request(s, p) → F (confirmed(s, p) ∨ ¬reserved(s, p)))
+----
+
+Plain language: Every booking request eventually reaches a terminal
+state — confirmed or denied.
+
+====== Property 6 — Cancelled Slot Eventually Released
+
+After a confirmed booking is cancelled, the slot must eventually
+become available again for other patients.
+
+[source,text]
+----
+G (cancelled(s, p) → F available(s))
+----
+
+Plain language: Cancelling a booking always eventually restores
+the slot to the available pool.
+
+===== Property Summary Table
+
+[cols="1,2,2,1"]
+|===
+|Property |Plain Language Description |LTL Formula |Type
+
+|P1
+|No two patients confirmed for the same slot
+|`G ¬(confirmed(s,p1) ∧ confirmed(s,p2) ∧ p1≠p2)`
+|Safety
+
+|P2
+|Unavailable slot cannot be confirmed
+|`G (request(s,p) ∧ ¬available(s) → ¬confirmed(s,p))`
+|Safety
+
+|P3
+|Confirmed slot is no longer available
+|`G (confirmed(s,p) → ¬available(s))`
+|Safety
+
+|P4
+|Reservation requires prior availability
+|`G (reserved(s,p) → available(s) U reserved(s,p))`
+|Safety
+
+|P5
+|Valid request eventually confirmed or rejected
+|`G (request(s,p) → F (confirmed(s,p) ∨ ¬reserved(s,p)))`
+|Liveness
+
+|P6
+|Cancelled slot eventually becomes available
+|`G (cancelled(s,p) → F available(s))`
+|Liveness
+|===
+
+===== Appointment Slot State Transition Diagram
+
+The following diagram illustrates the state transitions for an appointment
+slot and identifies which transitions are governed by the LTL properties
+defined above.
+
+[source,text]
+----
+              +-------------+
+              |  AVAILABLE  |<--------------------------+
+              +------+------+                           |
+                     |                                  |
+           request(s, p)                                |
+           [P4: must be available]                      |
+                     |                                  |
+                     v                                  |
+              +-------------+                           |
+              |  RESERVED   |                           |
+              +------+------+                           |
+                     |                                  |
+         validate availability                          |
+         [P2: reject if unavailable]                    |
+                /         \                             |
+               /           \                            |
+        valid /             \ invalid                   |
+             /               \                          |
+            v                 v                         |
+    +-----------+       +----------+                    |
+    | CONFIRMED |       | REJECTED |                    |
+    +-----+-----+       +----------+                    |
+          |                                             |
+          | [P3: slot no longer available]              |
+          | [P1: no second confirmation allowed]        |
+          |                                             |
+     cancellation                                       |
+          |                                             |
+          v                                             |
+    +-----------+                                       |
+    | CANCELLED |                                       |
+    +-----+-----+                                       |
+          |                                             |
+          | [P6: must eventually release]               |
+          v                                             |
+    +-----------+                                       |
+    | RELEASED  +---------------------------------------+
+    +-----------+
+----
+
+===== LTL Verification Workflow
+
+The following workflow illustrates how LTL properties would be applied
+and verified against the appointment booking system model.
+
+[source,text]
+----
++-----------------------------+
+| Define Atomic Propositions  |
+| (slot states, patient IDs)  |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Model System as Kripke      |
+| Structure (states +         |
+| transitions)                |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Express Properties in LTL   |
+| (Safety + Liveness)         |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Apply Model Checker         |
+| (e.g., SPIN / NuSMV)        |
++-------------+---------------+
+              |
+        +-----+------+
+        |            |
+        v            v
++----------+   +--------------+
+| Property |   | Counterexam- |
+| Holds    |   | ple Found    |
++----------+   +------+-------+
+                      |
+                      v
+               +--------------+
+               | Revise Model |
+               | or Fix Defect|
+               +--------------+
+----
+
+===== Impact on System Reliability
+
+Applying LTL to the *Simple Medical Appointments* booking workflow provides
+formal guarantees that go beyond what test cases alone can offer. While
+testing validates specific scenarios, LTL properties hold over all possible
+execution paths, including concurrent and interleaved sequences that are
+difficult to reproduce manually.
+
+By formally specifying that a confirmed slot can never be double-booked (P1),
+that unavailable slots cannot be confirmed (P2), and that cancelled slots
+eventually return to the available pool (P6), the system design is grounded
+in provably correct behavioral contracts. Any implementation that satisfies
+these formulas is guaranteed to respect the scheduling invariants regardless
+of load, concurrency, or edge-case input sequences.
+
+---

@@ -1,0 +1,209 @@
+= Test Case Execution and Defect Management with Structured Logging
+:Author: Jerac Duran
+
+== 1. Introduction
+In software reliability testing, test case execution and defect management are essential activities to ensure system quality and correctness.
+
+According to IEEE 21119, a test case is:
+
+____
+A set of test case preconditions, inputs (including actions, where applicable), and expected results, developed to drive the execution of a test item to meet test objectives, including correct implementation, error identification, checking quality, and other valued information.
+____
+
+This definition emphasizes that a test case includes:
+
+- Preconditions
+- Inputs(actions)
+- Expected Output (Expected results)
+
+These elements define how system behavior is validated during execution.
+
+== 2. Elements of a Test Case
+
+A test case consists of:
+
+- *Preconditions*: System state before execution
+- *Inputs / Actions*: User or system triggers
+- *Expected Results*: Desired outcome of execution
+
+These elements form the basis for structured and repeatable testing.
+
+== 3. Test Case Execution Structure (Given–When–Then)
+
+Modern testing practices (Gherkin, Cucumber, etc ) structure test cases as:
+
+- *Given*: Preconditions or system context
+- *When*: Action or trigger
+- *Then*: Expected result or system outcome
+
+=== Example: Medical Appointment System
+
+- Given a doctor has an available time slot
+- When a user books an appointment
+- Then the system confirms the appointment
+
+This structure enables executable specifications that can be automated.
+
+== 4. Test Execution in the Test Process
+
+Test execution is the phase where test cases are run against the system under test.
+It includes:
+
+- Setting up test preconditions
+- Executing test inputs/actions
+- Capturing system responses
+- Comparing actual results with expected results
+
+The output of test execution provides evidence of system behavior and correctness.
+
+== 5. Structured Logging in Test Execution
+
+Structured logging records system events in a consistent format to support traceability and analysis during testing.
+It captures:
+
+- User actions
+- System responses
+- Execution context
+- Errors and failures
+
+Structured logs act as a runtime representation of test case execution.
+
+=== 5.1 Mapping Logs to Test Case Elements
+
+[options="header"]
+|===
+| Test Case Element | Logging Equivalent
+| Preconditions | SETUP / CONTEXT logs
+| Inputs (When) | ACTION logs
+| Expected Results (Then) | RESPONSE logs
+| Execution Trace | Timestamp, sessionId, userId
+|===
+
+=== 5.2 Example: Medical Appointment System
+
+==== Given (Precondition)
+
+System has an available doctor slot.
+
+[source,json]
+----
+{
+  "event": "SETUP",
+  "doctorId": "D45",
+  "slot": "10:00",
+  "status": "AVAILABLE"
+}
+----
+
+==== When (Action)
+
+User attempts to book an appointment.
+
+[source,json]
+----
+{
+  "event": "ACTION",
+  "userId": "U123",
+  "action": "BOOK_APPOINTMENT"
+}
+----
+
+==== Then (Result)
+
+System confirms the appointment.
+
+[source,json]
+----
+{
+  "event": "RESPONSE",
+  "status": "SUCCESS",
+  "appointmentId": "A1001"
+}
+----
+
+== 6. Logging Levels in Test Execution
+
+Structured logging uses severity levels to classify system behavior:
+
+- *INFO*: Normal execution flow
+- *WARN*: Unexpected but non-critical behavior
+- *ERROR*: Failure or defect detected
+
+=== Interpretation in Testing Context
+
+- INFO → Test step executed successfully
+- WARN → Potential deviation or instability
+- ERROR → Test case failure requiring defect reporting
+
+== 7. Defect Management and Reporting
+
+Defect management is a key outcome of test execution.
+
+It ensures:
+
+- Efficient identification of system failures
+- Proper communication between testers and developers
+- Reduction of wasted debugging effort
+
+=== 7.1 Defect Lifecycle (Supported by Logs)
+
+1. Detection → ERROR logs identify failure
+2. Reporting → logs provide defect evidence
+3. Analysis → execution trace is reconstructed from logs
+4. Fixing → developers use logs for debugging
+5. Verification → test is re-executed
+6. Closure → no ERROR logs observed
+
+=== 7.2 Example Defect Log
+
+[source,json]
+----
+{
+  "event": "ERROR",
+  "action": "BOOK_APPOINTMENT",
+  "errorCode": "SLOT_MISMATCH",
+  "message": "Doctor availability mismatch",
+  "userId": "U123",
+  "timestamp": "2026-05-17T10:00:00Z"
+}
+----
+
+This log provides direct evidence for defect reporting.
+
+== 8. Exploratory Testing and Logging
+
+Exploratory testing (session-based testing) allows testers to explore the system without pre-scripted test cases.
+Structured logging supports this by:
+
+- Recording all user actions automatically
+- Avoiding repetition of test steps
+- Allowing session replay
+- Capturing unexpected system behavior
+
+== 9. Importance of Structured Logging in Testing
+
+Structured logging improves:
+
+- Traceability of test case execution
+- Accuracy of defect reporting
+- Debugging efficiency
+- Support for automated testing
+- Reliability assessment of the system
+
+== 10. Conclusion
+
+Based on the lecture content, test case execution and defect management rely on structured and well-defined processes.
+A test case is defined by:
+
+- Preconditions
+- Inputs
+- Expected results
+
+Structured logging enhances this process by:
+
+- Mapping logs directly to Given–When–Then structure
+- Providing execution traceability
+- Supporting defect identification and lifecycle management
+- Enabling both scripted and exploratory testing
+
+Therefore, structured logging serves as a bridge between test case design, execution, and defect management, improving overall software reliability in systems such as medical appointment platforms.

@@ -1,0 +1,391 @@
+= GDB Source-Level Debugging Reference for the Appointment Scheduling Feature
+:author: Ivan Morales
+
+== Introduction
+
+This document serves as a developer reference for applying GDB source level debugging to the appointment scheduling system.
+
+The scheduling feature generates available time slots from a provider's working hours by subtracting blocked periods and splitting the remaining time into fixed duration intervals. When defects arise in this logic, structured debugging sessions reduce investigation time and prevent guesswork.
+
+The goal is to document compilation flags, demonstrate a hypothetical GDB session using scheduling code, and distinguish source-level output from machine-level output, so developers have a ready reference once the code is complete.
+
+---
+
+== Compilation Flags for Debugging
+
+To enable GDB source level debugging, the scheduling module must be compiled with specific flags. These flags are set at build time and affect how the binary represents program state during a debugging session.
+
+=== The `-g` Flag
+
+The `-g` flag instructs the compiler to embed debugging symbols into the compiled output.
+
+[source,bash]
+----
+gcc -g -c scheduling.c -o scheduling.o
+----
+
+Without `-g`, the binary contains no mapping between machine instructions and source lines. GDB can still attach to the process, but it cannot show variable names, source file lines, or human-readable function names.
+
+What `-g` adds to the binary:
+
+* Source file name and line numbers for each instruction
+* Variable names and their types
+* Function signatures and parameter names
+* Struct field names and memory layouts
+
+=== The `-O0` Flag
+
+The `-O0` flag disables all compiler optimizations.
+
+[source,bash]
+----
+gcc -g -O0 -c scheduling.c -o scheduling.o
+----
+
+Why `-O0` is necessary for reliable debugging:
+
+[cols="1,3", options="header"]
+|===
+| Without `-O0` | With `-O0`
+
+| The compiler may inline small functions, removing their stack frames
+| Every function call is preserved as a visible stack frame
+
+| Local variables may be eliminated if the compiler determines they are unused
+| All declared variables exist in memory and are inspectable
+
+| Instructions may be reordered for performance, making step by step execution non linear
+| Execution follows source line order exactly
+
+| Loop counters and intermediate values may be held in registers, invisible to GDB
+| All values are written to memory and visible via `print` or `info locals`
+|===
+
+=== Combined Build Command
+
+[source,bash]
+----
+gcc -g -O0 -Wall -o scheduling_debug scheduling.c
+----
+
+The `-Wall` flag is included as a best practice to surface warnings during the debug build that might otherwise hide logic errors.
+
+---
+
+== Scheduling Module Overview
+
+The following pseudo code reflects the structure of the scheduling service as observed in `backend/tests/unit/test_scheduling.py`. It forms the basis for the GDB session walkthrough.
+
+[source,python]
+----
+# app/services/scheduling.py  (pseudo-code representation)
+
+class TimeRange:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def duration_minutes(self):
+        delta = datetime.combine(date.min, self.end) - datetime.combine(date.min, self.start)
+        return int(delta.total_seconds() // 60)
+
+    def split(self, slot_minutes):
+        if slot_minutes <= 0:
+            raise ValueError("slot_minutes must be positive")
+        slots = []
+        current = self.start
+        while True:
+            slot_end = add_minutes(current, slot_minutes)
+            if slot_end > self.end:
+                break
+            slots.append(current)
+            current = slot_end
+        return slots
+
+    def subtract(self, blocked_periods):
+        segments = [self]
+        for block in blocked_periods:
+            new_segments = []
+            for seg in segments:
+                new_segments.extend(seg._cut_out(block))
+            segments = new_segments
+        return segments
+
+def generate_available_slots(avail):
+    if avail.slot_minutes <= 0:
+        raise ValueError("slot_minutes must be positive")
+    free_segments = avail.working_hours.subtract(avail.blocked_periods)
+    slots = []
+    for segment in free_segments:
+        for t in segment.split(avail.slot_minutes):
+            slots.append(datetime.combine(avail.date, t))
+    return sorted(slots)
+----
+
+---
+
+== Hypothetical GDB Session Walkthrough
+
+This section presents a hypothetical GDB session targeting the `generate_available_slots` function to trace why a slot expected at `13:00` does not appear in the output.
+
+=== Scenario
+
+A `DailyAvailability` is constructed with:
+
+* working hours: `09:00–17:00`
+* blocked period: `12:00–13:00`
+* slot duration: `60` minutes
+
+Expected output includes a slot at `13:00`. The slot is missing and the developer suspects `subtract` is incorrectly trimming the post-lunch segment.
+
+=== Starting the Session
+
+[source,bash]
+----
+$ gdb python3
+(gdb) break app/services/scheduling.py:generate_available_slots
+(gdb) run -m pytest backend/tests/unit/test_scheduling.py::TestGenerateAvailableSlots::test_blocked_lunch_reduces_slots -s
+----
+
+For a compiled C extension version of the module the session would start as:
+
+[source,bash]
+----
+$ gdb ./scheduling_debug
+(gdb) break generate_available_slots
+(gdb) run
+----
+
+=== Setting Breakpoints
+
+[source,text]
+----
+(gdb) break scheduling.c:42          # line where free_segments is assigned
+Breakpoint 1 at 0x4011a3: file scheduling.c, line 42.
+
+(gdb) break TimeRange_subtract       # entry of the subtract method
+Breakpoint 2 at 0x401050: file scheduling.c, line 18.
+----
+
+=== Running and Stepping Through
+
+[source,text]
+----
+(gdb) run
+Starting program: scheduling_debug
+
+Breakpoint 2, TimeRange_subtract (self=0x5555557a1b20, blocked=0x5555557a1c40,
+    n_blocked=1) at scheduling.c:18
+18          TimeRange segments[MAX_SEGS];
+
+(gdb) next
+19          segments[0] = *self;
+
+(gdb) next
+20          int seg_count = 1;
+
+(gdb) info locals
+segments = {{start = {tm_hour = 9, tm_min = 0}, end = {tm_hour = 17, tm_min = 0}}}
+seg_count = 1
+
+(gdb) next
+21          for (int i = 0; i < n_blocked; i++) {
+
+(gdb) step                           # step INTO the inner loop body
+22              TimeRange block = blocked[i];
+
+(gdb) print block
+$1 = {start = {tm_hour = 12, tm_min = 0}, end = {tm_hour = 13, tm_min = 0}}
+----
+
+=== Inspecting the Split After Subtract
+
+[source,text]
+----
+(gdb) finish                         # finish subtract, return to generate_available_slots
+Run till exit from TimeRange_subtract ...
+
+Breakpoint 1, generate_available_slots (avail=0x5555557a1d00) at scheduling.c:42
+42          free_segments = working_hours.subtract(blocked_periods, n_blocked);
+
+(gdb) next
+43          int slot_count = 0;
+
+(gdb) print free_segments[0]
+$2 = {start = {tm_hour = 9, tm_min = 0}, end = {tm_hour = 12, tm_min = 0}}
+
+(gdb) print free_segments[1]
+$3 = {start = {tm_hour = 13, tm_min = 0}, end = {tm_hour = 17, tm_min = 0}}
+----
+
+The session confirms both segments are present. The developer then steps into `split` for the second segment to verify the `13:00` slot is generated correctly.
+
+=== Backtrace
+
+[source,text]
+----
+(gdb) backtrace
+#0  TimeRange_split (self=0x5555557a2000, slot_minutes=60) at scheduling.c:31
+#1  generate_available_slots (avail=0x5555557a1d00) at scheduling.c:47
+#2  main () at scheduling_debug.c:12
+----
+
+The backtrace shows the full call chain at the point of inspection. Each frame includes the source file name and line number, confirming that `-g` is active.
+
+=== Continuing and Exiting
+
+[source,text]
+----
+(gdb) continue
+(gdb) quit
+----
+
+---
+
+== Source-Level vs Machine-Level Output
+
+This section shows the same program state as seen from source-level view and machine-level view, illustrating why `-g` and `-O0` matter for productive debugging sessions.
+
+=== Source-Level Output (with `-g -O0`)
+
+[source,text]
+----
+(gdb) list
+27      static int TimeRange_split(TimeRange *self, int slot_minutes, time_t *out) {
+28          if (slot_minutes <= 0) {
+29              fprintf(stderr, "slot_minutes must be positive\n");
+30              return -1;
+31          }
+32          int count = 0;
+33          time_t current = self->start;
+33          while (1) {
+34              time_t slot_end = add_minutes(current, slot_minutes);
+35              if (slot_end > self->end) break;
+36              out[count++] = current;
+37              current = slot_end;
+38          }
+39          return count;
+40      }
+
+(gdb) print slot_minutes
+$4 = 60
+
+(gdb) print self->start
+$5 = {tm_hour = 13, tm_min = 0, tm_sec = 0}
+
+(gdb) print self->end
+$6 = {tm_hour = 17, tm_min = 0, tm_sec = 0}
+----
+
+The developer reads function names, variable values, and the exact source line under execution. No assembly knowledge is required.
+
+=== Machine-Level Output (without `-g`, or with `-O2`)
+
+[source,text]
+----
+(gdb) disassemble
+Dump of assembler code for function 0x4011a0:
+   0x00000000004011a0 <+0>:     push   %rbp
+   0x00000000004011a1 <+1>:     mov    %rsp,%rbp
+   0x00000000004011a4 <+4>:     sub    $0x30,%rsp
+   0x00000000004011a8 <+8>:     mov    %rdi,-0x28(%rbp)
+   0x00000000004011ac <+12>:    mov    %esi,-0x2c(%rbp)
+   0x00000000004011af <+15>:    cmpl   $0x0,-0x2c(%rbp)
+   0x00000000004011b3 <+19>:    jg     0x4011c2
+   0x00000000004011b5 <+21>:    mov    $0xffffffff,%eax
+   0x00000000004011ba <+26>:    jmp    0x401200
+
+(gdb) info registers
+rax            0x0      0
+rbp            0x7fffffffdc80   0x7fffffffdc80
+rsp            0x7fffffffdc50   0x7fffffffdc50
+rdi            0x5555557a2000   93824994861056
+rsi            0x3c             60
+----
+
+Without debug symbols, the debugger shows only raw addresses, register values, and assembly mnemonics. The variable name `slot_minutes` is gone; its value `60` is visible only because it happens to be in register `rsi` at this moment, which requires knowing the calling convention.
+
+=== Comparison Summary
+
+[cols="1,3,3", options="header"]
+|===
+| Aspect | Source Level (`-g -O0`) | Machine Level (no flags or `-O2`)
+
+| Variable names
+| Visible by name (`slot_minutes`, `self->start`)
+| Not available; values inferred from registers
+
+| Current line
+| Shown as source file path and line number
+| Shown as instruction address (e.g., `0x4011af`)
+
+| Function names
+| Shown as declared (`TimeRange_split`)
+| May be stripped or shown as hex address
+
+| Call stack
+| Full human-readable backtrace with file and line
+| Addresses only; frames may be missing due to inlining
+
+| Variable values
+| `print slot_minutes` returns `60`
+| Must know register assignment per calling convention
+
+| Step behavior
+| Follows source lines in order
+| Follows individual assembly instructions
+|===
+
+---
+
+== Key GDB Commands Reference
+
+[cols="1,3", options="header"]
+|===
+| Command | Purpose
+
+| `break <file>:<line>` or `break <function>`
+| Set a breakpoint at a source line or function entry
+
+| `run [args]`
+| Start the program, stopping at the first breakpoint
+
+| `next`
+| Execute the current source line and stop at the next one (does not step into calls)
+
+| `step`
+| Execute and step INTO function calls
+
+| `finish`
+| Run until the current function returns
+
+| `print <expr>`
+| Evaluate and display an expression or variable
+
+| `info locals`
+| Display all local variables in the current stack frame
+
+| `list`
+| Show source lines around the current execution point
+
+| `backtrace`
+| Show the full call stack
+
+| `continue`
+| Resume execution until the next breakpoint
+
+| `quit`
+| Exit GDB
+|===
+
+---
+
+== Conclusion
+
+Source level debugging with GDB requires two compilation flags: `-g` to embed symbol information and `-O0` to disable optimizations that would otherwise make execution non-linear and variable inspection unreliable.
+
+For the appointment scheduling system, the key functions to instrument are `generate_available_slots`, `TimeRange.subtract`, and `TimeRange.split`, since defects in slot generation typically originate in one of these three locations.
+
+With debug symbols active, GDB exposes scheduling state—segment boundaries, slot counts, blocked period values—as named variables readable without assembly knowledge. Without them, the same state is accessible only through register inspection and address arithmetic, which significantly increases debugging effort.
+
+This reference should be consulted at the start of any debugging session on the scheduling feature to ensure the correct build configuration is in place before attaching GDB.

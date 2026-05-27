@@ -1,0 +1,47 @@
+=== Modeling Load Testing Scenarios for Concurrent Medical Requests
+:author: Alejandro E. López Rodríguez
+
+Healthcare environments frequently involve situations where multiple medical operations occur simultaneously. Appointment scheduling, patient record access, and prescription management may all be performed at the same time by different staff members or patients. As the number of concurrent requests increases, the possibility of conflicts, inconsistent data, or delayed responses also increases. Modeling these concurrent request scenarios helps identify how the system should behave under high request activity while preserving valid medical information and operational consistency.
+
+Within the Simple Medical domain, several healthcare operations are especially susceptible to concurrent access. Appointment scheduling operations may involve multiple patients attempting to reserve overlapping time slots simultaneously. Medical staff may also access or update the same patient record while another operation is modifying related medical information. Similarly, prescription updates may occur concurrently with patient consultations or medical record reviews. These situations introduce the possibility of conflicting operations if the system does not properly preserve consistency between concurrent requests.
+
+==== Concurrent Appointment Scheduling
+
+One concurrent scenario involves appointment scheduling requests targeting the same physician and time period.
+
+[source]
+scheduleAppointment :
+AppointmentBook >< Patient >< Physician >< TimeSlot ->
+AppointmentBook >< Option Appointment
+
+If two scheduling operations attempt to reserve the same appointment slot concurrently, only one valid appointment can exist for that physician during the selected time period. The first successful request may reserve the slot, while the second request must fail because the time slot is no longer available. Without proper concurrency handling, the system could incorrectly allow overlapping appointments to exist simultaneously.
+
+==== Concurrent Medical Record Updates
+
+Another concurrent scenario involves simultaneous access to patient medical records.
+
+[source]
+updateMedicalRecord :
+MedicalRecord >< MedicalEntry ->
+Option MedicalRecord
+
+While one physician updates a patient diagnosis, another staff member may attempt to modify medication information at the same time. If concurrent updates are not coordinated correctly, one operation may overwrite changes introduced by another operation, resulting in inconsistent or incomplete medical information. Modeling these situations helps identify where synchronization or validation behavior becomes necessary to preserve record consistency.
+
+==== Concurrent Prescription Modifications
+
+Prescription management operations may also experience concurrent request conflicts.
+
+[source]
+updatePrescription :
+PrescriptionRecord >< PrescriptionChange ->
+Option PrescriptionRecord
+
+A physician may attempt to update dosage information while a pharmacist simultaneously reviews or modifies fulfillment status information. If both operations occur concurrently without coordination, the prescription state may become inconsistent or partially updated. Modeling these situations helps identify how the system should preserve valid prescription information during simultaneous operations.
+
+==== Operational Impact of Concurrent Requests
+
+Concurrent requests may also affect operational behavior through increased response delays or temporary resource contention. During periods of heavy activity, many scheduling or record-access requests may compete for the same information simultaneously. Even when operations remain logically valid, the increased request volume may slow system responsiveness or increase the likelihood of conflicting operations. Modeling these conditions allows the development team to better understand which domain operations require stronger consistency guarantees.
+
+==== Conclusion
+
+These concurrent request scenarios demonstrate why load testing and concurrency modeling are important within healthcare systems. Healthcare operations frequently involve shared medical information that must remain accurate and consistent even during periods of high activity. By modeling situations involving simultaneous appointment scheduling, record updates, and prescription modifications, the system can better preserve valid domain states while preventing conflicts caused by concurrent operations.

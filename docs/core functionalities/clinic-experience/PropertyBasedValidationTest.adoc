@@ -1,0 +1,66 @@
+= Property Based Validation Test
+:doctype: article
+:toc:
+:toclevels: 2
+
+== Testing Procedure
+To verify that the system properly rejects invalid appointment dates, direct backend API testing was performed using the `curl` command from the terminal. This approach allowed controlled submission of invalid inputs without relying on the frontend interface.
+
+Each request included a valid JWT token obtained through Supabase authentication to simulate real user conditions.
+
+A minimum of 10 invalid date inputs were tested, including:
+
+* Non-existent calendar dates (for example, `2026-02-30`)
+* Incorrect date formats (for example, `30-02-2026`)
+* Invalid time formats (for example, `25:99`)
+* Past dates
+* Empty date fields
+
+Each response status code and error message was recorded.
+
+== Results
+The system returned appropriate error responses for all invalid inputs tested.
+
+[cols="1,2,1,2,1",options="header"]
+|===
+|Test #
+|Invalid Date Input
+|Expected Result
+|Actual Result
+|Booking Created?
+|1 |02/30/2026 |Error |Error Returned |No
+|2 |13/15/2026 |Error |Error Returned |No
+|3 |00/10/2026 |Error |Error Returned |No
+|4 |06/00/2026 |Error |Error Returned |No
+|5 |06/31/2026 |Error |Error Returned |No
+|6 |2026-02-29 |Error |Error Returned |No
+|7 |01/01/2020 |Error |Error Returned |No
+|8 |Null Value |Error |Error Returned |No
+|9 |Empty String |Error |Error Returned |No
+|10 |Text Input |Error |Error Returned |No
+|===
+
+== Results Analysis
+All tested invalid date inputs resulted in an error response from the system. In every case, the API rejected the request and no appointment record was created in the database. This confirms that the system correctly validates appointment dates before processing booking creation.
+
+The system successfully handled different categories of invalid inputs, including:
+
+* Structurally incorrect dates
+* Non-existent calendar dates
+* Past dates
+* Missing values
+* Incorrect data types
+
+Because no invalid input resulted in a successful booking, the defined property holds true under the tested conditions.
+
+== Success Criteria Validation
+* All invalid inputs returned an error: pass
+* No invalid requests created a booking: pass
+* Clear summary table provided: pass
+
+The system satisfies the defined success criteria.
+
+== Final Conclusion
+The system properly rejects all tested invalid appointment dates. Input validation mechanisms prevent malformed, past, or logically impossible dates from being processed.
+
+Based on the conducted tests, the property that "booking must not be created on invalid appointment dates" is upheld.
