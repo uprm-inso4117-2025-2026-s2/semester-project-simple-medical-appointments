@@ -21,12 +21,12 @@ def create_app(testing: bool = False):
         app.config["TESTING"] = True
 
     CORS(app)
-    [.added]#db.init_app(app)#
+    db.init_app(app)
     init_supabase(app)
     register_routes(app)
 
-    [.added]#with app.app_context():#
-        [.added]#db.create_all()#
+    with app.app_context():
+        db.create_all()
 
     return app
 ----
@@ -48,14 +48,14 @@ def register_routes(app):
     app.register_blueprint(appointment_bp, url_prefix='/api')
     app.register_blueprint(profile_bp, url_prefix='/api/profile')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
-    [.added]#app.register_blueprint(auth_bp, url_prefix='/api/auth')#
-    [.added]#app.register_blueprint(appointments_bp, url_prefix='/api/appointments')#
-    [.added]#app.register_blueprint(admin_bp, url_prefix='/api/admin')#
-    [.added]#app.register_blueprint(#
-        [.added]#scheduling_appointments_bp,#
-        [.added]#url_prefix='/api/scheduling/appointments',#
-    [.added]#)#
-    [.added]#app.register_blueprint(slots_bp)#
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(appointments_bp, url_prefix='/api/appointments')
+    app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(
+        scheduling_appointments_bp,
+        url_prefix='/api/scheduling/appointments',
+    )
+    app.register_blueprint(slots_bp)
 ----
 
 [.changed]#This approach reflects a modular design where each functional area of the system is handled independently. For example, profile-related operations are separated from appointment-related operations, authentication is isolated under its own prefix, and scheduling-specific appointment logic is registered at a dedicated path. The slots blueprint is registered without a prefix, allowing it to handle its own routing independently.#
@@ -64,16 +64,16 @@ This modularity reduces coupling between components and makes it easier to exten
 
 ===== Supabase Integration
 
-The system integrates with Supabase for authentication and data storage. This integration is centralized in `backend/app/supabase.py`.
+The system integrates with Supabase for authentication and data storage. One shared initialization path lives in `backend/app/supabase.py`, while some route modules also use local request helpers for endpoint-specific calls.
 
 
 [source,python]
 ----
 def init_supabase(app):
-    [.added]#"""Initialize the Supabase client from Flask app config and attach it to the app.
+    """Initialize the Supabase client from Flask app config and attach it to the app.
     Call this inside create_app() after loading config.
     Routes can access the client via current_app.supabase or by importing supabase from this module.
-    """#
+    """
     global supabase
 
     if app.config.get("TESTING"):
@@ -86,8 +86,8 @@ def init_supabase(app):
 
     if not url or not key:
         raise RuntimeError(
-            [.changed]#'Supabase environment variables are missing. '
-            'Set SUPABASE_URL and SUPABASE_KEY (or VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) in backend/.env'#
+            'Supabase environment variables are missing. '
+            'Set SUPABASE_URL and SUPABASE_KEY (or VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY) in backend/.env'
         )
 
     supabase = create_client(url, key)
@@ -101,7 +101,7 @@ An important detail is the conditional behavior during testing. When the applica
 
 ===== Backend Communication with Supabase
 
-To maintain consistency, all communication with Supabase is handled through a wrapper function defined in `backend/app/routes/profile.py`.
+To maintain consistency within the profile routes, Supabase calls are routed through a wrapper function defined in `backend/app/routes/profile.py`.
 
 
 [source,python]
@@ -113,9 +113,9 @@ def _supabase_request(...):
     }
 ----
     
-This abstraction centralizes how requests are constructed and executed. Instead of writing HTTP logic in every endpoint, the system delegates this responsibility to a single function.
+This abstraction centralizes how requests are constructed and executed for the profile routes shown here. Instead of writing HTTP logic in every endpoint, the system delegates this responsibility to a helper.
 
-This design improves maintainability. If the way requests are handled needs to change, it can be updated in one place without affecting the rest of the codebase. It also ensures consistent error handling and response parsing across all interactions with Supabase.
+This design reduces repetition within that route area. Where the codebase still uses specialized helpers in other modules, the maintainability benefit is more limited than a single-project-wide wrapper would be, but the pattern still keeps the profile endpoints easier to follow.
 
 ===== Authentication and Authorization
 
@@ -124,26 +124,20 @@ Authentication and authorization are handled as separate steps, both implemented
 
 [source,python]
 ----
-[.removed]#status, user_response, _ = _supabase_request('GET', '/auth/v1/user', user_token=token)#
-[.added]#status, user_response, transport_error = _supabase_request(#
-[.added]#    'GET',#
-[.added]#    '/auth/v1/user',#
-[.added]#    user_token=token,#
-[.added]#)#
+status, user_response, transport_error = _supabase_request(
+    'GET',
+    '/auth/v1/user',
+    user_token=token,
+)
 
-[.removed]#role_status, role_response, _ = _supabase_request(#
-[.removed]#    'GET',#
-[.removed]#    '/rest/v1/user_roles',#
-[.removed]#    query={'user_id': f'eq.{user_id}', 'select': 'roles(name)'},#
-[.removed]#)#
-[.added]#role_status, role_response, _ = _supabase_request(#
-[.added]#    'GET',#
-[.added]#    '/rest/v1/user_roles',#
-[.added]#    query={#
-[.added]#        'user_id': f'eq.{user_id}',#
-[.added]#        'select': 'roles(name)',#
-[.added]#    },#
-[.added]#)#
+role_status, role_response, _ = _supabase_request(
+    'GET',
+    '/rest/v1/user_roles',
+    query={
+        'user_id': f'eq.{user_id}',
+        'select': 'roles(name)',
+    },
+)
 ----
 
 The system first verifies the identity of the user using a token. Once the user is authenticated, a second query retrieves the user's role.
@@ -158,7 +152,7 @@ Access control is enforced directly within the endpoints, which are defined in `
 [source,python]
 ----
 if not _can_access_target(request_user_id, request_role, user_id):
-   return jsonify({'error': [.removed]#'Forbidden'#[.added]#'Forbidden: you can only access your own profile.'#}), 403
+   return jsonify({'error': 'Forbidden: you can only access your own profile.'}), 403
 ----
 
 This check ensures that users can only access or modify their own data unless additional permissions are granted.
@@ -204,14 +198,7 @@ Once the role is retrieved, it is used to control what the user sees in the inte
 
 [source,python]
 ----
-[.removed]#@scheduling_appointments_bp.route("/", methods=["POST"])
-@requires_auth
-def create_appointment():
-    data = _validate_json_request()
-    supabase = _get_supabase_client()
-    response = supabase.table("appointments").insert(data).execute()
-    return jsonify({"success": True, "data": response.data}), 201#
-[.added]#@scheduling_appointments_bp.route("/", methods=["POST"])
+@scheduling_appointments_bp.route("/", methods=["POST"])
 @requires_auth
 def create_appointment():
     validation_result = _validate_json_request()
@@ -283,7 +270,7 @@ def create_appointment():
         "success": True,
         "message": "Appointment created successfully",
         "data": result,
-    }), 201#
+    }), 201
 ----
 
 Before reaching the endpoint, the request is processed by authentication middleware defined in `backend/app/middleware/auth_middleware.py`.
@@ -292,22 +279,18 @@ Before reaching the endpoint, the request is processed by authentication middlew
 [source,python]
 ----
 def requires_auth(f):
-    [.removed]#token = extract_token()#
-    [.removed]#payload = verify_jwt(token)#
-    [.removed]#g.user_id = payload.get("sub")#
-    [.removed]#return f()#
-    [.added]#@wraps(f)#
-    [.added]#def wrapper(*args, **kwargs):#
-    [.added]#    token = extract_token()#
-    [.added]#    if not token:#
-    [.added]#        return jsonify({"message": "No token provided"}), 401#
-    [.added]#    payload = verify_jwt(token)#
-    [.added]#    if not payload:#
-    [.added]#        return jsonify({"message": "Invalid or expired token"}), 401#
-    [.added]#    g.user_id = payload.get("sub")#
-    [.added]#    g.user = payload#
-    [.added]#    return f(*args, **kwargs)#
-    [.added]#return wrapper#
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        token = extract_token()
+        if not token:
+            return jsonify({"message": "No token provided"}), 401
+        payload = verify_jwt(token)
+        if not payload:
+            return jsonify({"message": "Invalid or expired token"}), 401
+        g.user_id = payload.get("sub")
+        g.user = payload
+        return f(*args, **kwargs)
+    return wrapper
 ----
 
 [.changed]#This ensures that only authenticated users can create appointments, while keeping authentication logic separate from business logic. The decorator explicitly handles missing and invalid tokens, returning a 401 response in each case. On success, it sets both `g.user_id` with the Supabase UUID from the JWT `sub` claim and `g.user` with the full decoded payload, making both available to the wrapped route.#
@@ -325,15 +308,15 @@ def requires_auth(f):
 
 [source,python]
 ----
-[.added]#def has_conflict(#
-[.added]#    proposed_start: datetime,#
-[.added]#    proposed_end: datetime,#
-[.added]#    existing_appointments: List[tuple[datetime, datetime]],#
-[.added]#) -> bool:#
-[.added]#    for existing_start, existing_end in existing_appointments:#
-[.added]#        if proposed_start < existing_end and existing_start < proposed_end:#
-[.added]#            return True#
-[.added]#    return False#
+def has_conflict(
+    proposed_start: datetime,
+    proposed_end: datetime,
+    existing_appointments: List[tuple[datetime, datetime]],
+) -> bool:
+    for existing_start, existing_end in existing_appointments:
+        if proposed_start < existing_end and existing_start < proposed_end:
+            return True
+    return False
 ----
 
 [.added]#This function determines whether a proposed appointment window overlaps any existing one. Overlap is defined using half-open intervals: a conflict exists when the proposed start falls before an existing appointment ends and the existing start falls before the proposed end. Because it accepts only datetimes and returns a boolean, it has no side effects and can be tested in isolation without any database or network dependency. The booking layer calls it before persisting any new appointment to enforce the core no-overlap rule.#

@@ -1,4 +1,4 @@
-=== Logbook
+=== *Logbook*
 
 [width="100%", cols="2,2,2,5,1", options="header", frame=all, grid=all]
 |===

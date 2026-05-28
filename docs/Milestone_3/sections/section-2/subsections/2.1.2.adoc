@@ -77,6 +77,12 @@
 *AssignWaitlistedPatient* :: (action, domain)
 [.changed]#A clinic or system workflow selects an eligible waitlisted patient for a released slot.#
 
+*ModifyProviderAvailability* :: (action, domain)
+[.changed]#A provider updates working hours, service capacity, or other schedule constraints.#
+
+*QueueAppointmentReminder* :: (action, domain)
+[.changed]#The scheduling system prepares a reminder for a confirmed appointment.#
+
 *RecordReferral* :: (action, domain)
 [.changed]#A clinic records that required referral evidence has been received.#
 
@@ -107,8 +113,17 @@
 *WaitlistedPatientAssigned* :: (event, domain)
 [.changed]#The instant a released slot is assigned to a selected waitlisted patient.#
 
+*ProviderAvailabilityModified* :: (event, domain)
+[.changed]#The instant a provider's schedule or availability constraints are updated.#
+
 *InsuranceAuthorizationReceived* :: (event, domain)
 [.changed]#The instant required insurer approval is recorded.#
+
+*AppointmentReminderIssued* :: (event, domain)
+[.changed]#The instant a reminder notification is dispatched to a patient.#
+
+*ReferralRecorded* :: (event, domain)
+[.changed]#The instant a referral is registered for consultation eligibility.#
 
 *TimeSlotExpired* :: (event, domain)
 [.changed]#The instant a held slot is released after its hold window ends.#

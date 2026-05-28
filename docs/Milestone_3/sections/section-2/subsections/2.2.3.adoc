@@ -41,7 +41,7 @@ A request and a confirmation are different domain facts.
 
 *Requirements:*
 
-* [[REQ-CONFIRM-F-01]]REQ-CONFIRM-F-01: [.changed]#The system must record whether an appointment request requires referral, insurance authorization, or staff review before confirmation.#
+* REQ-CONFIRM-F-01: [.changed]#The system must record whether an appointment request requires referral, insurance authorization, or staff review before confirmation.#
 
 * [[REQ-CONFIRM-F-02]]REQ-CONFIRM-F-02: [.changed]#The system must prevent an appointment from entering `Confirmed` until all required prerequisites have been satisfied.#
 
@@ -54,9 +54,9 @@ Cancellation and rescheduling are first-class scheduling operations, not ad hoc 
 
 *Requirements:*
 
-* [[REQ-BOOK-F-01]]REQ-BOOK-F-01: [.changed]#The system must support patient or caregiver requests for available appointment slots and must prevent double booking.#
+* REQ-BOOK-F-01: [.changed]#The system must support patient or caregiver requests for available appointment slots and must prevent double booking.#
 
-* [[REQ-BOOK-F-02]]REQ-BOOK-F-02: [.changed]#The system must support cancellation of an eligible future appointment and must release the associated time slot when cancellation succeeds.#
+* REQ-BOOK-F-02: [.changed]#The system must support cancellation of an eligible future appointment and must release the associated time slot when cancellation succeeds.#
 
 * [[REQ-BOOK-F-03]]REQ-BOOK-F-03: [.added]#The system must support clinic-defined cancellation policy rules, including minimum advance notice windows when configured.#
 
@@ -69,7 +69,7 @@ Waitlist behavior must be explicit because it directly affects fairness and reas
 
 *Requirements:*
 
-* [[REQ-WAIT-F-01]]REQ-WAIT-F-01: [.added]#The system must support patient waitlist enrollment when no acceptable slot is currently available.#
+* REQ-WAIT-F-01: [.added]#The system must support patient waitlist enrollment when no acceptable slot is currently available.#
 
 * [[REQ-WAIT-F-02]]REQ-WAIT-F-02: [.added]#The system must preserve explicit eligibility and ordering rules for selecting a waitlisted patient when a slot becomes available.#
 

@@ -11,7 +11,7 @@ The verification is applied at the level of the project's booking logic as defin
 
 [source,text]
 ----
-{ P } [.removed]#book_appointment(patient_id, doctor_id, slot_id)# [.added]#book_appointment(form_data, proposed_start, slot_minutes, existing_appointments)# { Q }
+book_appointment(form_data, proposed_start, slot_minutes, existing_appointments) { Q }
 ----
 
 
@@ -67,11 +67,7 @@ To make the proof explicit, the state-changing core of the operation can be abst
 
 [source,text]
 ----
-[.removed]#assert slotAvailable(slot_id);
-assert not booked(doctor_id, slot_id);
-booked(doctor_id, slot_id) := true;
-slotAvailable(slot_id) := false;#
-[.added]#assert requested_slot ∈ GeneratedSlots;
+assert requested_slot ∈ GeneratedSlots;
 if regularCapacity(doctor_id, requested_slot) then
     book MAIN at requested_slot;
 else if accept_waitlist and dailyWaitlistCount(doctor_id, day) < 3
@@ -80,7 +76,7 @@ else if accept_waitlist and dailyWaitlistCount(doctor_id, day) < 3
 else if allow_override then
     book OVERRIDE at requested_slot;
 else
-    reject;#
+    reject;
 ----
 
 
@@ -88,8 +84,8 @@ Let the desired postcondition be:
 
 [source,text]
 ----
-[.removed]#Q = booked(doctor_id, slot_id) and not slotAvailable(slot_id)#
-[.added]#Q = appointment_created(doctor_id, requested_slot)#
+
+Q = appointment_created(doctor_id, requested_slot)
 ----
 
 
@@ -97,7 +93,7 @@ Let the desired postcondition be:
 
 [source,text]
 ----
-[.removed]#wp(slotAvailable(slot_id) := false, Q)
+wp(slotAvailable(slot_id) := false, Q)
   = booked(doctor_id, slot_id)
 
 wp(booked(doctor_id, slot_id) := true;
@@ -113,37 +109,43 @@ wp(assert slotAvailable(slot_id);
    assert not booked(doctor_id, slot_id);
    booked(doctor_id, slot_id) := true;
    slotAvailable(slot_id) := false, Q)
-  = slotAvailable(slot_id) and not booked(doctor_id, slot_id)#
+  = slotAvailable(slot_id) and not booked(doctor_id, slot_id)
 ----
 
-[.added]#The weakest precondition depends on which branch is taken:#
+The weakest precondition depends on which branch is taken:
 
-[.added]#1. For the MAIN path:#
-   [source,text]
-   ----
-   [.added]#wp(book MAIN at requested_slot, Q)
-     = requested_slot ∈ GeneratedSlots
-       and regularCapacity(doctor_id, requested_slot)#
-   ----
-[.added]#2. For the WAITLIST path:#
-   [source,text]
-   ----
-   [.added]#wp(book WAITLIST at nextAvailableSlot(...), Q)
-     = requested_slot ∈ GeneratedSlots
-       and not regularCapacity(doctor_id, requested_slot)
-       and accept_waitlist
-       and dailyWaitlistCount(doctor_id, day) < 3
-       and nextAvailableSlot(doctor_id, day, requested_slot) ≠ none#
-   ----
-[.added]#3. For the OVERRIDE path:#
-   [source,text]
-   ----
-   [.added]#wp(book OVERRIDE at requested_slot, Q)
-     = requested_slot ∈ GeneratedSlots
-       and not regularCapacity(doctor_id, requested_slot)
-       and allow_override#
-   ----
-[.added]#4. For the rejection path, no booking is created, so the postcondition cannot be reached.#
+For the MAIN path:
+
+[source,text]
+----
+wp(book MAIN at requested_slot, Q)
+  = requested_slot in GeneratedSlots
+    and regularCapacity(doctor_id, requested_slot)
+----
+
+For the WAITLIST path:
+
+[source,text]
+----
+wp(book WAITLIST at nextAvailableSlot(...), Q)
+  = requested_slot in GeneratedSlots
+    and not regularCapacity(doctor_id, requested_slot)
+    and accept_waitlist
+    and dailyWaitlistCount(doctor_id, day) < 3
+    and nextAvailableSlot(doctor_id, day, requested_slot) != none
+----
+
+For the OVERRIDE path:
+
+[source,text]
+----
+wp(book OVERRIDE at requested_slot, Q)
+  = requested_slot in GeneratedSlots
+    and not regularCapacity(doctor_id, requested_slot)
+    and allow_override
+----
+
+For the rejection path, no booking is created, so the postcondition cannot be reached.
 
 [.removed]#Therefore, the weakest precondition for reaching `Q` is exactly that the slot is available and not already booked before the state transition begins. This matches the intended scheduling rule for the project.#
 [.added]#Therefore, the weakest precondition for successfully reaching Q is not the single abstract condition "slot is available and not already booked," but the repository-realized disjunction of the valid booking branches above. This matches the actual scheduling logic implemented in the project, where MAIN, WAITLIST, and OVERRIDE are distinct outcomes determined by slot capacity, waitlist policy, and override permission.#
