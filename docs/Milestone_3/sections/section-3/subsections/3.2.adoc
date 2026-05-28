@@ -1,0 +1,183 @@
+=== *Validation and Verification*
+
+==== *Validation Strategy*
+
+[.changed]#Validation checks whether stakeholder-derived domain concepts, constraints, and workflows are represented correctly in requirements and terminology.#
+
+===== *Scenario-Based Stakeholder Validation*
+
+**Scenario 1: Specialist Booking with Waitlist and Insurance Constraint**
+
+**Actors:**  
+- Patient: Ana Rivera.  
+- Provider: Dr. Luis Santiago.  
+- Staff: Administrative assistant Maria Torres.
+
+**Context:**  
+Ana needs a cardiology appointment. The clinic workflow requires referral and insurance authorization before confirmation.
+
+**Walkthrough:**
+
+1. Ana requests an appointment for cardiology.  
+2. Staff identifies a candidate slot and records the request as `PendingApproval` because insurance authorization is not yet received.  
+3. Ana asks to join waitlist for earlier openings; staff registers waitlist eligibility.  
+4. Another patient cancels, creating a free slot.  
+5. [.added]#The free slot is NOT auto-confirmed for Ana yet because authorization is still pending.#  
+6. [.added]#Insurance authorization is then received and recorded.#  
+7. [.changed]#Only after prerequisites are cleared, the system confirms Ana into the available slot and sends status notifications.#
+
+**Why this resolves prior inconsistency:**  
+[.changed]#The scenario now explicitly shows the intermediate event "authorization received" before any waitlist-driven confirmation. This directly justifies the refinement that waitlist auto-confirmation is conditional on cleared prerequisites.#
+
+*Validation Points:*
+
+[cols="1,3,2,2", options="header"]
+|===
+| Step | Requirements | Expected Outcome | Validation Check
+
+| Request appointment with prerequisites
+a|
+- <<REQ-BOOK-F-01>>
+- <<REQ-CONFIRM-F-01>>
+- <<REQ-CONFIRM-F-02>>
+| Appointment recorded as `PendingApproval` when required evidence is missing
+| Verify prerequisite flags and status value persistence
+
+| Join waitlist
+a|
+- <<REQ-WAIT-F-01>>
+- <<REQ-WAIT-F-02>>
+| Patient is queued under explicit eligibility/order rules
+| Verify waitlist registration and ordering metadata
+
+| Cancellation creates opening
+a|
+- <<REQ-BOOK-F-02>>
+| Slot is released and becomes assignable
+| Verify released slot status transition and availability visibility
+
+| Authorization received then confirmation
+a|
+- <<REQ-CONFIRM-F-03>>
+- <<REQ-NOTIF-F-01>>
+| Pending request can transition to `Confirmed`; notifications emitted
+| Verify evidence receipt, transition gating, and notification record
+|===
+
+*Insights and Actions:*  
+- [.changed]#Conditional waitlist assignment is now scenario-proven instead of asserted without supporting steps.#  
+- [.changed]#Insurance and referral constraints are represented as confirmation prerequisites, not bypassed by cancellation events.#
+
+===== *Terminology Validation*
+
+
+**Terminology corrections in this V&V section:**
+
+1. [.changed]#Removed undefined references such as `ClinicSystem` and `BehaviorTrace`; replaced with terminology-aligned phrases like "system record" and "audit/status record".#
+2. [.changed]#Maintained distinction between actions and events (e.g., cancellation action vs "slot released" event).#
+3. [.changed]#Kept appointment and time-slot concepts separate in all walkthrough steps and checks.#
+
+==== *Verification Strategy*
+
+[.changed]#All verification edits in this subsection are marked as changed or added to satisfy change-highlighting expectations.#
+
+===== *Consistency and Precision Review*
+
+Verification checks performed:
+
+1. Requirement references resolve to existing IDs in Section 2.2.1-2.2.5.  
+2. Terminology usage matches Section 2.1.2 definitions.  
+3. Requirement wording avoids weak language (e.g., replacing "allow" or "improve" with testable "must" statements and measurable outcomes).
+
+[.added]#Invalid references `REQ-APPT-F-03` and `REQ-APPT-F-05` were removed from this section and replaced with valid IDs such as `REQ-BOOK-F-01`, `REQ-WAIT-F-01`, `REQ-WAIT-F-02`, and `REQ-CONFIRM-F-03` depending on the step intent.#
+
+===== *Cross-Category Verification (Not Only Appointment Requirements)*
+
+[.changed]#Verification scope now covers domain, interface, and machine requirements instead of only appointment-focused IDs.#
+
+[cols="1,3,2", options="header"]
+|===
+| Requirement Class | Example IDs Verified | Verification Focus
+
+| Domain requirements
+| <<REQ-SLOT-F-01>>, <<REQ-CONFIRM-F-02>>, <<REQ-WAIT-F-02>>
+| State semantics, prerequisite gating, and waitlist selection rules
+
+| Interface requirements
+| <<IR-UI-02>>, <<IR-API-01>>, <<IR-API-02>>
+| Clear status wording, input validation, and transition visibility in responses
+
+| Machine requirements
+| <<MR-TEST-01>>, <<MR-CONC-01>>, <<MR-ARCH-01>>
+| Automated checks, testable scheduling core, and separation of transport/domain concerns
+|===
+
+===== *Walkthrough-Based Verification*
+
+**Peer review walkthroughs executed:**
+
+1. Cancellation while request remains `PendingApproval`.  
+2. Authorization arrives after waitlist enrollment.  
+3. Simultaneous demand for same released slot.  
+4. API malformed input on scheduling transition endpoint.
+
+**Findings and resolutions:**
+
+[cols="1,2", options="header"]
+|===
+| Finding | Resolution
+| Earlier version skipped authorization-clear step before confirmation | Added explicit authorization-received step and conditional transition checks
+| Non-existent requirement IDs used in validation tables | Replaced with existing IDs from Section 2.2.x
+| Verification emphasized appointment only | Added interface and machine requirement verification matrix
+| Terminology drift in validation narrative | Removed undefined terms and aligned wording with Section 2.1.2
+|===
+
+===== *Scenario-Based Verification Summary*
+
+[cols="1,3,2,2", options="header"]
+|===
+| Step | Requirement(s) | Expected Outcome | Verification Action
+
+| Request with prerequisites
+a|
+- <<REQ-BOOK-F-01>>
+- <<REQ-CONFIRM-F-01>>
+| Request accepted; status may be `PendingApproval`
+| Submit request lacking authorization; inspect persisted status
+
+| Waitlist registration
+a|
+- <<REQ-WAIT-F-01>>
+- <<REQ-WAIT-F-02>>
+| Patient queued with explicit selection metadata
+| Create waitlist entry and inspect ordering fields
+
+| Cancellation and release
+a|
+- <<REQ-BOOK-F-02>>
+- <<REQ-SLOT-F-01>>
+| Slot transitions to released/available state
+| Trigger cancellation and confirm slot state update
+
+| Conditional confirmation
+a|
+- <<REQ-CONFIRM-F-02>>
+- <<REQ-CONFIRM-F-03>>
+| Confirmation only after prerequisites satisfied
+| Replay flow before/after authorization receipt and compare results
+
+| Interface/API clarity
+a|
+- <<IR-UI-02>>
+- <<IR-API-02>>
+| Client can distinguish pending/confirmed/cancelled outcomes
+| Inspect UI labels and API response payload states
+
+| Machine-level verifiability
+a|
+- <<MR-TEST-01>>
+- <<MR-CONC-01>>
+| Scenario logic is reproducible in automated checks
+| Confirm mapping to executable tests and service-level logic
+|===
+

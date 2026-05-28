@@ -1,0 +1,199 @@
+=  Applying Refinement Types to Enforce Appointment Scheduling Constraints
+:author: Yulio7
+
+== Intro
+
+This document presents the use of refinement types to enforce correctness in the appointment scheduling system.
+
+The goal is to reduce reliance on runtime validation by encoding constraints directly into the type system, ensuring that invalid values cannot exist once constructed.
+
+---
+
+== Approach
+
+The approach replaces traditional runtime validation with type-level constraints.
+
+Instead of validating values repeatedly during execution, constraints are enforced when values are created. This ensures that only valid data is allowed to propagate through the system.
+
+The lecture emphasizes that types can express properties of programs, allowing correctness to be enforced earlier in the development process rather than relying solely on testing.
+
+---
+
+== Traditional Validation Limitations
+
+In a typical system, validation is performed at runtime.
+
+[source,python]
+----
+if time < 480 or time > 1020:
+    raise ValueError("Invalid appointment time")
+----
+
+This approach introduces several issues:
+
+* Validation logic must be repeated across different parts of the system
+* Increased testing effort is required to verify all validation paths
+* There is a risk of missing validation checks
+* Invalid states may exist temporarily before validation occurs
+
+These limitations motivate the use of refinement types.
+
+---
+
+== Refinement Type Design
+
+Refinement types were used to encode scheduling constraints directly into the system.
+
+=== Appointment Time Constraint
+
+[source,python]
+----
+class AppointmentTime:
+    def __init__(self, value):
+        if value < 480 or value > 1020:
+            raise ValueError("Appointment time must be within clinic hours.")
+        self.value = value
+----
+
+This ensures that all appointment times fall within valid operating hours.
+
+---
+
+=== Appointment Duration Constraint
+
+[source,python]
+----
+class Duration:
+    def __init__(self, value):
+        if value <= 0 or value > 120:
+            raise ValueError("Duration must be between 1 and 120 minutes.")
+        self.value = value
+----
+
+This ensures that durations are always positive and within acceptable limits.
+
+---
+
+=== Capacity Constraint
+
+[source,python]
+----
+class Capacity:
+    def __init__(self, value):
+        if value <= 0:
+            raise ValueError("Capacity must be positive.")
+        self.value = value
+----
+
+This ensures that system capacity values are always valid.
+
+---
+
+== Code Example: Usage
+
+[source,python]
+----
+start_time = AppointmentTime(540)   # valid (9:00 AM)
+duration = Duration(30)             # valid
+capacity = Capacity(10)             # valid
+
+invalid_time = AppointmentTime(200)  # raises error
+----
+
+This demonstrates that invalid values are rejected immediately when constructed, preventing them from entering the system.
+
+---
+
+== Testing Debt
+
+The lecture introduces the concept of testing debt, which refers to the increasing number of test cases required as validation logic grows.
+
+Each new constraint typically requires:
+
+* Additional test cases
+* More complex validation logic
+* Increased maintenance effort
+
+Refinement types reduce testing debt by enforcing constraints structurally. Since invalid values cannot be created, many test cases become unnecessary.
+
+---
+
+== Comparison with Runtime Validation
+
+[cols="1,3", options="header"]
+|===
+| Runtime Validation | Refinement Types
+
+| Validation occurs during execution
+| Validation occurs when values are created
+
+| Requires repeated checks throughout the system
+| Constraints are enforced once at construction
+
+| Requires extensive testing
+| Reduces number of required test cases
+
+| Invalid states may temporarily exist
+| Invalid states are prevented entirely
+|===
+
+---
+
+== System Boundary Considerations
+
+Even with refinement types, validation is still required at system boundaries.
+
+These include:
+
+* User input forms
+* API requests
+* External data sources
+
+At these boundaries, data must be validated before being converted into refined types. Once converted, the system can rely on type guarantees for correctness.
+
+---
+
+== Observed Benefits
+
+The use of refinement types provided several advantages:
+
+* Simplified validation logic across the system
+* Reduced number of test cases required
+* Improved system reliability
+* Stronger guarantees that invalid states cannot exist
+
+These benefits align with the lecture concept of enforcing correctness through types rather than relying solely on testing.
+
+---
+
+== Discussion
+
+The implementation demonstrates that refinement types provide a structured and reliable approach to enforcing correctness.
+
+By encoding constraints directly into types, the system becomes easier to reason about and less dependent on repeated validation logic.
+
+The lecture emphasizes that stronger type systems can reduce reliance on testing. This was confirmed during implementation, where many validation checks were no longer necessary.
+
+However, refinement types do not eliminate the need for validation entirely. Instead, they shift validation earlier in the process, improving system design and reducing overall complexity.
+
+---
+
+== Limitations
+
+While refinement types provide strong guarantees, they also introduce some limitations:
+
+* Requires language or tooling support
+* Increases complexity of type definitions
+* Cannot replace validation at system boundaries
+
+These limitations must be considered when applying refinement types in practice.
+
+---
+
+== Conclusion
+
+Refinement types improve system correctness by preventing invalid values from entering the system.
+
+By enforcing constraints at the type level, the system reduces reliance on runtime validation, lowers testing complexity, and improves maintainability.
+
+This approach aligns with lecture concepts of reducing testing debt and enforcing correctness through structured design.

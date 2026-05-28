@@ -1,0 +1,476 @@
+=== *Usability Testing*
+---
+==== *Appointment Scheduling UI Usability Review*
+:author: Ariana Rodriguez
+
+===== Overview
+
+Identify strengths, possible usability concerns, and improvement opportunities within the scheduling workflow. Document how users interact with the interface while booking an appointment and whether the process is intuitive, efficient, and easy to understand.
+
+===== Patient Experience Scheduling Workflow
+
+The current scheduling process follows these steps:
+
+. User selects an appointment type
+. User selects an available date
+. User selects an available time slot
+. User reviews confirmation details
+. User confirms or cancels the appointment
+
+==== Usability Strengths
+
+===== S1 - Clear Section Organization
+
+The scheduling interface separates each scheduling step into distinct visual sections. Appointment selection, calendar selection, time slots, and confirmation details are easy to identify.
+
+This helps reduce visual clutter, improve readability, and supports first-time.
+
+===== S2 - Visible Selected States
+
+Selected appointment types and selected dates are highlighted clearly using borders and color indicators.
+
+This improves user confidence, makes selections easy to identify, and reduces accidental mistakes.
+
+===== S3 - Time Slot Availability Feedback
+
+Unavailable time slots are visually disabled while available slots remain selectable.
+
+Helps prevent invalid selections, improve scheduling efficiency, and provides immediate visual feedback.
+
+==== Usability Observations
+
+===== U1 - Incomplete Confirmation Message
+
+The confirmation section displays incomplete information before a user selects a time slot.
+
+Example:
+
+----
+Book Normal appointment appointment September 5, 2025 at ?
+----
+
+Potential issues:
+
+* May confuse users
+* Makes the interface appear unfinished
+
+===== U2 - Confirmation Button Appears Active Too Early
+
+The Confirm button is visible before all required scheduling selections are completed.
+
+Potencial issues:
+
+* Users may attempt incomplete confirmations
+* Creates unnecessary interactions
+* Can interrupt workflow clarity
+
+==== Recommendations
+
+===== R1 - Improve Confirmation Message Logic
+
+Update the confirmation section so incomplete information is not displayed before all required selections are made.
+
+Recommended behavior:
+
+* Display helper text until all selections are completed
+* Replace the "?" placeholder with a helper message
+
+Expected benefits:
+
+* Improves workflow clarity
+* Reduces confusion
+* Improves user guidance
+
+===== R2 - Disable Confirmation Until Completion
+
+Disable the Confirm button until:
+
+* Appointment type is selected
+* Date is selected
+* Time slot is selected
+
+Expected benefits:
+
+* Prevents incomplete submissions
+* Improves workflow guidance
+* Reduces user errors
+
+==== Conclusion
+
+The appointment scheduling interface provides a clean and organized workflow that supports usability and ease of navigation. The separation of scheduling steps and visible selection states help users understand the scheduling process efficiently.
+
+Most usability concerns identified are minor and mainly related to confirmation feedback. These issues can be improved through future UI refinements.
+---
+=== Prototype-Based Usability Validation of the Patient Scheduling Interface
+:author: Tasnim Said Khader
+
+==== Introduction
+Usability is considered the absence of frustration in using a product, where a user can perform what they want in the way they expect without hindrance. Usability Testing falls under validation, which uses external sources of reference to ensure that the internal design is valid and that it meets user's expectations. 
+
+==== Task 1 - Appointment Scheduling
+Scenario: patient 1 attempts to locate an available appointment and complete the booking process. 
+
+[cols="1,3,3,3", options="header"]
+|===
+| Evaluation Type | Findings | Observed Points | Assessment
+
+| *Learnability* 
+a| Users can generally understand the booking flow because it follows a recognizable sequence: 
+
+    Clinic/Doctor selection -> weekly schedule -> select time -> booking confirmation.
+
+The weekly availability grid provides a visual indication of open slots (in green), which helps users quickly identify availability. 
+a| - Users may initially hesitate when deciding where to click after selecting a clinic, because the transition from doctor selection to weekly availability is not visually emphasized.
+- Some users may be unsure whether green blocks are clickable appointment slots or simply indicators of availability.
+| A first-time user could likely complete the task, but some guidance or trial-and-error may be required. 
+
+| *Efficiency*
+a| Once users understand the interface, appointment selection becomes relatively fast due to: 
+
+* weekly visual schedule
+* clinic information visibility
+* structured filtering options
+
+However, efficiency may decrease because:
+
+* the filter bar icons are small and minimally labeled.
+* users must mentally interpret schedule availability rather than seeing explicitly "available" labels.
+| 
+| Users familiar with the interface would likely complete booking quickly, but first-time users may require extra navigation time. 
+
+| *Error Evaluation*
+a| *Potential Navigation Errors*
+
+1. Filter Confusion: Users may not understand whether they must select: Location, Specialty, Doctor, Medical Plan, before continuing.
+2. Appointment Slot Interpretation: Green time blocks do not explicitly indicate "Click to book"
+3. Unavailable Slot Workflow: The unavailable slot screen provides a cancellation notification option, but it is unclear: what happens after clicking YES and whether the patient joins a waitlist.
+|
+| Most errors would stem from interface ambiguity rather than system complexity.
+|===
+
+==== Task 2 - Appointment Management/Rescheduling
+Scenario: patient 2 attempts to review appointment details and reschedule. 
+
+[cols="1,3,3,3", options="header"]
+|===
+| Evaluation Type | Findings | Observed Points | Assessment
+
+| *Learnability* 
+| The confirmation screen clearly communicates booking details, which improves confidence. However no obvious “Reschedule” option is visible in the mockups. Users may struggle to identify how to modify an existing appointment.
+|
+| Viewing appointment details is easy, but rescheduling workflow is unclear.
+
+| *Satisfaction*
+a| *Positive Aspects*
+
+* Clean, organized layout
+* Minimal clutter
+* Large schedule visualization
+*Appointment confirmation provides reassurance
+
+*Negative Aspects*
+
+* Interface feels visually dense in some areas.
+* Low visual emphasis on important actions.
+* Limited feedback on selected actions.
+| 
+| Users would likely feel capable of booking appointments, but some uncertainty may remain.
+
+| *Accessibility*
+| Some strengths we concluded include: large calendar and time-slot spacing, high contrast between available/unavailable areas, organized information hierarchy.
+a| There have been some concerns regarding: 
+
+1. Elderly users; where filter dropdowns may feel small, text size in appointment cards could be difficult to read and clickable areas are not visually obvious.
+2. Visual Accessibility; where green-only availability indicators may create problems for colorblind users and lack of accessibility cues besides color (icons/text labels missing).
+| Needs improvement for elderly & accessibility support.
+|===
+
+==== Usability Deficiency Report
+1. Low Discoverability of Appointment Selection
+
+- *Issue*: Available slots do not clearly signal interaction.
+- *Reason*: Users may hesitate or miss booking actions.
+
+2. Waitlist Workflow Is Unclear
+
+- *Issue*: Unavailable slot screen does not explain what happens after opting for notification.
+- *Reason*: Reduced user confidence.
+
+3. Rescheduling Process Is Missing
+- *Issue*: No visible pathway for appointment management.
+- *Reason*: Users may struggle to modify bookings.
+
+4. Accessibility Limitations
+- *Issue*: Small text and color-only availability indicators.
+- *Reason*: Elderly and visually impaired users may struggle.
+
+==== Design Change Suggestions
+1. Make Appointment Slots Clearly Clickable
+- Add labels or hover indicators such as: “Available — Click to Book”.
+
+2. Improve Waitlist Communication
+- Replace current text with clearer messaging: “Join waitlist and receive notification if a slot becomes available.”
+
+3. Add a Visible Reschedule Button
+- Include: View Appointment → Reschedule → Choose New Slot.
+
+4. Improve Accessibility
+Add: Larger text option, bigger dropdown menus, icons + labels (not only color), accessibility mode for elderly users.
+---
+=== *Usability review for colorblind themes with UI*
+:author: Sebastian Suarez
+
+==== Overview
+
+This review evaluates the usability of the colorblind themes implemented by the Patient Experience Team. The goal is to identify strengths, potential usability concerns, and opportunities for improvement in how the application supports users with color vision deficiencies. The review focuses on theme switching, color palette effectiveness, and the consistency of the colorblind experience across all pages.
+
+==== Colorblind Theme Workflow
+
+The current workflow for colorblind accessibility includes the following steps:
+
+. User navigates to Account Settings
+. User selects a colorblind theme (Normal, Protanopia, Deuteranopia, Tritanopia)
+. The selected theme is applied immediately and persists across all pages and browser refreshes
+. User continues to interact with the application using the chosen theme
+
+==== Usability Strengths
+
+===== S1 - Accessible Theme Switching
+
+Theme selection is clearly presented in the Account Settings page, allowing users to easily toggle between normal and colorblind modes. The interface provides radio buttons for each theme, making the selection process straightforward.
+
+===== S2 - Distinct Color Palettes
+
+Each colorblind mode uses a carefully chosen palette that avoids problematic color combinations (e.g., red/green for protanopia). This helps ensure that key interface elements remain distinguishable for users with different types of color vision deficiencies.
+
+===== S3 - Persistent and Consistent Experience
+
+Once a colorblind theme is selected, it remains active across all pages and after browser refresh, providing a seamless and consistent experience for the user.
+
+==== Usability Observations
+
+===== U1 - Reliance on Color Alone for Status
+
+Some status indicators (such as appointment status or calendar slots) rely solely on color to convey meaning. This may cause confusion or slow down navigation for users who cannot distinguish certain colors, especially in colorblind modes.
+
+===== U2 - Feedback and Selection States
+
+While most feedback and selection states are clear, there are instances where additional icons or text labels would help users who have difficulty perceiving color differences.
+
+===== U3 - Theme Preview
+
+Currently, users must select a theme to see its effect. Providing a preview of each colorblind theme before applying it could improve user confidence and satisfaction.
+
+==== Recommendations
+
+===== R1 - Supplement Color with Icons or Labels
+
+Add icons or text labels to all status indicators (e.g., confirmed, pending, cancelled) so that meaning is not conveyed by color alone. This will improve clarity for all users, especially those with color vision deficiencies.
+
+===== R2 - Enhance Visual Distinction of Interactive Elements
+
+Review all interactive elements (buttons, toggles, slots) to ensure they are visually distinct in all colorblind themes, using both color and shape or border.
+
+===== R3 - Provide Theme Previews
+
+Allow users to preview each colorblind theme in the settings page before applying it, helping them make informed choices.
+
+===== R4 - Continue User Testing
+
+Conduct further usability testing with individuals who have color vision deficiencies to identify any remaining pain points and validate improvements.
+
+===== R5 - Document Color Palette Choices
+
+Maintain documentation of all color palette choices and the rationale behind them to support future accessibility reviews and updates.
+
+==== Conclusion
+The implementation of colorblind themes in the web application demonstrates a strong commitment to accessibility. The clear theme switching, distinct color palettes, and consistent experience are significant strengths. However, there are opportunities to enhance usability by supplementing color with additional indicators, providing theme previews, and ensuring all interactive elements are easily distinguishable. Ongoing user testing and documentation will be essential to maintaining and improving the accessibility of the application for all users.
+
+---
+=== *Usability Testing — Patient and Doctor Registration Flow*
+:author: pierreg-vales
+
+==== Overview
+
+This section applies the *usability testing* lecture to the User Management module by conducting a structured evaluation of the patient and doctor registration flow. The evaluation used the *think-aloud protocol* and *Nielsen's usability heuristics* to measure how efficiently and correctly new users can complete registration. The session was conducted with a peer as the participant using the running application.
+
+==== Task Scenario Design
+
+Five *task scenarios* were designed to cover the full registration journey:
+
+[cols="1,4", options="header"]
+|===
+| Task | Scenario
+
+| T1
+| Complete registration as a patient by filling in all required fields (name, email, password, date of birth) and submitting the form successfully.
+
+| T2
+| Attempt registration with missing required fields (leave email blank) and observe whether the system provides clear error feedback.
+
+| T3
+| Attempt registration with an invalid email format and observe the validation response.
+
+| T4
+| Select the doctor role during registration and observe which additional fields appear compared to the patient flow.
+
+| T5
+| After reaching the registration page, navigate back to the login page using the available UI controls.
+|===
+
+==== Usability Session
+
+A think-aloud session was conducted with one peer participant. The participant was asked to verbalize their thoughts while interacting with the registration interface. The evaluator observed without intervening, recording task completion, errors encountered, hesitations, and points of confusion.
+
+The session covered all five task scenarios sequentially using the running development instance of the application.
+
+==== Metrics
+
+*Task completion rate*, *error rate*, and *time on task* were recorded for each scenario.
+
+[cols="1,3,1,1,1", options="header"]
+|===
+| Task | Description | Completion Rate | Errors Observed | Approx. Time on Task
+
+| T1
+| Complete patient registration
+| 100%
+| 0
+| ~55 s
+
+| T2
+| Submit with missing email field
+| 100%
+| 1 (attempted submission before noticing required field indicator)
+| ~30 s
+
+| T3
+| Submit with invalid email format
+| 100%
+| 1 (participant unsure if form would accept input before submitting)
+| ~25 s
+
+| T4
+| Select doctor role and observe additional fields
+| 100%
+| 0
+| ~20 s
+
+| T5
+| Navigate back to login from registration
+| 100%
+| 0
+| ~10 s
+|===
+
+All five tasks were completed successfully. Minor errors occurred in T2 and T3, both stemming from ambiguous inline validation feedback rather than fundamental flow confusion.
+
+==== Nielsen's Heuristics Evaluation
+
+The registration form was evaluated against five of Nielsen's 10 usability heuristics.
+
+[cols="1,3,2,2", options="header"]
+|===
+| Heuristic | Description | Finding | Verdict
+
+| #1 Visibility of System Status
+| The system should keep users informed about what is going on through appropriate feedback in reasonable time.
+| After form submission, a brief loading state appears before redirecting. The participant momentarily questioned whether the action had registered.
+| Minor violation — a more explicit loading indicator or progress message would improve confidence.
+
+| #3 User Control and Freedom
+| Users often choose system functions by mistake and need a clearly marked emergency exit.
+| A "Back to Login" link is visible on the registration page, allowing easy exit. The participant located it immediately in T5.
+| Meets heuristic.
+
+| #5 Error Prevention
+| Even better than good error messages is a careful design that prevents problems from occurring in the first place.
+| Required fields are not visually distinguished from optional ones prior to submission. The participant submitted the form with a blank email field without anticipating the error.
+| Violation — marking required fields before submission (e.g., asterisk + legend) would prevent this class of error.
+
+| #6 Recognition Rather Than Recall
+| Minimize the user's memory load by making objects, actions, and options visible.
+| The doctor role selection reveals additional fields dynamically. The participant recognized the new fields without needing guidance.
+| Meets heuristic.
+
+| #9 Help Users Recognize, Diagnose, and Recover from Errors
+| Error messages should be expressed in plain language, indicate the problem precisely, and constructively suggest a solution.
+| The error message for an invalid email reads generically. The participant in T3 was unsure which field caused the error until visually scanning the form.
+| Minor violation — inline field-level error messages would reduce diagnosis time.
+|===
+
+==== Think-Aloud Findings
+
+Key observations recorded during the think-aloud session:
+
+* The participant verbalized confusion about whether the email field was required before attempting submission in T2, confirming the heuristic #5 violation.
+* During T3, the participant said "I'm not sure where the problem is" after the generic error appeared, supporting the heuristic #9 finding.
+* The role selection toggle (patient vs. doctor) was described as "clear and immediate" — no hesitation was observed.
+* The "Back to Login" link was found without hesitation, confirming strong user control and freedom for this flow.
+* Overall, the participant described the registration interface as "straightforward" after completing all tasks.
+
+==== Conclusion
+
+The usability session confirmed that the registration flow is generally learnable and efficient. All five task scenarios were completed with a 100% *task completion rate*. The *error rate* was low, with two minor errors both attributable to the same root cause: insufficient pre-submission feedback on required fields and field-level error attribution.
+
+Two usability issues were identified against Nielsen's heuristics — required field visibility (heuristic #5) and inline error messages (heuristic #9) — and represent actionable improvements. The remaining three heuristics evaluated were met without violations, indicating that the core registration flow supports user control, recognition-based interaction, and role-based field disclosure effectively.
+
+---
+
+=== *Patient Experience Questionnaire for Colorblindness Accessibility*
+:author: Sebastian Suarez
+
+
+
+==== Overview
+This section presents a comprehensive patient experience questionnaire designed to evaluate the accessibility and usability of the colorblind themes implemented in the web application. The primary goal is to gather actionable feedback from users with color vision deficiencies, understand their real-world experiences, and identify both strengths and areas for improvement in the current colorblind theme implementation. By collecting both quantitative and qualitative data, the questionnaire aims to:
+
+* Assess how easily users with color vision deficiencies can discover, activate, and use colorblind themes.
+* Evaluate the visual clarity and effectiveness of interface elements (such as buttons, icons, and status indicators) under different colorblind modes.
+* Identify any barriers, confusion, or frustrations encountered during use.
+* Collect user-driven suggestions for future enhancements.
+
+The insights from this questionnaire will directly inform future design iterations, ensuring the application remains inclusive and accessible to all users, regardless of their color vision capabilities.
+
+
+==== Questionnaire Design
+The questionnaire consists of a mix of quantitative (rating scale), qualitative (open-ended), demographic, and scenario-based questions to capture both measurable data and detailed user insights. The questions are structured to assess various aspects of the colorblind themes, including ease of use, discoverability, visual clarity, satisfaction, and accessibility. Additional demographic and scenario-based questions are included to provide context for interpreting the results and to ensure the feedback is representative of different user groups.
+
+
+[cols="1,4", options="header"]
+|===
+| Question Type | Question
+| Demographic
+| What type of color vision deficiency do you have? (e.g., Protanopia, Deuteranopia, Tritanopia, Unsure)
+| Demographic
+| How often do you use web applications that offer accessibility features such as colorblind modes?
+| Quantitative
+| On a scale of 1 to 5, how easy was it to find and switch to a colorblind theme in the settings?
+| Quantitative
+| On a scale of 1 to 5, how visually clear were the interface elements (buttons, icons, status indicators) in the colorblind theme you selected?
+| Quantitative
+| On a scale of 1 to 5, how satisfied are you with the colorblind theme options available in the application?
+| Quantitative
+| On a scale of 1 to 5, how well do you feel the colorblind theme supports your ability to complete tasks (e.g., booking appointments, navigating pages)?
+| Scenario-based
+| Did you encounter any difficulties or confusion when interpreting status indicators (such as appointment status or calendar slots) while using a colorblind theme? Please describe.
+| Scenario-based
+| Was there any situation where you felt unsure about the meaning of a button, icon, or notification due to color usage? Please provide details.
+| Qualitative
+| What specific challenges, if any, did you encounter while using the colorblind theme?
+| Qualitative
+| Do you have any suggestions for improving the colorblind themes or making them more accessible?
+| Qualitative
+| Are there any additional accessibility features you would like to see in the application (e.g., larger text, more icons, audio cues)?
+|===    
+
+
+==== Conclusion
+This expanded questionnaire is designed to gather valuable, actionable feedback from users with color vision deficiencies regarding the usability and accessibility of the colorblind themes in the web application. By including demographic, scenario-based, and open-ended questions, the survey aims to capture a holistic view of the user experience. The insights collected will be carefully analyzed to:
+
+* Identify common pain points and barriers to accessibility
+* Prioritize improvements to the colorblind themes and related UI elements
+* Guide the development of new features that further enhance accessibility (such as theme previews, icons, or alternative cues)
+* Ensure that future updates are informed by the lived experiences of users with color vision deficiencies
+
+Ultimately, this process will help ensure that the application is inclusive, user-friendly, and provides a positive experience for all users, regardless of their color vision capabilities. Ongoing feedback and user testing will remain a core part of the accessibility improvement process.

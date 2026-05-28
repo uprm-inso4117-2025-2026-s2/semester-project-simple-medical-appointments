@@ -1,0 +1,375 @@
+=== *Performance Testing*
+
+---
+
+=== Performance Testing for High Demand Appointment Booking
+:author: Pedro A. Morales
+
+==== Introduction
+
+Performance testing evaluates how a system behaves under expected, unexpected, and peak workloads. 
+In healthcare scheduling systems, performance is critical because large numbers of 
+patients may attempt to book appointments simultaneously. If the system cannot handle 
+high demand, users may experience slow response times, failed booking attempts, or 
+duplicate appointments.
+
+The *Simple Medical Appointments* system allows patients to search for doctors, view 
+available appointment slots, and confirm bookings. Performance Testing ensures that 
+the appointment booking workflow remains reliable when many users interact with the 
+system at the same time.
+
+==== Appointment Booking Workflow
+
+The patient scheduling process involves multiple interactions between the ui, backend, and database.
+
+[source,text]
+----
+Patient
+   |
+   v
+Search Doctors / Clinics
+   |
+   v
+Retrieve Available Appointment Slots
+   |
+   v
+Select Time Slot
+   |
+   v
+Submit Booking Request
+   |
+   v
+Validate Slot Availability
+   |
+   v
+Database Transaction
+(Check slot not already reserved)
+   |
+   v
+Create Appointment Record
+   |
+   v
+Send Confirmation
+----
+
+Performance issues may occur if many users attempt to reserve the same appointment 
+slot or query appointment availability at the same time.
+
+=== Performance Risks
+
+The main performance risks associated with appointment scheduling include:
+
+==== *Concurrent Booking Conflicts:* 
+Multiple users attempting to book the same time slot simultaneously may lead to race 
+conditions or duplicate appointments.
+
+==== *Database Contention:*
+
+High volumes of booking transactions may slow database operations responsible for 
+checking slot availability and writing appointment records.
+
+==== *Slow System Response:*
+
+Heavy server load may increase response times for availability queries or booking 
+confirmations, negatively impacting the patient experience.
+
+==== *Server Resource Exhaustion:*
+
+Large spikes in traffic may overload application servers or APIs responsible for 
+processing appointment requests.
+
+=== Performance Testing Strategy
+
+The performance testing strategy focuses on simulating real-world usage scenarios to 
+measure system behavior under load.
+
+The strategy evaluates:
+
+==== *Concurrency:*
+
+How the system behaves when multiple users attempt to book appointments simultaneously.
+
+==== *Response Time:*
+
+How quickly the system returns results when patients search for available appointment 
+slots or confirm bookings.
+
+==== *Throughput:*
+
+The number of booking requests the system can process within a specific time frame.
+
+==== *Database Performance:*
+
+Transaction time required to validate slot availability and create appointment records.
+
+=== Load Testing Scenarios
+
+To simulate realistic usage conditions, several load levels are tested.
+
+==== *Scenario 1 – Moderate Load*
+
+- 50 concurrent users searching and booking appointments
+- Expected system response time below acceptable thresholds
+- No duplicate bookings occur
+
+==== *Scenario 2 – High Load*
+
+- 100–200 concurrent users interacting with the scheduling system
+- Slight increase in response time but system remains stable
+
+==== *Scenario 3 – Peak Demand*
+
+- 500 or more concurrent users attempting to book appointments
+- System must maintain booking integrity and avoid data inconsistencies
+
+==== Performance Testing Workflow
+
+The workflow below illustrates how performance testing will be implemented.
+
+[source,text]
+----
++---------------------------+
+| Define Performance Tests  |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Configure Load Simulator  |
+| (Concurrent Users)        |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Execute Load Tests        |
+| (Search + Booking APIs)   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Monitor System Metrics    |
+| CPU / Memory / DB Latency |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Analyze Results           |
+| Identify Bottlenecks      |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Optimize System           |
+| Queries / APIs / DB       |
++---------------------------+
+----
+
+=== Expected Performance Thresholds
+
+The following performance targets ensure an acceptable patient experience:
+
+[cols="1,1"]
+|===
+|Metric |Target
+
+|Availability query response time
+|Less than 2 seconds
+
+|Booking confirmation response
+|Less than 3 seconds
+
+|Concurrent user capacity
+|500+ users without failure
+
+|Duplicate appointment rate
+|0%
+|===
+
+=== Impact on Patient Experience
+
+Performance testing improves reliability by ensuring that the scheduling system 
+continues functioning correctly during high demand periods. By identifying system 
+bottlenecks before deployment, developers can prevent slow responses, booking 
+conflicts, and service interruptions.
+
+This ensures patients can successfully schedule appointments even during peak usage 
+periods, improving both system reliability and overall patient experience.
+
+---
+
+---
+
+=== Fuzz Testing for Input Validation in Appointment Booking
+:author: Pedro A. Morales
+
+==== Introduction
+
+Fuzz Testing is a software engineering technique or principle used to flag and expose unexpected, malformed, or random inputs. This testing method helps evaluate how a system behaves if exposed to those types of issues. Unlike traditional testing, which relies solely on predefined test cases, fuzz testing automatically generates large volumes of diverse inputs to identify hidden bugs and system failures. 
+
+Inside the system, patients interact with multiple input fields and APIs while filling out appointment forms. It is critical to ensure that these inputs are properly validated in order to maintain system reliability and preven crashes or invalid data states.
+
+This lecture topic focuses on applying fuzz testing to the appointment booking workflow for system robustness and error handling improvement.
+
+==== Goal
+
+Design a fuzz testing strategy for the appointment booking workflow that evaluates the system’s robustness when handling unexpected, malformed, or extreme input values. The goal is to identify failures inside features like input validation, API handling, and scheduling logics that could lead to crashes, incorrect behavior, or invalid appointment creation.
+
+==== Proposed Solution
+
+Develop a structured fuzz testing approach targeting both frontend inputs and backend API validation.
+
+Scope includes:
+
+- Patient input fields (name, contact information, appointment notes)
+- Appointment booking API payloads
+- Query parameters for retrieving availability
+- Scheduling inputs (date, time, doctor selection)
+
+The strategy simulates abnormal and edge-case inputs to observe system behavior under unexpected conditions. The focus is on robustness and validation handling rather than security measurements.
+
+==== Fuzz Testing Model
+
+Fuzz testing will be implemented using input manipulation and random data generation.
+
+==== Input Categories
+
+- Extremely long strings
+- Empty or null inputs
+- Special characters and Unicode
+- Invalid date/time formats
+- Malformed structured data (JSON payloads)
+
+==== Objective
+
+Identify system weaknesses such as:
+
+- Application crashes
+- Unhandled exceptions
+- Incorrect API responses
+- Invalid database insertions
+
+The system must handle all inputs gracefully without compromising stability.
+
+==== Appointment Booking Workflow Context
+
+The fuzz testing strategy is applied to the following patient workflow:
+
+[source,text]
+----
+Patient
+   |
+   v
+Enter Input Data (Forms / API)
+   |
+   v
+Send Request to Booking API
+   |
+   v
+Validate Input (Backend)
+   |
+   v
+Check Scheduling Constraints
+   |
+   v
+Database Transaction
+   |
+   v
+Return Response to User
+----
+
+Fuzz testing targets the input and validation stages of this workflow.
+
+==== Fuzz Testing Workflow
+
+The following diagram illustrates how fuzz testing is executed:
+
+[source,text]
+----
++---------------------------+
+| Input Generator           |
+| (Random / Mutated Data)   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Send Requests to System   |
+| (Forms / API Endpoints)   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| System Processes Input    |
+| Validation + Scheduling   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Monitor Behavior          |
+| - Crashes                |
+| - Errors                 |
+| - Unexpected Responses   |
++-------------+-------------+
+              |
+              v
++---------------------------+
+| Log Results               |
+| Identify Failures         |
++---------------------------+
+----
+
+==== API-Level Fuzz Testing Architecture
+
+The following diagram shows how fuzz testing interacts with system components:
+
+[source,text]
+----
+   Fuzz Generator
+        |
+        v
+   +------------+
+   | API Layer  |
+   +------------+
+        |
+        v
+   +------------+
+   | Application|
+   | Logic      |
+   +------------+
+        |
+        v
+   +------------+
+   | Database   |
+   +------------+
+----
+
+This architecture highlights how malformed inputs propagate through the system.
+
+==== Example Fuzz Scenarios
+
+Examples of fuzz inputs applied to the system:
+
+- Patient name with 10,000+ characters
+- Appointment date with invalid format (e.g., "32/99/2026")
+- Special characters and Unicode strings
+- Missing required fields in API requests
+- Randomized JSON payload structures
+
+Each scenario evaluates whether the system maintains stability and returns proper error responses.
+
+==== Impact on System Reliability
+
+Fuzz testing improves system reliability by uncovering edge cases that traditional testing may miss. By validating system behavior under unexpected input conditions, developers can:
+
+- prevent crashes during runtime
+- ensure consistent error handling
+- maintain data integrity
+- improve patient experience
+
+==== Success Criteria
+
+- Clearly defines a fuzz testing strategy for patient input validation
+- Identifies key input-related risks in the appointment booking workflow
+- Includes realistic categories of fuzz test inputs
+- Provides workflow diagrams explaining fuzz testing implementation
+- Demonstrates how fuzz testing improves system robustness and reliability
+
+---

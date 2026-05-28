@@ -1,0 +1,87 @@
+==== Gatling Load Test Prototype for Patient Appointment History
+:author: Sebastian Saliva Giron
+
+This lecture topic task applied Gatling to the Patient Experience portion of the Simple Medical Appointments system. 
+The tested flow was the patient Appointment History page, which loads appointment data through the backend endpoint `GET /api/appointment-history`.
+
+The purpose of the test was to create a small load testing prototype using Gatling,
+and observe how the appointment history endpoint behaves under light simulated user traffic. 
+This complements the existing performance testing work in the repository by introducing Gatling as another tool for performance and load testing.
+
+The Gatling simulation was placed under `backend/tests/performance/gatling/`. 
+It sends HTTP requests to the local Flask backend at `http://127.0.0.1:5000/api/appointment-history`. 
+The simulation uses a staged load profile: first a single immediate virtual user, then a small ramp of users, followed by a short sustained request rate. This allows the test to begin with a basic smoke check before applying a slightly more realistic local load.
+
+=== Load Profile
+
+The simulation uses three phases:
+
+* one immediate virtual user as a smoke check
+* ten virtual users ramped over thirty seconds
+* two virtual users per second for sixty seconds as a short sustained load
+
+=== Outout
+Gatling generates a target folder with an HTML report under:
+gatling/target/gatling/appointmenthistory-timestamp
+
+open the index.html file to see results from running.
+The final Gatling run produced the following result summary:
+
+[cols="2,2",options="header"]
+|===
+| Metric | Result
+
+| Total requests
+| 131
+
+| Successful requests
+| 131
+
+| Failed requests
+| 0
+
+| Request rate
+| 1.46 requests/second
+
+| Mean response time
+| 340 ms
+
+| Minimum response time
+| 308 ms
+
+| Maximum response time
+| 1479 ms
+
+| 50th percentile response time
+| 319 ms
+
+| 75th percentile response time
+| 323 ms
+
+| 95th percentile response time
+| 365 ms
+
+| 99th percentile response time
+| 1363 ms
+|===
+
+The final Gatling run completed 131 requests against `GET /api/appointment-history` with 131 successful responses and 0 failed responses.
+
+The mean response time was 340 ms, the median response time was 319 ms. 
+
+The 95th percentile response time was 365 ms, showing that most requests completed quickly during the local test.
+
+A small number of outlier responses reached approximately 1.3 to 1.5 seconds, with the maximum response time being 1479 ms. 
+
+Since no requests failed, the endpoint behaved reliably under the tested light local load profile.
+
+
+However, the test should be interpreted as a prototype rather than a complete performance evaluation.
+The main limitation is that this test targets the backend endpoint directly instead of simulating a complete browser workflow. 
+The current local endpoint can return appointment history without enforcing an Authorization header, so the prototype does not yet measure authenticated multi-patient behavior. 
+Future work could extend the simulation by adding authenticated requests, Gatling feeders with multiple test accounts, and larger load profiles for stress testing.
+
+For more information on how to run the gatling test please refer to the README in me backend/tests/performance/gatling
+
+
+

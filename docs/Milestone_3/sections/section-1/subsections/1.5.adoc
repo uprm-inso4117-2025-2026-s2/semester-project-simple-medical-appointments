@@ -1,0 +1,64 @@
+=== *Derived Goals*
+
+The primary goal of this project is to improve access to medical appointments in Puerto Rico by addressing scheduling inefficiencies and difficulty, below we will explore additional goals that arise from the nature of the problem. 
+
+Derived Goal 1: Reduce Administrative Friction in Healthcare Coordination
+
+Clinics rely on manual coordination, phone based scheduling, and informal priority handling. These practices increase staff workload and reduce operational clarity. 
+Beyond building a scheduling platform, a derived goal is to systematically reduce coordination friction between patients, providers, and administrative staff. 
+This goal focuses not only on patient convenience but on redistributing cognitive and logistical load away from manual processes toward structured coordination mechanisms.
+
+Derived Goal 2: Increase transparency of Availability Without Exposing Sensitive Data
+
+The domain analysis identified limited visibility into appointment availability as a core issue. Patients repeatedly contact clinics without knowing whether appointments exist.
+At the same time, healthcare systems must protect confidential information.
+A derived goal is to increase real-time visibility of scheduling capacity while preserving privacy and role-based access boundaries.
+This aligns usability with data protection, ensuring transparency does not compromise confidentiality.
+
+Derived Goal 3: Improve Fairness and Equity in Appointment Allocation
+
+The domain revealed structural inequalities:
+
+- Transportation limitations
+- Regional disparities
+- Informal priority lists
+- Patients calling multiple clinics simultaneously
+
+A derived goal is to promote equitable access to appointment opportunities through structured and transparent allocation mechanisms.
+This includes minimizing favoritism, informal redistribution, and arbitrary priority handling.
+
+Derived Goal 4: Improve Patient Confidence and Trust in Scheduling Outcomes
+
+The domain observations revealed uncertainty:
+
+- Patients call repeatedly.
+- Appointments are months away.
+- Cancellations are informally reassigned.
+- Elderly patients depend on relatives.
+
+Beyond improving speed, a derived goal is to increase predictability and trust in appointment scheduling outcomes.
+
+Trust emerges when:
+- Appointment states are clear.
+- Changes are communicated.
+- Priority rules are consistent.
+- Information is reliable.
+
+Derived Goal 5: Support Long-Term Maintainability and Evolution
+
+The current healthcare pressures in Puerto Rico are not temporary. Physician migration, demographic shifts, and digital adaptation will continue to evolve.
+
+Thus, a derived goal is:
+
+To establish a conceptual and architectural foundation that allows future expansion without redesigning core structures.
+
+This includes the ability to later incorporate:
+- Analytics
+- Multi-clinic coordination
+- Advanced prioritization
+- Integration with external systems
+
+By combining the primary goal of centralized appointment coordination with these derived goals, the project moves beyond building a scheduling tool and toward establishing:
+A structured, transparent, and equitable coordination framework for managing scarce healthcare resources.
+This forward-looking vision emphasizes sustainability, fairness, reliability, and collaborative system evolution ensuring that the project contributes not only to immediate scheduling improvements but to long-term modernization of medical appointment coordination practices.
+

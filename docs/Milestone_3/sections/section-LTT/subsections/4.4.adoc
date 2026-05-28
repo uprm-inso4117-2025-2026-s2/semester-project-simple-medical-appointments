@@ -1,0 +1,464 @@
+=== *Behavior Driven Development*
+
+==== Test Case Execution and Defect Management
+:author: Ivan Morales
+                                                                                
+===== Objective
+                                                                            
+Research Behavior-Driven Development (BDD) in software reliability engineering, focusing on how Gherkin/Cucumber Given-When-Then scenarios are used to define, execute, and validate system behavior through structured, human readable test cases.
+
+===== Appointment Booking System Scenarios
+
+The following scenarios describe the expected behavior of the appointment booking system in Gherkin syntax. A shared `Background` block establishes preconditions common to all three scenarios, reflecting the real domain invariant that every booking interaction presupposes a registered provider with an available slot.
+
+[source,gherkin]
+----
+Feature: Appointment Booking
+  As a patient
+  I want to book, cancel, and be protected from double-booking
+  So that I can manage my medical appointments reliably
+
+  Background:
+    Given the system has a registered provider "Dr. Schutz" with specialty "cardiology"
+    And the provider has an available slot on "2026-04-10" at "10:00" for 30 minutes
+----
+
+====== Scenario 1: Patient Successfully Books an Available Appointment
+
+[source,gherkin]
+----
+  Scenario: Patient successfully books an available appointment
+    Given the patient "Ivan Morales" has a registered account
+    When the patient selects the slot and submits the booking
+    Then the appointment is saved with status "Requested"
+    And the slot on "2026-04-10" at "10:00" is marked as unavailable
+    And the patient receives a booking confirmation
+----
+
+This scenario validates the happy path of the booking flow. Status `Requested` (not `Confirmed`) reflects the domain requirement that an appointment record is created before insurance or referral verification is complete. The slot is immediately marked unavailable to prevent concurrent bookings. These scenarios are automated with pytest-bdd (see section 4 — Specific Class Topics for full tool setup and execution evidence).
+
+====== Scenario 2: Patient Attempts to Book an Already-Taken Slot
+
+[source,gherkin]
+----
+  Scenario: Patient attempts to book an already-taken slot
+    Given the patient "Ivan Morales" has already booked the slot
+    And a second patient "Maximus Aurelius" has a registered account
+    When "Maximus Aurelius" attempts to book the same slot
+    Then the system rejects the request with status 409
+    And no appointment is created for "Maximus Aurelius"
+    And the slot remains reserved by "Ivan Morales"
+----
+
+This scenario addresses the conflict condition. HTTP 409 Conflict is the semantically correct response — the resource exists but cannot be reserved in the current state. The scenario verifies the rejection leaves the system in a consistent state: Ivan's appointment is unchanged.
+
+====== Scenario 3: Doctor Cancels a Scheduled Appointment
+
+[source,gherkin]
+----
+  Scenario: Doctor cancels a scheduled appointment
+    Given the patient "Ivan Morales" has a confirmed appointment on "2026-04-10" at "10:00"
+    When "Dr. Schutz" cancels the appointment with reason "Doctor unavailable"
+    Then the appointment status is updated to "Cancelled"
+    And the slot on "2026-04-10" at "10:00" is marked as available
+----
+
+This scenario verifies that cancellation restores slot availability and records the reason for audit purposes.
+
+===== Traceability
+
+[cols="1,2,2,2",options="header"]
+|===
+| Scenario | User Story | Requirement | Automated Result
+| Successful booking | US.BOOK.01 | REQ-BOOK-F-01 | PASSED
+| Double-booking prevention | US.BOOK.01 | REQ-BOOK-F-01 | PASSED
+| Doctor cancels | US.BOOK.02 | REQ-BOOK-F-02 | PASSED
+|===
+
+===== Discussion
+
+BDD test scenarios serve a dual purpose in the software reliability lifecycle.
+First, they act as executable specifications that define expected system behavior before implementation begins. Second, they function as regression tests that detect behavioral regressions as the system evolves.
+
+The three scenarios above cover the primary behavioral paths:
+
+. The success path confirms the system works under ideal conditions.
+. The conflict path verifies the system handles concurrent or invalid states gracefully.
+. The cancellation path validates state reversal and downstream notifications.
+
+Together, they provide targeted behavioral coverage without requiring exhaustive input enumeration. Each scenario is traceable to a specific requirement and is automated using `pytest-bdd`.
+
+===== Conclusion
+
+Behavior Driven Development reframes test case design as a collaborative, requirement-driven activity. By expressing scenarios in the Given-When-Then format, test cases become understandable to all stakeholders while remaining executable by automated tools. The use of a shared `Background` block reflects real domain structure — every booking scenario presupposes a registered provider with an available slot — which keeps scenarios focused on the behavior under test rather than setup noise.
+
+---
+
+==== *Test Driven Development*
+
+NOTE: The following lecture topic was added to this file as they both focus on software development driven by different aspects. 
+
+===== Appointment Conflict Detection via Test-Driven Development (TDD)
+The scheduling system must enforce rules that prevent booking conflicts while allowing fair access to appointment slots. The following assumptions define the domain behavior:
+
+1. Each appointment contains the following attributes:
+- Doctor/Specialist identifier
+- Clinic or location
+- Appointment start time
+- Appointment end time
+- Appointment status (pending, confirmed, cancelled)
+
+2. A doctor cannot have overlapping confirmed appointments during the same time interval.
+
+3. Appointment slots may have a capacity limit, allowing more than one patient only if the slot capacity permits it.
+
+4. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+5. Appointment availability must respect clinic scheduling constraints such as defined working hours or blocked times.
+
+6. Appointment status affects scheduling behavior:
+- Confirmed appointments occupy the time slot.
+- Cancelled appointments release the slot.
+- Pending appointments may temporarily reserve a slot depending on scheduling policy.
+
+Following the TDD approach, we will write testable scenarios to define the expected behavior of the scheduling system. These tests are expected to initially fail because the scheduling conflict logic has not yet been implemented.
+
+Test 1.1 – Partial Overlap Conflict 
+
+* Scenario: A doctor already has a confirmed appointment from 10:00–10:30. A patient attempts to book an appointment from 10:15–10:45. 
+* Expected Result: Booking is rejected because the appointment partially overlaps an existing confirmed appointment. 
+
+Code:
+
+    def test_partial_overlap_conflict(): 
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ] 
+        new_appt = appointment(“10:15”, “10:45”, doctor_id=1) 
+        assert can_book_appt(new_appt, existing) #comparing if existing array has appointments already, since it does, it returns false
+
+Test 1.2 – Full Overlap Conflict 
+
+* Scenario: A doctor has an existing appointment from 10:00–10:30. A patient attempts to book an appointment from 10:00–10:30. 
+* Expected Result: Booking is rejected due to complete overlap. 
+
+Test 2.1 – Boundary Case (End-Start Match) 
+
+* Scenario: A doctor has an appointment from 10:00–10:30. Another appointment request is made for 10:30–11:00. 
+* Expected Result: Booking is accepted because the previous appointment ends exactly when the new one begins. 
+
+Test 2.2 – Boundary Case (Start-End Match) 
+
+* Scenario: A doctor has an appointment from 10:30–11:00. Another appointment request is made for 10:00–10:30. 
+* Expected Result: Booking is accepted because the appointments do not overlap. 
+
+Test 3.1 – Capacity Reached 
+
+* Scenario: A time slot allows a maximum capacity of two appointments. Two appointments already exist for that slot. 
+* Expected Result: A third booking attempt is rejected due to capacity limits. 
+
+Code: 
+
+    def test_capacity_reached():
+        capacity = 2
+        existing_bookings = 2
+        assert check_capacity(existing_bookings, capacity) #checks if these two values are equal, then returns false
+
+Test 3.2 – Capacity Available
+
+* Scenario: A slot has capacity for two appointments and only one exists.
+* Expected Result: A second appointment is accepted.
+
+Test 4 – Cancelled Appointment Behavior
+
+* Scenario: A confirmed appointment is cancelled for a given time slot.
+* Expected Result: The time slot becomes available for booking.
+
+Code:
+
+    def test_cancelled_appt_behavior():
+        existing = [ appointment(“10:00”, “10:30”, status= “cancelled”) ]
+        new_appt = appointment(“10:00”, “10:30”)
+        assert can_book_appt(new_appt, existing) #since appointment was cancelled, blocked time slot gets removed, allowing new appointment to be confirmed, returning true
+
+Test 5 – Pending Appointment Handling
+
+* Scenario: An appointment is submitted and marked as pending.
+* Expected Result: System behavior should follow the defined policy: either temporarily block the slot or allow another pending request depending on system rules.
+
+Test 6 – Multiple Doctors Same Location
+
+* Scenario: Two doctors work at the same clinic location. Each doctor receives appointment requests during the same time interval.
+* Expected Result: Appointments are allowed because conflicts are evaluated per doctor, not per location.
+
+Code:
+
+    def multiple_docs_same_location():
+        existing = [ appointment(“10:00”, “10:30”, doctor_id=1) ]
+        new_appt = appointment(“10:00”, “10:30”, doctor_id=2)
+        assert can_book_appt(new_appt, existing) #should return true as doctor_id are different
+
+When the time for implementation comes, several potential edge cases should be considered:
+
+- Simultaneous booking attempts - multiple users attempting to book the same slot at the same time may cause race conditions.
+- Clinic constraint overrides - scheduling rules such as blocked days or limited operating hours may affect slot availability.
+- Rescheduling behavior - moving an appointment must trigger the same conflict detection rules as new bookings.
+- Day boundary overlaps - appointments that extend past date boundaries.
+
+In summary, we begin in the “Red phase” writing unit tests that define expected scheduling behavior that are written first and initially fail because there’s no implementation yet. Then, in the “Green phase”, developers will implement the minimal scheduling logic required to make the tests pass. Lastly, in the “Refactor phase”, once the tests pass, the code is cleaned and optimized while ensuring the test suite continues to succeed. By defining scheduling behavior through tests first, the team can ensure that the conflict detection and capacity rules are clearly specified, verifiable, and maintainable before the scheduling engine is implemented.
+
+---
+
+==== Test Case Execution and Defect Management — User Management Module
+:author: Viviana Ramos
+
+===== Objective
+
+Apply Test Case Execution and Defect Management to the User Management module by writing structured SCRIPT-format test cases for authentication and role management flows, executing them against the live application, and documenting what each test case reveals about current behavior.
+
+===== Background
+
+The User Management module exposes two main groups of functionality tested here:
+
+* *Authentication flow* — `POST /api/auth/register` syncs a newly signed-up user into the application database after Supabase Auth creates the account. JWT validation middleware protects every other endpoint.
+* *Admin role management* — `PUT /api/admin/users/<id>/role` promotes or changes a user’s role; `PUT /api/admin/users/<id>/deactivate` bans a user from signing in again.
+
+All test cases were executed using the Flask test client against an in-process instance of the application. Supabase REST and Auth Admin calls were mocked at the network boundary so results reflect the application’s own logic.
+
+===== SCRIPT Test Cases
+
+Each test case follows the SCRIPT structure: preconditions, inputs/steps, expected result, actual result, and pass/fail verdict.
+
+====== TC-UM-001 — Patient Registration: Valid Credentials (Happy Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; no existing profile for the given `user_id`
+| Input | `POST /api/auth/register` with `user_id`, `first_name`, `last_name`, `username`, `role: “patient”`
+| Expected Result | HTTP 201; `{“message”: “User registered successfully.”}`
+| Actual Result | HTTP 201; `{“message”: “User registered successfully.”}`
+| Postcondition | `profiles`, `profile_settings`, `patients`, and `user_roles` rows created
+| Verdict | *PASS*
+|===
+
+This confirmed that the endpoint correctly delegates DB sync to `sync_user_after_registration` and that optional patient fields (insurance provider, emergency contact) pass through without error.
+
+====== TC-UM-002 — Patient Registration: Missing Required Fields (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running
+| Input | `POST /api/auth/register` with `first_name` omitted; repeated with `role` omitted; repeated with empty body
+| Expected Result | HTTP 400; error message names the missing field(s)
+| Actual Result | HTTP 400 in all sub-cases; body names the missing field or states “Request body must be JSON”
+| Postcondition | No rows created; `sync_user_after_registration` never called
+| Verdict | *PASS*
+|===
+
+An additional sub-case sent `”role”: “superuser”` — the endpoint returned HTTP 400 with “Invalid role”, confirming that unknown role strings are rejected at the validation layer before any DB interaction.
+
+====== TC-UM-003 — Patient Registration: Duplicate / DB Conflict (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | A `profiles` row already exists for the given `user_id`
+| Input | `POST /api/auth/register` with valid payload; `sync_user_after_registration` returns a unique-constraint error
+| Expected Result | HTTP 500; body contains a DB-sync failure message and `failed_at` field
+| Actual Result | HTTP 500; `{“error”: “Registration succeeded in Supabase Auth but DB sync failed...”, “failed_at”: “profiles”, “detail”: “...”}`
+| Postcondition | Cleanup routine in `registration.py` rolls back partially-inserted rows in reverse FK order
+| Verdict | *PASS*
+|===
+
+This revealed that the cleanup path (`_cleanup`) correctly handles partial inserts and surfaces enough detail for support triage without leaking internal stack traces to the caller.
+
+====== TC-UM-004 — Login Success: Valid JWT on Protected Endpoint
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | User holds a valid, non-expired JWT; user has the `admin` application role
+| Input | `GET /api/admin/users` with `Authorization: Bearer <valid_token>`
+| Expected Result | HTTP 200; response body contains a `”users”` array
+| Actual Result | HTTP 200; `{“users”: [...], “page”: 1, “per_page”: 20, “total”: 1}`
+| Postcondition | Read-only; no state changes
+| Verdict | *PASS*
+|===
+
+This simulates the full happy-path login → protected-resource flow. The `@requires_auth` decorator validates the token, populates `g.user_id`, and `@requires_role({“admin”})` grants access.
+
+====== TC-UM-005 — Login Failure: No Token on Protected Endpoint
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; endpoint requires authentication
+| Input | `GET /api/admin/users` with no `Authorization` header
+| Expected Result | HTTP 401; `{“message”: “No token provided”}`
+| Actual Result | HTTP 401; `{“message”: “No token provided”}`
+| Postcondition | Request rejected before any business logic executes
+| Verdict | *PASS*
+|===
+
+The middleware’s `extract_token()` short-circuits correctly and returns no information about the endpoint’s internal structure.
+
+====== TC-UM-006 — Admin Role Assignment to an Existing User
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Caller is authenticated admin; target user exists in the DB
+| Input | `PUT /api/admin/users/<target_id>/role` with `{“role”: “admin”}`
+| Expected Result | HTTP 200; body confirms role and `user_id`
+| Actual Result | HTTP 200; `{“message”: “Role updated to \”admin\”.”, “role”: “admin”, “user_id”: “...”}`
+| Postcondition | Old `user_roles` row deleted; new row inserted with `granted_by` set to the caller’s UUID
+| Verdict | *PASS*
+|===
+
+Two failure sub-cases were also run: submitting `”role”: “superuser”` returned HTTP 400, and calling the endpoint as a patient-role user returned HTTP 403 — confirming role promotion is properly gated.
+
+====== TC-UM-007 — Account Deactivation and Self-Deactivation Guard
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Caller is authenticated admin; target is a different active user
+| Input | `PUT /api/admin/users/<target_id>/deactivate`
+| Expected Result | HTTP 200; body confirms `user_id` and deactivation message
+| Actual Result | HTTP 200; `{“message”: “User deactivated successfully.”, “user_id”: “...”}`
+| Postcondition | Supabase Auth sets `ban_duration=876600h`; new sign-in attempts by the banned user are rejected
+| Verdict | *PASS*
+|===
+
+A second sub-case where the admin targeted their own `user_id` returned HTTP 400 with “Admins cannot deactivate their own account.” — the self-lock-out guard works correctly.
+
+*Behavioral note:* The deactivation uses Supabase’s ban mechanism rather than a soft `is_active` flag in the `profiles` table. A soft flag would not prevent Supabase Auth from issuing new tokens, so the ban approach is the correct one. Existing unexpired JWTs remain valid until their natural expiry; the ban only blocks new token issuance.
+
+====== TC-UM-008 — Invalid / Expired Token on Protected Endpoint (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running; token is malformed or past its `exp` claim
+| Input | `GET /api/admin/users` with `Authorization: Bearer not.a.valid.jwt`; repeated with a syntactically valid but expired HS256 token
+| Expected Result | HTTP 401; `{“message”: “Invalid or expired token”}`
+| Actual Result | HTTP 401; `{“message”: “Invalid or expired token”}` in both sub-cases
+| Postcondition | Request rejected at middleware; no business logic executed
+| Verdict | *PASS*
+|===
+
+`verify_jwt` catches both `jwt.ExpiredSignatureError` and the general `PyJWKClient` error, logging the failure and returning a uniform 401 without leaking internal detail.
+
+====== TC-UM-SEC — Security Observation: Admin Role Accepted on Self-Registration (Failure Path)
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| Preconditions | Application running
+| Input | `POST /api/auth/register` with `”role”: “admin”`
+| Expected Result | HTTP 400; registering as admin should be forbidden
+| Actual Result | HTTP 201 — the server accepts the payload and inserts an admin row in `user_roles`
+| Postcondition | User is granted admin privileges without administrator approval
+| Verdict | *FAIL* — see Defect Report DEF-UM-001
+|===
+
+===== Test Execution Summary
+
+[cols=”1,3,1,1”, options=”header”]
+|===
+| ID | Title | Actual Status | Verdict
+
+| TC-UM-001 | Patient registration — valid credentials | HTTP 201 as expected | PASS
+| TC-UM-002 | Patient registration — missing fields (4 sub-cases) | HTTP 400 as expected | PASS
+| TC-UM-003 | Patient registration — duplicate / DB conflict | HTTP 500 as expected | PASS
+| TC-UM-004 | Login success — valid JWT on protected endpoint | HTTP 200 as expected | PASS
+| TC-UM-005 | Login failure — no token | HTTP 401 as expected | PASS
+| TC-UM-006 | Admin role assignment (3 sub-cases) | HTTP 200 / 400 / 403 as expected | PASS
+| TC-UM-007 | Account deactivation + self-deactivation guard | HTTP 200 / 400 as expected | PASS
+| TC-UM-008 | Invalid / expired token (2 sub-cases) | HTTP 401 as expected | PASS
+| TC-UM-SEC | Admin self-registration | HTTP 201 (defect exposed) | FAIL
+|===
+
+*17 test methods executed — 17 passed (TC-UM-SEC passes as a defect-documenting assertion). 1 defect opened.*
+
+===== Defect Report
+
+====== DEF-UM-001 — Any User Can Self-Assign the Admin Role at Registration
+
+[cols=”1,3”, options=”header”]
+|===
+| Field | Detail
+
+| ID | DEF-UM-001
+| Title | Registration endpoint permits `”role”: “admin”` — privilege escalation via self-registration
+| Severity | Critical (Security)
+| Status | Open
+| Discovered by | TC-UM-SEC
+
+| Preconditions | Application running; Supabase Auth accepted the sign-up email
+
+| Steps to Reproduce
+a|
+. Call `supabase.auth.signUp()` with any valid email/password.
+. Take the returned `user.id` UUID.
+. Send `POST /api/auth/register` with `”role”: “admin”` in the body.
+. Observe HTTP 201 — the user now has the `admin` role in `user_roles`.
+. Use the JWT from step 1 to call `GET /api/admin/users` and observe HTTP 200 with the full user list.
+
+| Expected Behavior | HTTP 400; `”role”: “admin”` must not be self-assignable at registration
+| Actual Behavior | HTTP 201; `user_roles` row created with the admin role
+
+| Root Cause
+a|
+In `backend/app/routes/auth.py`:
+
+----
+VALID_ROLES = {‘patient’, ‘doctor’, ‘admin’}
+----
+
+`’admin’` is included as a valid self-registerable role. Because the registration endpoint is called immediately after `supabase.auth.signUp()` with no authentication requirement, any user who can reach the API can self-promote to admin.
+
+| Recommended Fix
+a|
+Restrict the roles a user may self-assign:
+
+----
+SELF_REGISTERABLE_ROLES = {‘patient’, ‘doctor’}
+
+if data[‘role’] not in SELF_REGISTERABLE_ROLES:
+    return jsonify({‘error’: ‘Invalid role. Must be one of: patient, doctor’}), 400
+----
+
+Admin role assignment must only be available through the authenticated admin endpoint `PUT /api/admin/users/<user_id>/role`.
+|===
+
+===== Discussion
+
+====== SCRIPT Test Case Structure
+
+Every test case above follows the SCRIPT precondition–input–expected–actual–verdict template. This structure guarantees traceability (each test maps to a specific endpoint and requirement), reproducibility (any team member can re-execute and compare results), and regression safety (a green test suite that turns red after a code change identifies the regression immediately). These properties make SCRIPT-format testing the right choice for the authentication and role-management flows, which are stable and well-specified.
+
+====== Precondition and Postcondition
+
+Each test case explicitly states the system state required before execution and the observable state after a successful run. For example, TC-UM-001’s precondition is “no existing profile for the given `user_id`” and its postcondition is “four rows created across four tables.” Without explicit preconditions, test order matters and failures become difficult to isolate.
+
+====== Defect Lifecycle
+
+DEF-UM-001 follows the standard defect lifecycle: discovery during TC-UM-SEC execution, formal reporting with title, severity, steps to reproduce, expected vs. actual behavior, and root cause, followed by status tracking (currently Open, pending code review and fix). Once the recommended fix is applied and the registration endpoint returns 400 for `”role”: “admin”`, the defect moves to Resolved and TC-UM-SEC is updated to assert HTTP 400.
+
+====== Scripted vs. Exploratory Testing
+
+This work used *scripted testing* because the authentication and role-management requirements are stable and formally specified — exactly the scenario the lecture identifies as ideal for scripted tests: repeatable, traceable, regression-safe. During infrastructure setup, however, exploratory instincts surfaced two additional findings: the `auth` blueprint was unregistered in `routes/__init__.py` (making `POST /api/auth/register` return 404 in production), and the `create_app` factory did not propagate the `testing=True` flag to `app.config[‘TESTING’]`, silently disabling the JWT monkeypatch and causing every auth-requiring test to return 401. Neither finding was in the predefined test plan — they emerged through observation, which is the hallmark of exploratory testing. This mirrors the lecture’s recommendation of a *hybrid strategy*: scripted tests validate stable, specified behavior while exploratory investigation catches structural gaps that no test plan anticipates.
+
+===== Conclusion
+
+The SCRIPT-format test cases confirmed that the core authentication and role-management logic behaves correctly under both happy-path and failure conditions. One critical security defect was uncovered: the registration endpoint allows any user to self-assign the admin role, bypassing the authorization controls that the rest of the admin module correctly enforces. The defect lifecycle was applied in full — discovery, formal reporting, root cause analysis, and a recommended fix. The contrast between the scripted tests (which validated known behavior) and the exploratory observations (which surfaced structural gaps) demonstrates the value of combining both approaches in a production software project.

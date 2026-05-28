@@ -1,0 +1,82 @@
+==== *Behavior-Driven Development (BDD) Tooling and Execution*
+
+[.changed]#This subsection reports branch-accurate BDD tooling and execution based on the current repository artifacts.#
+
+===== *Toolchain in Use*
+
+* [.changed]#Gherkin feature files: `backend/tests/bdd/features/appointment_booking.feature`.#
+* [.changed]#Step bindings: `backend/tests/bdd/steps/test_appointment_booking.py` (pytest-bdd).#
+* [.changed]#Runner: `pytest` with `pytest-bdd` integration.#
+* [.changed]#CI workflow: `.github/workflows/backend-tests.yml`.#
+
+===== *Branch and Pipeline Execution Scope*
+
+[.changed]#The backend workflow is configured on `push` for both `main` and `Documentation` branches, plus `pull_request` and manual dispatch.#
+
+[source,yaml]
+----
+on:
+  push:
+    branches: [main, Documentation]
+  pull_request:
+  workflow_dispatch:
+----
+
+[.changed]#This corrects the earlier concern that BDD automation existed only for the documentation branch.#
+
+===== *Executable BDD Suite Size (Broadened)*
+
+[.changed]#The repository now contains 7 executable BDD scenarios in the appointment booking feature, expanded from the earlier 3-scenario baseline.#
+
+[cols="1,3,2", options="header"]
+|===
+| Scenario | Behavior Verified | Requirement References
+
+| Patient successfully books an available appointment
+| Request persisted, slot becomes unavailable
+| <<REQ-BOOK-F-01>>
+
+| Patient attempts to book an already-taken slot
+| Conflict rejected (`409`), no second appointment
+| <<REQ-BOOK-F-01>>
+
+| Doctor cancels a scheduled appointment
+| Appointment becomes `Cancelled`, slot is released
+| <<REQ-BOOK-F-02>>
+
+| Booking requiring insurance stays pending
+| Appointment remains `PendingApproval` until prerequisites clear
+| <<REQ-CONFIRM-F-01>>, <<REQ-CONFIRM-F-02>>
+
+| Pending appointment confirmed after insurance authorization
+| Status transition from `PendingApproval` to `Confirmed`
+| <<REQ-CONFIRM-F-03>>
+
+| Patient cannot reschedule below clinic cutoff
+| Policy-based rejection near time boundary (e.g., 1:55 PM for 2:00 PM)
+| <<REQ-BOOK-F-03>>
+
+| Waitlisted patient gets released slot
+| Cancellation-driven reassignment using waitlist ordering
+| <<REQ-WAIT-F-01>>, <<REQ-WAIT-F-02>>
+|===
+
+===== *Execution Command*
+
+[source,bash]
+----
+cd backend
+pytest tests/bdd -v --tb=short
+----
+
+===== *Acceptance Evidence for Implemented Features*
+
+[.added]#For this milestone, the acceptance-level evidence for the minimal viable scheduling feature set is the executable BDD suite: request booking, reject double booking, cancel and release slot, prerequisite-gated confirmation, cutoff-aware rescheduling, and waitlist reassignment.#
+
+[.added]#These scenarios are automated in CI/CD alongside backend unit tests and load-smoke checks, so implemented feature behavior is continuously revalidated on branch updates.#
+
+===== *Why this addresses prior feedback*
+
+* [.changed]#Step definitions are present and executable (confirmed).#
+* [.changed]#BDD coverage is no longer limited to booking + cancellation only; prerequisite handling, cutoff policy, and waitlist reassignment were added.#
+* [.changed]#Documentation now matches branch workflow configuration and no longer implies single-branch-only automation.#

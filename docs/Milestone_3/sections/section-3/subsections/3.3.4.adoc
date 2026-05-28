@@ -1,0 +1,40 @@
+==== *Load Testing Strategy*
+
+[.changed]#This section is now aligned with load-testing artifacts that exist in the repository and with CI execution that is actually configured.#
+
+===== *Repository Artifacts*
+
+* [.changed]#Primary load script: `backend/tests/load/locustfile.py` (domain-oriented load model for booking/search/scheduling flows).#
+* [.added]#CI smoke script: `backend/tests/load/locust_smoke.py` (stable health-endpoint concurrency check for pipeline reliability).#
+
+===== *Why Two Load Levels Are Used*
+
+* [.changed]#`locustfile.py` is useful for richer local performance exploration, but it depends on broader endpoint/data setup.#
+* [.changed]#`locust_smoke.py` is intentionally minimal so CI can run deterministically on every push without depending on external services.#
+
+===== *CI/CD Integration (Implemented)*
+
+[.changed]#Load testing is now part of `.github/workflows/backend-tests.yml`.#
+
+[.changed]#Pipeline behavior:#
+1. Start backend in test mode (`create_app(testing=True)`).
+2. Run Locust headless against `http://127.0.0.1:5000`.
+3. Execute concurrent requests on `GET /api/health` for a short smoke window.
+
+[source,yaml]
+----
+- name: Run load-smoke test (Locust)
+  run: |
+    cd backend
+    nohup python -c "from app import create_app; app=create_app(testing=True); app.run(host='127.0.0.1', port=5000)" > /tmp/backend.log 2>&1 &
+    sleep 5
+    locust -f tests/load/locust_smoke.py --host=http://127.0.0.1:5000 --headless -u 10 -r 10 --run-time 20s --only-summary
+----
+
+===== *Current Scope and Limitation*
+
+[.changed]#This CI load step is a smoke-level concurrency guard, not a full booking-throughput benchmark.#
+
+[.changed]#It verifies that the running backend remains responsive under concurrent probe traffic and that load tooling is continuously executable in pipeline.#
+
+[.added]#Higher-fidelity load runs (booking contention, availability updates, cancellation/reassignment pressure) remain valid as extended Locust profiles and should be executed in controlled environments with representative seed data.#

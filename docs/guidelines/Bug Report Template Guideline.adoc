@@ -1,0 +1,170 @@
+= Bug Report Template for the Medical Appointment Scheduling System
+Lecture Topic Task – Bug and Defect Management
+:toc:
+
+This document defines a standardized bug report format for the medical appointment scheduling system. 
+A consistent defect reporting structure helps developers understand issues quickly and reproduce them efficiently.
+
+The template below can be used when reporting defects discovered during testing.
+
+== Purpose
+
+Bug reports should clearly describe:
+
+* what problem occurred
+* how to reproduce the problem
+* what the expected behavior was
+* what actually happened
+* severity of issue
+
+Providing clear and structured bug reports improves communication between testers and developers and speeds up the debugging process.
+
+== Bug Report Fields
+
+=== Bug ID
+A unique identifier assigned to the bug report.
+
+Example: `BUG-001`
+
+=== Summary / Description
+A short explanation describing the bug/defect and what part of the system or app is affected by it.
+
+Example:
+The system allows a patient to book an appointment in a time slot that is already reserved.
+
+=== Environment
+Information about the system environment where the issue occurred.
+
+Examples:
+
+* Frontend: Appointment Scheduling Page
+* Backend: Flask API
+* Database: Supabase
+
+=== Steps to Reproduce
+A numbered list of actions needed to reproduce the issue.
+
+Example:
+
+. Log in as a patient
+. Navigate to the appointment scheduling page
+. Select a doctor
+. Attempt to book a time slot already reserved by another patient
+. Submit the booking request
+
+=== Expected Result
+What the system should do according to system requirements.
+
+Example:
+The system should reject the booking request and display a message indicating the slot is unavailable.
+
+=== Actual Result
+What the system actually does.
+
+Example:
+The system accepts the booking and creates a duplicate appointment.
+
+=== Severity Level
+Indicates the impact of the defect on the system.
+
+Possible values include:
+
+* Low
+* Medium
+* High
+* Critical
+
+=== Status
+The current state of the defect.
+
+Possible values include:
+
+* Open
+* In Progress
+* Fixed
+* Closed
+
+=== Additional Notes
+Optional information that may help developers diagnose the problem.
+
+Examples include:
+
+* screenshots
+* error logs
+* API responses
+* related issues
+
+== Bug Report Template
+
+[cols="1,3",options="header"]
+|===
+|Field |Description
+
+|Bug ID
+|Unique identifier for the defect.
+
+|Summary / Description
+|Short explanation of the problem.
+
+|Environment
+|System configuration where the bug occurred.
+
+|Steps to Reproduce
+|Numbered steps required to reproduce the defect.
+
+|Expected Result
+|Correct behavior of the system.
+
+|Actual Result
+|Observed incorrect behavior.
+
+|Severity Level
+|Impact level of the defect.
+
+|Status
+|Current state of the issue.
+
+|Additional Notes
+|Optional information useful for debugging.
+|===
+
+== Example Bug Report
+
+[cols="1,3",options="header"]
+|===
+|Field |Content
+
+|Bug ID
+|BUG-001
+
+|Summary / Description
+|A patient can book an appointment in a time slot that is already reserved.
+
+|Environment
+|Frontend: Appointment Scheduling Page  
+Backend: Flask API  
+Database: Supabase
+
+|Steps to Reproduce
+|1. Log in as a patient  
+2. Navigate to the appointment scheduling page  
+3. Select a doctor  
+4. Choose a time slot already booked by another patient  
+5. Submit the booking request
+
+|Expected Result
+|The system should reject the booking request and notify the user that the time slot is unavailable.
+
+|Actual Result
+|The system accepts the booking request and creates a duplicate appointment.
+
+|Severity Level
+|High
+
+|Status
+|Open
+
+|Additional Notes
+|This issue could lead to double-booking and should be resolved before release.
+
+|===

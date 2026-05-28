@@ -1,0 +1,289 @@
+=== *Mutation Testing*
+
+==== Mutation Testing Strategy for Appointment Scheduling and Availability Rules
+:author: Sebastián Saliva
+
+===== Objective
+
+Apply mutation testing to Simple Medical Appointments in order to evaluate the sensitivity and effectiveness of the project’s automated test suite, especially in the areas of appointment scheduling, clinic availability validation, cancellation behavior, and access control over schedule changes.
+
+===== Introduction
+
+Mutation testing is a testing technique used to evaluate the quality of a test suite by making small, controlled changes to the source code and then re-running the tests. Its purpose is not to test the application directly, but to test whether the tests themselves are strong enough to detect realistic faults.
+
+According to the lecture, mutation testing serves to “test the tests” and assess the sensitivity of the test suite. The general process is to first confirm that all tests pass, then modify one specific part of the source code, and finally run the tests again. If the tests fail, the mutant is considered eliminated or “killed,” which means the test suite successfully detected the behavioral change. If the tests still pass, the mutant survives, indicating that the tests are not sensitive enough to justify that portion of the implementation. [1]
+
+For the Simple Medical Appointments system, mutation testing is especially valuable because many core behaviors depend on precise business rules. A weak test suite may allow subtle faults in scheduling, availability, or cancellation logic to reach production even when all existing tests pass.
+
+===== Why Mutation Testing Matters for This Project
+
+The Medical Appointments application includes several behaviors where small code changes can produce serious defects:
+
+* accepting overlapping appointments
+* allowing booking outside provider availability
+* failing to free a slot after cancellation
+* permitting unauthorized users to modify schedules
+* incorrectly updating appointment status
+
+Traditional unit and integration tests may confirm expected behavior for the happy path, but mutation testing helps reveal whether those tests are actually capable of detecting faults near boundary conditions and decision points.
+
+In this way, mutation testing complements conventional automated testing by asking not only “does the system pass its tests?” but also “would the tests fail if the implementation were wrong in a realistic way?” [1]
+
+===== Candidate Areas for Mutation Testing
+
+The following project areas are good candidates for mutation testing because they are rule-driven and central to system correctness.
+
+====== 1. Double-Booking Prevention
+
+The system must prevent two appointments from occupying the same provider and time slot.
+
+This rule is central to the scheduling feature. If a mutation weakens the overlap condition and tests still pass, then the suite does not sufficiently protect one of the system’s most important constraints.
+
+====== 2. Clinic Availability Validation
+
+The system must reject appointment requests outside the provider’s available schedule or clinic operating constraints.
+
+Availability checks often depend on comparison operators and boolean combinations, making them highly suitable for mutation testing.
+
+====== 3. Appointment Cancellation Behavior
+
+When an appointment is cancelled, the system must update the appointment status and return the slot to an available state.
+
+A mutation in this logic can easily create stale or inconsistent scheduling information that may not be caught unless tests explicitly verify both status and slot availability.
+
+====== 4. Role-Based Schedule Restrictions
+
+Only authorized roles should be able to create, modify, or cancel certain appointments or schedule blocks.
+
+Access-control logic is especially vulnerable to weak testing if only the intended happy path is covered.
+
+===== Example Mutants for Medical Appointments
+
+The lecture notes that mutation testing works best when the changes are targeted and likely to expose weaknesses in the test suite, rather than being arbitrary edits. Examples include changing logical operators or modifying constants. [1]
+
+The following mutants are realistic examples for this project.
+
+====== Mutant 1: Overlap Comparison Boundary Mutation
+
+Original logic:
+
+[source,python]
+----
+if requested_start < existing_end and requested_end > existing_start:
+    return True
+----
+
+Mutant:
+
+[source,python]
+----
+if requested_start <= existing_end and requested_end > existing_start:
+    return True
+----
+
+Expected result:
+
+The test suite should fail if it correctly distinguishes back-to-back appointments from overlapping appointments. If tests still pass, then boundary conditions around appointment overlap are insufficiently tested.
+
+====== Mutant 2: Boolean Operator Mutation in Availability Check
+
+Original logic:
+
+[source,python]
+----
+if is_doctor_available and is_within_clinic_hours:
+    allow_booking = True
+----
+
+Mutant:
+
+[source,python]
+----
+if is_doctor_available or is_within_clinic_hours:
+    allow_booking = True
+----
+
+Expected result:
+
+Tests should fail because this mutant incorrectly allows booking when only one condition is satisfied. If it survives, then tests do not fully justify the required conjunction between these conditions.
+
+====== Mutant 3: Constant Replacement in Slot Duration
+
+Original logic:
+
+[source,python]
+----
+DEFAULT_APPOINTMENT_MINUTES = 30
+----
+
+Mutant:
+
+[source,python]
+----
+DEFAULT_APPOINTMENT_MINUTES = 0
+----
+
+Expected result:
+
+Tests should fail if duration handling, slot generation, or time validation is covered. A surviving mutant would suggest weak validation of appointment length assumptions.
+
+====== Mutant 4: Cancellation Status Mutation
+
+Original logic:
+
+[source,python]
+----
+appointment.status = "cancelled"
+----
+
+Mutant:
+
+[source,python]
+----
+appointment.status = "confirmed"
+----
+
+Expected result:
+
+Tests should fail because cancelled appointments must not remain confirmed. If this mutant survives, then tests are likely checking only response success and not the persisted state transition.
+
+====== Mutant 5: Slot Release Omission Mutation
+
+Original logic:
+
+[source,python]
+----
+slot.is_available = True
+----
+
+Mutant:
+
+[source,python]
+----
+slot.is_available = False
+----
+
+Expected result:
+
+Tests should fail if they verify that a cancelled appointment frees the time slot for reuse. If the mutant survives, then cancellation tests are incomplete.
+
+====== Mutant 6: Role Restriction Mutation
+
+Original logic:
+
+[source,python]
+----
+if current_user.role == "doctor":
+    can_modify_schedule = True
+----
+
+Mutant:
+
+[source,python]
+----
+if current_user.role == "patient":
+    can_modify_schedule = True
+----
+
+Expected result:
+
+Tests should fail because patients must not gain doctor-level schedule control. A surviving mutant would indicate insufficient access-control coverage.
+
+===== Mutation Operators Most Relevant to This Project
+
+Based on the lecture, useful mutations include logical operator changes and constant replacement. [1] For the Medical Appointments system, the following mutation classes are especially relevant:
+
+* relational operator changes
+** `<` to `<=`
+** `>` to `>=`
+** `==` to `!=`
+
+* boolean operator changes
+** `and` to `or`
+** `or` to `and`
+
+* constant replacement
+** replacing durations, limits, or counts with `0`, `1`, or nearby values
+
+* return value mutations
+** changing a returned `True` to `False`
+** changing status or permission outcomes
+
+* state update mutations
+** preserving an old state instead of applying the new one
+
+These are valuable because scheduling systems rely heavily on comparisons, boolean decisions, and precise state transitions.
+
+===== Recommended Tooling for the Project Stack
+
+The lecture identifies mutation testing tools for several programming languages. For this project’s stack, the most relevant are: [1]
+
+* *Stryker* for JavaScript
+* *mutmut* for Python
+* *cosmic-ray* for Python
+
+This maps well to the current architecture:
+
+* React/Vite frontend:
+** Stryker can be used to mutate frontend logic implemented in JavaScript or TypeScript, especially client-side validation and interface-side scheduling helpers.
+
+* Python/Flask backend:
+** mutmut or cosmic-ray can be used to mutate backend scheduling rules, availability checks, role restrictions, and appointment state transitions.
+
+Because the most critical booking and availability rules should live on the backend, the Flask/Python side is the strongest initial target for mutation testing in this project.
+
+===== Proposed Mutation Testing Strategy
+
+A practical mutation testing strategy for this project would proceed as follows:
+
+. Confirm that the current automated test suite passes in a clean baseline state.
+. Select one high-risk backend module, such as appointment scheduling or clinic availability validation.
+. Generate targeted mutants affecting comparisons, logical conditions, constants, and state transitions.
+. Re-run the automated tests after each mutation.
+. Classify each mutant as:
+* *Killed* – at least one test fails
+* *Survived* – all tests still pass
+* *Eliminated* – mutation causes code that cannot run or compile properly
+. Analyze surviving mutants to determine which requirements or edge cases lack test coverage.
+. Add or strengthen tests to kill previously surviving mutants.
+
+This process follows the exact lecture idea that mutation testing measures whether the current tests justify that the code must be written the way it currently is. [1]
+
+===== Expected Benefits
+
+Applying mutation testing to the Medical Appointments project would provide several benefits:
+
+* stronger confidence in scheduling correctness
+* better detection of weak or superficial automated tests
+* improved coverage of boundary conditions and state transitions
+* earlier discovery of missing assertions in backend logic
+* more reliable regression protection as the system evolves
+
+Mutation testing is especially useful when tests already exist, because it reveals whether those tests are meaningful or merely present.
+
+===== Limitations and Practical Considerations
+
+The lecture also notes that mutation testing can be expensive because each mutant may require running the full test suite, and many arbitrary mutations are not useful. [1]
+
+For this reason, mutation testing should be introduced selectively:
+
+* start with one critical backend module
+* use focused mutation operators tied to realistic logic faults
+* avoid applying mutation testing to unstable or incomplete code
+* prioritize high-risk business rules before lower-risk UI behavior
+
+This keeps the process tractable while still producing valuable feedback.
+
+===== Conclusion
+
+Mutation testing is a strong fit for the Simple Medical Appointments system because it evaluates not only whether the software passes tests, but whether the tests themselves are capable of detecting realistic defects. By applying small mutations to core scheduling and availability rules, the team can identify weak assertions, missing edge-case coverage, and unverified business logic.
+
+For this project, the most valuable initial targets are double-booking prevention, clinic availability validation, cancellation behavior, and role-based schedule restrictions. With tools such as Stryker for the React/Vite frontend and mutmut or cosmic-ray for the Python/Flask backend, mutation testing can become a practical method for strengthening the project’s automated test suite and improving confidence in system reliability.
+
+===== References
+
+[1] M. Schütz-Schmuck, "Mutation Testing," Department of Computer Science and Engineering, University of Puerto Rico at Mayagüez, Mar. 21, 2022.
+
+
+---
+

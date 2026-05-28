@@ -1,0 +1,39 @@
+==== *Machine Requirements*
+
+===== Runtime Bootstrap and Service Availability
+
+*Machine basis:*  
+The deployment unit must initialize predictably and expose health observability.
+
+*Requirements:*
+
+* [[MR-BOOT-01]]MR-BOOT-01: [.changed]#The backend runtime must initialize through the Flask application factory and expose a health endpoint for automated readiness checks.#
+
+===== Automated Verification in Pipeline
+
+*Machine basis:*  
+Build confidence requires repeatable machine execution in CI.
+
+*Requirements:*
+
+* [[MR-TEST-01]]MR-TEST-01: [.changed]#The repository pipeline must execute automated backend tests for artifacts present on `main`.#
+
+* [[MR-LOAD-01]]MR-LOAD-01: [.added]#The repository pipeline must execute a lightweight load-smoke check for the implemented API surface.#
+
+===== Testable Scheduling Core
+
+*Machine basis:*  
+Core scheduling operations must be executable independently from UI transport concerns.
+
+*Requirements:*
+
+* [[MR-CONC-01]]MR-CONC-01: [.changed]#Scheduling logic must be represented in backend service code that can be unit-tested independently of route wrappers and frontend components.#
+
+===== Separation of Interface and Domain Responsibilities
+
+*Machine basis:*  
+Maintainability depends on keeping transport concerns from dominating business logic.
+
+*Requirements:*
+
+* [[MR-ARCH-01]]MR-ARCH-01: [.added]#Backend implementation must keep request/response transport concerns separated from scheduling-domain operations so that domain logic remains reusable and testable.#

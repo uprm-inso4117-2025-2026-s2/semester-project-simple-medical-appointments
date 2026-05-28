@@ -1,0 +1,135 @@
+==== *Terminology*
+
+[NOTE]
+====
+[.changed]#This terminology uses only the course categories: `entity`, `action`, `event`, and `behavior` (plus explicit `state values`). We do not use `actor` as a separate category; entities may perform actions. We also do not introduce `process` as a separate category, since long-running coordination is represented as behavior.#
+====
+
+[discrete]
+===== Entities
+
+*Patient* :: (entity, domain)
+[.changed]#A person for whom appointments are booked.#
+
+*Caregiver* :: (entity, domain)
+[.changed]#A person who coordinates appointments on behalf of a patient.#
+
+*Provider* :: (entity, domain)
+[.changed]#A health professional represented in the scheduling system and eligible to offer consultations through clinic-defined rules.#
+
+*Doctor* :: (entity subtype, domain)
+[.changed]#A provider subtype that is specifically a physician.#
+
+*Clinic* :: (entity, domain)
+[.changed]#An organization or location that hosts providers and defines scheduling policies.#
+
+*ConsultationType* :: (entity, domain)
+[.changed]#A named visit type (for example first visit, follow-up, procedure) with an expected duration and optional prerequisites.#
+
+*TimeSlot* :: (entity, domain)
+[.changed]#A discrete, bookable interval in a provider's schedule.#
+
+*Appointment* :: (entity, domain)
+[.changed]#A scheduled consultation record linking patient, provider, clinic, consultation type, and one time slot.#
+
+*WaitlistEntry* :: (entity, domain)
+[.added]#A patient's registered interest in a future opening when no acceptable slot is currently available.#
+
+*Waitlist* :: (entity, domain)
+[.changed]#An ordered collection of waitlist entries for reassignment decisions.#
+
+*Referral* :: (entity, domain)
+[.changed]#A record that a consultation depends on prior referral.#
+
+*InsuranceAuthorization* :: (entity, domain)
+[.changed]#A record that a consultation depends on prior insurer approval.#
+
+[discrete]
+===== State Values
+
+*TimeSlotStatus* :: (state values, domain)
+[.changed]#`Available`, `Held`, `Reserved`, `Expired`.#
+
+*AppointmentStatus* :: (state values, domain)
+[.changed]#`Requested`, `PendingApproval`, `Confirmed`, `Cancelled`, `Completed`, `NoShow`.#
+
+[discrete]
+===== Actions
+
+*PublishTimeSlot* :: (action, domain)
+[.changed]#A provider or clinic creates a bookable time slot.#
+
+*RequestAppointment* :: (action, domain)
+[.changed]#A patient or caregiver requests a specific time slot.#
+
+*ConfirmAppointment* :: (action, domain)
+[.changed]#A clinic or rule-driven workflow validates prerequisites and confirms a request.#
+
+*CancelAppointment* :: (action, domain)
+[.changed]#A patient, provider, or staff member withdraws an appointment.#
+
+*RescheduleAppointment* :: (action, domain)
+[.changed]#A clinic or patient moves an appointment from one slot to another.#
+
+*JoinWaitlist* :: (action, domain)
+[.changed]#A patient asks to be considered for future released availability.#
+
+*AssignWaitlistedPatient* :: (action, domain)
+[.changed]#A clinic or system workflow selects an eligible waitlisted patient for a released slot.#
+
+*RecordReferral* :: (action, domain)
+[.changed]#A clinic records that required referral evidence has been received.#
+
+*RecordInsuranceAuthorization* :: (action, domain)
+[.changed]#A clinic records that required insurer authorization has been received.#
+
+*RunSlotExpirationCheck* :: (action, domain)
+[.changed]#A scheduled system action checks held slots whose hold window has ended.#
+
+[discrete]
+===== Events
+
+*TimeSlotPublished* :: (event, domain)
+[.changed]#The instant a slot becomes visible as bookable.#
+
+*AppointmentRequestSubmitted* :: (event, domain)
+[.changed]#The instant a request is recorded.#
+
+*AppointmentConfirmed* :: (event, domain)
+[.changed]#The instant an appointment enters `Confirmed`.#
+
+*AppointmentCancelled* :: (event, domain)
+[.changed]#The instant an appointment enters `Cancelled`.#
+
+*WaitlistEntryCreated* :: (event, domain)
+[.changed]#The instant a patient is added to a waitlist.#
+
+*WaitlistedPatientAssigned* :: (event, domain)
+[.changed]#The instant a released slot is assigned to a selected waitlisted patient.#
+
+*InsuranceAuthorizationReceived* :: (event, domain)
+[.changed]#The instant required insurer approval is recorded.#
+
+*TimeSlotExpired* :: (event, domain)
+[.changed]#The instant a held slot is released after its hold window ends.#
+
+*NoShowRecorded* :: (event, domain)
+[.changed]#The instant a confirmed appointment is marked unattended.#
+
+[discrete]
+===== Behaviors
+
+*BookingBehavior* :: (behavior, domain)
+[.changed]#The multi-step pattern from discovery to request, prerequisite handling, and confirmation or rejection.#
+
+*WaitlistReassignmentBehavior* :: (behavior, domain)
+[.changed]#The multi-step pattern from cancellation/new slot publication to candidate selection and reassignment outcome.#
+
+[discrete]
+===== Clarifying Notes
+
+* [.changed]#`TimeSlot` and `Appointment` are not the same: a time slot is availability; an appointment uses one time slot.#
+* [.changed]#`Time block` is an informal phrase in sketches; in this model it maps to the reserved `TimeSlot` associated with an appointment.#
+* [.changed]#The model uses expected consultation duration, not guaranteed duration.#
+* [.changed]#The model does not impose a blanket "single active appointment per provider" rule. Instead, it forbids conflicting or duplicate bookings.#
+* [.added]#Provider eligibility is clinic-defined. Clinics may choose which licensed or policy-approved provider types are represented in the system's scheduling scope.#

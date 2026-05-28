@@ -1,0 +1,74 @@
+=== *Testing Methodology*
+
+==== *Test-Driven Development (TDD)*
+
+[.changed]#This subsection reports concrete TDD work already present in the repository, instead of describing TDD in abstract terms.#
+
+[.changed]#Primary TDD artifact on this branch: `backend/app/services/scheduling.py`, driven by `backend/tests/unit/test_scheduling.py`.#
+
+===== *Function Under TDD*
+
+* [.changed]#`TimeRange.split(slot_minutes)`#
+* [.changed]#`TimeRange.subtract(blocked)`#
+* [.changed]#`generate_available_slots(availability: DailyAvailability)`#
+
+[.changed]#These functions are domain-level scheduling logic and can be tested without HTTP, database, or frontend dependencies.#
+
+===== *Applied TDD Iterations (Red -> Green -> Refactor)*
+
+[discrete]
+====== Iteration 1: Slot Splitting Baseline
+
+* [.changed]#RED: wrote failing tests for exact-fit and partial-slot behavior (`test_exact_fit_two_slots`, `test_partial_slot_discarded`).#
+* [.changed]#GREEN: implemented `TimeRange.split` loop with half-open interval semantics and discard of trailing partial slot.#
+* [.changed]#REFACTOR: clarified function docstring to make boundary behavior explicit.#
+
+[discrete]
+====== Iteration 2: Invalid Slot Length Guard
+
+* [.changed]#RED: added failing tests for `slot_minutes <= 0` (`test_zero_slot_minutes_raises`, `test_negative_slot_minutes_raises`).#
+* [.changed]#GREEN: added guard clause in `TimeRange.split` raising `ValueError` for non-positive slot size.#
+* [.changed]#REFACTOR: reused the same guard pattern in `generate_available_slots` for consistency at service entry point.#
+
+[discrete]
+====== Iteration 3: Blocked-Period Subtraction
+
+* [.changed]#RED: added failing tests for lunch-block split, no-overlap case, full-overlap case, and edge-boundary adjacency (`test_subtract_middle_lunch`, `test_subtract_no_overlap`, `test_subtract_full_overlap`, `test_adjacent_block_no_overlap`).#
+* [.changed]#GREEN: implemented `TimeRange.subtract` and helper `_subtract_segment`.#
+* [.changed]#REFACTOR: extracted overlap logic into helper to keep `subtract` readable and compositional for multiple blocked ranges.#
+
+[discrete]
+====== Iteration 4: End-to-End Slot Generation
+
+* [.changed]#RED: wrote failing integration-style unit tests for daily generation (`test_weekday_no_blocks`, `test_blocked_lunch_reduces_slots`, `test_empty_working_hours_no_slots`).#
+* [.changed]#GREEN: implemented `generate_available_slots` by composing `subtract` + `split` and combining date/time into `datetime`.#
+* [.changed]#REFACTOR: explicit sort at the end (`slots.sort()`) to guarantee deterministic output regardless of segment ordering.#
+
+===== *Test Refinements Recorded*
+
+* [.changed]#Added boundary-specific test (`test_boundary_slot_included`) to lock rule: slot ending exactly at range end is valid.#
+* [.changed]#Added ordering test (`test_slots_are_sorted`) to prevent nondeterministic sequence regressions.#
+* [.changed]#Added zero-duration and short-range checks to preserve safe behavior under degenerate inputs.#
+
+===== *Design Decision: `DailyAvailability(slot_minutes=0)`*
+
+[.changed]#Feedback asked whether invalid `DailyAvailability` objects should be impossible to construct instead of relying on runtime `ValueError`.#
+
+[.changed]#Current branch behavior: validation occurs in service execution (`generate_available_slots`) and in `TimeRange.split`, where `slot_minutes <= 0` raises `ValueError`.#
+
+[.added]#Alternative considered: enforce the invariant at object construction (for example, a `__post_init__` check in `DailyAvailability`) so invalid instances cannot exist at all.#
+
+[.changed]#Rationale for current state: the existing implementation centralizes guard checks at operation boundaries; this kept iterations small and matched existing tests.#
+
+[.added]#Refinement opportunity: move or duplicate the guard into `DailyAvailability` construction to strengthen type-level domain safety while preserving current tests.#
+
+===== *Relationship to BDD Coverage*
+
+[.changed]#Repository BDD scenarios currently cover only booking success, double-booking prevention, and provider cancellation.#
+
+[.changed]#This TDD subsection therefore focuses on scheduling-core functions that are already implemented and unit-tested, while broader lifecycle behaviors are documented as pending BDD expansion in Section 3.3.2 and 3.3.3.#
+
+===== *Traceability*
+
+* [.changed]#`TimeRange.split` and `generate_available_slots` support <<REQ-AVAIL-F-01>> by formalizing slot generation and overlap-safe availability handling.#
+* [.changed]#Blocked-period and release behavior support consistency expectations used by <<REQ-BOOK-F-02>> and validation flows in Section 3.2.#

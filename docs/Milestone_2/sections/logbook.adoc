@@ -1,0 +1,30 @@
+
+=== Logbook 
+
+[width="100%", cols="4*", options="header", frame=all, grid=all, halign=center]
+
+|===
+| Section Name | Member | Added or Modified | Description
+
+| 4.1 TDD | Gerardo Ruiz | Added | Filled TDD with 5-iteration walkthrough of generate_available_slots: red/green/refactor cycle, 12 passing tests, traceability table.
+| 4.2 BDD and BDD Tool | Gerardo Ruiz | Added | Filled BDD with Gherkin feature (Background + 3 scenarios), pytest-bdd step definitions, execution output (3 passed), traceability table.
+| 4.3 Debugger | Gerardo Ruiz | Added | Filled debugging with two hypothesis-driven sessions: pdb breakpoint session and Chrome DevTools Network panel session (303ms gap finding).
+| 2.1.1 Rough Sketch | Gerardo Ruiz | Fixed | Removed all inline Observation and Derived concepts annotations. Raw quotes only. Fixed contradictory NOTE.
+| LTT 4.4 BDD | Gerardo Ruiz | Improved | Added Background block, fixed status to Requested, added traceability table.
+| documentation.adoc | Gerardo Ruiz | Fixed | Uncommented LTT section include.
+| 4 Specific Class Topics | Julian Vivas| Added & Modified | Added a new section to document specific class topics covered in the course, including TDD, BDD, and debugging techniques.
+
+| 3.3.6 Mutation Testing | Natanael Batista | Added  | Added a new section to document the mutation testing process, including examples of surviving and killed mutations, and their implications for test effectiveness.
+
+| 1.2.1 Current Situation, Needs, Ideas | Alejandro López | Added & Modified | Followed professor's feedback to revise where needed. Added a new references section.
+| 1.2.2 Needs | Alejandro López | Removed & Added | Revised and rewrote the Needs section as per the professor's feedback.
+| 1.3.1 Scope & Span | Alejandro López | Removed & Added | Revised and rewrote scope and span as per professor's feedback.
+| 1.3.2 Synopsis | Alejandro López | Removed & Added | Revised and rewrote synopsis as per professor's feedback.
+| 1.3.1 Scope & Span | Alejandro López | Removed & Added | Revised and rewrote scope and span as per professor's feedback
+
+| 1.4 Other Activities | Alejandro López | Removed & Added | Revised and rewrote "Other Activities than Just Developing Source Code" per professor's feedback.
+| 3.3.5 Formal Verification | Julian Vivas | Added | Added a Hoare logic and weakest-precondition verification for the project booking operation, documenting preconditions, postconditions, invariants, and the resulting correctness argument.
+| 2.3.1 Implementation | Natanael Batista | Removed & Added | Revised and rewrote "Selected Fragments of the Implementation" per professor's feedback.
+| 2.1.3 Narrative | Juan Ortiz Abouomar | Changed | Revised and rewrote paragraphs 1,3 and 4 of "Narrative" per professor's feedback.
+| 3.3.3 BDD Tooling and Execution | Michael Martinez Curbelo | Added & Modified | Documented BDD tooling rationale, automated `pytest-bdd` execution flow, CI pipeline integration, and verified run evidence (`3 passed`) for Milestone 2 compliance.
+|===

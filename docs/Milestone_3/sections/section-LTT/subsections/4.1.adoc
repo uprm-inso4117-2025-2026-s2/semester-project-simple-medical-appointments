@@ -1,0 +1,321 @@
+== *Specific Class Topics*
+
+=== *Testing Concepts*
+
+
+==== Defining Acceptance Testing
+:author: Jorge Peralta
+
+===== Overview
+
+This document will define clear and measurable acceptance criteria that determine when the Simple Medical Appointments system is ready for deployment in a clinical environment. The goal is to verify that the system fulfills its intended purpose and satisfies stakeholder expectations before release. In this cases the question is, "Is the system ready for clinical use?".
+
+===== Scope of Acceptance Testing
+
+Acceptance testing will evaluate the system from a clinic-level perspective, focusing on:
+
+* Patient Booking Workflow
+* Provider Schedule Management
+* Conflict prevention (double-booking)
+* Data integrity and protection
+* Usability for staff and patients
+
+===== Acceptance Criteria
+
+====== Functional Acceptance Criteria
+
+[cols="1,3,3,3,1", options="header"]
+|===
+| ID | Criterion | Measurement | Verification Method | Priority
+
+| F1
+| No double bookings
+| 0 overlapping appointments for same provider/time
+| Create conflicting bookings intentionally
+| Critical
+
+| F2
+| Appointment confirmation generated
+| Confirmation message and ID generated in 100% of successful bookings
+| Execute booking workflow
+| Critical
+
+| F3
+| Cancellation updates schedule
+| Cancelled slot becomes immediately available
+| Cancel appointment and verify slot
+| High
+
+| F4
+| Provider schedule displays correctly
+| 100% of booked slots reflected accurately
+| Cross-check database vs UI
+| High
+|===
+
+====== Reliability Criteria
+
+[cols="1,3,3,3,1", options="header"]
+|===
+| ID | Criterion | Measurement | Verification Method | Priority
+
+| R1
+| No data loss during booking
+| 100% persistence of confirmed appointments
+| Database validation
+| Critical
+
+| R2
+| System stability during peak use
+| No crash during 1-hour simulated use
+| Session based stress testing
+| High
+|===
+
+====== Security Criteria
+
+[cols="1,3,3,3,1", options="header"]
+|===
+| ID | Criterion | Measurement | Verification Method | Priority
+
+| S1
+| Unauthorized access blocked
+| Non-authenticated users cannot view appointment data
+| Access control testing
+| Critical
+
+| S2
+| Role-based access enforced
+| Patients cannot modify provider schedules
+| Role-based testing
+| Critical
+
+| S3
+| Sensitive data protected
+| Appointment details not exposed via URL manipulation
+| URL tampering tests
+| High
+|===
+
+====== Usability Criteria
+
+[cols="1,3,3,3,1", options="header"]
+|===
+| ID | Criterion | Measurement | Verification Method | Priority
+
+| U1
+| Staff schedule modification time
+| New user completes booking in ≤ 3 minutes
+| Timed usability test
+| High
+
+| U2
+| Staff schedule modification time
+| Staff edits appointment in ≤ 1 minute
+| Timed workflow test
+| High
+
+| U3
+| Error clarity
+| Invalid inputs generate clear, actionable message
+| Input invalid data
+| Medium
+|===
+
+===== Deployment Approval Rule
+
+The system will only be approved for deployment if:
+
+. All critical criteria pass.
+. At least 90% of high criteria pass.
+. No unresolved defects exist in core booking functionality.
+. No open security vulnerabilities affecting patient data.
+
+==== Static vs Dynamic Analysis
+:author: Marymar Maldonado Roche
+
+===== Overview
+
+This section explains the difference between static analysis and dynamic analysis in software testing. These two approaches are used to identify defects in software and also improve software quality, but they differ in whether the system is executed during testing.
+
+===== Static Analysis
+
+Static analysis refers to examining the code without executing the program. It focuses on identifying issues in the structure, syntax, and overall quality of the code.
+
+Typical goals of static analysis include:
+
+* Detecting syntax errors and code smells
+* Identifying unused variables or unreachable code
+* Enforcing coding standards
+* Improving maintainability and readability
+
+Examples of static analysis:
+
+* Code reviews and peer inspections
+* Linting tools
+* Static analysis tools for detecting potential memory or logic issues
+
+Static analysis is usually performed early in development, making it useful for preventing defects before the system is executed.
+
+===== Dynamic Analysis
+
+Dynamic analysis involves testing the system during execution. It evaluates how the software behaves when it runs and interacts with inputs, users, and other components.
+
+Typical goals of dynamic analysis include:
+
+* Detecting runtime errors and crashes
+* Verifying correct outputs
+* Identifying memory leaks and performance issues
+* Evaluating system behavior under real conditions
+
+Examples of dynamic analysis:
+
+* Unit testing
+* Integration testing
+* System testing
+* Performance and stress testing
+
+Dynamic analysis is essential for validating that the system works correctly in practice.
+
+===== Comparison
+
+[cols="1,1,1", options="header"]
+|===
+| Aspect | Static Analysis | Dynamic Analysis
+
+| Execution required
+| No
+| Yes
+
+| When used
+| Early development
+| During execution
+
+| Focus
+| Code structure and quality
+| Runtime behavior
+
+| Examples
+| Code reviews, linting
+| Unit tests, performance tests
+
+| Issues detected
+| Syntax errors, code smells
+| Runtime errors, crashes
+|===
+
+===== Conclusion
+
+Static and dynamic analysis complement each other in software testing. Static analysis helps detect issues early without executing the code, while dynamic analysis ensures that the system behaves correctly during execution. Using both approaches together leads to more reliable and higher-quality software. 
+
+=== *Functional Testing*
+
+
+==== Alpha vs Beta Review for Appointment Success Message
+:author: Carlos Ferrer
+
+==== Overview
+
+This review evaluates the Appointment Success Message shown after a patient confirms an appointment. The goal is to check whether the message is clear enough for internal testing and later patient feedback. This connects to the Functional Testing lecture topic of alpha testing vs beta testing. 
+
+Alpha testing checks if a feature is ready for the team to test internally. 
+
+Beta testing checks if a feature is ready for realistic users to try and give feedback.
+
+==== Appointment Success Message Workflow
+
+The current appointment flow includes the following steps:
+
+* Patient selects an appointment type
+* Patient selects an available date
+* Patient selects an available time slot
+* Patient reviews the confirmation section
+* Patient clicks Confirm
+* The app navigates to the Appointment Success page
+* The success page shows a success message and a button to return home
+
+The Appointment Success page currently shows:
+
+* a success check mark
+* the message `Appointment Successfully Booked!`
+* the appointment date and time when available
+* a button labeled `Return back to home page`
+
+==== Current Implementation Observation
+
+Based on the current frontend code, the Appointment Scheduling page sends the patient to `/appointment-success` after the patient clicks Confirm.
+
+The page passes the following information:
+
+* patient name
+* appointment type
+* selected date
+* selected time
+
+The code shown does not include a database save or API request before moving to the success page. Because of this, the success page should be treated as a front-end success message and not as final proof that the appointment was stored in the database. This is important because the team should confirm appointment storage before using this message as full booking confirmation.
+
+===== Alpha Checks
+
+Alpha checks are for the development team.
+
+====== A1 - Success Page Opens
+
+After the patient clicks Confirm, the app should navigate to `/appointment-success`
+
+====== A2 - Success Message Is Visible
+
+The page should clearly display `Appointment Successfully Booked!`
+
+====== A3 - Appointment Date and Time Are Shown
+
+The success message should show the selected appointment date and time when that information is available
+
+====== A4 - Return Button Works
+
+The `Return back to home page` button should send the patient back to the home page
+
+====== A5 - Appointment Storage Is Verified
+
+The team should check whether clicking Confirm actually saves the appointment or only shows the success page
+
+===== Beta Checks
+
+Beta checks are for realistic patient feedback
+
+====== B1 - Patient Understands the Appointment Was Booked
+
+A realistic patient should quickly understand that the appointment was successfully booked
+
+====== B2 - Patient Understands When the Appointment Is Scheduled
+
+The date and time should be clear enough for the patient to understand without help
+
+====== B3 - Patient Knows What to Do Next
+
+The return button should be easy to find and understand
+
+====== B4 - Patient Is Not Confused by Missing Details
+
+The message should not feel incomplete. If appointment type, date, or time is missing, the page should handle that clearly
+
+===== Recommendations
+
+====== R1 - Confirm Appointment Storage
+
+Before treating this as a final booking confirmation, confirm whether the appointment is actually saved to the database
+
+====== R2 - Show Appointment Type
+
+The success page should show the appointment type, since the scheduling page already passes that information
+
+====== R3 - Improve Button Text
+
+Change `Return back to home page` to `Return to Home` for simpler wording
+
+====== R4 - Handle Missing Information
+
+If the date or time is missing, the success page should show a clearer message instead of incomplete text
+
+===== Conclusion
+
+The Appointment Success Message is a small but important part of the patient booking experience. It is ready for alpha testing if the team confirms that the page opens correctly, shows the success message, displays appointment details, and returns the patient home. It should only be treated as a full booking confirmation after the team verifies that the appointment is actually saved. For beta testing feedback, the message should be clear enough for patients to understand that the appointment was booked and what to do next.
