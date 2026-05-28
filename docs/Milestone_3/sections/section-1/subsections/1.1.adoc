@@ -1,0 +1,182 @@
+== *Informative part*
+
+=== *Team*
+
+The project for Milestone 1 is organized into 5 functional teams: Roles and Permissions, Clinical Experience, Patient Experience, Scheduling, and Documentation; plus 2 Managers.  
+Each team is responsible for a specific dimension of the domain problem: simplifying medical appointment coordination in Puerto Rico.  
+The structure reflects the need to address role and permission rules across patients, doctors, and clinic staff, clinical workflow representation, patient interaction, appointment logistics,
+and documentation coherence in a coordinated and structured manner.
+
+The teams operate under a shared objective: to reduce friction in medical appointment scheduling and to improve accessibility, clarity, and administrative efficiency for both patients and healthcare providers.
+In this context, all team members are considered partners. No external partners have been formally identified for this milestone. 
+However, potential future partners may include clinic administrators or healthcare professionals. If such partners arise, their roles and responsibilities will be documented accordingly.
+The lists are presented in alphabetical order and indicate each group’s Team Leader.
+
+[discrete]
+==== *Managers:*
+
+The Managers are responsible for coordination, milestone alignment, and ensuring coherence across all functional teams.  
+They supervise task quality, verify alignment with milestone goals, and ensure compliance with documentation standards.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username 
+
+| Ivan O. Morales
+| https://github.com/ivxnmorxles[@ivxnmorxles]
+
+| Segmar Rosado
+| https://github.com/Yulio7[@Yulio7]
+
+|===
+
+[discrete]
+==== *Roles and Permissions Team*
+
+The Roles and Permissions Team is responsible for defining the domain roles involved in the appointment process and the permissions attached to each one.
+Their responsibility is to describe how patients, doctors, and clinic staff participate in the domain, what information each role can manage, and which actions each role is allowed to perform.
+
+This team focuses on role boundaries, access responsibilities, and permission rules that keep patient care, provider activities, and clinic operations clearly coordinated within the domain.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username
+
+
+| Diego Perez Gandarillas (Team Leader)
+| https://github.com/diegoperez16[@diegoperez16]
+
+| Jerac S. Durán Hernández
+| https://github.com/jeracduran1[@jeracduran1]
+
+| Carlos Pepin
+| https://github.com/carlospepin23[@carlospepin23]
+
+| Viviana V. Ramos
+| https://github.com/vivianaramos6[@vivianaramos6]
+
+| Jonathan Rodriguez
+| https://github.com/Jonathan-Rod[@Jonathan-Rod]
+
+| Pierre Vales
+| https://github.com/pierreg-vales[@pierreg-vales]
+|===
+
+[discrete]
+==== *Clinical Experience Team:*
+The Clinical Experience Team is responsible for representing the healthcare provider perspective within the domain.
+Their responsibility is to define how doctors, specialties, clinics, and consultation availability are conceptually structured.
+
+This team ensures that clinical availability, specialization categories, and appointment constraints reflect real-world healthcare dynamics in Puerto Rico.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username
+
+| Iralys Sánchez Milián (Team Leader)
+| https://github.com/iralys-sanchez18[@iralys-sanchez18]
+
+| Omar A. Cordero Maldonado
+| https://github.com/omar-cordero[@omar-cordero]
+
+| Michael Martinez Curbelo
+| https://github.com/Cabinetman[@Cabinetman]
+
+| Alejandro E. López Rodríguez
+| https://github.com/alejandro-lopez24[@alejandro-lopez24]
+
+| Jorge Peralta García
+| https://github.com/PeraltaJorge9128[@PeraltaJorge9128]
+
+| Jean P. I. Sánchez
+| https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
+|===
+
+[discrete]
+==== *Patient Experience Team:*
+
+The Patient Experience Team is responsible for reasoning about how patients search, select, and request medical appointments.
+Their responsibility is to define how needs such as specialty filtering, location selection, and appointment visibility are conceptualized within the domain.
+
+This team focuses on clarity, accessibility, and usability from the patient’s perspective.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username
+
+| Sebastian G. Suarez Robles (Team Leader)
+| https://github.com/SebastianSuarez0429[@SebastianSuarez0429]
+
+| Axel Burgos Amengual
+| https://github.com/aburgos2005[@aburgos2005]
+
+| Pedro A. Morales
+| https://github.com/pedromorales[@pedromorales]
+
+| Juan Ortiz Abouomar
+| https://github.com/juan.ortiz92[@juan.ortiz92]
+
+| Gerardo José Ruiz Barreto
+| https://github.com/Gerardoruiz1[@Gerardoruiz1]
+
+| Ariana P. Rodriguez Mendez
+| https://github.com/arianrodz21[@arianrodz21]
+
+| Sebastian I Saliva Giron
+| https://github.com/SebastianSaliva[@SebastianSaliva]
+|===
+
+
+[discrete]
+==== *Scheduling Team:*
+
+The Scheduling Team is responsible for the temporal and logistical dimension of the domain.  
+Their responsibility is to define how appointment slots are represented, reserved, modified, or canceled.
+
+This team ensures that scheduling constraints, availability conflicts, and real-time updates are conceptualized independently of implementation technology.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username
+
+| Tasnim Said Khaber (Team Lead)
+| https://github.com/tasnim2204[@tasnim2204]
+
+| Natanael Batista Álvarez
+| https://github.com/NathBat09[@NathBat09]
+
+| Marymar Maldonado Roche
+| https://github.com/marymarmaldonado[@marymarmaldonado]
+
+| Victoria Miranda Osuna
+| https://github.com/vmmo[@vmmo]
+
+| Keishlyany M Sanabria
+| https://github.com/keisanabria[@keisanabria]
+
+| Julian Vivas
+| https://github.com/julivivas[@julivivas]
+|===
+
+[discrete]
+==== *Documentation Team:*
+
+The Documentation Team ensures that all project documentation is well-structured, accurate, and consistently maintained.  
+They are responsible for organizing the informative, descriptive, and analytic parts of the documentation so that domain concepts, requirements, and design decisions remain clear and traceable.
+
+[cols="2,1", options="header"]
+|===
+| Student | GitHub username
+
+| Jean P. I. Sánchez (Team Lead)
+| https://github.com/JeanSanchezFelix[@JeanSanchezFelix]
+
+|Alejandro Lopez 
+| https://github.com/alejandro-lopez24[@alejandro-lopez24]
+
+|Keishlyany M Sanabria
+| https://github.com/keisanabria[@keisanabria]
+
+|Julian Vivas
+| https://github.com/julivivas[@julivivas]
+|===

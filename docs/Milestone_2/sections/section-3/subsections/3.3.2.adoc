@@ -1,0 +1,153 @@
+
+==== *Behavior-Driven Development (BDD) Scenario Design*
+
+This section defines behavior-driven scenarios used to specify and validate system behavior. Each scenario is written using the Given–When–Then structure and corresponds directly to functional requirements defined in Section 3.2. Scenarios are concrete, actor-specific, and reflect real scheduling interactions.
+
+===== *Given–When–Then Structure*
+
+Each scenario follows a strict behavioral format:
+
+- *Given* — a concrete system state with defined actors and conditions  
+- *When* — a specific action performed by an actor  
+- *Then* — observable system outcomes that can be verified  
+
+This structure ensures that all scenarios are testable and unambiguous.
+
+===== *Scenario 1: Carmen Books an Available Appointment*
+
+Carmen (patient) logs into the system at 9:05 AM to book an appointment with Dr. Morales (cardiologist).
+
+----
+Given Carmen is authenticated as a patient
+  And Dr. Morales has an available Time Slot from 10:00–10:30 AM
+When Carmen submits a booking request for that Time Slot
+Then the Time Slot is marked as Reserved
+  And an Appointment is created with status = Confirmed
+  And a confirmation notification is sent to Carmen
+  And the Time Slot is no longer available to other patients
+----
+
+*Mapped Requirements:*
+
+- <<REQ-BOOK-F-01>>
+- <<REQ-NOTIF-F-01>>
+
+===== *Scenario 2: Lucía Reschedules an Existing Appointment*
+
+Lucía (patient) has a confirmed appointment at 2:00 PM but needs to move it to a later time.
+
+----
+Given Lucía has a Confirmed Appointment at 2:00 PM
+  And a Time Slot at 4:00 PM is Available
+When Lucía requests to reschedule to the 4:00 PM slot
+Then the 2:00 PM Time Slot is set to Available
+  And the 4:00 PM Time Slot is set to Reserved
+  And the Appointment time is updated to 4:00 PM
+  And a confirmation notification is sent
+----
+
+*Mapped Requirements:*
+
+- <<REQ-BOOK-F-02>>
+- <<REQ-BOOK-F-01>>
+
+===== *Scenario 3: José Cancels an Appointment*
+
+José (patient) decides to cancel his scheduled consultation.
+
+----
+Given José has a Confirmed Appointment for tomorrow at 11:00 AM
+When José submits a cancellation request
+Then the Appointment status is set to Cancelled
+  And the associated Time Slot becomes Available
+  And the cancellation is reflected in the system immediately
+----
+
+*Mapped Requirements:*
+
+- <<REQ-BOOK-F-02>>
+
+===== *Scenario 4: Booking Rejected Due to Unavailable Slot*
+
+Carmen attempts to book a slot that has already been reserved by another patient.
+
+----
+Given Carmen is authenticated
+  And the 3:00 PM Time Slot for Dr. Morales is already Reserved
+When Carmen attempts to book that Time Slot
+Then the system rejects the booking request
+  And no Appointment is created
+  And an error message indicates the slot is no longer available
+----
+
+*Mapped Requirements:*
+
+- <<REQ-BOOK-F-01>>
+
+===== *Scenario 5: Marta Confirms Appointment After Insurance Approval*
+
+Marta (administrator) processes insurance approvals required for certain appointments.
+
+----
+Given an Appointment exists with status = Requested
+  And insurance authorization is required
+  And approval has been received
+When Marta confirms the appointment
+Then the Appointment status is updated to Confirmed
+  And the associated Time Slot is set to Reserved
+  And the confirmation is recorded in the system
+----
+
+*Mapped Requirements:*
+
+- <<REQ-BOOK-F-01>>
+- <<REQ-ADMIN-F-01>>
+
+===== *Scenario 6: No-Show Recorded by Provider*
+
+Dr. Morales records that a patient did not attend their scheduled consultation.
+
+----
+Given a Confirmed Appointment at 1:00 PM
+  And the appointment time has passed
+  And the patient did not attend
+When Dr. Morales marks the appointment as No-Show
+Then the Appointment status is updated to No-Show
+  And the Time Slot remains Reserved for historical purposes
+  And the event is recorded for reporting
+----
+
+*Mapped Requirements:*
+
+- <<REQ-ADMIN-F-01>>
+
+===== *Traceability Summary*
+
+[cols="1,3,2", options="header"]
+|===
+| Scenario | Behavior Covered | Requirement References
+
+| Carmen books appointment
+| Booking, reservation, notification
+| <<REQ-BOOK-F-01>>, <<REQ-NOTIF-F-01>>
+
+| Lucía reschedules
+| Slot release and reassignment
+| <<REQ-BOOK-F-01>>, <<REQ-BOOK-F-02>>
+
+| José cancels
+| Cancellation and slot release
+| <<REQ-BOOK-F-02>>
+
+| Booking rejected
+| Conflict handling, double-booking prevention
+| <<REQ-BOOK-F-01>>
+
+| Marta confirms after insurance
+| Conditional confirmation, admin action
+| <<REQ-BOOK-F-01>>, <<REQ-ADMIN-F-01>>
+
+| No-show recorded
+| Attendance tracking, historical preservation
+| <<REQ-ADMIN-F-01>>
+|===

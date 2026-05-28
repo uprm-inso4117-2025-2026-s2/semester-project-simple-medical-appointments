@@ -1,0 +1,177 @@
+== *Analytic Part*
+
+=== *Concept Analysis*
+
+==== *From Raw Observations to Domain Structure*
+
+[.changed]#The descriptive section exposed fragmented scheduling interactions, inconsistent coordination mechanisms, and heavy reliance on manual communication channels.#
+
+[.changed]#This section performs a traceable abstraction step, mapping concrete stakeholder fragments into domain-level concepts and clarifying how those concepts govern system behavior.#
+
+[.changed]#Where definitions already exist, this section links to Section 2.1.2 (Terminology) rather than duplicating full definitions.#
+
+[NOTE]
+All concepts below are derived from Section 1.3 (Stakeholder Observations) and Section 2.2 (Personas and Requirements). Only traceable concepts are included.
+
+==== *Trace from Stakeholder Fragments to Domain Concepts*
+
+[cols="1,3,3",options="header"]
+|===
+|Concept |Concrete stakeholder fragment |Abstraction logic
+
+|Patient
+|"Patients contact multiple clinics simultaneously" (Section 1.3.1)
+|Abstracts the entity that initiates scheduling requests across systems.
+
+|Provider
+|Dr. Morales: "manages overloaded schedules across clinics" (Section 2.2.2)
+|Represents constrained service capacity distributed across locations.
+
+|Time Slot
+|"Providers define working hours in blocks" (Section 1.3.1)
+|Represents the atomic allocatable unit of provider capacity.
+
+|Appointment
+|REQ-APPT-F-01 (Section 2.2.3)
+|Represents committed allocation of one TimeSlot to one patient-provider interaction.
+
+|Referral
+|REQ-CONFIRM-F-01 (Section 2.2.3)
+|Represents a prerequisite constraint before confirmation.
+
+|Insurance Authorization
+|REQ-CONFIRM-F-01 (Section 2.2.3)
+|Represents an external validation gate before confirmation.
+
+|Cancellation
+|"Cancellations are handled informally via calls/messages" (Section 1.3.1)
+|Represents removal of an existing appointment and slot release trigger.
+
+|Reminder Notification
+|REQ-NOTIF-F-02
+|Represents time-triggered communication linked to appointment state.
+|===
+
+==== *Terminology Change Impact (Traceable Effects)*
+
+[.changed]#The abstraction process required terminology refinements in Section 2.1.2 and consistency updates in related sections.#
+
+[cols="1,3",options="header"]
+|===
+|Refinement |Downstream impact
+
+|TimeSlot vs Appointment separation
+|Resolved ambiguity in scheduling lifecycle and event transitions.
+
+|Explicit slot states (`Available`, `Held`, `Reserved`, `Expired`)
+|Standardized state semantics across events and function signatures.
+
+|Insurance Authorization as prerequisite
+|Reframed confirmation as a gated transition instead of immediate booking.
+
+|Referral as prerequisite
+|Introduced explicit confirmation dependency in requirement validation.
+
+|Expected duration (not guaranteed runtime)
+|Aligned narrative, behavior analysis, and consultation-type constraints.
+|===
+
+==== *Core Domain Entities*
+
+[.changed]#Entities are defined in Section 2.1.2. This subsection shows why they appear in the model.#
+
+*Patient* - derived from repeated booking initiation behavior across clinics.
+
+*Provider* - derived from constrained multi-clinic availability patterns.
+
+*Clinic* - derived from organizational scheduling boundaries.
+
+*Appointment* - derived from requirement for confirmed scheduled interactions.
+
+*TimeSlot* - derived from structured provider availability segmentation.
+
+*Referral* - derived from prerequisite consultation constraints.
+
+*InsuranceAuthorization* - derived from external validation requirements.
+
+==== *Event Derivation (State Transitions Only)*
+
+[IMPORTANT]
+[.changed]#An event is instantaneous. It is not an action or process.#
+
+The following events are derived from stakeholder fragments and requirements:
+
+* AppointmentRequestSubmitted  
+  -> Derived from repeated patient request attempts (Section 1.3.1)  
+  -> Represents transition where a request record is created
+
+* AppointmentConfirmed  
+  -> Derived from confirmation requirements (<<REQ-CONFIRM-F-02>>)  
+  -> Represents transition into `Confirmed` appointment status
+
+* AppointmentCancelled  
+  -> Derived from cancellation handling patterns (Section 1.3.1, <<REQ-BOOK-F-02>>)  
+  -> Represents transition where appointment is cancelled and slot can be released
+
+* NoShowRecorded  
+  -> Derived from attendance outcome requirement (<<REQ-ATTEND-F-01>>)  
+  -> Represents transition where unattended confirmed appointment is recorded
+
+* InsuranceAuthorizationReceived  
+  -> Derived from prerequisite evidence requirement (<<REQ-CONFIRM-F-03>>)  
+  -> Represents transition where required external approval is recorded
+
+* WaitlistEntryCreated  
+  -> Derived from waitlist requirements (<<REQ-WAIT-F-01>>)  
+  -> Represents transition where patient joins waitlist
+
+* ReminderSent  
+  -> Derived from reminder requirement (<<REQ-NOTIF-F-02>>)  
+  -> Represents transition where reminder dispatch is recorded
+
+==== *Behavioral Abstraction (Event Composition)*
+
+[.changed]#Behaviors are modeled as composed event sequences, not isolated labels.#
+
+* Multi-clinic booking behavior  
+  -> AppointmentRequestSubmitted -> (AppointmentConfirmed or rejection)
+
+* Cancellation-driven reassignment behavior  
+  -> AppointmentCancelled -> slot available -> waitlist selection opportunity
+
+* Authorization-constrained booking behavior  
+  -> AppointmentRequestSubmitted -> InsuranceAuthorizationReceived -> AppointmentConfirmed
+
+* Attendance outcome behavior  
+  -> AppointmentConfirmed -> (Completed or NoShowRecorded)
+
+==== *Operational Concepts (System-Level Properties)*
+
+[.changed]#Operational concepts represent emergent system properties derived from repeated constraints.#
+
+*Availability Visibility* - derived from fragmented calendar access.
+
+*Scheduling Coordination Load* - derived from manual coordination workflows.
+
+*Waiting Time* - derived from delays between request and confirmation.
+
+*No-Show Rate* - derived from unattended appointment frequency.
+
+*Access Inequality* - derived from differences in booking success across users.
+
+==== *Concept Relationships (Domain Structure)*
+
+[.changed]#Relationships describe structural coupling among entities and states.#
+
+* A Patient submits an appointment request.
+* A Provider publishes TimeSlots within a Clinic context.
+* An Appointment binds one Patient, one Provider, one Clinic, and one TimeSlot.
+* Cancellation transitions an Appointment and releases its TimeSlot state.
+* Referral and InsuranceAuthorization constrain appointment confirmation.
+* Reminder notifications are associated with confirmed appointments.
+
+==== *Analytic Merit of This Section*
+
+[.changed]#This section provides auditable traceability from stakeholder fragments to domain abstraction and requirement linkage.#
+
+[.changed]#It explicitly distinguishes entities, events, behaviors, and operational properties, and aligns those abstractions with Section 2.1.2 terminology and Section 2.2 requirements.#

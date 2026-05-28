@@ -1,0 +1,46 @@
+
+=== *System/Acceptance Testing Principles*
+
+:author: Marymar Maldonado Roche
+
+==== System Testing
+
+System testing is a high-level testing phase where the complete, integrated software system is tested as a whole. The main goal is to verify that the system meets its specified requirements and works correctly in its intended environment. System testing is typically performed by a dedicated QA team or testers who were not involved in the development of the system. It covers all combined components and modules, including interactions with external systems, databases, and user interfaces.
+
+*Purpose:* To ensure the entire system functions as expected and all requirements are met before release.
+*Who performs it:* QA engineers, testers, or independent testing teams.
+*Why it matters:* It detects integration issues, missing features, and system-level defects that unit or integration tests may miss.
+
+*Example:* In a medical appointment system, system testing would involve verifying that users can register, log in, book appointments, reschedule, cancel, and view their appointment history, with all modules working together as intended.
+
+==== Acceptance Testing
+
+Acceptance testing is the final phase of testing before a system is delivered to users or stakeholders. Its main goal is to validate that the software meets business requirements, user needs, and acceptance criteria agreed upon with stakeholders. Acceptance testing is often performed by end users, clients, or business representatives, sometimes with support from QA.
+
+*Purpose:* To confirm the system is ready for deployment and satisfies user or business expectations.
+*Who performs it:* End users, clients, product owners, or business analysts (sometimes called User Acceptance Testing, UAT).
+*Why it matters:* It ensures the delivered product solves the right problem and is fit for use in the real world.
+
+*Example:* In the same medical appointment system, acceptance testing might involve a clinic manager or patient verifying that the appointment rescheduling feature works as described in the requirements, and that the overall workflow matches their expectations.
+
+==== Key Differences
+
+- *System testing* focuses on verifying the technical correctness and integration of the entire system.
+- *Acceptance testing* focuses on validating that the system meets user needs and business goals.
+- System testing is usually performed by QA; acceptance testing is performed by users or stakeholders.
+- System testing checks "Did we build the system right?"; acceptance testing checks "Did we build the right system?"
+
+==== Summary Table
+
+[options="header"]
+|===
+| Aspect | System Testing | Acceptance Testing
+| Purpose | Verify system works as specified | Validate system meets user/business needs
+| Performed by | QA/testers | End users/stakeholders
+| Scope | Entire integrated system | User/business requirements
+| Example | End-to-end booking flow | User verifies rescheduling matches requirements
+|===
+
+==== Conclusion
+
+Both system and acceptance testing are essential for delivering reliable, high-quality software. System testing ensures the product is technically sound, while acceptance testing ensures it is valuable and usable for its intended audience.

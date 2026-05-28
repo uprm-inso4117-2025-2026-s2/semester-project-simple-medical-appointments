@@ -1,0 +1,44 @@
+==== *Interface Requirements*
+
+
+===== Patient-Facing Interaction
+
+*Interface basis:*  
+Patients must be able to discover and act on availability with clear feedback.
+
+*Requirements:*
+
+* [[IR-UI-01]]IR-UI-01: [.changed]#The user interface must provide provider and slot search using supported filters such as specialty and location.#
+
+* [[IR-UI-02]]IR-UI-02: [.added]#The user interface must display appointment status values (`Requested`, `PendingApproval`, `Confirmed`, `Cancelled`, `NoShow`) using unambiguous wording.#
+
+* [[IR-UI-03]]IR-UI-03: [.changed]#The user interface must provide immediate and explicit feedback after booking, cancellation, and rescheduling attempts, including success, conflict, and pending outcomes.#
+
+===== Staff and Provider Interaction
+
+*Interface basis:*  
+Operational users require oversight and corrective workflows.
+
+*Requirements:*
+
+* [[IR-STAFF-01]]IR-STAFF-01: [.changed]#The interface must provide authorized staff and providers with controls for publishing availability, viewing appointment status, and performing cancellation and waitlist reassignment actions.#
+
+===== API Contract Surface
+
+*Interface basis:*  
+The API is an interface boundary consumed by frontend and test clients.
+
+*Requirements:*
+
+* [[IR-API-01]]IR-API-01: [.changed]#API endpoints must validate input shape and must return controlled client-facing error responses for malformed, unauthorized, or semantically invalid requests.#
+
+* [[IR-API-02]]IR-API-02: [.changed]#API responses for appointment and slot transitions must expose enough state information for clients to distinguish pending, confirmed, cancelled, and conflict outcomes.#
+
+===== Accessibility and Comprehension
+
+*Interface basis:*  
+The domain includes users with heterogeneous digital confidence and accessibility needs.
+
+*Requirements:*
+
+* [[IR-ACCESS-01]]IR-ACCESS-01: [.added]#The interface must support readable presentation, clear status language, and low-friction booking flows that do not assume advanced technical literacy.#

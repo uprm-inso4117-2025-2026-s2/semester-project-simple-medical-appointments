@@ -1,0 +1,164 @@
+=== *Performance Testing Automation*
+
+---
+==== Performance Testing Strategy and Simulation Modeling for Scheduling
+:author: Tasnim Said Khader
+
+==== Introduction
+
+The scheduling module is expected to support multiple simultaneous patients searching, booking, canceling, and rescheduling appointments across multiple clinics and doctors. The following performance strategy defines expected system behavior and measurable benchmarks for future implementation.
+
+==== Performance Metrics
+The following metrics are expected to be automated during backend testing.
+
+[cols="2,3,2", options="header"]
+|===
+| Metric
+| Description
+| Proposed Benchmark
+
+| Throughput
+| Number of booking or scheduling requests completed over time
+| Support 50–100 booking requests per minute during peak hours
+
+| Latency
+| Time between patient clicking *Book Appointment* and request processing beginning
+| Less than 2 seconds
+
+| Turnaround Time
+| Total time from searching for an appointment to receiving confirmation
+| Less than 5 seconds
+
+| Calendar Load Time
+| Time required to load doctor schedules and availability
+| Less than 3 seconds
+
+| Availability
+| Percentage of time scheduling services remain operational
+| 99.9% uptime target
+|===
+
+==== Queuing Theory Simulation Model
+To estimate future system performance before implementation, a simplified queue model was designed for scheduling behavior.
+
+===== Arrival Process (Patient Demand)
+Expected patient usage patterns:
+
+* Morning hours (7:00 AM - 10:00 AM):
+** High appointment demand.
+
+* Lunch hours:
+** Moderate appointment activity.
+
+* Evening hours (4:00 PM - 8:00 PM):
+** High rescheduling and booking activity.
+
+Proposed traffic assumptions:
+
+* Normal traffic:
+** 10-20 booking requests per minute.
+
+* Peak traffic:
+** 50-100 booking requests per minute.
+
+===== Service Process (Scheduling Operations)
+
+Each appointment request will eventually require:
+
+* Clinic and doctor validation.
+* Conflict detection.
+* Capacity verification.
+* Constraint validation.
+* Waitlist evaluation (if necessary).
+* Appointment confirmation generation.
+
+Expected performance assumption:
+
+* Each request should complete within *1-3 seconds* under normal traffic conditions.
+
+===== Queue Capacity Assumptions
+Potential scheduling queues may occur when:
+
+* Multiple patients attempt to book the same doctor simultaneously.
+* Conflict detection evaluates overlapping appointments.
+* Waitlist reassignment occurs after cancellations.
+
+Expected system behavior:
+
+* The system should maintain responsiveness during moderate traffic.
+* Excessive simultaneous requests should be queued safely instead of crashing the system.
+
+==== Potential Bottlenecks Identified
+Based on the scheduling requirements, the following performance risks were identified:
+
+ 1. Conflict Detection Delays
+
+    If many patients attempt to schedule the same doctor simultaneously, repeated overlap checks may increase response time.
+    Potential impact:
+
+    * Slower appointment confirmation
+    * Increased booking latency
+
+2. Calendar Loading Performance
+
+    Displaying doctor availability across multiple clinics may increase query complexity.
+    Potential impact:
+
+    * Slow calendar rendering
+    * Delayed filtering results
+
+3. Waitlist Processing Delays
+
+    Automatic reassignment after appointment cancellation may require multiple scheduling validations.
+    Potential impact:
+
+    * Delayed notification process
+    * Increased turnaround time
+
+4. Capacity Handling Slowdowns
+
+    Booking requests near slot limits may trigger repeated validation checks.
+    Potential impact:
+
+    * Slower booking confirmation during peak hours
+
+==== Performance Completion Criteria
+Future implementation should satisfy the following expectations:
+
+* Appointment booking should remain responsive during peak hours.
+* Scheduling conflicts should resolve without noticeable delay.
+* Calendar and agenda views should load efficiently.
+* Waitlist processing should not significantly delay confirmation times.
+* Response time degradation should remain minimal during increased demand.
+
+==== Future Automation Strategy
+
+Once Flask scheduling endpoints are implemented, performance testing should be automated.
+
+- Model-Based Traffic Simulation
+
+    Simulate:
+
+    * Normal daily patient traffic
+    * Peak booking periods
+    * Simultaneous booking attempts
+    * Capacity overflow scenarios
+
+- Performance Regression Testing
+
+    Future automated tests should run after scheduling updates to verify:
+
+    * Booking response time remains stable
+    * Conflict detection performance does not degrade
+    * Waitlist logic maintains acceptable turnaround times
+
+- CI/CD Integration Plan
+
+    Performance tests should eventually be integrated into GitHub Actions to run automatically after backend scheduling changes.
+
+    Potential future tooling:
+
+    * Gatling for API load testing
+    * Pytest benchmarking
+    * Automated stress simulations for scheduling endpoints
+---

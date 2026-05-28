@@ -1,0 +1,111 @@
+==== *Behavior-Driven Development (BDD) Tooling and Execution*
+
+This subsection defines the tooling used to execute BDD scenarios, how scenarios are automatically translated into executable tests, and how they are integrated into the project’s testing pipeline.
+
+===== *Tools Used and Rationale*
+
+* **Gherkin (`.feature` files)**  
+  - Defines system behavior using structured Given–When–Then scenarios.  
+  - Selected to ensure that behavioral specifications remain readable and verifiable by both developers and stakeholders.
+
+* **pytest-bdd**  
+  - Maps Gherkin steps to Python step definitions.  
+  - Selected because it integrates directly with the existing Python backend and allows reuse of fixtures, database setup, and authentication helpers.
+
+* **pytest**  
+  - Executes all BDD scenarios as part of the test suite.  
+  - Selected as the standard test runner already used in the backend, ensuring no duplication of tooling.
+
+* **GitHub Actions**  
+  - Executes tests automatically in a controlled CI environment.  
+  - Selected to enforce consistent validation across all code changes and prevent regressions.
+
+===== *Automated Scenario Execution*
+
+BDD scenarios are not standalone text—they are executed as tests through step bindings.
+
+Structure:
+
+- Feature files define behavior:
+  * `tests/bdd/features/appointment_booking.feature`
+
+- Step definitions bind behavior to code:
+  * `tests/bdd/steps/test_appointment_booking.py`
+
+Execution flow:
+
+1. `pytest` discovers `.feature` files through `pytest-bdd`.
+2. Each scenario step (*Given / When / Then*) is matched to a Python function.
+3. Fixtures initialize required state (e.g., test database, authenticated user).
+4. The system under test (API endpoints) is invoked.
+5. Assertions verify expected outcomes (status codes, database state, side effects).
+
+Example (conceptual mapping):
+
+*Given a Time Slot is available*:: → Insert available slot into test database  
+
+*When the patient submits a booking request*:: → Execute `POST /appointments`  
+
+*Then the slot is reserved*:: → Assert database state + response status  
+
+Execution command:
+
+[source,bash]
+----
+cd backend
+pytest tests/bdd -v --tb=short
+----
+
+===== *Integration with the Testing Pipeline*
+
+BDD scenarios are executed automatically as part of the CI pipeline.
+
+Integration points:
+
+- Dependencies declared in `requirements.txt`:
+  - `pytest`
+  - `pytest-bdd`
+
+- CI workflow defined in:
+  - `.github/workflows/backend-tests.yml`
+
+Execution behavior:
+
+- On every push:
+  - All BDD scenarios are executed.
+- On pull requests:
+  - Changes are validated before merge.
+- On manual trigger:
+  - Full regression suite can be executed.
+
+Workflow excerpt:
+
+[source,yaml]
+----
+- name: Run BDD scenarios
+  run: |
+    cd backend
+    pytest tests/bdd -v --tb=short
+----
+
+Failure handling:
+
+- Any failed scenario causes the pipeline to fail.
+- Merge is blocked until all scenarios pass.
+- This enforces consistency between implemented behavior and specified requirements.
+
+===== *Coverage and Behavioral Guarantees*
+
+The current BDD suite covers critical appointment workflows:
+
+- Successful booking of an available Time Slot (<<REQ-BOOK-F-01>>)
+- Prevention of double-booking under concurrent access (<<REQ-BOOK-F-01>>)
+- Appointment cancellation and slot release (<<REQ-BOOK-F-02>>)
+
+These scenarios verify:
+
+- Correct state transitions (Available → Reserved → Available)
+- Enforcement of scheduling constraints
+- Consistency between API responses and database state
+
+Because scenarios are executed automatically in both local and CI environments, they act as regression tests that continuously validate system behavior against requirements.

@@ -1,0 +1,71 @@
+= Usability Efficiency Benchmark Test
+Jorge Peralta
+:doctype: article
+:toc:
+:toclevels: 2
+
+== Objective
+The purpose of this study is to define and validate an efficiency benchmark for the appointment booking feature of the Simple Medical Appointments system.
+
+The benchmark established for this test is:
+
+*Booking an appointment must take 90 seconds or less on average.*
+
+== Methodology
+The booking process was performed 10 times under identical conditions. For each attempt:
+
+* A timer was started at the beginning of the booking process.
+* The timer was stopped once the confirmation message was received.
+* Completion time was recorded.
+* Any errors or confusion were noted.
+
+== Test Environment
+* Device: MacBook Air
+* Browser: Google Chrome
+* Backend: Running locally
+
+== Results
+[cols="1,1",options="header"]
+|===
+|Attempt |Completion Time (seconds)
+
+|1 |82
+|2 |76
+|3 |88
+|4 |79
+|5 |73
+|6 |84
+|7 |71
+|8 |92
+|9 |77
+|10 |75
+|===
+
+== Calculations
+* Average time: 79.7 s
+* Maximum time: 92 s
+* Minimum time: 71 s
+
+== Observations
+* All attempts were completed successfully.
+* Number of errors observed: Not specified.
+* Confusion points: Not specified.
+* Delays due to UI issues: Not specified.
+
+== Analysis
+The defined benchmark required:
+
+* Average booking time less than or equal to 90 seconds
+* No critical errors
+
+Based on the recorded results:
+
+* Average time = 79.7 s
+* Since the average completion time remained under 90 seconds, the system meets the defined efficiency benchmark. This indicates that the booking process is reasonably streamlined and does not introduce unnecessary complexity or excessive interaction steps.
+
+== Conclusion
+The results indicate that users can complete the booking workflow in under 90 seconds on average, meeting the defined efficiency benchmark.
+
+The relatively small variation in completion times across trials suggests that the workflow is consistent and predictable, allowing users to navigate the system with minimal confusion.
+
+No critical errors were observed during testing, further supporting the system's functional stability during repeated execution.

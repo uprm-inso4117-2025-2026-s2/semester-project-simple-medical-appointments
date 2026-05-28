@@ -1,0 +1,85 @@
+==== *Mutation Testing*
+
+[.changed]#This subsection separates mutation-testing scope for backend domain logic from frontend/UI behavior. Mutation analysis here is scoped to backend source code and backend tests only.#
+
+===== *Correct Mutation-Testing Target*
+
+[.changed]#Mutation testing must mutate production code while keeping tests unchanged. The previous approach that mutated test files is not valid for judging test-suite adequacy.#
+
+[.changed]#For this branch, the primary production target is backend scheduling logic in `backend/app/services/scheduling.py`, exercised by `backend/tests/unit/test_scheduling.py`.#
+
+===== *Scope Separation (Logic vs UI)*
+
+[cols="1,3", options="header"]
+|===
+| Scope | Mutation-testing status in this report
+
+| Backend domain logic
+| [.changed]#Included: source-level mutation target and interpretation model for scheduling service code.#
+
+| Frontend UI behavior
+| [.changed]#Excluded from this section to avoid mixing concerns; UI mutation analysis should be documented separately with frontend-specific tooling/tests.#
+|===
+
+===== *Mutation Coverage Breadth Plan (Beyond One File)*
+
+[.changed]#Applying mutation testing to a single source file is useful but insufficient for broad project-level conclusions.#
+
+[.changed]#The target set should be expanded incrementally as executable unit coverage exists for each module.#
+
+[cols="1,2,2", options="header"]
+|===
+| Priority | Source module | Current readiness
+
+| 1
+| `backend/app/services/scheduling.py`
+| Ready now (unit tests present)
+
+| 2
+| `backend/app/services/working_hours.py`
+| Partial readiness (requires focused unit tests for deterministic mutation runs)
+
+| 3
+| `backend/app/repositories/slot_bookings.py`
+| Partial readiness (needs isolated tests around booking-state transitions)
+
+| 4
+| `backend/app/routes/scheduling_appointments.py`
+| Lower readiness (route-level tests need stronger isolation to interpret mutants accurately)
+|===
+
+===== *Result Reporting Format*
+
+[.changed]#Text-based mutation findings are reported as tables, not screenshots, for traceability and reviewability in version control.#
+
+[cols="1,2,2,2", options="header"]
+|===
+| Mutant outcome | Interpretation | Action | Confidence impact
+
+| Killed
+| Tests detected injected fault
+| Keep current assertions; use as regression guard
+| Increases confidence for covered behavior
+
+| Survived
+| Tests did not detect injected fault
+| Add/strengthen assertions or missing scenario
+| Reveals concrete gap
+
+| Equivalent / non-actionable
+| Mutation does not change observable semantics
+| Document and exclude from score interpretation
+| Neutral
+|===
+
+===== *Score Interpretation Policy*
+
+[.changed]#A mutation score below 50% is treated as "limited adequacy with significant gaps," not as strong confidence.#
+
+[.changed]#Any score statement in this project must be tied to the exact mutated source modules and test suites used in that run.#
+
+===== *Bounded Conclusions*
+
+[.changed]#Mutation outcomes support conclusions about test-suite effectiveness for mutated modules only; they do not justify broad claims about overall system reliability unless most relevant source modules are included.#
+
+[.changed]#A valid project-level statement at current maturity is: "The backend test suite reflects implemented scheduling features for mutated backend modules, with remaining gaps identified by surviving mutants."#

@@ -1,0 +1,557 @@
+=== *Gated Commits*
+
+---
+
+==== Git Baseline Policy for the Appointment Booking Repository
+:author: Ivan Morales
+
+===== Objective
+
+Define and enforce a Git baseline policy for the Simple Medical Appointments repository so that the main and protected branches remain gated, every commit must pass all tests, and every new change must be accompanied by tests that provide evidence of progress.
+
+===== Introduction
+
+A codebase without a baseline policy is a codebase where progress is hard to verify. Anyone can push a change that breaks existing behavior, and there is no automatic mechanism to stop it. Over time this produces a main branch that cannot be trusted: the team is never quite sure whether the current state of the repository is working or not.
+
+A baseline, as introduced in the lecture on gated commits, is a known good state of the code that the team has collectively agreed to protect. It is defined by two properties: it is *gated*, meaning that new code cannot enter it without passing a defined set of checks, and it is *invariant*, meaning that once a commit is in the baseline it is not removed or silently overwritten. Every subsequent commit either advances the baseline to a new verified state or is rejected.
+
+This document establishes the baseline policy for the Simple Medical Appointments project, identifies which branches are protected, specifies what checks must pass before a merge is allowed, defines the exemptions that are permitted, and provides a concrete enforcement mechanism using both a pre commit script and a GitHub branch protection configuration.
+
+===== What a Baseline Is
+
+A baseline in the context of a version controlled project is a specific commit, or the tip of a branch, that has been verified to satisfy all required quality conditions. For this project those conditions are:
+
+* all automated tests pass
+* no new changes are present without accompanying tests that exercise the changed behavior
+* the codebase builds without errors
+
+Until a commit satisfies all three conditions it cannot be merged into a baseline branch. The baseline is therefore always a state the team can rely on: checking it out and running it will produce a working system.
+
+The baseline does not track candidate work. Feature branches, experimental branches, and hotfix branches are allowed to have failing tests, partial implementations, and uncommitted experiments. The baseline branches are the ones that must remain clean.
+
+===== Branch Protection Policy
+
+====== Protected Branches
+
+The following branches are designated as baseline branches and are subject to all enforcement rules described in this document:
+
+[cols="1,2"]
+|===
+|Branch |Purpose
+
+|'main'
+|Production ready code. Every commit here represents a state that has been reviewed and verified by the full test suite. This is the only currently gated branch in the repository.
+
+|'base-code'
+|Integration branch. All developer progress and feature changes are pushed here before promotion to 'main'. Recommended to apply the same checks as 'main' to keep the integration branch in a consistently buildable state.
+|===
+
+No direct push to 'main' is permitted. All changes must arrive through a pull request. Pushes to 'base-code' are currently allowed directly but should pass all tests before being used as a base for pull requests targeting 'main'.
+
+====== Non-Protected Branches
+
+Feature branches (`feature/*`), bugfix branches (`bugfix/*`), and personal working branches are not subject to the same restrictions. Developers may push freely to their own branches and are not required to maintain a passing test suite there at all times. The gate applies at the point of merge, not at the point of every intermediate commit.
+
+====== Permitted Exemptions
+
+The following exemptions are recognized. Each one requires explicit justification in the pull request description before it is applied.
+
+[cols="1,2"]
+|===
+|Exemption |Conditions required
+
+|Documentation-only change
+|No source code or test file is modified. Only `.adoc`, `.md`, or configuration files are changed. Tests do not need to be updated because no behavior changed.
+
+|Dependency version bump
+|A third party package version is updated and the existing test suite already covers the affected behavior. No new tests are required if coverage of the affected code paths is already present.
+
+|Emergency hotfix
+|A critical production bug requires a fix faster than the normal review cycle. One reviewer may approve instead of two. All tests must still pass. A follow up issue is required within 24 hours to add any missing tests.
+|===
+
+Any change that modifies a source code file, a configuration file that affects runtime behavior, or a test file is not eligible for an exemption and must follow the full policy.
+
+===== Evidence of Progress Requirement
+
+Every pull request that modifies source code must include at least one new or updated test that exercises the changed behavior. The purpose of this requirement is not bureaucratic. It is so that the team has evidence that the change does what it claims to do and that future changes will not accidentally revert the behavior without anyone noticing.
+
+In practice this means:
+
+* a new feature must come with at least one test that verifies the happy path
+* a bug fix must come with at least one regression test that would have failed before the fix was applied
+* a refactor must come with a note explaining which existing tests already cover the changed code, or must add tests if coverage was absent
+
+This requirement is checked during code review by a human reviewer, not by an automated script. The automated gate described below enforces that tests pass; the reviewer enforces that tests are meaningful and that they cover the stated change.
+
+===== Enforcement Mechanism
+
+The policy is enforced at two levels: locally through a pre-commit script that prevents a developer from accidentally committing broken code, and remotely through GitHub branch protection rules that prevent a pull request from being merged unless all required checks pass.
+
+====== Pre-Commit Script
+
+The following script is placed at `.git/hooks/pre-commit` in the local repository. It runs automatically every time a developer runs 'git commit'. If any check fails the commit is aborted and the developer sees the reason before the broken state is recorded in the local history.
+
+[source,bash]
+----
+#!/usr/bin/env bash
+# .git/hooks/pre-commit
+# Simple Medical Appointments – baseline gate (local enforcement)
+
+set -euo pipefail
+
+echo "Running pre-commit baseline checks..."
+
+# 1. Detect which files are staged
+STAGED=$(git diff --cached --name-only)
+
+# 2. Run the backend test suite if any Python file is staged
+if echo "$STAGED" | grep -qE '\.py$'; then
+    echo "[check] Python files staged – running backend tests..."
+    if ! python -m pytest --tb=short -q; then
+        echo ""
+        echo "ERROR: Backend tests failed. Commit aborted."
+        echo "Fix the failing tests before committing to keep the baseline clean."
+        exit 1
+    fi
+    echo "[pass]  Backend tests passed."
+fi
+
+# 3. Run the frontend test suite if any JS/TS file is staged
+if echo "$STAGED" | grep -qE '\.(js|jsx|ts|tsx)$'; then
+    echo "[check] Frontend files staged – running frontend tests..."
+    if ! npm test --prefix frontend -- --watchAll=false --passWithNoTests; then
+        echo ""
+        echo "ERROR: Frontend tests failed. Commit aborted."
+        echo "Fix the failing tests before committing to keep the baseline clean."
+        exit 1
+    fi
+    echo "[pass]  Frontend tests passed."
+fi
+
+echo "All baseline checks passed. Proceeding with commit."
+exit 0
+----
+
+To install the hook in a fresh clone of the repository:
+
+[source,bash]
+----
+cp scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+----
+
+The canonical copy of the script is kept at `scripts/pre-commit` in the repository so that new contributors can install it with a single command and so that the team can version-control changes to it.
+
+====== GitHub Branch Protection Configuration
+
+The pre-commit script protects the developer's own local history, but it does not protect the shared branches from a push that bypasses hooks or from a pull request that introduces a regression. The second layer of enforcement uses GitHub's branch protection rules.
+
+The following configuration must be applied to `main` in the repository settings under *Settings → Branches → Branch protection rules*. Applying the same rules to 'base-code' is recommended once the team is ready to gate that branch as well:
+
+[cols="2,1,2"]
+|===
+|Setting |Value |Reason
+
+|Require a pull request before merging
+|Enabled
+|Prevents direct pushes. All changes must go through a pull request where they can be reviewed.
+
+|Require approvals
+|1 (minimum)
+|At least one team member other than the author must approve the pull request before it can be merged.
+
+|Require status checks to pass before merging
+|Enabled
+|The CI pipeline must report a passing status before the merge button becomes available.
+
+|Required status checks
+|`ci / test` (all test jobs)
+|Specifies which GitHub Actions workflow jobs must pass. At minimum, the full test suite must complete successfully.
+
+|Require branches to be up to date before merging
+|Enabled
+|Prevents a pull request from merging if new commits have been added to the target branch since the PR was opened. This ensures the test suite ran against the most recent state of the baseline.
+
+|Do not allow bypassing the above settings
+|Enabled
+|Applies the rules even to repository administrators. No one is exempt from the gate.
+|===
+
+The combination of these rules means that a commit can only reach `main` or `develop` after it has passed the automated test suite in CI and received a human review. Neither condition alone is sufficient.
+
+====== Baseline Enforcement Workflow
+
+The following diagram shows how a change moves from a developer's local branch to the baseline:
+
+[source,text]
+----
+Developer writes code and tests
+   |
+   v
+git commit
+   |
+   v
+Pre-commit hook runs test suite
+   |
+   +--[fail]--> Commit aborted. Fix tests first.
+   |
+   +--[pass]--> Commit recorded locally
+                   |
+                   v
+             git push origin feature/my-change
+             (or push progress directly to base-code)
+                   |
+                   v
+             Open pull request targeting main
+             (via base-code or directly from feature branch)
+                   |
+                   v
+             GitHub Actions CI runs full test suite
+                   |
+                   +--[fail]--> PR blocked. Author must fix.
+                   |
+                   +--[pass]--> Status check turns green
+                                   |
+                                   v
+                             Reviewer examines diff and tests
+                                   |
+                                   +--[changes requested]--> Author revises
+                                   |
+                                   +--[approved]--> Merge enabled
+                                                       |
+                                                       v
+                                                 Baseline advances
+----
+
+===== Why This Matters for the Appointment Booking System
+
+The appointment booking system is a system where several features share state: a slot's availability is read by the conflict check, written by the booking transaction, and read again by the cancellation flow. A regression in any one of those places can silently corrupt the others. Without a baseline policy, a broken change can enter the shared branch and stay there for days before anyone notices because nothing required the tests to be run before merge.
+
+The policy described here ensures that every state of 'main' is a state that the automated test suite has verified. Developers push ongoing progress to 'base-code', which acts as the integration point before changes are promoted to 'main' via a pull request. When a bug is reported in production, the team can check out any commit on 'main' and know it was working at the time it was merged, which narrows the search considerably.
+
+===== Summary
+
+[cols="1,2"]
+|===
+|Item |Definition
+
+|Baseline
+|A commit on a protected branch that has passed all automated tests and received a human review. Invariant: it is never silently removed or overwritten.
+
+|Gated
+|No change can enter a baseline branch without passing the defined checks. The gate is enforced both locally via a pre-commit hook and remotely via GitHub branch protection rules.
+
+|Protected branches
+|'main' (currently gated). 'base-code' serves as the team's integration branch where developers push progress; promoting to 'main' requires a pull request that passes all checks.
+
+|Exemptions
+|Documentation-only changes, dependency bumps with existing coverage, and emergency hotfixes under defined conditions. All require explicit justification.
+
+|Evidence of progress
+|Every source code change must be accompanied by at least one new or updated test reviewed by a human, in addition to all existing tests continuing to pass.
+|===
+
+---
+
+==== Design Quality Gate Strategies using Gated Commits
+:author: Pedro A. Morales
+
+===== Introduction
+
+Gated commits are an automated quality enforcement mechanism in which a set of
+predefined checks must pass before a code change is allowed to be merged into
+a protected branch. Rather than relying solely on manual code review, gated
+commits integrate automated verification directly into the version control
+workflow, ensuring that every merge into the main branch meets a consistent
+quality baseline.
+
+In the system, the appointment booking feature
+involves critical business logic: slot availability checks, concurrent reservation
+handling, booking confirmation, and cancellation workflows. A regression in any
+of these areas can directly impact patient access to care. A well-designed gated
+commit strategy for the booking feature branch ensures that no change is integrated
+without first passing a structured sequence of automated quality gates, preventing
+defects from reaching the main codebase.
+
+===== Booking Feature Branch Context
+
+The appointment booking module is the core scheduling component of the system.
+It handles the following operations that must be protected by quality gates:
+
+[source,text]
+----
+Patient
+   |
+   v
+Search Available Doctors / Clinics
+   |
+   v
+View Available Appointment Slots
+   |
+   v
+Submit Booking Request
+   |
+   v
+Validate Slot Availability
+   |
+   v
+Confirm or Reject Booking
+   |
+   v
+Send Confirmation to Patient
+----
+
+Any code change touching this workflow must pass all defined quality gates
+before being merged into the main branch.
+
+===== Quality Gate Design
+
+The gated commit strategy for the booking feature branch is organized into
+five sequential gates. Each gate must pass fully before the next is executed.
+A failure at any gate blocks the merge and notifies the developer.
+
+====== Gate 1 — Static Analysis
+
+*Purpose:* Enforce code style consistency and catch syntax-level issues
+before any tests are run.
+
+*Checks included:*
+
+- Linting rules enforced across all modified files
+- Code formatting standards validated
+- No unresolved compilation or syntax errors permitted
+- Import organization and unused variable checks
+
+*Pass condition:* Zero linting errors and zero compilation errors in all
+files touched by the commit.
+
+*Failure behavior:* Merge blocked. Developer receives linting report
+identifying all violations.
+
+====== Gate 2 — Unit Tests
+
+*Purpose:* Verify that the individual components of the booking module
+behave correctly in isolation.
+
+*Checks included:*
+
+- All unit tests for the booking module must pass
+- Minimum code coverage threshold of 80% enforced for modified files
+- Tests for slot availability logic, booking validation, and conflict detection
+  must be included
+
+*Pass condition:* 100% of unit tests pass and coverage threshold is met.
+
+*Failure behavior:* Merge blocked. Test report and coverage summary
+provided to developer.
+
+====== Gate 3 — Integration Tests
+
+*Purpose:* Verify that the booking module interacts correctly with the
+database and other system components.
+
+*Checks included:*
+
+- Booking API endpoint integration tests must pass
+- Database transaction tests for slot reservation and confirmation must pass
+- Concurrent booking scenario tests must pass
+- API response format and status code validation
+
+*Pass condition:* 100% of integration tests pass with no database
+transaction errors.
+
+*Failure behavior:* Merge blocked. Integration test report with
+failed endpoint details provided.
+
+====== Gate 4 — Regression Tests
+
+*Purpose:* Ensure that no previously passing behavior has been broken
+by the new change.
+
+*Checks included:*
+
+- Full regression suite for the booking workflow must pass
+- Slot conflict regression scenarios must pass
+- No test that was passing before the change may now fail
+
+*Pass condition:* Zero regression failures across the full booking
+regression suite.
+
+*Failure behavior:* Merge blocked. Regression diff report showing
+which previously passing tests now fail.
+
+====== Gate 5 — Team Lead Review Gate
+
+*Purpose:* Final human verification that the automated gates have been
+satisfied and that the change meets project standards.
+
+*Checks included:*
+
+- Team lead reviews commit content and gate results
+- Confirms that the change addresses the task requirements
+- Verifies documentation has been updated if applicable
+
+*Pass condition:* Explicit team lead approval registered on the
+pull request.
+
+*Failure behavior:* Merge blocked pending approval. Developer may
+be asked to make revisions before re-review.
+
+===== Gate Summary Table
+
+[cols="1,2,2,1"]
+|===
+|Gate |Purpose |Pass Condition |Blocks Merge?
+
+|Gate 1 – Static Analysis
+|Enforce code style and syntax correctness
+|Zero linting and compilation errors
+|Yes
+
+|Gate 2 – Unit Tests
+|Validate booking logic in isolation
+|All unit tests pass, coverage ≥ 80%
+|Yes
+
+|Gate 3 – Integration Tests
+|Validate API and database interactions
+|All integration tests pass
+|Yes
+
+|Gate 4 – Regression Tests
+|Prevent previously passing tests from breaking
+|Zero regressions across full booking suite
+|Yes
+
+|Gate 5 – Team Lead Review
+|Final human verification before merge
+|Explicit team lead approval
+|Yes
+|===
+
+===== Gate Pipeline Workflow
+
+The following diagram illustrates the full gate execution pipeline for
+a commit targeting the appointment booking feature branch.
+
+[source,text]
+----
++-----------------------------+
+| Developer Pushes Commit     |
+| to Booking Feature Branch   |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Gate 1: Static Analysis     |
+| Lint + Compilation Check    |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Linting Report
+       v
++-----------------------------+
+| Gate 2: Unit Tests          |
+| Booking Module + Coverage   |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Test + Coverage Report
+       v
++-----------------------------+
+| Gate 3: Integration Tests   |
+| API + Database Transactions |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Integration Report
+       v
++-----------------------------+
+| Gate 4: Regression Tests    |
+| Full Booking Suite          |
++-------------+---------------+
+              |
+         Pass?
+        /     \
+      Yes       No
+       |         |
+       |    Merge Blocked
+       |    Regression Diff Report
+       v
++-----------------------------+
+| Gate 5: Team Lead Review    |
+| Manual Approval Required    |
++-------------+---------------+
+              |
+         Approved?
+        /         \
+      Yes           No
+       |             |
+       v        Merge Blocked
++-----------------------------+    Awaiting Revisions
+| Merge Into Main Branch      |
++-----------------------------+
+----
+
+===== Failure Handling and Escalation Policy
+
+When a gate fails the following escalation policy applies:
+
+[cols="1,2,2"]
+|===
+|Gate Failed |Immediate Action |Escalation if Unresolved
+
+|Gate 1
+|Developer fixes linting errors and repushes
+|Team lead notified after 24 hours
+
+|Gate 2
+|Developer fixes failing unit tests or improves coverage
+|Team lead notified after 24 hours
+
+|Gate 3
+|Developer investigates API or database interaction failure
+|Team lead notified immediately for database errors
+
+|Gate 4
+|Developer identifies and resolves regression root cause
+|Manager notified if regression affects core booking flow
+
+|Gate 5
+|Developer awaits team lead review or requests re-review
+|Manager notified if review is pending beyond 48 hours
+|===
+
+===== Impact on Booking System Reliability
+
+Implementing a gated commit strategy for the appointment booking feature
+branch provides several reliability guarantees for the system.
+
+By blocking merges that fail static analysis, the codebase maintains
+consistent style and avoids syntax-level defects accumulating over time.
+Unit and integration test gates ensure that the booking logic and its
+interactions with the database remain correct with every change. The
+regression gate specifically protects the system from re-introducing
+previously resolved booking conflicts or scheduling errors. The team lead
+review gate provides a final layer of human oversight before any change
+reaches the main branch.
+
+Together these gates form a continuous quality barrier that prevents
+defective booking logic from reaching production, reducing the risk of
+double-bookings, failed confirmations, or data inconsistencies caused
+by unverified code changes.
+
+---

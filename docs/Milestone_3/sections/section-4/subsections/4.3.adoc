@@ -1,0 +1,123 @@
+=== *Use of debugging*
+
+==== Overview
+
+We document two debugging sessions conducted during development. Both use deliberate, hypothesis-driven debugging with specific tools. The first session uses Python's `pdb` to investigate a suspected defect; the second uses Chrome DevTools to explore an unexpected behavior in the frontend reschedule flow.
+
+==== Session 1 — Finding a Defect: Empty Slot List on Valid Date
+
+===== Context
+
+During manual testing, a GET request to `/api/timeslots?provider_id=prov_001&date=2026-04-07` returned an empty array, even though the provider had defined working hours for that day (Monday–Saturday, 9:00–17:00). The expected result was 14 slots (30-minute slots from 9:00–12:00 and 13:00–17:00 with lunch blocked).
+
+===== Hypothesis
+
+The function `get_availability_for_doctor_date` in `backend/app/repositories/availability.py` uses `target_date.weekday()` to determine if the day is Sunday. We suspected the weekday check was using the wrong integer value and treating the test date as Sunday.
+
+===== Debugging Steps
+
+We added a `pdb` breakpoint and ran the Flask dev server in debug mode:
+
+[source,python]
+----
+# backend/app/repositories/availability.py
+def get_availability_for_doctor_date(doctor_id: str, target_date: date) -> DailyAvailability:
+    import pdb; pdb.set_trace()  # breakpoint
+    # ...
+    if target_date.weekday() == 6:  # Sunday
+        working_hours = TimeRange(start=time(9, 0), end=time(9, 0))
+----
+
+*Breakpoint set at:* the `if target_date.weekday() == 6:` line.
+
+*Watch expressions added:*
+
+* `target_date`
+* `target_date.weekday()`
+* `target_date.isoformat()`
+
+*What we observed at the breakpoint:*
+
+[source,text]
+----
+(Pdb) p target_date
+datetime.date(2026, 4, 7)
+(Pdb) p target_date.weekday()
+1
+(Pdb) p target_date.isoformat()
+'2026-04-07'
+----
+
+`weekday()` returned `1` (Tuesday). The condition `== 6` was `False`. Execution proceeded correctly to the `else` branch.
+
+*Stepping into `generate_available_slots`:*
+
+[source,text]
+----
+(Pdb) p unblocked_segments
+[TimeRange(start=datetime.time(9, 0), end=datetime.time(12, 0)),
+ TimeRange(start=datetime.time(13, 0), end=datetime.time(17, 0))]
+----
+
+Two correct segments. The scheduling logic was not the problem.
+
+*Finding:* The defect was upstream — the route handler was not passing the `provider_id` parameter to `get_availability_for_doctor_date` but instead using a hardcoded stub. The breakpoint led us to the real source in one step, instead of adding scattered print statements.
+
+*Resolution:* The route handler was updated to pass `provider_id` correctly.
+
+===== Debugger Features Used
+
+* *Breakpoint* — `pdb.set_trace()` at the availability check
+* *Step-into* — followed execution into `generate_available_slots` and `segment.split()`
+* *Watch expressions* — `target_date.weekday()`, `unblocked_segments`, `slots`
+* *Print/inspect* — `p target_date`, `p slots` at the paused point
+
+
+
+==== Session 2 — Exploring Behavior: Why Does Reschedule Cause a Double Booking?
+
+===== Context
+
+During integration testing, we observed that calling reschedule on an appointment occasionally resulted in two appointments pointing to the same time slot. The goal was to explore whether the reschedule logic was handling the slot release and re-reservation atomically.
+
+===== Hypothesis
+
+We suspected that `rescheduleAppointment` released the old slot, then re-requested the new slot in two separate operations. If another request arrived between those two operations, it could reserve the slot before the reschedule completed.
+
+===== Debugging Steps with Chrome DevTools
+
+We set a breakpoint in the reschedule form handler and used the *Network* tab as a second debugger feature.
+
+*Breakpoint set at:* `handleReschedule()` in `AppointmentReschedule.jsx`, line 23.
+
+*Watch expressions added:*
+
+* `selectedSlotId`
+* `currentAppointmentId`
+* `rescheduleResponse`
+
+*What we observed:*
+
+After the breakpoint paused at `handleReschedule()`, we stepped through the function and observed two sequential API calls in the Network tab:
+
+[source,text]
+----
+PATCH /api/appointments/cancel    [starts: 0ms,   ends: 45ms]
+                                  (slot returns to Available)
+POST  /api/appointments/submit    [starts: 348ms, ends: 390ms]
+                                  (slot re-reserved)
+                                  ↑ 303ms window of vulnerability
+----
+
+The 303 ms gap was clearly visible in the Network tab timing waterfall. During this window, the old slot returned to `Available` state, making it bookable by anyone.
+
+*Finding:* The reschedule was not atomic. The frontend was issuing two sequential API calls. The backend needed a single atomic `reschedule` endpoint.
+
+*Resolution:* A `PUT /api/appointments/{id}/reschedule` endpoint was added to the backend, performing cancel and re-book atomically. The frontend was updated to call this single endpoint.
+
+===== Debugger Features Used
+
+* *Breakpoint* — set at `handleReschedule()` line 23
+* *Step-over* — advanced through each API call in sequence
+* *Watch expressions* — `selectedSlotId`, `currentAppointmentId`, `rescheduleResponse`
+* *Network panel (timing waterfall)* — second feature; showed the 303ms gap between API calls

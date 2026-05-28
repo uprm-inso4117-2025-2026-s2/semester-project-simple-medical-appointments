@@ -1,0 +1,105 @@
+==== *Domain Requirements*
+
+
+===== Appointment Slot Requirements
+
+[discrete]
+====== Slot Capacity
+
+*Domain basis:*  
+Consultation periods are limited by time, staff, and facility availability.
+
+*Requirements:*
+
+* [[REQ-SLOT-F-01]]REQ-SLOT-F-01: The system must associate each appointment slot with a finite capacity defined by the clinic or provider.
+
+* [[REQ-SLOT-F-02]]REQ-SLOT-F-02: The system must prevent allocation of appointments beyond the defined capacity of a slot.
+
+[discrete]
+====== Appointment Association
+
+*Domain basis:*  
+Consultations occur between a patient and a healthcare professional and form part of the patient’s medical history.
+
+*Requirements:*
+
+* [[REQ-APPT-F-01]]REQ-APPT-F-01: The system must associate each scheduled appointment with exactly one patient and at least one provider.
+
+* [[REQ-APPT-F-02]]REQ-APPT-F-02: The system must maintain the association between a patient and their scheduled appointments over time.
+
+[discrete]
+===== Provider Availability Requirements
+
+[discrete]
+====== Availability Representation
+
+*Domain basis:*  
+Providers work within defined schedules that vary by clinic and day.
+
+*Requirements:*
+
+* [[REQ-AVAIL-F-02]]REQ-AVAIL-F-02: The system must ensure that appointments only occur within declared availability intervals.
+
+[discrete]
+===== Appointment Confirmation Requirements
+
+[discrete]
+====== Confirmation Rules
+
+*Domain basis:*  
+Some consultations depend on insurance authorization, referrals, or administrative review, so provisional bookings do not guarantee consultation.
+
+*Requirements:*
+
+* [[REQ-CONFIRM-F-01]]REQ-CONFIRM-F-01: The system must represent whether an appointment requires confirmation before becoming final.
+
+* [[REQ-CONFIRM-F-02]]REQ-CONFIRM-F-02: The system must prevent appointments requiring confirmation from being treated as finalized until confirmation has occurred.
+
+[discrete]
+===== Appointment Reassignment Requirements
+
+[discrete]
+====== Cancellation and Reassignment
+
+*Domain basis:*  
+Canceled time periods become available for reassignment to reduce patient waiting time.
+
+*Requirements:*
+
+* [[REQ-REASSIGN-F-01]]REQ-REASSIGN-F-01: The system must provide means to reassign released appointment slots to other patients.
+
+[discrete]
+===== Attendance Tracking Requirements
+
+*Domain basis:*  
+Clinics monitor attendance to evaluate workload, reliability, and resource use; past participation influences future scheduling and clinical planning.
+
+*Requirements:*
+
+* [[REQ-ATTEND-F-01]]REQ-ATTEND-F-01: The system must record whether a patient attended a scheduled appointment.
+
+* [[REQ-ATTEND-F-02]]REQ-ATTEND-F-02: The system must preserve attendance records as part of appointment history.
+
+[discrete]
+===== Referral and Authorization Requirements
+
+*Domain basis:*  
+Certain specialist visits cannot occur without prior approval or referral.
+
+*Requirements:*
+
+* [[REQ-REFERRAL-F-01]]REQ-REFERRAL-F-01: The system must represent when a consultation depends on an external referral or authorization.
+
+* [[REQ-REFERRAL-F-02]]REQ-REFERRAL-F-02: The system must prevent scheduling of consultations requiring referral until such referral is recorded.
+
+[discrete]
+===== Appointment Sequencing Requirements
+
+*Domain basis:*  
+Consultations occur in sequence and cannot overlap for the same provider.
+
+*Requirements:*
+
+* [[REQ-SEQUENCE-F-01]]REQ-SEQUENCE-F-01: The system must represent appointment time as an ordered temporal position within a schedule.
+
+* [[REQ-SEQUENCE-F-02]]REQ-SEQUENCE-F-02: The system must prevent overlapping appointments for a single provider.

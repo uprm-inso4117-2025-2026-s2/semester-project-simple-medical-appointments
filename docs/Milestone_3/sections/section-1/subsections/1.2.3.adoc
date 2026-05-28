@@ -1,0 +1,43 @@
+==== *Ideas*
+
+===== Shared Availability View
+
+[.changed]#Addressed needs: patients, staff, providers.#
+
+[.changed]#Represent provider availability as explicit time slots with visible status, so that patients can discover openings, staff can see the same schedule state, and providers can publish or withdraw availability without relying on separate paper or memory-based workflows.#
+
+===== Structured Appointment States
+
+[.changed]#Addressed needs: patients, staff, clinics.#
+
+[.changed]#Represent appointments with explicit states such as `Requested`, `PendingApproval`, `Confirmed`, `Cancelled`, and `NoShow`, so that everyone can distinguish a request from a finalized booking and see why an appointment is blocked or delayed.#
+
+===== Waitlist with Explicit Reassignment Rules
+
+[.changed]#Addressed needs: patients, staff.#
+
+[.changed]#When no slot is available, allow a patient to register interest in a future opening. Reassignment should follow explicit eligibility and ordering rules instead of informal notebook-based callbacks.#
+
+===== Consultation-Type Configuration
+
+[.changed]#Addressed needs: providers, clinics.#
+
+[.changed]#Associate consultation types with expected durations and booking prerequisites. This allows the schedule to reflect that a follow-up, first visit, or procedure may need different slot lengths or approvals.#
+
+===== Duplicate-Booking Controls
+
+[.changed]#Addressed needs: patients, providers, staff.#
+
+[.changed]#Prevent duplicate holds or conflicting active bookings for the same provider and consultation window, while still allowing legitimate multiple future appointments when they are not in conflict.#
+
+===== Multi-Party Accessibility Support
+
+[.changed]#Addressed needs: elderly patients, caregivers, staff.#
+
+[.changed]#Use simple navigation, readable status feedback, and reminder support so that patients with lower digital confidence and caregivers coordinating on someone else's behalf can still complete scheduling tasks reliably.#
+
+===== Search and Comparison Support
+
+[.changed]#Addressed needs: patients, clinics.#
+
+[.changed]#Allow patients to search by specialty, location, accepted insurance, and slot availability so they do not need to contact each clinic separately just to learn whether a suitable opening exists.#

@@ -1,0 +1,291 @@
+=== *Debugging*
+
+---
+
+==== Breakpoints, Conditional Breakpoints, and Watchpoints in the Appointment Booking Flow
+:author: Ivan Morales
+
+===== Objective
+
+Apply the debugging concepts of breakpoints, conditional breakpoints, and watchpoints to the Simple Medical Appointments system, giving developers a practical strategy for isolating bugs in the scheduling flow without stepping through thousands of lines of code manually.
+
+===== Introduction
+
+When a bug surfaces in a scheduling system, the instinctive reaction is to start at the top of the relevant function and step through every line until the problem appears. In a small utility that might be acceptable, but the appointment booking flow in Simple Medical Appointments touches patient input, availability validation, conflict detection, database transactions, and response handling, all in sequence. Stepping through that chain line by line for every hypothesis is exhausting, and easy to get lost in.
+
+Breakpoints, conditional breakpoints, and watchpoints are three tools that let a developer pause execution exactly where a problem is likely to be, rather than where the code begins. Each one serves a different purpose and works in different situations. Understanding the difference between them, and knowing which to reach for in a given moment, is what separates deliberate debugging from guesswork.
+
+===== Concepts
+
+====== Breakpoints
+
+A breakpoint is an instruction to the debugger to pause program execution at a specific line of code. When execution reaches that line the program stops, the call stack is visible, and local variables can be inspected before deciding whether to step forward, step into a function call, or continue running.
+
+Breakpoints are best placed at the entry and exit points of functions that are likely to be involved in the bug,in between layers, for example, where the backend receives a booking request before any processing begins, and immediately before a state changing operation such as writing an appointment to the database.
+
+====== Conditional Breakpoints
+
+A conditional breakpoint is a breakpoint that only triggers when a specified expression evaluates to true. Every modern debugger supports them. They are invaluable when a bug only occurs for certain data values.
+
+Without a conditional breakpoint, a developer would have to add an 'if' statement to the source code, set a plain breakpoint inside it, and remember to remove both before committing. A conditional breakpoint achieves the same result without touching the code and without halting on every call.
+
+====== Watchpoints
+
+A watchpoint, sometimes called a data breakpoint, is a special instruction that causes the debugger to pause whenever the value of a specific variable or memory location changes, regardless of which line of code triggered the change.
+
+Watchpoints are the right tool when a value is being modified somewhere unexpected and it is not obvious which part of the code is responsible. Rather than reading every function that could touch the variable, a watchpoint lets execution continue normally and shows automatically the moment the value changes.
+
+===== The Appointment Booking Workflow
+
+To understand where each tool is most useful, it helps to have the booking flow in mind:
+
+[source,text]
+----
+Patient
+   |
+   v
+Submit Booking Request (date, time, doctor)
+   |
+   v
+Validate Input Fields
+   |
+   v
+Check Doctor Availability
+   |
+   v
+Check for Conflicting Appointments
+   |
+   v
+Begin Database Transaction
+   |
+   v
+Create Appointment Record
+   |
+   v
+Commit Transaction
+   |
+   v
+Send Confirmation to Patient
+----
+
+Bugs can appear at any stage: invalid input slipping through validation, availability logic returning the wrong result for edge case schedules, a conflict check that misses back to back appointments, or a transaction that commits partial state on error.
+
+===== Breakpoint Locations in the Scheduling Flow
+
+The following two locations are the highest value places to set breakpoints when investigating a booking bug.
+
+====== Breakpoint 1 – Entry of the conflict check function
+
+The conflict check function is the most critical piece of logic in the booking flow. It is responsible for deciding whether the requested time slot is already occupied by another appointment for the same doctor. A bug here directly causes double bookings or incorrectly rejected valid requests.
+
+Setting a breakpoint at the entry of this function allows a developer to inspect the exact values being compared before any logic runs. The relevant state to inspect at this pause point includes the requested start and end times, the doctor identifier, and the list of existing appointments being evaluated against.
+
+[source,python]
+----
+def has_conflict(doctor_id, requested_start, requested_end):
+    # <-- set breakpoint here
+    existing = get_appointments_for_doctor(doctor_id)
+    for appt in existing:
+        if requested_start < appt.end_time and requested_end > appt.start_time:
+            return True
+    return False
+----
+
+Pausing at entry confirms whether the inputs arriving at this function are what the caller intended. If the values are already wrong at this point, the bug is upstream. If they are correct and the function still returns the wrong result, the problem is inside this function and the developer can step through its logic from a known good starting state.
+
+====== Breakpoint 2 – Database commit inside the booking transaction
+
+The commit is the point of no return in the booking process. After this line executes, the appointment exists in the database. A breakpoint placed immediately before the commit gives a developer one last opportunity to inspect the full state of the appointment object that is about to be persisted: its status field, its association with the correct patient and doctor, and whether slot availability has been updated correctly.
+
+[source,python]
+----
+def create_appointment(patient_id, doctor_id, start_time, end_time):
+    appointment = Appointment(
+        patient_id=patient_id,
+        doctor_id=doctor_id,
+        start_time=start_time,
+        end_time=end_time,
+        status="confirmed"
+    )
+    db.session.add(appointment)
+    # <-- set breakpoint here
+    db.session.commit()
+    return appointment
+----
+
+This breakpoint is especially useful when a bug produces appointments with the wrong status, the wrong owner, or a missing relationship to a clinic record, because all of those fields can be verified in the debugger before the data is written.
+
+===== Conditional Breakpoint Example
+
+Consider a reported bug where double bookings are occurring specifically for a doctor whose 'doctor_id' is '69'. Setting a plain breakpoint on the conflict check entry would trigger on every single booking made for any doctor, forcing the developer to continue through irrelevant pauses before reaching the case of interest.
+
+A conditional breakpoint solves this immediately. In most debuggers the condition is entered in a small expression field next to the breakpoint marker:
+
+[source,text]
+----
+Condition: doctor_id == 69
+----
+
+With this condition active, execution pauses at the conflict check entry only when the booking involves doctor `69`. The developer can reproduce the exact scenario that is producing the bug without interruption from any other booking activity.
+
+The same approach applies to time based bugs. If appointments at midnight are being rejected incorrectly, the condition can target that boundary:
+
+[source,text]
+----
+Condition: requested_start.hour == 0
+----
+
+In both cases the code is never modified, no temporary 'if' statements are introduced, and no cleanup is needed after the debugging session ends.
+
+===== Watchpoint Use Case
+
+Suppose a bug report says that after a doctor marks a time slot as blocked, patients can still book appointments in that slot. The slot's 'is_available' field should have been set to 'False' when it was blocked, but somehow it remains 'True' by the time the conflict check runs.
+
+The naive approach is to read every function that touches 'is_available' and add print statements or breakpoints to each one. In a codebase with multiple services, that list can be long.
+
+A watchpoint provides a cleaner path. The developer sets a watchpoint on the 'is_available' field of the specific slot object:
+
+[source,text]
+----
+Watch expression: slot.is_available
+----
+
+From that point forward, the debugger pauses automatically the moment that field is read or written by any part of the code. The developer does not need to know in advance which function is responsible. The debugger will stop and identify the exact line that last touched the value, along with the full call stack at that moment.
+
+This is particularly useful for state corruption bugs where a value is being overwritten somewhere unexpected, such as a caching layer returning a stale object, a background job resetting availability, or a serialization step accidentally replacing the field with a default value.
+
+===== When to Use Each Tool
+
+[cols="1,2,2"]
+|===
+|Tool |Use when |Advantage over step/next alone
+
+|Breakpoint
+|You know which function is involved and want to inspect its inputs or outputs at the moment of execution.
+|Skips all irrelevant code and lands directly at the point of interest. Step/next requires walking through every line from the start.
+
+|Conditional breakpoint
+|The bug only reproduces for specific data values, such as a particular doctor, patient, time, or status.
+|Eliminates false pauses on unrelated calls. Step/next would require manually skipping every unrelated invocation.
+
+|Watchpoint
+|A variable holds an unexpected value and it is not clear which part of the code is changing it.
+|Triggers automatically the moment the value changes anywhere in the program. Step/next cannot track cross function or cross layer state changes without manually following every possible code path.
+|===
+
+===== Why These Tools Matter More Than Step/Next Alone
+
+Stepping through code with 'next' and 'step' is a valid technique for understanding small, self contained functions. It becomes a liability in a layered system like Simple Medical Appointments because it forces the developer to follow the entire execution path rather than jumping to the specific moment the bug occurs.
+
+A well placed breakpoint can reduce a debugging session from an hour of stepping to a few seconds of inspection. A conditional breakpoint eliminates the noise of the common case so the edge case is immediately visible. A watchpoint surfaces state corruption that stepping could never find without already knowing exactly where to look.
+
+Together, these three tools give developers precise control over when and where execution pauses, making it possible to verify hypotheses quickly, find the source of a bug efficiently, and avoid introducing temporary changes to the code that need to be cleaned up after the session.
+
+
+---
+
+==== Debugging Session on the Authentication and Role-Check Flow
+:author: Viviana Ramos
+
+===== Overview
+
+This section walks through a debugging session on the User Management authentication and role-check flow. The two decorators that guard every protected endpoint are `@requires_auth` (in `auth_middleware.py`) and `@requires_role` (in `custom_decorators.py`). Auth failures return 401 or 403 with no detail, so a session with breakpoints, conditional breakpoints, and watchpoints was used to inspect live state at each stage of the chain.
+
+===== Breakpoints
+
+Five breakpoints were placed at the entry and exit boundaries of each processing stage:
+
+* *BP1* — entry of `requires_auth`, before `extract_token()`. Captures the raw `Authorization` header.
+* *BP2* — entry of `verify_jwt(token)`, before signature verification. Captures the raw token string and its structure.
+* *BP3* — after `verify_jwt` succeeds, before `g.user_id` is set. Captures the decoded JWT payload.
+* *BP4* — entry of `requires_role`, after `@requires_auth` passes. Captures `g.user_id` and the required roles.
+* *BP5* — after `get_role_for_user()` returns, before the role comparison. Captures `resolved_role`.
+
+===== Conditional Breakpoints
+
+Two conditional breakpoints were added to limit noise:
+
+*BP2-COND* — fires only when `token.count('.') != 2`. A valid JWT has exactly two dots. If the count is wrong the token is not a JWT at all, and this condition isolates that case without halting on valid tokens.
+
+*BP5-COND* — fires only when `role not in required_roles`. This makes the breakpoint trigger only on access denials, not on every passing role check.
+
+===== Watchpoint
+
+A watchpoint tracked how the auth state transformed across the two decorators:
+
+[source,text]
+----
+auth_state: token → jwt_payload → user_id → resolved_role
+----
+
+The two decorators share state through Flask's `g` object. The watchpoint automatically recorded each assignment across both decorators without needing four individual breakpoints.
+
+===== Session Results
+
+Five scenarios were run. The table shows which breakpoints fired and the HTTP result.
+
+[cols="1,2,2,1",options="header"]
+|===
+| Scenario | Breakpoints Hit | Conditional BPs Triggered | Status
+
+| A — Valid admin token
+| BP1, BP2, BP3, BP4, BP5
+| None
+| 200
+
+| B — No token
+| BP1
+| None
+| 401
+
+| C — Malformed token (zero dots)
+| BP1, BP2
+| BP2-COND
+| 401
+
+| D — Expired token
+| BP1, BP2
+| None
+| 401
+
+| E — Patient on admin endpoint
+| BP1, BP2, BP3, BP4, BP5
+| BP5-COND
+| 403
+|===
+
+Total: 17 breakpoints hit, 2 conditional breakpoints triggered.
+
+===== Watchpoint Observations
+
+For Scenario A (valid admin) the watchpoint recorded four transitions:
+
+. `token` — three-segment JWT string
+. `jwt_payload` — `{'sub': 'ADMIN_ID', 'exp': <future>, 'role': 'admin'}`
+. `user_id` — `"00000000-0000-0000-0000-000000000001"`
+. `resolved_role` — `"admin"`
+
+For Scenario E the watchpoint showed `resolved_role = "patient"` at the last stage, which is what triggered BP5-COND and returned 403.
+
+===== Defect Found
+
+Inspecting the role-check path surfaced a security defect in the registration handler.
+
+[cols="1,3",options="header"]
+|===
+| Field | Detail
+
+| ID | DEF-UM-001
+| Title | Admin role self-assignable at registration
+| Severity | Critical
+| Location | `backend/app/routes/auth.py`
+| Root Cause | `VALID_ROLES = {'patient', 'doctor', 'admin'}` lets any caller register as admin through the public `POST /api/auth/register` endpoint
+| Fix | Remove `'admin'` from `VALID_ROLES`; admin role should only be assigned through an authenticated admin-only endpoint
+| Status | Open
+|===
+
+===== Conclusion
+
+Breakpoints at layer boundaries confirmed that state passed correctly between `@requires_auth` and `@requires_role` in the normal path. Conditional breakpoints made Scenarios C and E easy to isolate without halting on every unrelated call. The watchpoint tracked the four-step state transformation across both decorators in one place, which is what pointed to DEF-UM-001: the resolved role always matched what the user had self-reported at registration, which led directly to the registration handler as the source of the problem.
+
+---

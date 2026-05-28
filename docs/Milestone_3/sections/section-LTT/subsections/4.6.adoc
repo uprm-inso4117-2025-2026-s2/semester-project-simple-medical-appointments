@@ -1,0 +1,612 @@
+=== *Hoare Logic and Design by Contract*
+
+==== Apply Hoare Logic Pre/Post-Conditions to the Appointment Booking Function
+:author: Julian Vivas
+
+===== Overview
+
+As part of the Milestone 2 lecture topic requirements, Hoare Logic is applied to a meaningful backend operation from the system: `book_appointment()`.
+This function is central to the scheduling workflow because it is responsible for creating appointments between patients and doctors while respecting availability constraints.
+
+Applying Hoare Logic allows us to formally describe the conditions that must be true before the function executes and the guarantees that must hold after execution. This helps clarify the intended correctness of the scheduling process and ensures that important properties such as preventing double booking are maintained.
+
+===== Hoare Triple Specification
+
+The booking operation can be modeled using the Hoare Logic triple:
+
+----
+{P} book_appointment(patient_id, doctor_id, slot_id) {Q}
+----
+
+Where:
+
+*P* represents the preconditions required before execution.
+
+*Q* represents the postconditions that must hold after successful execution.
+
+===== Preconditions
+
+The following conditions must be true before a booking can occur:
+
+* The patient identified by `patient_id` exists in the system.
+* The doctor identified by `doctor_id` exists in the system.
+* The requested `slot_id` exists.
+* The time slot belongs to the specified doctor.
+* The time slot is currently marked as available.
+* There is no existing appointment already occupying the same doctor and slot.
+* The request data provided to the system is valid.
+
+===== Postconditions
+
+After successful execution of `book_appointment()` the following must hold:
+
+* A new appointment record exists linking the patient, doctor, and slot.
+* The created appointment is associated with exactly one patient and one doctor.
+* The selected time slot is no longer marked as available.
+* No second appointment exists for the same doctor and slot.
+* No unrelated appointments or scheduling data are modified.
+
+===== Formal Specification
+
+The behavior of the booking operation can be expressed more formally as:
+
+----
+{ patientExists(patient_id)
+∧ doctorExists(doctor_id)
+∧ slotExists(slot_id)
+∧ slotBelongsToDoctor(slot_id, doctor_id)
+∧ slotAvailable(slot_id)
+∧ ¬booked(doctor_id, slot_id) }
+
+book_appointment(patient_id, doctor_id, slot_id)
+
+{ ∃a • appointment(a)
+∧ hasPatient(a, patient_id)
+∧ hasDoctor(a, doctor_id)
+∧ hasSlot(a, slot_id)
+∧ ¬slotAvailable(slot_id)
+∧ booked(doctor_id, slot_id) }
+----
+
+If any precondition is not satisfied, the booking request must be rejected and the system state must remain unchanged. No new appointment should be created in that case.
+
+===== Safety Properties
+
+From the Hoare specification we can derive important safety properties for the system:
+
+* No double booking for the same doctor and time slot.
+* An appointment can only be created if the slot is available.
+* A successful booking updates the slot state to unavailable.
+* Existing appointments unrelated to the booking remain unchanged.
+
+These properties ensure the reliability of the scheduling process and support the main objective of the system: providing an efficient and organized platform for booking medical appointments.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+
+==== Verify Booking Safety Properties for Appointment Scheduling with Hoare Logic
+:author: Julian Vivas
+
+===== Overview
+
+This section extends the Hoare Logic specification established in the previous subsection by formally analyzing the safety properties that `book_appointment()` must preserve. While the prior section defined the preconditions and postconditions of the operation, this section focuses on verifying that those conditions are sufficient to guarantee correctness, identifying the invariants that hold throughout execution, documenting the edge cases where the function must reject a request, and providing an annotated pseudocode model that serves as a verification artifact.
+
+The goal is to demonstrate not only that the booking function has well-defined behavior under valid inputs, but also that it provably rejects all invalid states without corrupting the system.
+
+===== Core Safety Properties
+
+The following safety properties are derived directly from the Hoare triple defined in the previous subsection. Each property is expressed as a logical invariant or postcondition that must hold for every execution of `book_appointment()`.
+
+*SP-1 — No Double Booking*
+
+At no point in time may two appointments share the same doctor and the same time slot. This property is a system-wide invariant that must hold before and after every call to `book_appointment()`.
+
+----
+∀ a1, a2 ∈ Appointments •
+  hasDoctor(a1, d) ∧ hasDoctor(a2, d) ∧ hasSlot(a1, s) ∧ hasSlot(a2, s)
+  → a1 = a2
+----
+
+This invariant is preserved by the precondition `¬booked(doctor_id, slot_id)`, which guarantees that no existing appointment occupies the slot before the function runs, and by the postcondition `booked(doctor_id, slot_id)`, which ensures the slot is atomically claimed upon success.
+
+*SP-2 — Slot Availability Is Required for Booking*
+
+An appointment may only be created for a slot that was marked as available at the time of the request. The function must never create an appointment for an unavailable slot, even if the slot exists in the system.
+
+----
+{ slotAvailable(slot_id) }
+book_appointment(patient_id, doctor_id, slot_id)
+{ appointment(a) ∧ hasSlot(a, slot_id) }
+----
+
+If `slotAvailable(slot_id)` is false at the time of the call, the function must reject the request and return an error. The system state must remain unchanged.
+
+*SP-3 — Successful Booking Marks the Slot as Unavailable*
+
+After a successful call, the slot transitions from available to unavailable. This transition is deterministic and must not be applied to any other slot.
+
+----
+{ slotAvailable(slot_id) }
+book_appointment(patient_id, doctor_id, slot_id)
+{ ¬slotAvailable(slot_id) }
+----
+
+This postcondition ensures that the same slot cannot be double-booked in a subsequent call, because the precondition `slotAvailable(slot_id)` would fail for any future request targeting the same slot.
+
+*SP-4 — Frame Property: Unrelated State Is Not Modified*
+
+The operation must not alter any appointments, slots, or records not directly involved in the booking. This is the frame condition of the Hoare triple.
+
+----
+∀ s' ≠ slot_id • slotAvailable(s') ↔ slotAvailable'(s')
+∀ a ∈ Appointments_pre • appointment(a) ↔ appointment'(a)
+----
+
+Only the targeted slot and the newly created appointment record are permitted to change state. All other scheduling data must be identical before and after the call.
+
+===== Connection to Hoare Logic Reasoning
+
+Each safety property above maps directly to a component of the Hoare triple `{P} book_appointment() {Q}`:
+
+* *SP-1* is enforced by both a precondition (`¬booked(doctor_id, slot_id)`) and a postcondition (`booked(doctor_id, slot_id)`). Together they form a two-sided guarantee: the slot is not taken before the call, and it is exclusively taken after.
+* *SP-2* is enforced entirely by the precondition `slotAvailable(slot_id)`. Hoare Logic reasoning states that if the precondition is false, the function must not execute its body and must instead return without modifying state.
+* *SP-3* follows from the postcondition `¬slotAvailable(slot_id)`. Because the precondition establishes availability and the postcondition denies it, the transition is guaranteed to occur exactly once per successful booking.
+* *SP-4* is the implicit frame condition. In formal verification tools such as Dafny or Frama-C, this must be made explicit using `modifies` or `assigns` clauses. In a Hoare Logic proof, it is captured by showing that no other state variable is mentioned in the postcondition.
+
+These four properties together ensure that the scheduling process is both safe (no invalid state is reached) and correct (the intended state is always produced).
+
+===== Annotated Pseudocode Model
+
+The following pseudocode models `book_appointment()` with inline Hoare Logic annotations. Preconditions are written as `@pre`, postconditions as `@post`, and intermediate assertions as `@assert`. This serves as the verification artifact for this section.
+
+[source,text]
+----
+// @pre: patientExists(patient_id)
+// @pre: doctorExists(doctor_id)
+// @pre: slotExists(slot_id)
+// @pre: slotBelongsToDoctor(slot_id, doctor_id)
+// @pre: slotAvailable(slot_id)
+// @pre: ¬booked(doctor_id, slot_id)
+// @pre: requestIsValid(patient_id, doctor_id, slot_id)
+
+function book_appointment(patient_id, doctor_id, slot_id):
+
+    patient = PatientRepository.findById(patient_id)
+    if patient is null:
+        return Error(404, "Patient not found")
+    // @assert: patientExists(patient_id)
+
+    doctor = DoctorRepository.findById(doctor_id)
+    if doctor is null:
+        return Error(404, "Doctor not found")
+    // @assert: doctorExists(doctor_id)
+
+    slot = SlotRepository.findById(slot_id)
+    if slot is null:
+        return Error(404, "Slot not found")
+    // @assert: slotExists(slot_id)
+
+    if slot.doctor_id ≠ doctor_id:
+        return Error(422, "Slot does not belong to the specified doctor")
+    // @assert: slotBelongsToDoctor(slot_id, doctor_id)
+
+    if not slot.available:
+        return Error(409, "Slot is not available")
+    // @assert: slotAvailable(slot_id)
+
+    existing = AppointmentRepository.findByDoctorAndSlot(doctor_id, slot_id)
+    if existing is not null:
+        return Error(409, "Slot is already booked")
+    // @assert: ¬booked(doctor_id, slot_id)
+
+    // --- atomic transaction begins ---
+    appointment = Appointment.create(
+        patient_id = patient_id,
+        doctor_id  = doctor_id,
+        slot_id    = slot_id
+    )
+    slot.available = false
+    SlotRepository.save(slot)
+    AppointmentRepository.save(appointment)
+    // --- atomic transaction ends ---
+
+    // @post: ∃a • appointment(a) ∧ hasPatient(a, patient_id)
+    //                             ∧ hasDoctor(a, doctor_id)
+    //                             ∧ hasSlot(a, slot_id)
+    // @post: ¬slotAvailable(slot_id)
+    // @post: booked(doctor_id, slot_id)
+    // @post: ∀ s' ≠ slot_id • slotAvailable(s') unchanged
+    // @post: ∀ a' ∈ Appointments_pre • appointment(a') unchanged
+
+    return Success(appointment)
+----
+
+The atomic transaction block is critical. Both the appointment creation and the slot status update must occur together or not at all. If either operation fails, the entire transaction must be rolled back to preserve SP-1 and SP-3.
+
+===== Edge Cases and Rejected States
+
+The following table documents the edge cases where `book_appointment()` must reject the request. In every rejected case, the system state must remain exactly as it was before the call.
+
+[cols="1,2,2,1", options="header"]
+|===
+| Edge Case
+| Violated Precondition
+| System Behavior
+| HTTP Status
+
+| Patient does not exist
+| `patientExists(patient_id)` is false
+| Return error; no appointment created; no slot modified
+| 404
+
+| Doctor does not exist
+| `doctorExists(doctor_id)` is false
+| Return error; no appointment created; no slot modified
+| 404
+
+| Slot does not exist
+| `slotExists(slot_id)` is false
+| Return error; no appointment created
+| 404
+
+| Slot belongs to a different doctor
+| `slotBelongsToDoctor(slot_id, doctor_id)` is false
+| Return error; reject mismatched combination
+| 422
+
+| Slot is already marked unavailable
+| `slotAvailable(slot_id)` is false
+| Return error; no appointment created
+| 409
+
+| Concurrent booking race condition
+| `¬booked(doctor_id, slot_id)` becomes false between check and write
+| Database transaction rolls back; second request receives conflict error
+| 409
+
+| Malformed or missing request fields
+| `requestIsValid(...)` is false
+| Return validation error before any repository call
+| 400
+
+| Patient attempts to book a slot for another patient
+| Implicit authorization precondition violated
+| Return authorization error; no state change
+| 403
+|===
+
+The race condition case (row 6) is of particular importance. Two concurrent requests targeting the same slot may both pass the `slotAvailable` check before either writes to the database. The atomic transaction and a database-level uniqueness constraint on `(doctor_id, slot_id)` together ensure that only one can succeed. The other must receive a conflict error and leave the system in a consistent state. This is the primary mechanism by which SP-1 is enforced under concurrent load.
+
+===== Summary
+
+This section has formally documented four safety properties of the appointment booking process, shown how each one connects to a specific component of the Hoare triple, provided an annotated pseudocode model as a verification artifact, and identified eight edge cases that the function must reject.
+
+Taken together, the precondition set defined in the Hoare triple is sufficient to guarantee all four safety properties. If every precondition holds before the call, the postconditions are provably satisfied after it. If any precondition fails, the function terminates without modifying state, preserving system integrity in all cases.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+
+[2] K. R. M. Leino, "Dafny: An Automatic Program Verifier for Functional Correctness," in _Proc. 16th Int. Conf. Logic for Programming, Artificial Intelligence, and Reasoning (LPAR-16)_, 2010, pp. 348–370.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+==== Verification of Appointment Cancellation Consistency Using Preconditions, Post conditions & Proof Rules
+:author: Victoria Miranda Osuna
+
+===== GOAL
+
+Verify that the appointment cancellation workflow of the medical scheduling
+application preserves system consistency and correctly restores doctor
+availability without introducing invalid scheduling states.
+
+
+===== PROPOSED SOLUTION
+
+1. Defining formal preconditions required before an appointment can be canceled.
+
+Identify:
+
+    - That the appointment exists in the system as appointmentID.
+    - Appointment belongs to the patient requesting the cancellation.
+    - Appointment has not already been canceled.
+    - Appointment status is eligible for cancellation.
+    - Associated doctor slot exists in the scheduling system.
+    - Cancellation request data is valid and authenticated.
+
+    {
+        appointmentExists(appointmentID)
+        ^ belongsToPatient(appointmentID, patientID)
+        ^ cancelable(appointmentID)
+        ^ slotExists(slotID)
+        ^ requestIsValid(patientID, appointmentID)
+    }
+
+    cancel_appointment(patientID, appointmentID)
+
+    { Q }
+
+
+2. Defining post conditions that must hold after successful cancellation.
+
+    - Appointment record must no longer exist as an active booking after
+      cancel_appointment() executes successfully.
+    - Associated doctor slot must be restored to an available state.
+    - Cancellation process must only modify the targeted appointment and
+      its corresponding slot.
+    - All unrelated appointments and scheduling records must remain unchanged.
+
+    { P }
+
+    cancel_appointment(patientID, appointmentID)
+
+    {
+        !appointmentActive(appointmentID)
+        ^ slotAvailable(slotID)
+        ^ !booked(doctorID, slotID)
+        ^ unrelatedAppointmentsUnchanged
+    }
+
+
+3. Using proof rules and logical assertions to demonstrate that the operation
+   preserves scheduling consistency.
+
+    - Proof rules and logical assertions are applied throughout the
+      cancellation workflow to verify scheduling consistency.
+    - Logical assertions help ensure that invalid operations are rejected
+      before any scheduling data is changed.
+    - After verifying appointment ownership, the system can assert that
+      the requesting patient is authorized to perform the cancellation.
+
+    // @Assert: appointmentExists(appointmentID)
+    // @Assert: patientAuthorized(patientID, appointmentID)
+    // @Assert: appointmentCancelable(appointmentID)
+
+
+4. Verifying that cancellation correctly restores slot availability while
+   preventing accidental modification of unrelated appointments.
+
+    - Cancellation workflow must restore doctor slot availability after
+      an appointment is removed.
+    - After the cancellation succeeds, the previously occupied slot
+      transitions back to an available state.
+    - Restoring slot availability allows future patients to schedule
+      the same time slot again.
+    - The workflow ensures that slot status is updated consistently after
+      successful cancellation.
+
+    { slotOccupied(slotID) }
+
+    cancel_appointment(patientID, appointmentID)
+
+    { slotAvailable(slotID) }
+
+
+===== SUCCESS CRITERIA
+
+    - Formal preconditions and post conditions are clearly defined.
+    - Logical proof rules are applied to validate operation is correct.
+    - The analysis demonstrates that failed operations preserve the
+      original system state.
+    - The verification shows that successful cancellation transitions
+      the system into a valid scheduling state.
+
+===== References
+
+[1] C. A. R. Hoare, "An Axiomatic Basis for Computer Programming," _Communications of the ACM_, vol. 12, no. 10, pp. 576–580, Oct. 1969.
+[2] Vélez, B. (2019). _Test planning_ (INSO 4117: Software Reliability Testing). University of Puerto Rico.
+
+---
+=== *Pre- and Postconditions — User Management Operations*
+:author: pierreg-vales
+
+This section applies the *pre- and postconditions* lecture to the User
+Management module of the Simple Medical Appointments backend by formally
+specifying *Hoare triples* for four core user operations, classifying each
+as partially or totally correct, and mapping each triple to a test case that
+verifies the postcondition.
+
+==== *Lecture Concepts*
+
+A *Hoare triple* has the form `{ P } S { Q }` where:
+
+* *P* (precondition) — what must be true in the program state before `S` runs.
+* *S* (operation) — the program statement or procedure under specification.
+* *Q* (postcondition) — what the operation guarantees upon termination.
+
+*Partial correctness*: if `S` terminates, then `Q` holds. Termination itself
+is not guaranteed.
+
+*Total correctness*: `S` always terminates *and* `Q` holds upon termination.
+
+A *complete precondition* is the weakest condition P such that `{ P } S { Q }`
+is valid — it captures exactly the set of initial states from which `S`
+establishes `Q`.
+
+==== *Triple 1 — User Registration*
+
+*Operation* `S`: `POST /api/auth/register` calls
+`sync_user_after_registration(user_id, data)`, which inserts rows into
+`profiles`, `profile_settings`, and either `patients` or `providers`, then
+assigns the role in `user_roles`.
+
+*Precondition* `P`:
+
+* Request body is valid JSON containing `user_id`, `first_name`, `last_name`,
+  `username`, and `role`.
+* `role` ∈ `{patient, doctor, admin}`.
+* No `profiles` row already exists for `user_id`.
+* The Supabase project is reachable and the service role key is valid.
+
+*Postcondition* `Q`:
+
+* A `profiles` row exists for `user_id` with the supplied name fields.
+* A `profile_settings` row exists for `user_id` with default values.
+* A `patients` or `providers` row exists for `user_id` (depending on role).
+* A `user_roles` row exists linking `user_id` to the requested role.
+* The response status is 201.
+
+*Correctness classification*: *Partial correctness.* If Supabase is
+unreachable or the DB write fails, the operation raises a `RuntimeError` and
+returns 500 without establishing `Q`. Termination under network failure is
+not guaranteed in finite time due to the 20-second socket timeout in
+`_supabase_request`.
+
+*Complete precondition*: P as stated above is the complete precondition.
+Weakening any single condition (e.g., allowing a missing `role` field) makes
+`Q` unachievable because the route returns 400 before `S` executes.
+
+*Test mapping*:
+`test_register_missing_fields` (existing) verifies that violating P causes a
+400 response, confirming the precondition enforcement boundary. A complementary
+test `test_register_success_creates_profile` that posts valid data and asserts
+a 201 response with profile rows in Supabase directly verifies `Q`.
+
+==== *Triple 2 — JWT Verification*
+
+*Operation* `S`: `requires_auth` decorator in
+`backend/app/middleware/auth_middleware.py` calls `verify_jwt(token)`, which
+fetches the Supabase JWKS endpoint, validates the token signature (ES256),
+checks expiry, and either sets `g.user_id` / `g.user` or returns 401.
+
+*Precondition* `P`:
+
+* The HTTP request includes an `Authorization` header with value
+  `Bearer <token>` where `<token>` is a non-empty string.
+* The Supabase JWKS endpoint is reachable (or the cached signing key is
+  available from a prior request).
+
+*Postcondition* `Q`:
+
+* If the token is structurally valid, signed with the correct key, and not
+  expired: `g.user_id` equals the `sub` claim of the token and the protected
+  route handler is invoked.
+* If the token is missing, malformed, expired, or has an invalid signature:
+  the response is 401 and the route handler is never invoked.
+
+*Correctness classification*: *Total correctness.* `verify_jwt` always returns
+(either a payload dict or `None`) within the socket timeout window. Both
+branches of `requires_auth` terminate: valid tokens proceed to the handler,
+invalid tokens return 401 immediately. `Q` holds in every reachable exit path.
+
+*Complete precondition*: The precondition is complete — if the
+`Authorization` header is absent, the code path `if not token: return 401`
+fires before `verify_jwt` is called, which is also captured by Q (401
+returned). No weaker P yields a different Q.
+
+*Test mapping*:
+The `auth_headers` fixture in `backend/tests/conftest.py` mints a valid
+HS256 token using `SUPABASE_JWT_SECRET` and the patched `verify_jwt`. Tests
+that use `auth_headers` and assert 200 verify the valid-token branch of `Q`.
+Tests asserting 401 on requests without the header verify the invalid-token
+branch.
+
+==== *Triple 3 — Role Assignment*
+
+*Operation* `S`: During registration, `sync_user_after_registration` inserts
+a row into the `user_roles` table linking `user_id` to the requested role via
+the Supabase REST API.
+
+*Precondition* `P`:
+
+* `user_id` is a valid UUID that exists in Supabase Auth.
+* `role` ∈ `{patient, doctor, admin}`.
+* No `user_roles` row already exists for `user_id` (first-time registration).
+* The Supabase `user_roles` and `roles` tables are accessible with the
+  service role key.
+
+*Postcondition* `Q`:
+
+* The `user_roles` table contains exactly one row where
+  `user_roles.user_id = user_id` and the linked `roles.name` equals the
+  requested role string.
+* Subsequent queries to `GET /rest/v1/user_roles?user_id=eq.<user_id>&select=roles(name)`
+  return the assigned role.
+
+*Correctness classification*: *Partial correctness.* The operation depends on
+a Supabase write succeeding. If the insert fails (network error, unique
+constraint violation on a duplicate row), `Q` is not established. Termination
+under failure is bounded by the request timeout, not guaranteed to produce `Q`.
+
+*Complete precondition*: P is complete. If `user_id` already has a role row,
+the insert violates the unique constraint and `Q` (exactly one row) cannot be
+established by this operation alone.
+
+*Test mapping*:
+`test_register_success_creates_profile` implicitly verifies role assignment
+as part of the full registration flow by asserting the 201 response. A
+dedicated test querying `user_roles` directly after registration would verify
+`Q` precisely. No existing test currently queries the `user_roles` table in
+isolation — this is a postcondition coverage gap identified by the triple.
+
+==== *Triple 4 — Account Deactivation*
+
+*Operation* `S`: `PUT /api/profile/<user_id>` sets `is_active = false` in
+the `profiles` table for the target user via a Supabase REST PATCH call.
+
+*Precondition* `P`:
+
+* Request carries a valid Bearer token (JWT verification passes, as per
+  Triple 2).
+* The authenticated requester is either the target `user_id` or holds the
+  `admin` role.
+* A `profiles` row exists for `user_id`.
+
+*Postcondition* `Q`:
+
+* The `profiles` row for `user_id` has `is_active = false`.
+* *(Intended but not implemented)* The user cannot authenticate via Supabase
+  Auth — the Supabase Admin API has been called to ban the user.
+
+*Correctness classification*: *Partial correctness — with a known
+postcondition gap.* The DB write (`profiles.is_active = false`) terminates and
+establishes the first part of `Q`. However, the second part is explicitly
+documented as unimplemented in `backend/app/routes/auth.py`:
+
+[source,python]
+----
+# TODO: Implement account deactivation endpoint (backend task)
+# The frontend sets is_active=false in the profiles table via
+# PUT /api/profile/<user_id>, but Supabase Auth still allows the
+# user to sign in because it has no knowledge of that field.
+# A proper implementation requires calling the Supabase Admin API:
+#   PUT /auth/v1/admin/users/<user_id> with body { "ban_duration": "876000h" }
+----
+
+The Hoare triple is therefore only *partially satisfied*: the operation
+terminates and establishes part of `Q`, but the full postcondition (user
+cannot authenticate) is not guaranteed by the current implementation.
+
+*Complete precondition*: P is complete for the DB write. For the full intended
+`Q` (auth ban + DB flag), P would additionally require that the Supabase
+Admin API ban call succeeds — which it currently does not make.
+
+*Test mapping*:
+No existing test verifies that a deactivated user (`is_active = false`) is
+subsequently rejected by the JWT verification flow. This is the most
+significant postcondition coverage gap found by the triple analysis. A test
+that (1) sets `is_active = false` via the profile endpoint, (2) attempts a
+request with the same user's token, and (3) asserts 401, would verify the
+full `Q` — and would currently fail because Supabase Auth does not enforce
+the profiles flag.
+
+==== *What Formalizing the Triples Revealed*
+
+Specifying Hoare triples for these four operations surfaced two concrete gaps:
+
+. *Role assignment has no isolated postcondition test.* The `user_roles`
+  insert is verified only indirectly through the 201 registration response.
+  A test querying the table directly is needed to confirm `Q` independently.
+
+. *Account deactivation has an incomplete postcondition.* The operation
+  establishes `profiles.is_active = false` but does not prevent the user
+  from obtaining a valid JWT. The triple reveals that the operation as
+  currently implemented satisfies only a weaker `Q` than intended, and the
+  TODO comment in the source code confirms this. Until the Supabase Admin
+  API ban is implemented, the deactivation contract is only partially fulfilled.
+
+The two fully satisfied triples — JWT Verification (Triple 2) and the DB
+write portions of Triples 1 and 3 — are *totally or partially correct* within
+their stated preconditions, confirming those operations already satisfy their
+contracts under normal conditions.

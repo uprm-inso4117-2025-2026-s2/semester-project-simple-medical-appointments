@@ -1,0 +1,47 @@
+== *Descriptive Part*
+=== *Domain Description*
+
+==== *Domain Rough Sketches*
+
+[discrete]
+===== Patients
+
+*Patient (Carmen, 67, retired teacher)*:  
+[.changed]#"On Monday, 5 Feb 2026 at 8:02 a.m., I started calling Clinica San Rafael because my primary doctor said to call right when they opened. I hit redial 23 times before someone picked up at 8:49. The earliest slot they offered was Tuesday, 12 May 2026 at 3:40 p.m. I wrote it on a yellow sticky note and taped it to my fridge door with the clinic magnet so I would not lose it again."#
+
+*Patient (Miguel, 34, construction worker)*:  
+[.changed]#"My shift on the Aguadilla site runs 7:00 a.m. to 5:30 p.m. with a 30-minute lunch. I tried calling Dr. Ramos's office during lunch on 21 Jan 2026, but I was on hold for 18 minutes and had to hang up when the foreman called me back to the site. The next day I stopped by the clinic at 6:10 p.m.; the front door was already locked. I ended up making a third trip on Saturday morning to ask in person if any cancellations had opened."# 
+
+*Patient (Elena, 52, caring for elderly mother)*:  
+[.changed]#"I manage my mother's appointments because she does not use a smartphone. In March 2026 I had her primary care on the 3rd, her cardiology follow-up on the 10th, and lab work on the 7th. When the cardiology office pushed the follow-up back two weeks, I had to move the lab and rebook the primary care so the results would still be current."#  
+
+*Patient (Natalia, university student)*:  
+[.changed]#"I joined a waitlist in February and never got a text or email saying where I stood. After two weeks I did not know whether to wait or book somewhere else."#  
+
+*Patient (Rosa, 29, new resident in the area)*:  
+[.changed]#"I moved to Bayamon eight weeks ago with Triple-S coverage. On 14 Feb 2026 I called three clinics (Santa Rosa, Dr. Melendez, and Clinica del Norte); two kept me on hold over ten minutes and then said they did not take my plan. I finally found a family doctor through a Facebook group post, not the insurer's site."#  
+
+[discrete]
+===== Clinic Administrative Staff
+
+*Clinic Administrative Assistant (Laura, small family clinic)*:  
+[.changed]#"The phones start ringing at 8:00 a.m. and do not stop. We book while answering another call on hold. When someone cancels, we flip through a notebook to remember who asked for an earlier slot and start dialing numbers from memory. We also keep a spreadsheet because we do not trust the notebook alone."#  
+
+*Clinic Administrator (Jose, regional clinic network)*:  
+[.changed]#"We do not have visibility into the schedules of our other locations. Patients ask if the Bayamon site has something sooner, but I cannot see their calendar, so I can only tell them to call over there."#  
+
+[discrete]
+===== Doctors / Providers
+
+*Doctor (Dr. Rivera, cardiologist)*:  
+[.changed]#"My calendar shows full for weeks, but some days I get two no-shows, and other days the stress tests run long and everything slides. Patients get frustrated, but I cannot predict which consult will take 10 minutes and which will take 30."#  
+
+*Doctor (Dr. Morales, general practitioner)*:  
+[.changed]#"Some patients book two appointments with me and another doctor the same week and then cancel the day before. I get why they do it—they are afraid of losing the slot—but it makes the week unpredictable."#  
+
+[discrete]
+===== Insurance / External Coordination
+
+*Insurance Coordinator (Marcos, hospital billing office)*:  
+[.changed]#"Sometimes we have to confirm insurance authorization before finalizing an appointment. If approval takes too long, the slot can be given away. Patients think it is our fault, but we are waiting on the insurer's portal to respond."#  
+cepts**: _authorization dependency_, _external system latency_, _conditional booking_, _slot expiration risk_, _cross-system coordination_.ts**: _authorization dependency_, _external system latency_, _conditional booking_, _slot expiration risk_, _cross-system coordination_.#

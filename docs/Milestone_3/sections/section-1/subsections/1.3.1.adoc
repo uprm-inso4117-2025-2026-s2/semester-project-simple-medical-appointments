@@ -1,0 +1,48 @@
+=== *Scope, Span, and Synopsis*
+
+==== *Scope & Span*
+
+===== Scope
+
+The scope of this project lies within the broader domain of healthcare
+service coordination, specifically focusing on the organization and
+management of outpatient medical appointments. This includes the
+interaction between patients, providers, and administrative entities in
+the process of requesting, scheduling, modifying, and attending medical
+consultations.
+
+Within this domain, scheduling is influenced by constraints such as
+provider availability, appointment capacity, referral requirements, and
+patient demand. These interactions occur within a larger healthcare
+ecosystem characterized by fragmented communication channels, varying
+levels of digital adoption, and resource limitations. The project is
+situated in the context of Puerto Rico, where healthcare access is
+affected by workforce availability, geographic distribution of services,
+and administrative coordination practices.
+
+The scope therefore encompasses the general problem space of how medical
+appointments are coordinated, managed, and accessed within a constrained
+healthcare environment.
+
+
+===== Span
+
+The span of this project is limited to the design and prototyping of a
+system that models appointment scheduling within outpatient, private
+clinic settings. The focus is on representing the core interactions,
+constraints, and entities involved in scheduling consultations between
+patients and providers.
+
+The project is restricted to an academic prototype and does not extend to
+full-scale system deployment or real-world integration. It does not
+include hospital systems, emergency care coordination, or large-scale
+healthcare infrastructure. Additionally, the system will not interact
+with external services such as insurance providers, electronic health
+record systems, or third-party scheduling platforms. No real patient data 
+or protected health information will be used. 
+All data represented within the system will be simulated for the purpose of
+demonstrating scheduling behavior and system interactions.
+
+The span is therefore confined to a controlled, simplified representation
+of outpatient appointment scheduling, focusing on core domain behavior
+rather than complete system implementation.

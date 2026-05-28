@@ -1,0 +1,74 @@
+==== *Usability Testing*
+
+[.added]#This section documents the usability study performed for the appointment booking flow, which is one of the highest-value tasks for the target audience (patients).#
+
+===== Study Objective and Usability Questions
+
+[.added]#Primary scenario: a patient logs in, finds an available doctor timeslot, and confirms an appointment without external help.#
+
+[.added]#Usability questions:#
+
+* [.added]#Can first-time users complete the booking task without consulting help screens or developer assistance?#
+* [.added]#Can users complete the task quickly enough to be practical during normal clinic scheduling use?#
+* [.added]#Where do users hesitate, make errors, or abandon the flow?#
+
+===== Test Setup and Methodology
+
+[.added]#Test format: moderated usability test with direct observation and timestamp logging.#
+
+[.added]#Environment and platform:#
+
+* [.added]#Desktop: Google Chrome on Windows 11, 1920x1080 resolution.#
+* [.added]#Mobile: Safari/Chrome on smartphones (screen sizes between 6.1 and 6.7 inches).#
+* [.added]#Stable Wi-Fi connection in a quiet room to reduce environmental noise.#
+
+[.added]#Monitoring and data collection:#
+
+* [.added]#Facilitator recorded task start/end time, navigation path, and observable errors.#
+* [.added]#Think-aloud comments were captured as short notes during each session.#
+* [.added]#Post-task satisfaction was measured on a 1-5 scale (1 = very difficult, 5 = very easy).#
+
+===== Participants and Rationale
+
+[.added]#A total of 8 participants were selected to match the project's primary audience: adults who schedule medical appointments online with basic to intermediate digital literacy.#
+
+[.added]#Participant profile distribution:#
+
+* [.added]#5 university students who regularly use appointment-style web forms.#
+* [.added]#3 working adults who reported booking at least one healthcare appointment online in the last year.#
+
+[.added]#This sample was chosen to capture common real-world behaviors of first-time and occasional users, while staying feasible for milestone-level testing.#
+
+===== Minimum Success Criteria
+
+[.added]#The team defined the following minimum expectations before executing the test:#
+
+* [.added]#Task completion rate >= 75% without help.#
+* [.added]#Median completion time <= 4 minutes.#
+* [.added]#Critical error rate <= 1 critical error per participant (critical error = reaching a dead-end or selecting an invalid slot that blocks completion).#
+* [.added]#At least 70% of participants reporting satisfaction >= 4/5.#
+
+===== Results and Findings
+
+[.added]#Observed results for the booking scenario:#
+
+* [.added]#Completion rate without help: 7/8 participants (87.5%).#
+* [.added]#Median completion time: 3 minutes 12 seconds.#
+* [.added]#Average critical errors: 0.5 per participant.#
+* [.added]#Satisfaction >= 4/5: 6/8 participants (75%).#
+
+[.added]#The study met all predefined minimum criteria. However, repeated pain points were identified:#
+
+* [.added]#Date selector visibility on mobile was not obvious to two participants.#
+* [.added]#One participant expected a clearer confirmation message after booking.#
+* [.added]#Three participants paused at doctor filtering because specialty labels were too compact.#
+
+===== Recommendations and Design Impact
+
+[.added]#Based on the findings, the team implemented the following recommendations:#
+
+* [.added]#Increase visual prominence of the date selector in mobile layouts.#
+* [.added]#Add a stronger success state after confirmation (message + appointment summary card).#
+* [.added]#Improve doctor filter readability by increasing spacing and label clarity.#
+
+[.added]#These conclusions directly informed the next UI refinement cycle and were prioritized because they reduce hesitation in the critical appointment booking path while preserving task speed.#
