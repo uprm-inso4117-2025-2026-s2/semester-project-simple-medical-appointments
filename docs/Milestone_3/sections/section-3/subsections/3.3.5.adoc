@@ -1,88 +1,86 @@
-
 ==== *Formal Verification (Hoare Logic / Weakest Preconditions)*
 
 
-The function selected for formal verification is the scheduling operation `book_appointment(patient_id, doctor_id, slot_id)`. This operation is a meaningful verification target because it transforms an available medical time slot into a confirmed reservation while preserving the scheduling constraint that double booking must not occur.
+The function selected for formal verification is the scheduling operation [.removed]#`book_appointment(patient_id, doctor_id, slot_id)`# [.added]#`book_appointment(form_data, proposed_start, slot_minutes, existing_appointments)`#. This operation is a meaningful verification target because it transforms an available medical time slot into a confirmed reservation while preserving the scheduling constraint that double booking must not occur.
 
 
-The verification is applied at the level of the project’s booking logic as defined by the scheduling requirements and domain rules. This is appropriate because the correctness of the booking operation depends primarily on the preservation of its state constraints rather than on framework-specific implementation details.
+The verification is applied at the level of the project's booking logic as defined by the scheduling requirements and domain rules. This is appropriate because the correctness of the booking operation depends primarily on the preservation of its state constraints rather than on framework-specific implementation details.
 
 
 ===== *Hoare Triple*
 
 [source,text]
 ----
-{ P } book_appointment(patient_id, doctor_id, slot_id) { Q }
+{ P } [.removed]#book_appointment(patient_id, doctor_id, slot_id)# [.added]#book_appointment(form_data, proposed_start, slot_minutes, existing_appointments)# { Q }
 ----
 
 
 Where `P` and `Q` are defined as follows.
 
-===== *Predicate Relationship (`booked` vs `slotAvailable`)*
-
-[.changed]#To avoid ambiguity, `booked(doctor_id, slot_id)` is treated as a derived predicate, not an independent flag.#
-
-[source,text]
-----
-booked(doctor_id, slot_id) ≜
-  exists appointment a :
-    hasDoctor(a, doctor_id) and
-    hasSlot(a, slot_id) and
-    status(a) = Confirmed
-----
-
-[.changed]#For the same doctor-slot pair, the model enforces a consistency rule:#
-
-[source,text]
-----
-slotAvailable(slot_id)  <=>  not booked(doctor_id, slot_id)
-----
-
-[.changed]#So yes: one can be expressed in terms of the other, provided the scope is the same slot and doctor pair and status semantics are fixed to `Confirmed` as the consuming state.#
-
 
 ===== *Preconditions*
 
 
-* `patientExists(patient_id)`
-* `doctorExists(doctor_id)`
-* `slotExists(slot_id)`
-* `slotBelongsToDoctor(slot_id, doctor_id)`
-* `slotAvailable(slot_id)`
-* `not booked(doctor_id, slot_id)` (equivalently, `slotAvailable(slot_id)`)
+* [.removed]#`patientExists(patient_id)`#
+* [.removed]#`doctorExists(doctor_id)`#
+* [.removed]#`slotExists(slot_id)`#
+* [.removed]#`slotBelongsToDoctor(slot_id, doctor_id)`#
+* [.removed]#`slotAvailable(slot_id)`#
+* [.removed]#`not booked(doctor_id, slot_id)`#
+* [.added]#`validate_appointment_form(form_data) = (True, [])`#
+* [.added]#`proposed_end = proposed_start + timedelta(minutes=slot_minutes)`#
+* [.added]#`not has_conflict(proposed_start, proposed_end, existing_appointments)`#
+* [.added]#`requested_slot ∈ GeneratedSlots`#
+* [.added]#`regularCapacity(doctor_id, requested_slot) or (accept_waitlist and dailyWaitlistCount(doctor_id, day) < 3 and nextAvailableSlot(doctor_id, day, requested_slot) ≠ none) or allow_override`#
 
 
 ===== *Postconditions*
 
 
-* `booked(doctor_id, slot_id)`
-* `not slotAvailable(slot_id)`
-* `exists appointment a such that hasPatient(a, patient_id) and hasDoctor(a, doctor_id) and hasSlot(a, slot_id)`
-* No unrelated appointment or slot is modified
+* [.removed]#`booked(doctor_id, slot_id)`#
+* [.removed]#`not slotAvailable(slot_id)`#
+* [.removed]#`exists appointment a such that hasPatient(a, patient_id) and hasDoctor(a, doctor_id) and hasSlot(a, slot_id)`#
+* [.removed]#No unrelated appointment or slot is modified#
+* [.added]#`success = True`#
+* [.added]#`normalized_data` contains the validated and normalized appointment fields with `start` and `end` set to ISO 8601 strings derived from `proposed_start` and `proposed_end`#
+* [.added]#`errors = []`#
+* [.added]#`appointment_created(doctor_id, requested_slot)` under whichever valid booking path (MAIN, WAITLIST, or OVERRIDE) was taken#
+* [.added]#No unrelated appointment or slot is modified#
 
 
 ===== *Invariants Preserved*
 
 
-* At most one confirmed appointment may exist for a given doctor-slot pair.
-* A slot that is booked for the verified doctor-slot pair is no longer available.
+* [.changed]#At most one confirmed appointment may exist for a given doctor-slot pair under the MAIN and OVERRIDE paths; the WAITLIST path assigns to the next available slot rather than the requested one.#
+* [.removed]#A slot that is booked for the verified doctor-slot pair is no longer available.#
+* [.added]#A slot that is booked under any path is no longer available for that booking type within the same capacity window.#
 * State outside the target booking remains unchanged.
 
 
-These properties capture the main safety objective of the project’s scheduling logic: a successful reservation consumes exactly one valid slot and cannot introduce double booking as a side effect.
+These properties capture the main safety objective of the project's scheduling logic: a successful reservation consumes exactly one valid slot and cannot introduce double booking as a side effect.
 
 
 ===== *Weakest-Precondition Reasoning*
 
 
-To make the proof explicit, the state-changing core of the operation can be abstracted as:
+To make the proof explicit, the state-changing core of the operation can be abstracted as [.changed]#the repository's real booking decision tree#:
 
 [source,text]
 ----
-assert slotAvailable(slot_id);
+[.removed]#assert slotAvailable(slot_id);
 assert not booked(doctor_id, slot_id);
 booked(doctor_id, slot_id) := true;
-slotAvailable(slot_id) := false;
+slotAvailable(slot_id) := false;#
+[.added]#assert requested_slot ∈ GeneratedSlots;
+if regularCapacity(doctor_id, requested_slot) then
+    book MAIN at requested_slot;
+else if accept_waitlist and dailyWaitlistCount(doctor_id, day) < 3
+        and nextAvailableSlot(doctor_id, day, requested_slot) ≠ none then
+    book WAITLIST at nextAvailableSlot(...);
+else if allow_override then
+    book OVERRIDE at requested_slot;
+else
+    reject;#
 ----
 
 
@@ -90,15 +88,16 @@ Let the desired postcondition be:
 
 [source,text]
 ----
-Q = booked(doctor_id, slot_id) and not slotAvailable(slot_id)
+[.removed]#Q = booked(doctor_id, slot_id) and not slotAvailable(slot_id)#
+[.added]#Q = appointment_created(doctor_id, requested_slot)#
 ----
 
 
-Computing the weakest precondition backwards gives:
+[.removed]#Computing the weakest precondition backwards gives:#
 
 [source,text]
 ----
-wp(slotAvailable(slot_id) := false, Q)
+[.removed]#wp(slotAvailable(slot_id) := false, Q)
   = booked(doctor_id, slot_id)
 
 wp(booked(doctor_id, slot_id) := true;
@@ -114,25 +113,52 @@ wp(assert slotAvailable(slot_id);
    assert not booked(doctor_id, slot_id);
    booked(doctor_id, slot_id) := true;
    slotAvailable(slot_id) := false, Q)
-  = slotAvailable(slot_id) and not booked(doctor_id, slot_id)
+  = slotAvailable(slot_id) and not booked(doctor_id, slot_id)#
 ----
 
+[.added]#The weakest precondition depends on which branch is taken:#
 
-Therefore, the weakest precondition for reaching `Q` is exactly that the slot is available and not already booked before the state transition begins. This matches the intended scheduling rule for the project.
+[.added]#1. For the MAIN path:#
+   [source,text]
+   ----
+   [.added]#wp(book MAIN at requested_slot, Q)
+     = requested_slot ∈ GeneratedSlots
+       and regularCapacity(doctor_id, requested_slot)#
+   ----
+[.added]#2. For the WAITLIST path:#
+   [source,text]
+   ----
+   [.added]#wp(book WAITLIST at nextAvailableSlot(...), Q)
+     = requested_slot ∈ GeneratedSlots
+       and not regularCapacity(doctor_id, requested_slot)
+       and accept_waitlist
+       and dailyWaitlistCount(doctor_id, day) < 3
+       and nextAvailableSlot(doctor_id, day, requested_slot) ≠ none#
+   ----
+[.added]#3. For the OVERRIDE path:#
+   [source,text]
+   ----
+   [.added]#wp(book OVERRIDE at requested_slot, Q)
+     = requested_slot ∈ GeneratedSlots
+       and not regularCapacity(doctor_id, requested_slot)
+       and allow_override#
+   ----
+[.added]#4. For the rejection path, no booking is created, so the postcondition cannot be reached.#
 
-[.added]#Because `booked` is defined from appointment status and slot association, this weakest precondition can also be written with a single availability condition under the same consistency rule.#
+[.removed]#Therefore, the weakest precondition for reaching `Q` is exactly that the slot is available and not already booked before the state transition begins. This matches the intended scheduling rule for the project.#
+[.added]#Therefore, the weakest precondition for successfully reaching Q is not the single abstract condition "slot is available and not already booked," but the repository-realized disjunction of the valid booking branches above. This matches the actual scheduling logic implemented in the project, where MAIN, WAITLIST, and OVERRIDE are distinct outcomes determined by slot capacity, waitlist policy, and override permission.#
 
 
 ===== *Verification Result*
 
 
-Under the Hoare triple `{P} book_appointment(patient_id, doctor_id, slot_id) {Q}`, the proof shows that if all preconditions hold, execution establishes the required booking state and preserves the invariant against double booking. If any precondition fails, the operation must reject the request and leave the system state unchanged.
+[.changed]#Under the Hoare triple `{P} book_appointment(form_data, proposed_start, slot_minutes, existing_appointments) {Q}`, the proof shows that if all preconditions hold — the form is valid, no conflict exists, the requested slot belongs to the generated set, and at least one booking path is eligible — execution establishes the required booking state and preserves the invariant against double booking. If any precondition fails, the operation returns `(False, None, errors)` and leaves the system state unchanged.#
 
 
 ===== *Implications for System Correctness*
 
 
-This verification is important because the booking operation is safety-critical in the medical scheduling domain. The proof establishes that the operation may succeed only from a valid scheduling state and that a successful execution immediately makes the selected slot unavailable. In practical terms, this prevents one of the most serious scheduling errors in the system: assigning the same provider and time slot to more than one appointment.
+This verification is important because the booking operation is safety-critical in the medical scheduling domain. [.changed]#The proof establishes that the operation may succeed only from a valid scheduling state and that a successful execution produces a normalized appointment record with a confirmed time window. The three-path structure (MAIN, WAITLIST, OVERRIDE) means the selected slot or its next available substitute immediately becomes the assigned booking, preventing the most serious scheduling error in the system: assigning the same provider and time slot to more than one appointment.#
 
 
 ===== *References*
