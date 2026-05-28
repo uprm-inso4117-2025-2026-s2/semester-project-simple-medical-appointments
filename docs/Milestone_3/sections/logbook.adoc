@@ -35,4 +35,32 @@
 | 2.1.4 Events, Actions, and Behaviors | Julian Vivas | Modified | Split all 5 conflated entries into separate action and event entries (Appointment Requested, Appointment Canceled, Provider Availability Modified, Queue Appointment Reminder, Join Waitlist). Fixed Referral Recorded type by removing spurious entity-creation qualifier. Updated all Conceptual Function Signature cross-references to name the split action and event separately. | M3
 
 | 2.1.2 Terminology | Julian Vivas | Modified | Reclassified conflated domain terms: Cancel Appointment as an action + added Appointment Canceled as an event; Referral as an entity + added Referral Recorded as an event; Insurance Authorization as an entity; split coverage authorization into Request Coverage Authorization as an action + Coverage Authorized as an event. Fixed Appointment definition to remove informal "time block" reference. Added formal NOTE defining actor as an entity role rather than a separate classification. | M3
+
+| Feature: Conflict detection & scheduling validation | Team | Added | Implemented appointment conflict detection with a frontend validation popup and unified backend scheduling endpoints (`same_sourced_backend_scheduling`). Ensures double-booking is prevented end-to-end. | M3
+
+| Feature: Appointment rescheduling | Team | Added | Implemented end-to-end appointment rescheduling flow (Issue #542), including frontend UI and backend logic. | M3
+
+| Feature: Colorblind & high-contrast accessibility themes | Team | Added | Implemented Protanopia, Deuteranopia, and Monochromatic colorblind themes plus a persistent high-contrast mode (WCAG AA compliance) in the accessibility settings. | M3
+
+| Feature: Account settings cleanup | Team | Modified | Removed the delete account button and marketing emails switch; renamed the three notification labels to Appointment Reminders, Appointment Updates, and Messages (Issues #446, #442, #454). | M3
+
+| Feature: Doctor/admin booking logic | Team | Added | Implemented doctor and admin-facing appointment booking logic with updated tests. | M3
+
+| Fix: Admin delete user for doctor accounts | Team | Fixed | Fixed `DELETE /api/admin/users/<user_id>` to use the `providers` table for doctor accounts instead of the incorrect table (Issue #421). | M3
+
+| Property-based tests — user management | Carlos Pepin Delgado | Added | Implemented 4 Hypothesis properties (PROP-1: role validation, PROP-2: required field invariant, PROP-3: API role gate on `POST /api/auth/register`, PROP-4: JWT sub claim mapping) in `backend/tests/test_user_management_properties.py`. PROP-3 also serves as API-level fuzzing of the web interface. | M3
+
+| Property-based tests — slot conflict filtering | Team | Added | Implemented Hypothesis property verifying that every slot returned by `filter_conflicting_slots` is free of conflicts with the provided existing appointments. 200 generated examples. `backend/tests/test_pbt_filter_conflicting_slots.py`. | M3
+
+| Property-based tests — shrinking, classification & stateful | Team | Added | Implemented custom shrinker strategy for appointment form data, generator statistics labels, a `RuleBasedStateMachine` that fuzz-sequences booking/cancel/reschedule operations, and scheduling invariant properties (sorted slots, non-negative count, conflict-detection symmetry) in `backend/tests/test_pbt_shrinking_classification.py`. | M3
+
+| BDD tests — admin access control & admin operations | Team | Added | Implemented `pytest-bdd` step definitions for `access_control.feature` (non-admin 403 gate) and `admin_operations.feature` in `backend/tests/bdd/`. | M3
+
+| Load tests — Locust & Gatling | Team | Added | Implemented Locust load tests for authentication and booking endpoints (10- and 100-user runs with HTML reports); Gatling simulation for appointment history. Results stored in `backend/tests/performance/reports/`. | M3
+
+| Exploratory testing — auth role-permission boundaries | Team | Added | Documented exploratory and scripted baseline testing sessions for authentication role-permission boundaries in `backend/tests/exploratory/`. | M3
+
+| Decision table & state-transition tests | Team | Added | Implemented decision table tests for doctor slot availability and state-transition tests for slot capacity in `backend/tests/`. | M3
+
+| documentation.adoc (M3) | Gerardo Ruiz | Fixed | Uncommented `include::sections/section-LTT/section.adoc[]` so all lecture topic task content (usability testing, property-based testing, fuzzing, types) is visible in the compiled document. | M3
 |===

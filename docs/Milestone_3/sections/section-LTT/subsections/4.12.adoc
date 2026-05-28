@@ -294,6 +294,23 @@ The implementation of colorblind themes in the web application demonstrates a st
 
 This section applies the *usability testing* lecture to the User Management module by conducting a structured evaluation of the patient and doctor registration flow. The evaluation used the *think-aloud protocol* and *Nielsen's usability heuristics* to measure how efficiently and correctly new users can complete registration. The session was conducted with a peer as the participant using the running application.
 
+==== Usability Test Objective
+
+*"Can a first-time user complete patient and doctor registration on the Simple Medical Appointments platform without any external assistance in under 3 minutes?"*
+
+This question follows the format described in the usability testing lecture: it names the target audience (first-time users), the task (complete registration for both roles), the constraint (no external help), and a measurable time bound (3 minutes).
+
+==== Minimal Expectations
+
+We consider the registration flow to satisfy usability requirements if all of the following thresholds are met:
+
+* At least 4 out of 5 participants complete all 5 tasks with a 100% task completion rate.
+* No participant requires more than 3 minutes to complete the full registration flow end-to-end.
+* Fewer than 2 errors per participant on average across all tasks.
+* No critical blockers (errors that prevent a task from completing at all) are found.
+
+If any threshold is not met, the registration flow requires redesign before the feature is considered releasable.
+
 ==== Task Scenario Design
 
 Five *task scenarios* were designed to cover the full registration journey:

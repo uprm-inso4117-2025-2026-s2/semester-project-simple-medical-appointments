@@ -373,3 +373,75 @@ While Hypothesis has slightly stronger shrinking, fast-check provides sufficient
 Adopt *fast-check* for both frontend and backend testing.
 
 ---
+
+=== [.added]#Implemented Property-Based Tests (base-code branch)#
+
+The following property-based tests are fully implemented and passing in the `base-code` branch. Hypothesis (`hypothesis>=6.100.0`) is listed in `backend/requirements.txt`.
+
+==== [.added]#backend/tests/test_user_management_properties.py#
+
+Four properties verify user management invariants across the full generated input space:
+
+[cols="1,3,2", options="header"]
+|===
+| Property | What it verifies | Layer
+
+| PROP-1
+| Any string outside `VALID_ROLES` is always rejected by the role check — no exceptions, 100 generated strings.
+| Pure logic
+
+| PROP-2
+| Removing any single required field from a complete payload always surfaces that field in the missing-field list.
+| Pure logic
+
+| PROP-3
+| `POST /api/auth/register` with any invalid role always returns HTTP 400 — exercises the live Flask endpoint with 100 generated role strings.
+| HTTP / web interface
+
+| PROP-4
+| `requires_auth` always maps the JWT `sub` claim to `g.user_id` for any generated UUID — rules out the class of bugs where one user's token grants access to a different user.
+| Middleware
+|===
+
+Run:
+[source,bash]
+----
+cd backend && pytest tests/test_user_management_properties.py -v -s
+----
+
+==== [.added]#backend/tests/test_pbt_filter_conflicting_slots.py#
+
+*Property:* every slot returned by `filter_conflicting_slots` does NOT conflict with the existing appointments that were passed in. Verified with 200 generated `(slots, slot_minutes)` pairs using `@settings(max_examples=200)`.
+
+[source,python]
+----
+@given(
+    slots=st.lists(_SLOT_DATETIME, min_size=0, max_size=20),
+    slot_minutes=_SLOT_MINUTES,
+)
+@settings(max_examples=200)
+def test_returned_slots_have_no_conflict(slots, slot_minutes):
+    delta = timedelta(minutes=slot_minutes)
+    existing = [(s, s + delta) for s in slots[:5]]
+    result = filter_conflicting_slots(slots, slot_minutes, existing)
+    for slot in result:
+        assert not has_conflict(slot, slot + delta, existing)
+----
+
+==== [.added]#backend/tests/test_pbt_shrinking_classification.py#
+
+Eight properties covering scheduling and form validation, including a `RuleBasedStateMachine` that generates sequences of booking operations:
+
+* Custom shrinker strategy for appointment form data
+* Generator classification labels showing value-space distribution
+* `test_generate_slots_non_negative` — slot count is always ≥ 0
+* `test_generated_slots_are_sorted` — output is always in ascending order
+* `test_conflict_detection_symmetry` — conflict check is symmetric
+* `test_double_booking_prevented_with_custom_shrink` — double-booking never succeeds
+* `test_form_generator_statistics` — labels input-space distribution for review
+
+Run:
+[source,bash]
+----
+cd backend && pytest tests/test_pbt_shrinking_classification.py -v -s
+----

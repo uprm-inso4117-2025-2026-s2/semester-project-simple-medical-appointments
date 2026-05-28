@@ -325,3 +325,39 @@ Once Flask endpoints are implemented, fuzz testing will be executed by:
     - invalid appointment creation
 
 ---
+
+=== [.added]#Fuzzing the Web Interface with Hypothesis (base-code branch)#
+
+The project implements structured fuzzing of the Flask web interface using Hypothesis as a coverage-guided generator, following the property-based/fuzzing approach from the fuzzing book. These tests are in `base-code` and run with `hypothesis>=6.100.0`.
+
+==== [.added]#API-Level Fuzzing: POST /api/auth/register#
+
+`backend/tests/test_user_management_properties.py` (PROP-3) fuzzes the live registration endpoint by generating arbitrary strings as the `role` field and verifying the server always returns HTTP 400 for any invalid role. This is web-interface fuzzing: Hypothesis sends generated inputs through the Flask test client and checks the server never crashes or accepts invalid data.
+
+[source,python]
+----
+@given(role=st.text())
+@settings(max_examples=100, suppress_health_check=[HealthCheck.function_scoped_fixture])
+def test_invalid_role_always_returns_400(client, role):
+    assume(role not in VALID_ROLES)
+    response = client.post("/api/auth/register", json=_full_payload(role=role))
+    assert response.status_code == 400
+----
+
+Hypothesis generates 100 random strings per run, including Unicode sequences, empty strings, SQL-injection fragments, and whitespace-only values — the same categories a dedicated web fuzzer would target.
+
+==== [.added]#Stateful Fuzzing: Booking Machine#
+
+`backend/tests/test_pbt_shrinking_classification.py` implements a `RuleBasedStateMachine` that generates random sequences of book, cancel, and query operations against the scheduling logic. This is the stateful model-based fuzzing approach described in the "Testing Web Applications" chapter of the fuzzing book: the machine explores sequences of interactions rather than individual inputs, and Hypothesis shrinks any failing sequence to its minimal reproducing form.
+
+==== [.added]#Structured Input Fuzzing: Scheduling Properties#
+
+`backend/tests/test_pbt_filter_conflicting_slots.py` and `test_pbt_shrinking_classification.py` generate hundreds of random `(date, time, slot_minutes)` combinations and feed them to the scheduling logic, verifying that the system never returns conflicting slots or crashes on unexpected input combinations. This is the structured fuzzing strategy from the fuzzing book applied to the scheduling domain.
+
+Run all fuzzing-related tests:
+[source,bash]
+----
+cd backend && pytest tests/test_user_management_properties.py \
+               tests/test_pbt_filter_conflicting_slots.py \
+               tests/test_pbt_shrinking_classification.py -v -s
+----
